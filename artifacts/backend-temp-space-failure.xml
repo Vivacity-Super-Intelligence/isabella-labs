@@ -1,0 +1,3212 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="28" failures="4" skipped="0" tests="57" time="22.889" timestamp="2026-10-10T17:13:55.207356+05:30" hostname="DESKTOP-THSIQ49"><testcase classname="tests.test_api" name="test_request_validation[body0]" time="0.140" /><testcase classname="tests.test_api" name="test_request_validation[body1]" time="0.058" /><testcase classname="tests.test_api" name="test_request_validation[body2]" time="0.059" /><testcase classname="tests.test_api" name="test_request_validation[body3]" time="0.058" /><testcase classname="tests.test_api" name="test_request_validation[body4]" time="0.107" /><testcase classname="tests.test_api" name="test_request_validation[body5]" time="0.085" /><testcase classname="tests.test_api" name="test_request_validation[body6]" time="0.056" /><testcase classname="tests.test_api" name="test_request_validation[body7]" time="0.055" /><testcase classname="tests.test_api" name="test_request_validation[body8]" time="0.053" /><testcase classname="tests.test_api" name="test_request_validation[body9]" time="0.057" /><testcase classname="tests.test_api" name="test_api_science_journey_events_commit_reset" time="0.697" /><testcase classname="tests.test_api" name="test_api_robotics_reposition_and_replan" time="6.942"><failure message="sqlite3.OperationalError: disk I/O error">client = &lt;starlette.testclient.TestClient object at 0x00000210A36435C0&gt;
+
+    def test_api_robotics_reposition_and_replan(client):
+        w = client.post('/v1/worlds', json={'backend': 'mujoco'}).json()
+&gt;       e = finish(client, w)
+            ^^^^^^^^^^^^^^^^^
+
+tests\test_api.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_api.py:19: in finish
+    e = client.get(f'/v1/experiments/{eid}').json()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\httpx\_client.py:1053: in get
+    return self.request(
+.venv\Lib\site-packages\starlette\testclient.py:463: in request
+    return super().request(
+.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:360: in handle_request
+    raise exc
+.venv\Lib\site-packages\starlette\testclient.py:357: in handle_request
+    portal.call(self.app, scope, receive, send)
+.venv\Lib\site-packages\anyio\from_thread.py:340: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\fastapi\applications.py:1216: in __call__
+    await super().__call__(scope, receive, send)
+.venv\Lib\site-packages\starlette\applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+.venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+.venv\Lib\site-packages\fastapi\telemetry\_asgi.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\cors.py:91: in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+.venv\Lib\site-packages\starlette\middleware\cors.py:149: in simple_response
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+.venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:676: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:2786: in app
+    await route.handle(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:1310: in handle
+    await super().handle(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:282: in handle
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:165: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+.venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv\Lib\site-packages\fastapi\routing.py:151: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\fastapi\routing.py:727: in app
+    raw_response = await run_endpoint_function(
+.venv\Lib\site-packages\fastapi\routing.py:362: in run_endpoint_function
+    return await run_in_threadpool(
+.venv\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\anyio\to_thread.py:65: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2706: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+.venv\Lib\site-packages\anyio\_backends\_asyncio.py:1100: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\fastapi\telemetry\_api.py:244: in _run_sync_endpoint
+    return function(**arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+vivacity\api.py:69: in get_experiment
+    return app.state.runtime.get_experiment(experiment_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+vivacity\runtime.py:142: in get_experiment
+    e = self.store.get('experiments', eid)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+vivacity\storage.py:47: in get
+    return self.get(table, identifier, connection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210A3642930&gt;
+table = 'experiments', identifier = '0defcbf1-b521-40e9-a259-7f4f52ffb128'
+db = &lt;sqlite3.Connection object at 0x00000210A34DAC50&gt;
+
+    def get(self, table, identifier, db=None):
+        if table not in ('worlds', 'experiments', 'branches'):
+            raise ValueError('invalid table')
+        if db is None:
+            with self.connect() as connection:
+                return self.get(table, identifier, connection)
+&gt;       row = db.execute(f'SELECT payload FROM {table} WHERE id=?', (identifier,)).fetchone()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       sqlite3.OperationalError: disk I/O error
+
+vivacity\storage.py:48: OperationalError</failure></testcase><testcase classname="tests.test_api" name="test_missing_and_invalid_resources" time="0.062"><error message="failed on setup with &quot;sqlite3.OperationalError: unable to open database file&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_missing_and_invalid_resou0')
+
+    @pytest.fixture
+    def client(tmp_path):
+&gt;       with TestClient(create_app(tmp_path / 'api.sqlite3')) as c:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_api.py:9: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\starlette\testclient.py:517: in __enter__
+    portal.call(self.wait_startup)
+.venv\Lib\site-packages\anyio\from_thread.py:340: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:552: in wait_startup
+    await receive()
+.venv\Lib\site-packages\starlette\testclient.py:543: in receive
+    self.task.result()
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:533: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+.venv\Lib\site-packages\fastapi\applications.py:1203: in __call__
+    await lifespan(
+.venv\Lib\site-packages\fastapi\telemetry\_runtime.py:238: in lifespan
+    await app(scope, wrapped_receive, wrapped_send)
+.venv\Lib\site-packages\starlette\applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\errors.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\telemetry\_asgi.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\cors.py:79: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:676: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:2773: in app
+    await self.lifespan(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:654: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+vivacity\api.py:14: in lifespan
+    app.state.runtime = Runtime(database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3'))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210A57644A0&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_missing_and_invalid_resou0/api.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: unable to open database file
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_api" name="test_cors_and_openapi" time="0.035"><error message="failed on setup with &quot;sqlite3.OperationalError: database or disk is full&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_cors_and_openapi0')
+
+    @pytest.fixture
+    def client(tmp_path):
+&gt;       with TestClient(create_app(tmp_path / 'api.sqlite3')) as c:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_api.py:9: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\starlette\testclient.py:517: in __enter__
+    portal.call(self.wait_startup)
+.venv\Lib\site-packages\anyio\from_thread.py:340: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:552: in wait_startup
+    await receive()
+.venv\Lib\site-packages\starlette\testclient.py:543: in receive
+    self.task.result()
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:533: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+.venv\Lib\site-packages\fastapi\applications.py:1203: in __call__
+    await lifespan(
+.venv\Lib\site-packages\fastapi\telemetry\_runtime.py:238: in lifespan
+    await app(scope, wrapped_receive, wrapped_send)
+.venv\Lib\site-packages\starlette\applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\errors.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\telemetry\_asgi.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\cors.py:79: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:676: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:2773: in app
+    await self.lifespan(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:654: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+vivacity\api.py:14: in lifespan
+    app.state.runtime = Runtime(database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3'))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210ACEC1FA0&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_cors_and_openapi0/api.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_reliability" name="test_idempotent_concurrent_requests_and_conflicting_input" time="0.018"><error message="failed on setup with &quot;sqlite3.OperationalError: database or disk is full&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_idempotent_concurrent_req0')
+
+    @pytest.fixture
+    def runtime(tmp_path):
+&gt;       r = Runtime(tmp_path / 'experiments.sqlite3')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\conftest.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210ACEC2570&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_idempotent_concurrent_req0/experiments.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_reliability" name="test_idempotent_retry_bypasses_a_full_queue" time="0.022"><error message="failed on setup with &quot;sqlite3.OperationalError: database or disk is full&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_idempotent_retry_bypasses0')
+
+    @pytest.fixture
+    def runtime(tmp_path):
+&gt;       r = Runtime(tmp_path / 'experiments.sqlite3')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\conftest.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210ACEC1BB0&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_idempotent_retry_bypasses0/experiments.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_reliability" name="test_idempotency_survives_process_restart" time="0.020"><failure message="sqlite3.OperationalError: database or disk is full">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_idempotency_survives_proc0')
+
+    def test_idempotency_survives_process_restart(tmp_path):
+        path = tmp_path / 'restart.sqlite3'
+&gt;       first = Runtime(path)
+                ^^^^^^^^^^^^^
+
+tests\test_reliability.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210ACEC2C30&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_idempotency_survives_proc0/restart.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</failure></testcase><testcase classname="tests.test_reliability" name="test_failure_in_one_adapter_branch_does_not_erase_other_outcomes" time="0.038"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_failure_in_one_adapter_br in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A57CCEA0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_failure_in_one_adapter_br', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_failure_in_one_adapter_br in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_reliability" name="test_uncaught_nan_result_is_not_persisted_as_valid_evidence" time="0.018"><error message="failed on setup with &quot;sqlite3.OperationalError: database or disk is full&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_uncaught_nan_result_is_no0')
+
+    @pytest.fixture
+    def runtime(tmp_path):
+&gt;       r = Runtime(tmp_path / 'experiments.sqlite3')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\conftest.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210ACEFE5D0&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_uncaught_nan_result_is_no0/experiments.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_reliability" name="test_unavailable_final_snapshot_is_explicit" time="0.019"><error message="failed on setup with &quot;sqlite3.OperationalError: database or disk is full&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_unavailable_final_snapsho0')
+
+    @pytest.fixture
+    def runtime(tmp_path):
+&gt;       r = Runtime(tmp_path / 'experiments.sqlite3')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\conftest.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210ACEFDC70&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_unavailable_final_snapsho0/experiments.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_reliability" name="test_completed_lineage_survives_later_planning_failure" time="0.016"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_completed_lineage_survive in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A57CF1A0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_completed_lineage_survive', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_completed_lineage_survive in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_reliability" name="test_terminal_event_committed_during_empty_read_is_delivered" time="0.055"><failure message="sqlite3.OperationalError: database or disk is full">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_terminal_event_committed_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000210ACEF92B0&gt;
+
+    def test_terminal_event_committed_during_empty_read_is_delivered(tmp_path, monkeypatch):
+        app = create_app(tmp_path / 'event-race.sqlite3')
+&gt;       with TestClient(app) as client:
+             ^^^^^^^^^^^^^^^
+
+tests\test_reliability.py:138: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\starlette\testclient.py:517: in __enter__
+    portal.call(self.wait_startup)
+.venv\Lib\site-packages\anyio\from_thread.py:340: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:552: in wait_startup
+    await receive()
+.venv\Lib\site-packages\starlette\testclient.py:543: in receive
+    self.task.result()
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:533: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+.venv\Lib\site-packages\fastapi\applications.py:1203: in __call__
+    await lifespan(
+.venv\Lib\site-packages\fastapi\telemetry\_runtime.py:238: in lifespan
+    await app(scope, wrapped_receive, wrapped_send)
+.venv\Lib\site-packages\starlette\applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\errors.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\telemetry\_asgi.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\cors.py:79: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:676: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:2773: in app
+    await self.lifespan(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:654: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+vivacity\api.py:14: in lifespan
+    app.state.runtime = Runtime(database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3'))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210ACED65D0&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_terminal_event_committed_0/event-race.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</failure></testcase><testcase classname="tests.test_reliability" name="test_http_idempotency_validation_and_browser_preflight" time="0.026"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_http_idempotency_validati in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A57CE8E0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_http_idempotency_validati', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_http_idempotency_validati in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_reliability" name="test_worker_submission_failure_is_persistent_and_releases_slot" time="0.019"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_worker_submission_failure in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A57CCFE0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_worker_submission_failure', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_worker_submission_failure in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_reliability" name="test_adapter_failure_serializes_nullable_snapshot_and_503" time="0.047"><failure message="sqlite3.OperationalError: database or disk is full">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_adapter_failure_serialize0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000210A576E420&gt;
+
+    def test_adapter_failure_serializes_nullable_snapshot_and_503(tmp_path, monkeypatch):
+        app = create_app(tmp_path / 'error-response.sqlite3')
+&gt;       with TestClient(app) as client:
+             ^^^^^^^^^^^^^^^
+
+tests\test_reliability.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\starlette\testclient.py:517: in __enter__
+    portal.call(self.wait_startup)
+.venv\Lib\site-packages\anyio\from_thread.py:340: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:552: in wait_startup
+    await receive()
+.venv\Lib\site-packages\starlette\testclient.py:543: in receive
+    self.task.result()
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:533: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+.venv\Lib\site-packages\fastapi\applications.py:1203: in __call__
+    await lifespan(
+.venv\Lib\site-packages\fastapi\telemetry\_runtime.py:238: in lifespan
+    await app(scope, wrapped_receive, wrapped_send)
+.venv\Lib\site-packages\starlette\applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\errors.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\telemetry\_asgi.py:151: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\cors.py:79: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\exceptions.py:49: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:676: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:2773: in app
+    await self.lifespan(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:654: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Tanish Anand\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+vivacity\api.py:14: in lifespan
+    app.state.runtime = Runtime(database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3'))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210A368A0C0&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_adapter_failure_serialize0/error-response.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</failure></testcase><testcase classname="tests.test_reliability" name="test_future_completes_only_after_queue_capacity_is_released" time="0.015"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_future_completes_only_aft in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A57CDF80&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_future_completes_only_aft', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_future_completes_only_aft in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_robotics" name="test_model_loading_and_actual_transforms" time="0.115" /><testcase classname="tests.test_robotics" name="test_pose_ik_accuracy" time="0.008" /><testcase classname="tests.test_robotics" name="test_control_physics_and_full_snapshot_restore" time="0.166" /><testcase classname="tests.test_robotics" name="test_fork_independence_including_configuration" time="0.153" /><testcase classname="tests.test_robotics" name="test_snapshot_rejects_different_geometry" time="0.090" /><testcase classname="tests.test_robotics" name="test_prohibited_obstacle_contact" time="0.090" /><testcase classname="tests.test_robotics" name="test_success_failure_replay_and_commit" time="0.019"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_success_failure_replay_an in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210B043B060&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_success_failure_replay_an', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_success_failure_replay_an in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_robotics" name="test_all_paths_fail_and_geometry_invalidates" time="0.032"><error message="failed on setup with &quot;sqlite3.OperationalError: database or disk is full&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_all_paths_fail_and_geomet0')
+
+    @pytest.fixture
+    def runtime(tmp_path):
+&gt;       r = Runtime(tmp_path / 'experiments.sqlite3')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\conftest.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210A5728290&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_all_paths_fail_and_geomet0/experiments.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_robotics" name="test_timeout_is_not_success" time="0.164" /><testcase classname="tests.test_robotics" name="test_joint_limit_and_controller_failures" time="0.145" /><testcase classname="tests.test_robotics" name="test_self_collision_classification" time="0.085" /><testcase classname="tests.test_runtime" name="test_persistence_and_interrupted_job" time="0.015"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_persistence_and_interrupt in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210B04385E0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_persistence_and_interrupt', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_persistence_and_interrupt in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_runtime" name="test_geometry_change_while_running_preserves_new_world" time="0.017"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_geometry_change_while_run in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A74947C0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_geometry_change_while_run', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_geometry_change_while_run in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_runtime" name="test_worker_failure_is_persisted" time="0.015"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_worker_failure_is_persist in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A7494540&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_worker_failure_is_persist', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_worker_failure_is_persist in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_runtime" name="test_cross_world_commit_is_rejected" time="0.018"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_cross_world_commit_is_rej in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A7494720&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_cross_world_commit_is_rej', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_cross_world_commit_is_rej in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_runtime" name="test_bounded_queue" time="0.017"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_bounded_queue in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A74944A0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_bounded_queue', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_bounded_queue in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_runtime" name="test_no_key_mode_is_explicit" time="0.018"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_no_key_mode_is_explicit in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A364CCC0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_no_key_mode_is_explicit', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_no_key_mode_is_explicit in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_runtime" name="test_hosted_adapter_contract_only" time="0.037" /><testcase classname="tests.test_runtime" name="test_hosted_proposal_cannot_supply_fake_results" time="0.006" /><testcase classname="tests.test_runtime" name="test_policy_chooses_bounded_followup" time="0.001" /><testcase classname="tests.test_runtime" name="test_followup_runs_real_physics_and_preserves_failed_round" time="0.018"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_followup_runs_real_physic in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A57CE840&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_followup_runs_real_physic', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_followup_runs_real_physic in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_runtime" name="test_policy_input_contains_no_generation_truth" time="0.059"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_policy_input_contains_no_ in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A57CD080&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_policy_input_contains_no_', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_policy_input_contains_no_ in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_science" name="test_parameter_recovery_and_heldout[0.12-1.0]" time="0.027"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_parameter_recovery_and_he in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210B043A340&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_parameter_recovery_and_he', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_parameter_recovery_and_he in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_science" name="test_parameter_recovery_and_heldout[0.08-1.05]" time="0.018"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_parameter_recovery_and_he in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210B043A7A0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_parameter_recovery_and_he', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_parameter_recovery_and_he in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_science" name="test_unnecessary_mass_rejected[7]" time="0.031"><error message="failed on setup with &quot;sqlite3.OperationalError: database or disk is full&quot;">tmp_path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_unnecessary_mass_rejected0')
+
+    @pytest.fixture
+    def runtime(tmp_path):
+&gt;       r = Runtime(tmp_path / 'experiments.sqlite3')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\conftest.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+vivacity\runtime.py:35: in __init__
+    self.store = Store(database)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;vivacity.storage.Store object at 0x00000210A7436CC0&gt;
+path = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32/test_unnecessary_mass_rejected0/experiments.sqlite3')
+
+    def __init__(self, path):
+        self.path = str(path)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with self.connect() as db:
+            db.execute('PRAGMA journal_mode=WAL')
+&gt;           db.executescript('''
+                CREATE TABLE IF NOT EXISTS worlds(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS branch_experiment ON branches(experiment_id);
+                CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS event_experiment ON events(experiment_id, seq);
+                CREATE TABLE IF NOT EXISTS submissions(
+                    world_id TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    experiment_id TEXT NOT NULL,
+                    PRIMARY KEY(world_id, key)
+                );
+            ''')
+E           sqlite3.OperationalError: database or disk is full
+
+vivacity\storage.py:17: OperationalError</error></testcase><testcase classname="tests.test_science" name="test_unnecessary_mass_rejected[11]" time="0.020"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_unnecessary_mass_rejected in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210B043AFC0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_unnecessary_mass_rejected', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_unnecessary_mass_rejected in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_science" name="test_unnecessary_mass_rejected[23]" time="0.027"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_unnecessary_mass_rejected in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A7494A40&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_unnecessary_mass_rejected', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_unnecessary_mass_rejected in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_science" name="test_no_truth_leakage_and_fork_independence" time="0.016"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_no_truth_leakage_and_fork in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A7495B20&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_no_truth_leakage_and_fork', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_no_truth_leakage_and_fork in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_science" name="test_fits_do_not_use_heldout_observations" time="0.216" /><testcase classname="tests.test_science" name="test_science_reproducibility_and_new_settings" time="0.017"><error message="failed on setup with &quot;OSError: could not create numbered dir with prefix test_science_reproducibility_a in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x00000210A74965C0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+.venv\Lib\site-packages\_pytest\runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\_pytest\runner.py:250: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\logging.py:858: in pytest_runtest_setup
+    yield
+.venv\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+.venv\Lib\site-packages\_pytest\runner.py:536: in setup
+    col.setup()
+.venv\Lib\site-packages\_pytest\python.py:1710: in setup
+    self._request._fillfixtures()
+.venv\Lib\site-packages\_pytest\fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1181: in execute
+    fixturedef = request._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+.venv\Lib\site-packages\_pytest\fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+.venv\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+.venv\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\_pytest\tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Tanish Anand/AppData/Local/Temp/pytest-of-Tanish Anand/pytest-32')
+prefix = 'test_science_reproducibility_a', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -&gt; Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+&gt;           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_science_reproducibility_a in C:\Users\Tanish Anand\AppData\Local\Temp\pytest-of-Tanish Anand\pytest-32 after 10 tries
+
+.venv\Lib\site-packages\_pytest\pathlib.py:239: OSError</error></testcase><testcase classname="tests.test_science" name="test_singular_orbit_fails_honestly" time="0.012" /></testsuite></testsuites>

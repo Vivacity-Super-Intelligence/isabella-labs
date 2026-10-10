@@ -1,0 +1,23 @@
+{
+  "submissions": 2,
+  "world": "acda263b-cf94-40ad-81ec-ab45efdc03a2",
+  "history": [
+    "3223ce2b-55b5-4eab-93ad-0b6dc53cbe9b",
+    "18bea106-bbf8-47b5-ae8f-d14478debe3e"
+  ],
+  "reloadedExperiment": "3223ce2b-55b5-4eab-93ad-0b6dc53cbe9b",
+  "websocketMessages": [
+    {
+      "url": "ws://127.0.0.1:8000/v1/experiments/18bea106-bbf8-47b5-ae8f-d14478debe3e/events?after=0",
+      "state": 3
+    },
+    {
+      "url": "ws://127.0.0.1:8000/v1/experiments/18bea106-bbf8-47b5-ae8f-d14478debe3e/events?after=496",
+      "state": 3
+    },
+    {
+      "url": "ws://127.0.0.1:8000/v1/experiments/18bea106-bbf8-47b5-ae8f-d14478debe3e/events?after=496",
+      "state": 3
+    }
+  ]
+}

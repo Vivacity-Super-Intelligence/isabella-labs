@@ -12,7 +12,7 @@
       "status_code": 201,
       "response_body": {
         "schema_version": "1.0",
-        "id": "044d868e-1807-4b3f-9541-97d36a878eb6",
+        "id": "327a8955-ad17-4db0-b599-dfb7198fa429",
         "backend": "mujoco",
         "config": {
           "obstacle_position": [
@@ -357,18 +357,18 @@
         "branches": [],
         "evaluations": [],
         "performance": {
-          "initialization_wall_seconds": 0.07123319999936939
+          "initialization_wall_seconds": 0.10946289999992587
         }
       }
     },
     {
       "method": "GET",
-      "path": "/v1/worlds/044d868e-1807-4b3f-9541-97d36a878eb6",
+      "path": "/v1/worlds/327a8955-ad17-4db0-b599-dfb7198fa429",
       "request_body": null,
       "status_code": 200,
       "response_body": {
         "schema_version": "1.0",
-        "id": "044d868e-1807-4b3f-9541-97d36a878eb6",
+        "id": "327a8955-ad17-4db0-b599-dfb7198fa429",
         "backend": "mujoco",
         "config": {
           "obstacle_position": [
@@ -713,18 +713,18 @@
         "branches": [],
         "evaluations": [],
         "performance": {
-          "initialization_wall_seconds": 0.07123319999936939
+          "initialization_wall_seconds": 0.10946289999992587
         }
       }
     },
     {
       "method": "GET",
-      "path": "/v1/worlds/044d868e-1807-4b3f-9541-97d36a878eb6/state",
+      "path": "/v1/worlds/327a8955-ad17-4db0-b599-dfb7198fa429/state",
       "request_body": null,
       "status_code": 200,
       "response_body": {
         "schema_version": "1.0",
-        "world_id": "044d868e-1807-4b3f-9541-97d36a878eb6",
+        "world_id": "327a8955-ad17-4db0-b599-dfb7198fa429",
         "revision": 0,
         "observation": {
           "time": 0.0,
@@ -979,7 +979,7 @@
     },
     {
       "method": "PATCH",
-      "path": "/v1/worlds/044d868e-1807-4b3f-9541-97d36a878eb6/environment",
+      "path": "/v1/worlds/327a8955-ad17-4db0-b599-dfb7198fa429/environment",
       "request_body": {
         "config": {
           "obstacle_position": [
@@ -1002,7 +1002,7 @@
       "status_code": 200,
       "response_body": {
         "schema_version": "1.0",
-        "id": "044d868e-1807-4b3f-9541-97d36a878eb6",
+        "id": "327a8955-ad17-4db0-b599-dfb7198fa429",
         "backend": "mujoco",
         "config": {
           "obstacle_position": [
@@ -1347,18 +1347,18 @@
         "branches": [],
         "evaluations": [],
         "performance": {
-          "initialization_wall_seconds": 0.07123319999936939
+          "initialization_wall_seconds": 0.10946289999992587
         }
       }
     },
     {
       "method": "POST",
-      "path": "/v1/worlds/044d868e-1807-4b3f-9541-97d36a878eb6/reset",
+      "path": "/v1/worlds/327a8955-ad17-4db0-b599-dfb7198fa429/reset",
       "request_body": null,
       "status_code": 200,
       "response_body": {
         "schema_version": "1.0",
-        "id": "044d868e-1807-4b3f-9541-97d36a878eb6",
+        "id": "327a8955-ad17-4db0-b599-dfb7198fa429",
         "backend": "mujoco",
         "config": {
           "obstacle_position": [
@@ -1703,7 +1703,7 @@
         "branches": [],
         "evaluations": [],
         "performance": {
-          "initialization_wall_seconds": 0.07123319999936939
+          "initialization_wall_seconds": 0.10946289999992587
         }
       }
     },
@@ -109560,7 +109560,7 @@
       "status_code": 201,
       "response_body": {
         "schema_version": "1.0",
-        "id": "10645552-02fe-4ab6-8b99-743643f03a0a",
+        "id": "5dec26b5-8323-493e-82ae-68b55e132571",
         "backend": "scipy",
         "config": {
           "perturbing_position": [
@@ -110358,18 +110358,18 @@
         "branches": [],
         "evaluations": [],
         "performance": {
-          "initialization_wall_seconds": 0.006656499999735388
+          "initialization_wall_seconds": 0.022621599999183672
         }
       }
     },
     {
       "method": "GET",
-      "path": "/v1/worlds/10645552-02fe-4ab6-8b99-743643f03a0a/state",
+      "path": "/v1/worlds/5dec26b5-8323-493e-82ae-68b55e132571/state",
       "request_body": null,
       "status_code": 200,
       "response_body": {
         "schema_version": "1.0",
-        "world_id": "10645552-02fe-4ab6-8b99-743643f03a0a",
+        "world_id": "5dec26b5-8323-493e-82ae-68b55e132571",
         "revision": 0,
         "observation": {
           "backend": "scipy",
@@ -110757,13 +110757,13 @@
     },
     {
       "method": "POST",
-      "path": "/v1/worlds/10645552-02fe-4ab6-8b99-743643f03a0a/experiments",
+      "path": "/v1/worlds/5dec26b5-8323-493e-82ae-68b55e132571/experiments",
       "request_body": {},
       "status_code": 202,
       "response_body": {
         "schema_version": "1.0",
-        "id": "26498960-3737-4d9d-ad18-516406b02ffc",
-        "world_id": "10645552-02fe-4ab6-8b99-743643f03a0a",
+        "id": "12baf611-80f3-4680-8eaf-c3d9102b7486",
+        "world_id": "5dec26b5-8323-493e-82ae-68b55e132571",
         "revision": 0,
         "status": "queued",
         "request": {
@@ -110781,15 +110781,15 @@
     },
     {
       "method": "POST",
-      "path": "/v1/worlds/10645552-02fe-4ab6-8b99-743643f03a0a/commit",
+      "path": "/v1/worlds/5dec26b5-8323-493e-82ae-68b55e132571/commit",
       "request_body": {
-        "experiment_id": "26498960-3737-4d9d-ad18-516406b02ffc",
-        "branch_id": "94528fe4-4e05-482f-8285-43be7175be82"
+        "experiment_id": "12baf611-80f3-4680-8eaf-c3d9102b7486",
+        "branch_id": "c7f5952e-a9b6-4b9d-835c-a731f674a318"
       },
       "status_code": 200,
       "response_body": {
         "schema_version": "1.0",
-        "id": "10645552-02fe-4ab6-8b99-743643f03a0a",
+        "id": "5dec26b5-8323-493e-82ae-68b55e132571",
         "backend": "scipy",
         "config": {
           "perturbing_position": [
@@ -111590,25 +111590,25 @@
         "seed": 7,
         "revision": 1,
         "history": [
-          "26498960-3737-4d9d-ad18-516406b02ffc"
+          "12baf611-80f3-4680-8eaf-c3d9102b7486"
         ],
         "branches": [
           {
-            "experiment_id": "26498960-3737-4d9d-ad18-516406b02ffc",
-            "branch_id": "1f9c0f63-05f0-4183-b046-675329151498",
-            "parent_state_reference": "10645552-02fe-4ab6-8b99-743643f03a0a:0:8b13b9776e055387b53d0c31874d1954e5e6fd981a506e4bf89bd88b96c1a05b",
+            "experiment_id": "12baf611-80f3-4680-8eaf-c3d9102b7486",
+            "branch_id": "19053054-3500-4684-8f65-1aa77b5fbc67",
+            "parent_state_reference": "5dec26b5-8323-493e-82ae-68b55e132571:0:8b13b9776e055387b53d0c31874d1954e5e6fd981a506e4bf89bd88b96c1a05b",
             "revision": 0
           },
           {
-            "experiment_id": "26498960-3737-4d9d-ad18-516406b02ffc",
-            "branch_id": "94528fe4-4e05-482f-8285-43be7175be82",
-            "parent_state_reference": "10645552-02fe-4ab6-8b99-743643f03a0a:0:8b13b9776e055387b53d0c31874d1954e5e6fd981a506e4bf89bd88b96c1a05b",
+            "experiment_id": "12baf611-80f3-4680-8eaf-c3d9102b7486",
+            "branch_id": "c7f5952e-a9b6-4b9d-835c-a731f674a318",
+            "parent_state_reference": "5dec26b5-8323-493e-82ae-68b55e132571:0:8b13b9776e055387b53d0c31874d1954e5e6fd981a506e4bf89bd88b96c1a05b",
             "revision": 0
           }
         ],
         "evaluations": [
           {
-            "branch_id": "1f9c0f63-05f0-4183-b046-675329151498",
+            "branch_id": "19053054-3500-4684-8f65-1aa77b5fbc67",
             "evaluation": {
               "failure": null,
               "fit_message": "`ftol` termination condition is satisfied.",
@@ -111922,7 +111922,7 @@
             }
           },
           {
-            "branch_id": "94528fe4-4e05-482f-8285-43be7175be82",
+            "branch_id": "c7f5952e-a9b6-4b9d-835c-a731f674a318",
             "evaluation": {
               "failure": null,
               "fit_message": "`xtol` termination condition is satisfied.",
@@ -112240,7 +112240,7 @@
           }
         ],
         "performance": {
-          "initialization_wall_seconds": 0.006656499999735388
+          "initialization_wall_seconds": 0.022621599999183672
         }
       }
     }
@@ -112248,19 +112248,19 @@
   "websocket_messages": [
     {
       "schema_version": "1.0",
-      "seq": 207,
+      "seq": 510,
       "kind": "queued",
       "details": {}
     },
     {
       "schema_version": "1.0",
-      "seq": 208,
+      "seq": 512,
       "kind": "running",
       "details": {}
     },
     {
       "schema_version": "1.0",
-      "seq": 209,
+      "seq": 513,
       "kind": "planned",
       "details": {
         "candidate_count": 2,
@@ -112269,10 +112269,10 @@
     },
     {
       "schema_version": "1.0",
-      "seq": 210,
+      "seq": 514,
       "kind": "branch_completed",
       "details": {
-        "branch_id": "1f9c0f63-05f0-4183-b046-675329151498",
+        "branch_id": "19053054-3500-4684-8f65-1aa77b5fbc67",
         "evaluation": {
           "failure": null,
           "fit_message": "`ftol` termination condition is satisfied.",
@@ -112588,10 +112588,10 @@
     },
     {
       "schema_version": "1.0",
-      "seq": 211,
+      "seq": 515,
       "kind": "branch_completed",
       "details": {
-        "branch_id": "94528fe4-4e05-482f-8285-43be7175be82",
+        "branch_id": "c7f5952e-a9b6-4b9d-835c-a731f674a318",
         "evaluation": {
           "failure": null,
           "fit_message": "`xtol` termination condition is satisfied.",
@@ -112910,10 +112910,10 @@
     },
     {
       "schema_version": "1.0",
-      "seq": 212,
+      "seq": 516,
       "kind": "completed",
       "details": {
-        "selected_branch_id": "94528fe4-4e05-482f-8285-43be7175be82",
+        "selected_branch_id": "c7f5952e-a9b6-4b9d-835c-a731f674a318",
         "stale": false,
         "adapter_error_count": 0,
         "error": null

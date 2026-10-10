@@ -1,0 +1,61 @@
+{
+  "captured_at": "2026-10-10T12:16:22.897Z",
+  "url": "http://127.0.0.1:5173/",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "renderer": {
+    "robotAssetLoadMs": 205.70000000018626,
+    "meshBytes": 6400572,
+    "playbackFrameSamples": 180,
+    "renderMeanFrameMs": 16.65944444444548,
+    "renderP95FrameMs": 18.100000000558794
+  },
+  "webgl_renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x00008A56) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "experiment": {
+    "id": "8581fe1a-b7bb-4e6e-91f0-4a94c3981e89",
+    "status": "completed",
+    "selected_branch_id": "21611d0e-7597-494b-8bc7-c51d2db2c9d4",
+    "performance": {
+      "job_wall_seconds": 7.3484301999997115,
+      "process_cpu_seconds": 6.890625,
+      "queue_wait_seconds": 0.2606559802152333,
+      "planning_wall_seconds": 5.240403799999513,
+      "physics_wall_seconds": 0.9373163000000204,
+      "candidate_count": 3,
+      "simulation_steps": 4817,
+      "integration_calls": 0,
+      "replay_payload_bytes": 559262,
+      "branch_failure_rate": 0.6666666666666666,
+      "adapter_error_count": 0,
+      "measurement_complete": true,
+      "job_error_rate": 0,
+      "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+    }
+  },
+  "navigation": [
+    {
+      "load_ms": 233.79999999981374,
+      "dom_content_loaded_ms": 227.79999999981374
+    }
+  ],
+  "paint": [
+    {
+      "name": "first-paint",
+      "start_ms": 348
+    },
+    {
+      "name": "first-contentful-paint",
+      "start_ms": 732
+    }
+  ],
+  "marks": [
+    {
+      "name": "vivacity:mujoco:world-ready",
+      "start_ms": 4194.299999999814
+    },
+    {
+      "name": "vivacity:robot-scene-ready",
+      "start_ms": 4633.200000000186
+    }
+  ],
+  "scope": "Native Chrome on this Windows machine, production preview, real selected MuJoCo trajectory playback; rolling final 180 frame intervals. Separate from forced software headless tests; not a frame-rate or capacity guarantee."
+}

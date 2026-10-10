@@ -1,6 +1,24 @@
 # Vivacity execution runtime
 
-A functioning local Python backend for measured alternative futures. MuJoCo runs the Menagerie Franka Panda workcell; SciPy runs a restricted 2D orbital inference experiment. Both implement the same observe → snapshot → fork → action → simulate → evaluate → commit → replay cycle. No frontend is included; Swagger and the live demonstration script exercise the APIs.
+A local investor application for measured alternative futures. The React/TypeScript workspace renders the real Franka Panda geometry and measured MuJoCo replay, and charts executed SciPy orbital model comparisons. Both labs use the same observe → snapshot → fork → action → simulate → evaluate → commit → replay cycle. The existing Python physics infrastructure is preserved.
+
+## Investor workspace
+
+After installing the Python environment below, install/build the frontend with Node.js (25.9.0 verified):
+
+```powershell
+Set-Location frontend
+npm ci
+npm run build
+Set-Location ..
+.\scripts\start-demo.ps1
+```
+
+Open **http://127.0.0.1:5173**. The start script checks both services and opens the workspace. Use `-NoBrowser` to start/check without opening a tab; `-Dev` selects the editable Vite frontend. `scripts/stop-demo.ps1` stops only recorded, matching processes launched by the script. Alternatively run the Uvicorn command below and `npm run preview` from `frontend` in separate terminals. `npm run dev` supports editing.
+
+The UI includes independent computed branches, measured failures, playback/scrubbing/speed controls, camera orbit/zoom/reset (also keyboard), obstacle apply/replan, commit/reset, history, scientific controls/uncertainty/residuals, reconnect/poll fallback and retry keys. No static trajectory or fabricated-data fallback is used.
+
+Follow [DEMO_GUIDE.md](DEMO_GUIDE.md) for the three-minute presentation, [DEMO_LIMITATIONS.md](DEMO_LIMITATIONS.md) for explicit scope, [frontend/README.md](frontend/README.md) for client/assets/testing, and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for executed checks and measurements. This remains a trusted loopback demo, not a public multi-tenant service.
 
 ## Setup (Windows PowerShell)
 
@@ -8,7 +26,7 @@ Use Python 3.12, the tested interpreter. The code requires Python 3.11+ but othe
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements-lock.txt
+.\.venv\Scripts\python -m pip install --cache-dir data/pip-cache -r requirements-lock.txt
 .\.venv\Scripts\python -m uvicorn vivacity.api:app --host 127.0.0.1 --port 8000
 ```
 
@@ -21,7 +39,7 @@ In another terminal:
 ```powershell
 .\.venv\Scripts\python -m scripts.demo
 .\.venv\Scripts\python -m scripts.verify_live_retries
-.\.venv\Scripts\python -m pytest -q --junitxml=artifacts/pytest.xml
+.\.venv\Scripts\python -m scripts.test_backend -q --junitxml=artifacts/fullstack-backend-tests.xml
 .\.venv\Scripts\python -m scripts.export_openapi
 ```
 
@@ -51,7 +69,7 @@ The request format follows [official OpenAI Structured Outputs documentation](ht
 
 ## Contracts and operating limits
 
-For Claude Code / React integration, start with [FRONTEND_HANDOFF.md](FRONTEND_HANDOFF.md), root [openapi.json](openapi.json), [actual API examples](docs/frontend-examples.json), and the compiled [robot geometry manifest](docs/robot-geometry.json). `python -m scripts.export_robot_geometry` regenerates the manifest and mesh buffer; `python -m scripts.verify_handoff` checks them against actual MuJoCo state and live API behavior after running the demo. The UI hook investigation is documented in [HOOK_DIAGNOSTICS.md](docs/HOOK_DIAGNOSTICS.md).
+The implemented client uses generated types from root [openapi.json](openapi.json). [FRONTEND_HANDOFF.md](FRONTEND_HANDOFF.md) remains the detailed REST/WS contract, with [actual API examples](docs/frontend-examples.json) and the compiled [robot geometry manifest](docs/robot-geometry.json). `python -m scripts.sync_frontend_assets` regenerates and copies the actual compiled geometry to the frontend. `python -m scripts.verify_handoff` checks exported arrays/transforms against MuJoCo and live API behavior after running the CLI demo. The external UI hook investigation is documented in [HOOK_DIAGNOSTICS.md](docs/HOOK_DIAGNOSTICS.md).
 
 - [Frontend/API guide](docs/API.md), [scientific scope](docs/SCIENTIFIC_SPEC.md), [evaluation](docs/EVALUATION_PROTOCOL.md), [truth isolation](docs/TRUTH_LEAKAGE_POLICY.md), [architecture](docs/ARCHITECTURE.md), [implementation status](IMPLEMENTATION_STATUS.md).
 - Runtime/backend operations are in `vivacity/runtime.py` and `vivacity/backends.py`; adapters retain different raw state representations.

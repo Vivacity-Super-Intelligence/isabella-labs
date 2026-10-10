@@ -1,6 +1,40 @@
 # Implementation status
 
-Verified 2026-10-10 in `P:\VIVACITY\DEMO-`, Windows, Python 3.12. The backend investor journey is functional and tested. React/Three.js is separate work as requested. This is a local demo implementation, not a publicly hardened multi-tenant service.
+Verified 2026-10-10 in `P:\VIVACITY\DEMO-`, Windows, Python 3.12. The complete React/TypeScript investor workspace is now integrated with the preserved FastAPI/MuJoCo/SciPy backend. This remains a trusted loopback demonstration, not a public multi-tenant production service.
+
+## Latest complete-application verification
+
+- **57 backend tests passed**, zero failed/errors/skipped, **52.33 s**, using `.venv\Scripts\python -m scripts.test_backend -q --junitxml=artifacts/fullstack-backend-tests.xml`. One upstream Starlette httpx TestClient deprecation warning remains.
+- **6 Playwright tests passed**, zero failed/skipped/flaky, **166.58 s**, against the production build and a fresh backend automatically launched by the harness. Report: `artifacts/frontend-tests.json`.
+- Browser coverage: genuine MuJoCo branches and failed/successful selection; rendered final end-effector and every body position/quaternion against recorded physics frames at 1e-9 tolerance; replay/pause/speed/scrub; commit/reset; obstacle replacement and stale invalidation; new clear/blocked computations; SciPy numerical curves/metrics/uncertainty; unnecessary-mass rejection; archived observation correctness; same-key recovery after a lost actual HTTP response with one history record; duplicate-click guard; WS sequence reconnect; refresh/history/repeated runs; sustained replay timing; responsive/keyboard/offline/reduced-motion checks.
+- **0 axe violations** at 1440/768/375 widths for the tested WCAG tags; no horizontal overflow. Keyboard camera orbit/zoom/reset and form/timeline controls passed. Desktop robotics/science and mobile screenshots were actually inspected. This does not establish complete accessibility or a screen-reader usability audit.
+- `npm ci` succeeded from the lock after stopping services: **137 packages**, audit **0 vulnerabilities**. Generated OpenAPI types, strict TypeScript and production Vite build passed. The lazy Three/R3F vendor chunk exceeds the 500 kB warning threshold (approximately 933 kB / 249 kB gzip).
+- The six real CLI HTTP/WS experiments passed again in `artifacts/fullstack-live-demo.json`; fresh live-event verification passed. Geometry synchronization produced 67 meshes, 85 geom bindings, 14 body records and a 6,400,572-byte buffer. OpenAPI re-export, pip dependency check and Python compilation passed.
+- Hidden local startup/readiness and owned-process shutdown were exercised. Windows venv redirector/child ownership is recorded; stop checks PID, normalized creation time, executable and command before stopping a process. Existing-service reuse was also tested.
+
+The new frontend uses the actual Vivacity logo, Geist/Geist Mono and inspected brand colors; actual compiled Panda geometry and measured MuJoCo body poses; recorded trajectory/contact evidence; structured job status; obstacle controls; branch history/commit/reset; actual observed/predicted orbital curves and residuals; parameter/uncertainty inspection; scientific controls/refinement; and a shared technical/architecture inspector. No fixture trajectory, prerecorded animation, fabricated metric or fake LLM reasoning is substituted for API results. Scientific history plots that experiment's recorded observations, not the current regenerated dataset.
+
+### Current performance and limits
+
+`artifacts/frontend/performance.json` is a local Chromium **software rendering** measurement: navigation load **75.7 ms** (excludes asynchronous world/meshes), first contentful paint **248 ms**, world ready **771.9 ms**, canvas ready **944.4 ms**, mesh fetch/decode/normals **304.3 ms**. Panda job **4.797 s**, planning **3.236 s**, physics **0.600 s**, process CPU **4.359 s**, three candidates, **4,817** steps, replay **559,262 bytes**, zero adapter errors. Expected physical/planning branch failure rate: **66.7%**; hosted calls: **0**.
+
+Sustained software playback measured **209.51 ms mean / 1,037.7 ms p95** across **37** intervals. This host did **not** achieve smooth high-frame-rate software rendering. Idle rendering is on demand; replay follows elapsed time and permits exact endpoint scrubbing. Raw measurements and their scope are retained in artifacts/API responses.
+
+A separate native Chrome 154 check on the same Windows machine (Intel UHD / ANGLE Direct3D11) executed a fresh real three-candidate MuJoCo job and replayed its selected result: **16.66 ms mean / 18.10 ms p95** across the final **180** playback intervals (approximately **60 fps** in this sample). Navigation load **233.8 ms**, first contentful paint **732 ms**, world ready **4,194.3 ms**, scene ready **4,633.2 ms**, mesh load **205.7 ms**; job **7.348 s**, planning **5.240 s**, physics **0.937 s**, **4,817** steps and zero adapter errors. This is a local measurement, not a frame-rate guarantee; performance on the presentation machine remains unverified. Evidence: `artifacts/frontend/native-browser-performance.json`.
+
+The latest six-experiment CLI wall times were **7.079 / 6.402 / 2.419 / 1.193 / 0.993 / 0.898 s** (original Panda / exact repeat / clear obstacle / blocked scene / perturbed science / no-influence control). Original planning **5.396 s**, physics **0.760 s**. These vary with shared machine load; they are not capacity guarantees.
+
+### Problems found and fixed in this build
+
+- Pytest initially collected an archived checkout inside ignored data and raised five duplicate-module collection errors. `pytest.ini` scopes discovery to the real tests. An initial repaired run passed 57 tests in 39.60 s.
+- A full C: drive caused npm/browser installation failures and, later, temporary SQLite failures in a direct Pytest rerun (**4 failed / 25 passed / 28 errors**). Project-local cache/temp paths and the unique, workspace-checked backend test runner repaired this without deleting unrelated files. Failed report: `artifacts/backend-temp-space-failure.xml`; the final 57-test report passes.
+- Initial TS6/openapi-typescript peer incompatibility was corrected with locked TS5.9.3. Vite 8 chunk configuration and WS extension typing were checked against the actual tools. Clean npm reinstall hit EPERM while Vite held a native module; stopping the owned preview released it and clean installation passed.
+- Browser checks exposed continuous idle render cost, a mismatched success-status label, final-timestamp range rounding, stale asynchronous job replies, archived science/current-observation mixing, and time clipping on slow renderers. Corrected and retested. A history assertion now waits for the actual response. PowerShell ISO dates are normalized to UTC ticks for process ownership checks.
+- The external hook repair remains verified. Both registrations used the same faulty POSIX/escaped-path wrapper; available logs cannot identify which emitted the original message. Both entrypoints returned exit 0 after repair. Backend execution never invokes the hook; see `docs/HOOK_DIAGNOSTICS.md` for exact diagnostics/backup. Passing entrypoints are not a full design audit.
+
+Run and investor presentation: `README.md`, `DEMO_GUIDE.md`, `frontend/README.md`. Complete implemented/incomplete scope: `DEMO_LIMITATIONS.md`. Grasp/lift/place, hardware control, new-law discovery, cancellation, live hosted-provider verification, public auth/isolation, distributed workers, billing, retention and automatic interrupted-job resume remain absent. Cross-browser/touch/screen-reader usability and cross-platform bitwise equivalence remain unverified. Collision markers are involved body origins, not exact contact points. Rendering interpolation is not another physics solution.
+
+The backend verification record below is retained from the earlier backend handoff; its timings are historical, distinct from the latest measurements above.
 
 ## Working capabilities
 
@@ -71,7 +105,7 @@ Latest live progress test: experiment POST returned in **0.4822 s** while the jo
 | Area | Status / limitation |
 | --- | --- |
 | Grasp, lift, place | Not implemented. End-effector reach is never labeled grasp success. Cube/obstacle are fixed bodies, repositioned by configuration. |
-| Frontend and rendering | React/Three.js and backend mesh serving not implemented. Headless physics, body transforms, a compiled geometry manifest/binary mesh buffer, scene dimensions and real replay payloads are available for separate frontend development. Geometry arrays/transforms are numerically verified; browser rendering is unverified. |
+| Frontend and rendering | React/Three.js client and static compiled geometry serving implemented and browser-tested. Measured body pose playback/branches/interventions/science charts are functional; software-rendering speed and untested browser/hardware coverage remain risks. |
 | Motion planning | Finite-budget RRT can miss valid paths. Geometric checking samples edges; dynamic checks can reject them. Planning begins from persisted state, assumes a position-controlled arm and is not an industrial hardware controller. |
 | Science physics | Restricted 2D test particle; fixed central body and stationary external mass; known initial state and perturber location. No recoil, moving planet inference, 3D astronomy or newly discovered law. |
 | Science inference | Two predefined hypotheses, bounded nonlinear least squares and local covariance. Single optimization initialization; active bounds/misspecification weaken uncertainty interpretation. No Bayesian posterior or calibrated discovery probability. |
@@ -79,11 +113,11 @@ Latest live progress test: experiment POST returned in **0.4822 s** while the jo
 | Hosted LLM | Contract-tested only, no configured exact-model live request executed. Real provider availability, latency and billing/token telemetry unverified. |
 | Operations | One trusted local process. No distributed worker leases, multi-tenant auth, experiment cancellation, automatic interrupted-job resume or storage-retention/key-expiry policy. Safe experiment retries require `Idempotency-Key`; requests without a key intentionally create a new job. |
 | Reproduction scope | Exact restore/reexecution verified on the pinned Windows/Python 3.12 environment. Cross-platform/engine-version bitwise equivalence unverified; snapshots reject version/model mismatches. |
-| UI accessibility | No product UI built in this backend task; frontend keyboard, screen-reader, responsive and visual acceptance remains separate. |
+| UI accessibility | Keyboard controls, responsive layouts, reduced motion, offline recovery and automated axe scans passed. Real screen-reader/touch-device usability and complete conformance remain unverified. |
 
 ## Hook and frontend handoff
 
-`FRONTEND_HANDOFF.md` documents exact REST/WS operations, complete captured response examples, rendering/replay formats, bounds, retry/stale semantics and React connection instructions. Root `openapi.json` is exported. The backend implementation was preserved; changes in this verification pass are exports, verification scripts and documentation. No frontend files were created or overwritten. The project root initially had no Git repository; a repository was initialized to satisfy the requested commit. The sparse source clone Git metadata was preserved in ignored `data/menagerie-source.git` so Panda files can be committed as regular vendored assets rather than an unusable nested repository.
+`FRONTEND_HANDOFF.md` documents exact REST/WS operations, captured response examples, rendering/replay formats and retry/stale semantics. Root `openapi.json` is exported and now drives the implemented client types. The backend implementation was preserved; frontend files were created in the previously absent `frontend` directory. No unrelated frontend work was overwritten. The earlier backend pass initialized Git and preserved sparse source metadata in ignored `data/menagerie-source.git`, allowing Panda assets to be regular vendored files.
 
 The external Codex hook configuration was backed up and repaired, with no backend execution impact. The desktop session may cache that configuration; a new session can reload it. Hook configuration itself is outside this repository and is not committed.
 
@@ -91,4 +125,4 @@ The external Codex hook configuration was backed up and repaired, with no backen
 
 Keep the service on loopback until authentication and deployment isolation exist. Treat the vendored model assets as immutable; version/hash checks protect snapshots but hot-editing cached assets is unsupported. Worlds/events/evaluations grow over time; reset retains history. RRT budgets and position-control tolerances need broader scenario coverage before a public demo allows unrestricted configurations. Do not reinterpret simulation success as physical robot safety, or local numerical model support as proof of unseen real-world mass.
 
-Start with the exact documented fixtures and demonstration script. The smallest useful follow-up is to connect the separate React/Three.js frontend to these measured state/replay APIs and verify its complete investor journey.
+Start with the documented guide, fixtures and scripts. The next useful validation is GPU playback and assistive-technology testing on presentation hardware, followed by authentication/deployment isolation before any public release.
