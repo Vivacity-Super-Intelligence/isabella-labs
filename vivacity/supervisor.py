@@ -18,6 +18,7 @@ from .schemas import CreateWorld, ExperimentRequest
 
 class Supervisor:
     lease_seconds = 180
+    max_wall_seconds = 1800
 
     def __init__(self, runtime):
         self.runtime = runtime
@@ -109,7 +110,8 @@ class Supervisor:
             for cycle in range(r.store.get('sessions',sid)['max_cycles']):
                 with self.lock:
                     s=r.store.get('sessions',sid)
-                    if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds or time.time()-s['started_unix_s']>1800:
+                    if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds or time.time()-s['started_unix_s']>self.max_wall_seconds:
+                        stop.set()
                         break
                     request=s['request'];seed=(request['seed']+cycle)%2**32
                     config=deepcopy(request['config'])
@@ -146,7 +148,7 @@ class Supervisor:
                 while True:
                     e=r.get_experiment(e['id'])
                     s=r.store.get('sessions',sid)
-                    if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds:
+                    if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds or time.time()-s['started_unix_s']>self.max_wall_seconds:
                         stop.set();r.cancel(e['id'])
                     if e['status'] not in ('queued','running'):
                         break

@@ -76,8 +76,21 @@ class PickPlaceBackend(RoboticsBackend):
         # Finger/cube contact is the intended grasp. All other robot contacts
         # retain the reaching adapter's prohibited-contact classification.
         contacts = super().contacts(world)
-        return [c for c in contacts if not ('cube' in c['geoms'] and
-                any(b in ('left_finger', 'right_finger') for b in c['bodies']))]
+        violations = [c for c in contacts if not ('cube' in c['geoms'] and
+                      any(b in ('left_finger', 'right_finger') for b in c['bodies']))]
+        # A carried object may hit the obstacle even when the arm clears it.
+        # Table support is intended; object/obstacle or object/ground impact is not.
+        m, d = world.model, world.data
+        for contact in d.contact[:d.ncon]:
+            if contact.dist > 0:
+                continue
+            geoms = [mj.mj_id2name(m, mj.mjtObj.mjOBJ_GEOM, int(g)) for g in (contact.geom1, contact.geom2)]
+            if 'cube' in geoms and any(g in ('obstacle_geom', 'ground') for g in geoms):
+                bodies = [mj.mj_id2name(m, mj.mjtObj.mjOBJ_BODY, int(m.geom_bodyid[g])) or 'world'
+                          for g in (contact.geom1, contact.geom2)]
+                violations.append({'bodies': bodies, 'geoms': geoms,
+                                   'penetration_m': float(-contact.dist), 'category': 'object_environment_collision'})
+        return violations
 
     def observe(self, world):
         observation = super().observe(world)

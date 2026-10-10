@@ -9,6 +9,15 @@ from vivacity.pick_place import PickPlaceBackend
 from vivacity.schemas import RoboticsConfig, CreateWorld, ExperimentRequest
 
 
+def test_cube_obstacle_contact_is_prohibited_even_without_robot_contact():
+    backend = PickPlaceBackend()
+    world = backend.create_world(RoboticsConfig(task='pick_place', obstacle_enabled=True,
+        obstacle_position=[.5, -.15, .05], obstacle_size=[.05, .05, .05]).model_dump(), 7)
+    violations = backend.contacts(world)
+    assert any(v['category'] == 'object_environment_collision' and
+               set(v['geoms']) == {'cube', 'obstacle_geom'} for v in violations)
+
+
 @pytest.fixture(scope='module')
 def pickup():
     backend = PickPlaceBackend()

@@ -33,7 +33,7 @@ export default function App(){
   const config=compatible?rt.world?.config??{}:{};
   const terminal=compatible&&rt.experiment&&!isBusy(rt.experiment);
   const status=!rt.online?'Connection lost':!rt.loaded?'Initializing':rt.mutating?'Applying change':
-    rt.session?.status==='stopping'?'Stopping safely':rt.liveState?.stage==='executing'?'Live physics execution':
+    rt.session?.status==='stopping'?'Stopping safely':isBusy(rt.experiment)&&rt.liveState?.stage==='executing'?'Live physics execution':
     isBusy(rt.experiment)?rt.experiment?.status==='queued'?'Queued':'Evaluating alternatives':
     rt.experiment?.status==='cancelled'?'Cancelled':rt.experiment?.status==='failed'?'Experiment failed':
     rt.experiment?.result.execution_evaluation&&!(rt.experiment.result.execution_evaluation as {success:boolean}).success?'Execution failed':
@@ -50,7 +50,7 @@ export default function App(){
     <header className="site-header"><Brand/><nav className="main-nav" aria-label="Choose laboratory">
       <button aria-pressed={page==='workspace'&&robotics} disabled={rt.mutating} onClick={()=>choose('mujoco')}>Robotics</button>
       <button aria-pressed={page==='workspace'&&!robotics} disabled={rt.mutating} onClick={()=>choose('scipy')}>Discovery</button>
-      <button aria-pressed={page==='import'} onClick={async()=>{await rt.stop();setPage('import');}}>Import World</button>
+      <button aria-pressed={page==='import'} onClick={async()=>{try{await rt.stop();setPage('import');}catch(e){setDownloadError(errorMessage(e));}}}>Import World</button>
     </nav></header>
     <main id="workspace">
       {page==='import'?<Suspense fallback={<div className="viewport-loading">Loading import tools…</div>}><ImportWorld/></Suspense>:<>
@@ -67,7 +67,7 @@ export default function App(){
               robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={false} playing={false} renderTime={currentFrame?.time??0}/></Suspense>:
                 <Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={numericalTime} playing={false}/></Suspense>}
             <div className="experiment-actions">
-              <button className="primary run-button" disabled={disabled} onClick={()=>rt.active?rt.stop():rt.run()}>{rt.active?'Stop experiments':'Start autonomous lab'}<ArrowRight size={18}/></button>
+              <button className="primary run-button" disabled={disabled} onClick={async()=>{try{await(rt.active?rt.stop():rt.run());}catch(e){setDownloadError(errorMessage(e));}}}>{rt.active?'Stop experiments':'Start autonomous lab'}<ArrowRight size={18}/></button>
               <button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':robotics?'Change conditions':'Observation settings'}</button>
               <button className="secondary" disabled={disabled} onClick={rt.reset}><ArrowsClockwise size={18}/>Reset world</button>
             </div>

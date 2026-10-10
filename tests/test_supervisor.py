@@ -24,6 +24,15 @@ def wait_session(supervisor, sid, token=TOKEN, timeout=120):
     pytest.fail('session did not finish before timeout')
 
 
+@pytest.mark.parametrize('limit', ['lease_seconds', 'max_wall_seconds'])
+def test_expired_session_is_stopped_not_falsely_completed(runtime, monkeypatch, limit):
+    monkeypatch.setattr(runtime.supervisor, limit, -1)
+    s = runtime.supervisor.create(SessionRequest(backend='scipy', max_cycles=2), TOKEN)
+    done = wait_session(runtime.supervisor, s['id'])
+    assert done['status'] == 'stopped'
+    assert done['cycle'] == 0 and done['experiments'] == []
+
+
 def test_autonomous_science_recomputes_new_conditions_and_control(runtime):
     s=runtime.supervisor.create(SessionRequest(backend='scipy',max_cycles=2),TOKEN)
     assert runtime.supervisor.create(SessionRequest(backend='scipy',max_cycles=2),TOKEN)['id']==s['id']

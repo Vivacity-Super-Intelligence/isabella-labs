@@ -58,10 +58,12 @@ export function useRuntime(backend:Backend){
     setWorld(null);currentWorld.current=null;setSession(null);currentSession.current=null;
     setExperiment(null);currentExperiment.current=null;setObservation(null);setBranches([]);setEvents([]);setLiveState(null);setLoaded(false);setError(null);
     const refresh=async()=>{
-      if(refreshing||!active)return;refreshing=true;
+      if(refreshing||!active||lock.current)return;refreshing=true;
       try{
-        const s=currentSession.current?await api.session(currentSession.current.id):await ensureSession(backend);
-        if(!active)return;await adopt(s,version);setOnline(true);setLoaded(true);
+        const source=currentSession.current?.id;
+        const s=source?await api.session(source):await ensureSession(backend);
+        if(!active||lock.current||(source&&source!==currentSession.current?.id))return;
+        await adopt(s,version);setOnline(true);setLoaded(true);
       }catch(e){if(active){setError(errorMessage(e));setOnline(false);setLoaded(true);}}
       finally{refreshing=false;}
     };
