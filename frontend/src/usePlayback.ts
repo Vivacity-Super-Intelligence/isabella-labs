@@ -1,18 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Frame } from './domain';
 
-export function usePlayback(frames: Frame[], identity: string) {
+export function usePlayback(frames: Frame[], identity: string, autoplay=false) {
   const cursor = useRef(0); const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false); const [speed, setSpeed] = useState(1);
+  const [reduced,setReduced]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches);
+  useEffect(()=>{const media=matchMedia('(prefers-reduced-motion: reduce)');const change=()=>setReduced(media.matches);media.addEventListener('change',change);return()=>media.removeEventListener('change',change);},[]);
   const duration = frames.length ? frames.at(-1)!.time-frames[0].time : 0;
-  useEffect(() => { cursor.current = 0; setTime(0); setPlaying(false); }, [identity]);
+  useEffect(() => { cursor.current = 0; setTime(0); setPlaying(autoplay&&!reduced&&duration>0); }, [identity,autoplay,reduced,duration]);
   useEffect(() => {
     if (!playing || !duration) return;
     let raf = 0, previous = performance.now(), lastUI = previous;
     const step = (now: number) => {
-      cursor.current = Math.min(duration, cursor.current + (now-previous)/1000*speed); previous = now;
-      if (now-lastUI > 80 || cursor.current >= duration) { setTime(cursor.current); lastUI = now; }
-      if (cursor.current >= duration) setPlaying(false); else raf = requestAnimationFrame(step);
+      cursor.current = (cursor.current + (now-previous)/1000*speed)%duration; previous = now;
+      if (now-lastUI > 80) { setTime(cursor.current); lastUI = now; }
+      raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step); return () => cancelAnimationFrame(raf);
   }, [playing, speed, duration]);

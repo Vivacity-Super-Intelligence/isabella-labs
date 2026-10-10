@@ -152,3 +152,27 @@ class EventResponse(Schema):
     seq: int
     kind: Literal['queued', 'running', 'planned', 'progress', 'branch_completed', 'completed', 'failed']
     details: dict
+
+
+class BranchExport(Schema):
+    schema_version: Literal['vivacity.branch/1.0'] = 'vivacity.branch/1.0'
+    experiment_id: str
+    branch_id: str
+    world_type: str
+    simulation_backend: str
+    simulator_version: str
+    initial_configuration: dict
+    initial_state_reference: str
+    state_encoding: str
+    initial_state: dict
+    final_state: dict | None
+    action: dict
+    recorded_frames: list[dict]
+    evaluation: dict
+    constraint_violations: list[dict]
+    success: bool
+    seed: int
+    configuration_sha256: str
+    model_hash: str | None
+    timestamps: dict
+    performance: dict

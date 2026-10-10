@@ -301,3 +301,12 @@ class Runtime:
         e = self.store.get('experiments', eid)
         e['stale'] = self.get_world(e['world_id'])['revision'] != e['revision']
         return self._replay(e, self.store.branches(eid))
+
+    def export_branch(self, eid, bid):
+        e=self.store.get('experiments',eid)
+        b=self.store.get('branches',bid)
+        if b['experiment_id']!=eid:
+            raise Conflict('branch does not belong to this experiment')
+        state=b['initial_state']
+        completed=next((ev['details'].get('timestamp_unix_s') for ev in self.store.events(eid) if ev['kind']=='branch_completed' and ev['details'].get('branch_id')==bid),None)
+        return {'schema_version':'vivacity.branch/1.0','experiment_id':eid,'branch_id':bid,'world_type':'object_pregrasp' if e['backend']=='mujoco' else 'invisible_planet','simulation_backend':e['backend'],'simulator_version':state['version'],'initial_configuration':deepcopy(e['config']),'initial_state_reference':b['parent_state_reference'],'state_encoding':'JSON serialization of mjSTATE_INTEGRATION, not a native binary .mjb file' if e['backend']=='mujoco' else 'JSON numerical observations and fitted-model state','initial_state':state,'final_state':b['final_state'],'action':b['action'],'recorded_frames':b['trace'],'evaluation':b['evaluation'],'constraint_violations':b['evaluation'].get('contact_violations',[]),'success':b['evaluation']['success'],'seed':state['seed'],'configuration_sha256':hashlib.sha256(encode(e['config']).encode()).hexdigest(),'model_hash':state.get('model_hash'),'timestamps':{'submitted_unix_s':e['submitted_at'],'branch_completed_unix_s':completed},'performance':b['performance']}

@@ -123,6 +123,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/experiments/{experiment_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Recorded Events */
+        get: operations["recorded_events_v1_experiments__experiment_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/experiments/{experiment_id}/branches/{branch_id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Branch */
+        get: operations["export_branch_v1_experiments__experiment_id__branches__branch_id__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/worlds/{world_id}/commit": {
         parameters: {
             query?: never;
@@ -195,6 +229,73 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** BranchExport */
+        BranchExport: {
+            /**
+             * Schema Version
+             * @default vivacity.branch/1.0
+             * @constant
+             */
+            schema_version: "vivacity.branch/1.0";
+            /** Experiment Id */
+            experiment_id: string;
+            /** Branch Id */
+            branch_id: string;
+            /** World Type */
+            world_type: string;
+            /** Simulation Backend */
+            simulation_backend: string;
+            /** Simulator Version */
+            simulator_version: string;
+            /** Initial Configuration */
+            initial_configuration: {
+                [key: string]: unknown;
+            };
+            /** Initial State Reference */
+            initial_state_reference: string;
+            /** State Encoding */
+            state_encoding: string;
+            /** Initial State */
+            initial_state: {
+                [key: string]: unknown;
+            };
+            /** Final State */
+            final_state: {
+                [key: string]: unknown;
+            } | null;
+            /** Action */
+            action: {
+                [key: string]: unknown;
+            };
+            /** Recorded Frames */
+            recorded_frames: {
+                [key: string]: unknown;
+            }[];
+            /** Evaluation */
+            evaluation: {
+                [key: string]: unknown;
+            };
+            /** Constraint Violations */
+            constraint_violations: {
+                [key: string]: unknown;
+            }[];
+            /** Success */
+            success: boolean;
+            /** Seed */
+            seed: number;
+            /** Configuration Sha256 */
+            configuration_sha256: string;
+            /** Model Hash */
+            model_hash: string | null;
+            /** Timestamps */
+            timestamps: {
+                [key: string]: unknown;
+            };
+            /** Performance */
+            performance: {
+                [key: string]: unknown;
+            };
+        };
         /** BranchResponse */
         BranchResponse: {
             /**
@@ -267,6 +368,26 @@ export interface components {
             /** Config */
             config: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"];
         };
+        /** EventResponse */
+        EventResponse: {
+            /**
+             * Schema Version
+             * @default 1.0
+             * @constant
+             */
+            schema_version: "1.0";
+            /** Seq */
+            seq: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "queued" | "running" | "planned" | "progress" | "branch_completed" | "completed" | "failed";
+            /** Details */
+            details: {
+                [key: string]: unknown;
+            };
+        };
         /** ExperimentRequest */
         ExperimentRequest: {
             /**
@@ -290,6 +411,16 @@ export interface components {
              * @enum {string}
              */
             policy: "deterministic" | "llm";
+            /**
+             * Search Candidates
+             * @default 0
+             */
+            search_candidates: number;
+            /**
+             * Physics Budget
+             * @default 12
+             */
+            physics_budget: number;
         };
         /** ExperimentResponse */
         ExperimentResponse: {
@@ -736,6 +867,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BranchResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recorded_events_v1_experiments__experiment_id__events_get: {
+        parameters: {
+            query?: {
+                after?: number;
+            };
+            header?: never;
+            path: {
+                experiment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_branch_v1_experiments__experiment_id__branches__branch_id__export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                experiment_id: string;
+                branch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchExport"];
                 };
             };
             /** @description Validation Error */

@@ -26,6 +26,14 @@ export const api = {
   experiment: (id: string) => request<Experiment>(`/v1/experiments/${encodeURIComponent(id)}`),
   branches: (id: string) => request<Branch[]>(`/v1/experiments/${encodeURIComponent(id)}/branches`),
   events: (id: string, after=0) => request<Event[]>(`/v1/experiments/${encodeURIComponent(id)}/events?after=${after}`),
+  download:async(eid:string,bid:string)=>{
+    const response=await fetch(`${API}/v1/experiments/${encodeURIComponent(eid)}/branches/${encodeURIComponent(bid)}/export`);
+    if(!response.ok)throw new APIError(response.status,(await response.json()).detail);
+    const data=await response.json();
+    if(data.schema_version!=='vivacity.branch/1.0'||data.branch_id!==bid||!Array.isArray(data.recorded_frames))throw new Error('Invalid branch export');
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`vivacity-${bid}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },
   replay: (id: string) => request<Replay>(`/v1/experiments/${encodeURIComponent(id)}/replay`),
   environment: (id: string, config: Dict) => request<World>(`/v1/worlds/${id}/environment`, json('PATCH', { config })),
   reset: (id: string) => request<World>(`/v1/worlds/${id}/reset`, json('POST')),

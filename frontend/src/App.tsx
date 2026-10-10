@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { ArrowRight, ArrowsClockwise, Pause, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
+import { ArrowRight, ArrowsClockwise, DownloadSimple, Pause, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
 import { useRuntime, isBusy } from './useRuntime';
 import { usePlayback } from './usePlayback';
-import { API } from './api';
+import { API, api, errorMessage } from './api';
 import { format, robotFrame, scienceObservation, type Backend, type RobotFrame, type ScienceFrame } from './domain';
 import Settings from './Settings';
 import TechnicalInspector from './TechnicalInspector';
+import ResultCard from './ResultCard';
 const RobotView=lazy(()=>import('./RobotView'));
 const ScienceView=lazy(()=>import('./ScienceView'));
 
@@ -15,6 +16,7 @@ export default function App(){
   const [cloth,setCloth]=useState(false);
   const rt=useRuntime(backend), robotics=backend==='mujoco';
   const [branchId,setBranchId]=useState<string|null>(null),[recorded,setRecorded]=useState(true),[editing,setEditing]=useState(false);
+  const [downloadError,setDownloadError]=useState<string|null>(null);
   const compatible=rt.world?.backend===backend;
   const branches=compatible?rt.branches:[];
   const ranked=useMemo(()=>{
@@ -26,7 +28,7 @@ export default function App(){
   const live=compatible?robotFrame(rt.observation):null;
   const frames=useMemo(()=>recorded&&replayBranch?replayBranch.frames:live?[live]:[],[recorded,replayBranch,live]);
   const robotFrames=useMemo(()=>frames.filter(f=>robotFrame(f)) as RobotFrame[],[frames]);
-  const play=usePlayback(frames,`${backend}:${rt.experiment?.id}:${selected?.id}:${recorded}:${rt.world?.revision}`);
+  const play=usePlayback(frames,`${backend}:${rt.experiment?.id}:${selected?.id}:${recorded}:${rt.world?.revision}`,compatible&&recorded&&!!selected?.evaluation.success&&rt.experiment?.status==='completed'&&!rt.experiment.stale);
   const config=(recorded&&rt.replay?.backend===backend?rt.replay.config:compatible?rt.world?.config:{})??{};
   const terminal=compatible&&rt.experiment&&!isBusy(rt.experiment);
   const accepted=terminal&&rt.experiment?.status==='completed'&&!!rt.experiment.selected_branch_id;
@@ -50,15 +52,17 @@ export default function App(){
         {!rt.online&&rt.loaded&&<div className="offline-notice" role="status"><Warning size={18}/><span>Simulation runtime unavailable. Recorded results remain inspectable.</span><button onClick={rt.reconnect}>Reconnect</button></div>}
         {rt.error&&<div className="error-notice" role="alert"><Warning size={18}/><span>{rt.error}</span><button onClick={rt.retryAvailable?rt.retry:rt.reconnect} disabled={!rt.online||rt.mutating}>{rt.retryAvailable?'Retry submission':'Reload evidence'}</button><button className="icon-button" aria-label="Dismiss error" onClick={rt.clearError}><X size={17}/></button></div>}
         <div className="workbench">
-          <section className="visual-area" aria-label="Simulation and replay" onPointerDownCapture={play.pause}>
+          <section className="visual-area" aria-label="Simulation and replay"><div onPointerDownCapture={play.pause} onKeyDownCapture={play.pause}>
             {cloth?<div className="viewport-loading">Physical cloth benchmark pending.</div>:robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={robotFrames} cursor={play.cursor} config={config} replaying={recorded&&!!replayBranch} playing={play.playing} renderTime={play.time}/></Suspense>:<Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={play.time}/></Suspense>}
-            <div className="playback-bar"><button className="icon-button" aria-label={play.playing?'Pause motion':'Resume motion'} disabled={!play.duration} onClick={play.toggle}><Pause size={18}/></button><span className="timecode mono">{format(play.time,2)} / {format(play.duration,2)} s</span><input aria-label="Replay timeline" type="range" min="0" max={play.duration||1} step="any" value={play.time} disabled={!recorded||!play.duration} onChange={e=>{play.pause();play.seek(Number(e.target.value));}}/><label className="sr-only" htmlFor="playback-speed">Playback speed</label><select id="playback-speed" value={play.speed} onChange={e=>play.setSpeed(Number(e.target.value))}>{[.25,.5,1,2].map(s=><option key={s} value={s}>{s}×</option>)}</select></div>
+            </div><div className="playback-bar"><button className="icon-button" aria-label={play.playing?'Pause motion':'Resume motion'} disabled={!play.duration} onClick={play.toggle}><Pause size={18}/></button><span className="timecode mono">{format(play.time,2)} / {format(play.duration,2)} s</span><input aria-label="Replay timeline" type="range" min="0" max={play.duration||1} step="any" value={play.time} disabled={!recorded||!play.duration} onChange={e=>{play.pause();play.seek(Number(e.target.value));}}/><label className="sr-only" htmlFor="playback-speed">Playback speed</label><select id="playback-speed" value={play.speed} onChange={e=>play.setSpeed(Number(e.target.value))}>{[.25,.5,1,2].map(s=><option key={s} value={s}>{s}×</option>)}</select></div>
             <div className="experiment-actions"><button className="primary run-button" disabled={disabled} onClick={()=>{setRecorded(true);rt.run();}}>{rt.busy?'Experiment running…':'Run experiment'}<ArrowRight size={18}/></button><button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{robotics?'Change obstacle':'Observation settings'}</button><button className="secondary" disabled={disabled} onClick={async()=>{play.pause();await rt.reset();setRecorded(false);}}><ArrowsClockwise size={18}/>Reset</button></div>
           </section>
           <aside className="results" aria-label="Verified results">
             <div className="section-heading"><h2>{robotics?'Best verified paths':'Hypotheses'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
             {editing&&rt.world?<Settings key={`${backend}:${rt.world.revision}`} backend={backend} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
-              {!ranked.length?<p className="results-empty">{cloth?'No cloth execution is available yet.':rt.busy?'Searching and validating independent alternatives…':terminal?'No feasible candidate. Failures are recorded below.':'Run an experiment to measure alternatives from the same initial state.'}</p>:ranked.map((b,i)=><article className={`result-card ${b.id===selected?.id?'selected':''}`} key={b.id}><button className="result-select" aria-pressed={selected?.id===b.id} data-testid="branch-row" data-status={b.evaluation.status} onClick={()=>{setBranchId(b.id);setRecorded(true);}}><span className="rank mono">#{i+1} {i===0?'Best':'Alternative'}</span><strong>{robotics?'Collision-free reach':b.evaluation.hypothesis==='central_only'?'Central body only':'Additional influence'}</strong></button><dl>{robotics?<><div><dt>Goal error</dt><dd>{format((b.evaluation.goal_error_m??0)*1000,1)} mm</dd></div><div><dt>Execution</dt><dd>{format(b.evaluation.execution_duration_s,2)} s</dd></div></>:<><div><dt>Training RMSE</dt><dd>{format(b.evaluation.train_rmse,5)}</dd></div><div><dt>Held-out RMSE</dt><dd>{format(b.evaluation.heldout_rmse,5)}</dd></div><div><dt>BIC</dt><dd>{format(b.evaluation.training_bic,1)}</dd></div></>}</dl></article>)}
+              {!ranked.length?<p className="results-empty">{cloth?'No cloth execution is available yet.':rt.busy?'Searching and validating independent alternatives…':terminal?'No feasible candidate. Failures are recorded below.':'Run an experiment to measure alternatives from the same initial state.'}</p>:ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} robotics={robotics} choose={()=>{setBranchId(b.id);setRecorded(true);}} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
+
+              {downloadError&&<p role="alert" className="negative">{downloadError}</p>}
               <p className="decision" data-testid="decision">{compatible?String(rt.experiment?.error??rt.experiment?.result.conclusion??'') : ''}</p>
               {rt.experiment?.stale&&<p className="stale-warning" data-testid="stale-warning">The world changed. This recorded result cannot be committed.</p>}
               {accepted&&<button className="text-button" disabled={disabled||rt.experiment?.stale} onClick={async()=>{play.pause();await rt.commit();setRecorded(false);}}>Commit selected state <ArrowRight size={15}/></button>}

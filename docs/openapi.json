@@ -288,6 +288,108 @@
         }
       }
     },
+    "/v1/experiments/{experiment_id}/events": {
+      "get": {
+        "summary": "Recorded Events",
+        "operationId": "recorded_events_v1_experiments__experiment_id__events_get",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Experiment Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventResponse"
+                  },
+                  "title": "Response Recorded Events V1 Experiments  Experiment Id  Events Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/branches/{branch_id}/export": {
+      "get": {
+        "summary": "Export Branch",
+        "operationId": "export_branch_v1_experiments__experiment_id__branches__branch_id__export_get",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Experiment Id"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Branch Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchExport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/worlds/{world_id}/commit": {
       "post": {
         "summary": "Commit",
@@ -467,6 +569,150 @@
   },
   "components": {
     "schemas": {
+      "BranchExport": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.branch/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.branch/1.0"
+          },
+          "experiment_id": {
+            "type": "string",
+            "title": "Experiment Id"
+          },
+          "branch_id": {
+            "type": "string",
+            "title": "Branch Id"
+          },
+          "world_type": {
+            "type": "string",
+            "title": "World Type"
+          },
+          "simulation_backend": {
+            "type": "string",
+            "title": "Simulation Backend"
+          },
+          "simulator_version": {
+            "type": "string",
+            "title": "Simulator Version"
+          },
+          "initial_configuration": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Initial Configuration"
+          },
+          "initial_state_reference": {
+            "type": "string",
+            "title": "Initial State Reference"
+          },
+          "state_encoding": {
+            "type": "string",
+            "title": "State Encoding"
+          },
+          "initial_state": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Initial State"
+          },
+          "final_state": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Final State"
+          },
+          "action": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Action"
+          },
+          "recorded_frames": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Recorded Frames"
+          },
+          "evaluation": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Evaluation"
+          },
+          "constraint_violations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Constraint Violations"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "configuration_sha256": {
+            "type": "string",
+            "title": "Configuration Sha256"
+          },
+          "model_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Hash"
+          },
+          "timestamps": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Timestamps"
+          },
+          "performance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Performance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "branch_id",
+          "world_type",
+          "simulation_backend",
+          "simulator_version",
+          "initial_configuration",
+          "initial_state_reference",
+          "state_encoding",
+          "initial_state",
+          "final_state",
+          "action",
+          "recorded_frames",
+          "evaluation",
+          "constraint_violations",
+          "success",
+          "seed",
+          "configuration_sha256",
+          "model_hash",
+          "timestamps",
+          "performance"
+        ],
+        "title": "BranchExport"
+      },
       "BranchResponse": {
         "properties": {
           "schema_version": {
@@ -628,6 +874,46 @@
         ],
         "title": "EnvironmentPatch"
       },
+      "EventResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "seq": {
+            "type": "integer",
+            "title": "Seq"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "planned",
+              "progress",
+              "branch_completed",
+              "completed",
+              "failed"
+            ],
+            "title": "Kind"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seq",
+          "kind",
+          "details"
+        ],
+        "title": "EventResponse"
+      },
       "ExperimentRequest": {
         "properties": {
           "candidates": {
@@ -659,6 +945,20 @@
             ],
             "title": "Policy",
             "default": "deterministic"
+          },
+          "search_candidates": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Search Candidates",
+            "default": 0
+          },
+          "physics_budget": {
+            "type": "integer",
+            "maximum": 24.0,
+            "minimum": 3.0,
+            "title": "Physics Budget",
+            "default": 12
           }
         },
         "additionalProperties": false,
@@ -1125,6 +1425,7 @@
               "queued",
               "running",
               "planned",
+              "progress",
               "branch_completed",
               "completed",
               "failed"

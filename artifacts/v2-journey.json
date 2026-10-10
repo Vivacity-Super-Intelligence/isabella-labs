@@ -1,0 +1,108 @@
+{
+  "autoplay": true,
+  "loopVerified": true,
+  "experiment": {
+    "schema_version": "1.0",
+    "id": "28b5a093-86a7-4456-b4cc-78db0ca2693c",
+    "world_id": "5881429f-476f-4284-8a87-2e8bdd1bdfc1",
+    "revision": 0,
+    "status": "completed",
+    "request": {
+      "candidates": 3,
+      "planner_iterations": 1500,
+      "max_simulation_seconds": 25,
+      "policy": "deterministic",
+      "search_candidates": 5000,
+      "physics_budget": 12
+    },
+    "selected_branch_id": "66faa67d-a406-434b-a9a2-2239cfbade0b",
+    "result": {
+      "conclusion": "Measured collision-free reach found.",
+      "milestone": "reach_only",
+      "ranked_branch_ids": [
+        "66faa67d-a406-434b-a9a2-2239cfbade0b",
+        "0cb4ea13-5849-4563-946c-ce477f98e4b5",
+        "f4bd2666-5a13-495c-a854-98c712d79aed",
+        "fac0d807-c42d-4760-a40e-3af420acd371",
+        "e8ef4bf7-1d5b-43b2-92ca-9f1ef059bee3",
+        "b97b3004-fb9f-4679-abda-28ec4a67aa68",
+        "e5470e38-fd9b-41c0-b9af-920ff11247ca",
+        "c129db24-29bf-4bc9-b7d6-2501a3776ffc",
+        "524cce73-e78b-4800-aee8-55377aa5cdd0",
+        "0d0728d3-27dc-4384-b149-b6a4a76ca06a",
+        "a1f6f82b-43f3-41ec-8604-389a41ea2f3c",
+        "f08012bd-1ace-4285-9380-25202818be27"
+      ],
+      "top_feasible_branch_ids": [
+        "66faa67d-a406-434b-a9a2-2239cfbade0b",
+        "0cb4ea13-5849-4563-946c-ce477f98e4b5",
+        "f4bd2666-5a13-495c-a854-98c712d79aed"
+      ],
+      "policy": {
+        "policy": "deterministic_planning_policy",
+        "llm_used": false,
+        "steps": [
+          "Inspect structured observation and valid action schema.",
+          "Generate candidate interventions through backend tools.",
+          "Fork the same persisted state for each candidate.",
+          "Rank measured outcomes; retain failures."
+        ]
+      },
+      "executed_settings": {
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 25,
+        "policy": "deterministic",
+        "search_candidates": 5000,
+        "physics_budget": 12
+      },
+      "followup_settings": null,
+      "search": {
+        "generated": 5000,
+        "distinct_generated": 5000,
+        "candidate_catalog_sha256": "d1022164eed5498d661019bffe12695c30f71d670dd0a6beb47960d20ffa8be6",
+        "screened": 5000,
+        "rejected": 104,
+        "screening_passed": 4896,
+        "promoted_to_physics": 12,
+        "diagnostic_rollouts": 1,
+        "rejection_reasons": {
+          "joint_limit": 0,
+          "kinematic_collision": 104,
+          "no_feasible_seed_path": 0
+        },
+        "sampling": "seeded Gaussian perturbations of interior waypoints on dynamically unverified RRT paths",
+        "screening_scope": "joint limits and actual kinematic contacts; full-path/dynamic feasibility decided only by rollouts",
+        "ranking_objective": "successful execution first, then measured duration, joint path length, goal error, candidate index",
+        "fully_simulated": 12,
+        "verified_feasible": 9,
+        "physics_rejected": 3
+      }
+    },
+    "performance": {
+      "job_wall_seconds": 68.30739829999948,
+      "process_cpu_seconds": 56.828125,
+      "queue_wait_seconds": 0.4153545513827339,
+      "planning_wall_seconds": 26.679754399999183,
+      "physics_wall_seconds": 30.06133789999967,
+      "candidate_count": 12,
+      "simulation_steps": 38153,
+      "integration_calls": 0,
+      "replay_payload_bytes": 4346875,
+      "branch_failure_rate": 0.25,
+      "adapter_error_count": 0,
+      "measurement_complete": true,
+      "job_error_rate": 0,
+      "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+    },
+    "error": null,
+    "stale": false
+  },
+  "export": {
+    "branch_id": "66faa67d-a406-434b-a9a2-2239cfbade0b",
+    "frames": 141,
+    "bytes": 788611
+  },
+  "exactFinalPose": true,
+  "errors": []
+}

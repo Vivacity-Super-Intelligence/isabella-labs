@@ -5,7 +5,7 @@ import os
 from fastapi import FastAPI, Header, Query, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
-from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse
+from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport
 
 
 def create_app(database=None):
@@ -77,6 +77,12 @@ def create_app(database=None):
     def recorded_events(experiment_id: str, after: int = Query(0, ge=0)):
         app.state.runtime.get_experiment(experiment_id)
         return app.state.runtime.store.events(experiment_id, after)
+
+    @app.get('/v1/experiments/{experiment_id}/branches/{branch_id}/export', response_model=BranchExport)
+    def export_branch(experiment_id: str, branch_id: str):
+        from fastapi.responses import JSONResponse
+        result=BranchExport.model_validate(app.state.runtime.export_branch(experiment_id,branch_id))
+        return JSONResponse(result.model_dump(),headers={'Content-Disposition':f'attachment; filename="vivacity-{result.branch_id}.json"'})
 
     @app.post('/v1/worlds/{world_id}/commit', response_model=WorldResponse)
     def commit(world_id: str, request: CommitRequest):
