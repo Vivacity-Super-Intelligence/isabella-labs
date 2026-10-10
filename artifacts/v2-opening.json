@@ -1,0 +1,16 @@
+{
+  "no-preference": {
+    "style": {
+      "name": "vivacity-mark-open",
+      "duration": "0.58s"
+    },
+    "navigationWorked": true
+  },
+  "reduce": {
+    "style": {
+      "name": "none",
+      "duration": "0s"
+    },
+    "navigationWorked": true
+  }
+}
