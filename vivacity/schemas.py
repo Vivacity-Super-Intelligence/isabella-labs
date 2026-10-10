@@ -93,6 +93,30 @@ class CommitRequest(Schema):
     branch_id: str
 
 
+class ImportResponse(Schema):
+    schema_version: Literal['vivacity.import/1.0']='vivacity.import/1.0'
+    id: str
+    filename: str
+    entrypoint: str
+    format: str
+    status: Literal['visual_only','configuration_required']
+    physics_ready: Literal[False]=False
+    preview_available: bool
+    sha256: str
+    uploaded_bytes: int
+    created_unix_s: float
+    summary: dict
+    diagnostics: list[str]
+
+
+class ImportPreview(Schema):
+    positions: list[Vec3]
+    indices: list[int]
+    vertex_count: int
+    triangle_count: int
+    coordinate_system: str
+
+
 class WorldResponse(Schema):
     schema_version: Literal['1.0'] = '1.0'
     id: str

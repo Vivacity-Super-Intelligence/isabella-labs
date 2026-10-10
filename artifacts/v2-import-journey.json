@@ -1,0 +1,52 @@
+{
+  "record": {
+    "schema_version": "vivacity.import/1.0",
+    "id": "730ed723-6ae7-4a8f-b61e-a938fb069e84",
+    "filename": "triangle.glb",
+    "entrypoint": "triangle.glb",
+    "format": "glb",
+    "status": "visual_only",
+    "physics_ready": false,
+    "preview_available": true,
+    "sha256": "299fb785e5dd9dc4bb0a9448ed5d71338e9f96869a8b404a07178f3e86d1150c",
+    "uploaded_bytes": 416,
+    "created_unix_s": 1791650684.4396496,
+    "summary": {
+      "vertices": 3,
+      "triangles": 1
+    },
+    "diagnostics": [
+      "Static triangles only. Materials, textures, animation and physical properties are not imported."
+    ]
+  },
+  "preview": {
+    "positions": [
+      [
+        2,
+        0,
+        0
+      ],
+      [
+        3,
+        0,
+        0
+      ],
+      [
+        2,
+        1,
+        0
+      ]
+    ],
+    "indices": [
+      0,
+      1,
+      2
+    ],
+    "vertex_count": 3,
+    "triangle_count": 1,
+    "coordinate_system": "glTF Y-up; original scene transforms applied; camera framing is display-only"
+  },
+  "malformedRejected": true,
+  "stagedNativeUnexecuted": true,
+  "errors": []
+}

@@ -21,6 +21,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import World */
+        post: operations["import_world_v1_imports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{import_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Imported World */
+        get: operations["imported_world_v1_imports__import_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{import_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Import Preview */
+        get: operations["import_preview_v1_imports__import_id__preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/worlds": {
         parameters: {
             query?: never;
@@ -492,6 +543,61 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** ImportPreview */
+        ImportPreview: {
+            /** Positions */
+            positions: number[][];
+            /** Indices */
+            indices: number[];
+            /** Vertex Count */
+            vertex_count: number;
+            /** Triangle Count */
+            triangle_count: number;
+            /** Coordinate System */
+            coordinate_system: string;
+        };
+        /** ImportResponse */
+        ImportResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.import/1.0
+             * @constant
+             */
+            schema_version: "vivacity.import/1.0";
+            /** Id */
+            id: string;
+            /** Filename */
+            filename: string;
+            /** Entrypoint */
+            entrypoint: string;
+            /** Format */
+            format: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "visual_only" | "configuration_required";
+            /**
+             * Physics Ready
+             * @default false
+             * @constant
+             */
+            physics_ready: false;
+            /** Preview Available */
+            preview_available: boolean;
+            /** Sha256 */
+            sha256: string;
+            /** Uploaded Bytes */
+            uploaded_bytes: number;
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Diagnostics */
+            diagnostics: string[];
+        };
         /** ReplayResponse */
         ReplayResponse: {
             /**
@@ -700,6 +806,99 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    import_world_v1_imports_post: {
+        parameters: {
+            query: {
+                filename: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    imported_world_v1_imports__import_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_preview_v1_imports__import_id__preview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Vivacity Execution Runtime",
-    "description": "Measured Panda reaching and restricted 2D orbital hypothesis comparison. Local single-process demo.",
+    "description": "Measured Panda reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded data-only imports. Single-process demo.",
     "version": "1.0.0"
   },
   "paths": {
@@ -16,6 +16,125 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports": {
+      "post": {
+        "summary": "Import World",
+        "operationId": "import_world_v1_imports_post",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 180,
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}": {
+      "get": {
+        "summary": "Imported World",
+        "operationId": "imported_world_v1_imports__import_id__get",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}/preview": {
+      "get": {
+        "summary": "Import Preview",
+        "operationId": "import_preview_v1_imports__import_id__preview_get",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -1098,6 +1217,135 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ImportPreview": {
+        "properties": {
+          "positions": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array",
+              "maxItems": 3,
+              "minItems": 3
+            },
+            "type": "array",
+            "title": "Positions"
+          },
+          "indices": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Indices"
+          },
+          "vertex_count": {
+            "type": "integer",
+            "title": "Vertex Count"
+          },
+          "triangle_count": {
+            "type": "integer",
+            "title": "Triangle Count"
+          },
+          "coordinate_system": {
+            "type": "string",
+            "title": "Coordinate System"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "positions",
+          "indices",
+          "vertex_count",
+          "triangle_count",
+          "coordinate_system"
+        ],
+        "title": "ImportPreview"
+      },
+      "ImportResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.import/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.import/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "entrypoint": {
+            "type": "string",
+            "title": "Entrypoint"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "visual_only",
+              "configuration_required"
+            ],
+            "title": "Status"
+          },
+          "physics_ready": {
+            "type": "boolean",
+            "const": false,
+            "title": "Physics Ready",
+            "default": false
+          },
+          "preview_available": {
+            "type": "boolean",
+            "title": "Preview Available"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "uploaded_bytes": {
+            "type": "integer",
+            "title": "Uploaded Bytes"
+          },
+          "created_unix_s": {
+            "type": "number",
+            "title": "Created Unix S"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          },
+          "diagnostics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Diagnostics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "filename",
+          "entrypoint",
+          "format",
+          "status",
+          "preview_available",
+          "sha256",
+          "uploaded_bytes",
+          "created_unix_s",
+          "summary",
+          "diagnostics"
+        ],
+        "title": "ImportResponse"
       },
       "ReplayResponse": {
         "properties": {

@@ -2,20 +2,25 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 import asyncio
 import os
-from fastapi import FastAPI, Header, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Header, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
 from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport
+from .schemas import ImportResponse,ImportPreview
+from .imports import ImportService,MAX_UPLOAD
+from pathlib import Path
 
 
 def create_app(database=None):
     @asynccontextmanager
     async def lifespan(app):
-        app.state.runtime = Runtime(database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3'))
+        path=database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3')
+        app.state.runtime = Runtime(path)
+        app.state.imports = ImportService(Path(path).parent/'imports')
         yield
         await asyncio.to_thread(app.state.runtime.close)
 
-    app = FastAPI(title='Vivacity Execution Runtime', version='1.0.0', lifespan=lifespan, description='Measured Panda reaching and restricted 2D orbital hypothesis comparison. Local single-process demo.')
+    app = FastAPI(title='Vivacity Execution Runtime', version='1.0.0', lifespan=lifespan, description='Measured Panda reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded data-only imports. Single-process demo.')
     origins = [o.strip() for o in os.getenv('VIVACITY_CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if o.strip()]
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key'])
 
@@ -47,6 +52,21 @@ def create_app(database=None):
     @app.get('/health')
     def health():
         return {'status': 'ok', 'schema_version': '1.0', 'backends': {k: b.version for k, b in app.state.runtime.backends.items()}}
+
+    @app.post('/v1/imports',response_model=ImportResponse,status_code=201)
+    async def import_world(request:Request,filename:str=Query(min_length=1,max_length=180)):
+        chunks=[];length=0
+        async for chunk in request.stream():
+            length+=len(chunk)
+            if length>MAX_UPLOAD:raise ValueError('upload exceeds 16 MiB')
+            chunks.append(chunk)
+        return await asyncio.to_thread(app.state.imports.create,filename,b''.join(chunks))
+
+    @app.get('/v1/imports/{import_id}',response_model=ImportResponse)
+    def imported_world(import_id:str):return app.state.imports.get(import_id)
+
+    @app.get('/v1/imports/{import_id}/preview',response_model=ImportPreview)
+    def import_preview(import_id:str):return app.state.imports.get(import_id,preview=True)
 
     @app.post('/v1/worlds', response_model=WorldResponse, status_code=201)
     def create_world(request: CreateWorld):
