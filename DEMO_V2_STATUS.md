@@ -15,3 +15,5 @@ Deployment audit: Vercel frontend loads, but its previous temporary Cloudflare A
 ## Milestone order
 
 P1 minimal branded workspace; P2 one bounded event inspector; P3 genuine hierarchical candidate search; P4 verified result cards, versioned exports and automatic recorded replay; P5 reaching hardening and honest pickup boundary; P6 solver-derived 3D discovery; P7 physically credible constrained cloth benchmark; P8 bounded validated world imports; P9 short brand opening; P10 integration, visual and deployment verification. Each stage receives relevant executed checks and a commit. Advanced gaps remain explicit rather than being simulated visually.
+
+P1 completed: one problem statement, right-aligned minimal navigation, no visible world IDs or repeated simulator labels, faithful existing robot geometry and settings. Strict TypeScript passed. Actual browser layout checks passed at 1440, 768 and 375 px with no page exceptions or horizontal overflow; desktop and mobile screenshots were viewed (`artifacts/v2-layout*`). Cloth and import initially show explicit unavailable states until their implementation milestones.

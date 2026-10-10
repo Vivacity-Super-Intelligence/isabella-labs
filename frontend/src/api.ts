@@ -1,4 +1,4 @@
-import type { Backend, World, Experiment, Branch, Replay, Dict } from './domain';
+import type { Backend, World, Experiment, Branch, Replay, Dict, Event } from './domain';
 import type { components } from './generated/api';
 
 export const API = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
@@ -25,6 +25,7 @@ export const api = {
   submit: (id: string, key: string, settings: Dict) => request<Experiment>(`/v1/worlds/${id}/experiments`, json('POST', settings, { 'Idempotency-Key': key })),
   experiment: (id: string) => request<Experiment>(`/v1/experiments/${encodeURIComponent(id)}`),
   branches: (id: string) => request<Branch[]>(`/v1/experiments/${encodeURIComponent(id)}/branches`),
+  events: (id: string, after=0) => request<Event[]>(`/v1/experiments/${encodeURIComponent(id)}/events?after=${after}`),
   replay: (id: string) => request<Replay>(`/v1/experiments/${encodeURIComponent(id)}/replay`),
   environment: (id: string, config: Dict) => request<World>(`/v1/worlds/${id}/environment`, json('PATCH', { config })),
   reset: (id: string) => request<World>(`/v1/worlds/${id}/reset`, json('POST')),

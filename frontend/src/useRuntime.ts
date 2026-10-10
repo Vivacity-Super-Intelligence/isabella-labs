@@ -67,6 +67,9 @@ export function useRuntime(backend: Backend) {
     let active = true, stopped = false, socket: WebSocket | null = null;
     let timer: ReturnType<typeof setTimeout> | null = null, attempts = 0;
     let cursor = Number(get(`cursor:${id}`) ?? 0), refreshing = false;
+    const appendEvents=(incoming:Event[])=>setEvents(old=>[...new Map([...old,...incoming].map(e=>[e.seq,e])).values()].sort((a,b)=>a.seq-b.seq).slice(-160));
+    // Restore recorded logs independently of the reconnect cursor, including finished jobs.
+    (async()=>{let after=0;for(let page=0;page<20&&active;page++){const batch=await api.events(id,after);if(active&&current.current?.id===id)appendEvents(batch);if(batch.length<100)break;after=batch.at(-1)!.seq;}})().catch(err=>active&&setError(errorMessage(err)));
     const updateEvidence = async (includeReplay: boolean) => {
       const b = await api.branches(id); const r = includeReplay ? await api.replay(id) : null;
       if (active && current.current?.id===id) { setBranches(b); if (r) setReplay(r); }
@@ -98,7 +101,7 @@ export function useRuntime(backend: Backend) {
           const event = JSON.parse(message.data) as Event;
           if (event.schema_version !== '1.0' || event.seq <= cursor) return;
           cursor = event.seq; put(`cursor:${id}`, String(cursor));
-          setEvents(old => [...old, event].slice(-24));
+          appendEvents([event]);
           if (event.kind === 'branch_completed') updateEvidence(false).catch(err => active && setError(errorMessage(err)));
           // Keep polling until an authoritative terminal GET completes, including
           // when this event arrives during another in-flight status request.

@@ -5,6 +5,7 @@ import { usePlayback } from './usePlayback';
 import { API } from './api';
 import { format, robotFrame, scienceObservation, type Backend, type RobotFrame, type ScienceFrame } from './domain';
 import Settings from './Settings';
+import TechnicalInspector from './TechnicalInspector';
 const RobotView=lazy(()=>import('./RobotView'));
 const ScienceView=lazy(()=>import('./ScienceView'));
 
@@ -64,7 +65,7 @@ export default function App(){
             </>}
           </aside>
         </div>
-        <details className="inspector" open><summary>Technical Inspector</summary><div className="event-log">{!rt.events.length?<p>{rt.loaded?'World initialized. Ready for a deterministic experiment.':'Initializing world…'}</p>:rt.events.map(e=><p key={e.seq}>{e.kind.replaceAll('_',' ')} {JSON.stringify(e.details)}</p>)}</div></details>
+        <TechnicalInspector events={rt.events} initialized={compatible} playing={play.playing} branches={branches} select={id=>{setBranchId(id);setRecorded(true);}} history={{ids:rt.world?.history??[],open:rt.history,disabled:rt.busy}}/>
       </>}
     </main>
     <footer><span>Viva Physics</span><details><summary>Credits & scope</summary><p>Vivacity interface. Robotics: MuJoCo and Menagerie Franka Panda (Apache 2.0). Science: SciPy, simplified 2D dynamics and synthetic observations. Deterministic policy; no hosted LLM reasoning.</p></details><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>

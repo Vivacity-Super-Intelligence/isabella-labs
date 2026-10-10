@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from pathlib import Path
 import json
 import sqlite3
+import time
 
 
 def encode(value):
@@ -69,7 +70,8 @@ class Store:
         if db is None:
             with self.connect() as connection:
                 return self.event(experiment_id, kind, details, connection)
-        db.execute('INSERT INTO events(experiment_id,payload) VALUES(?,?)', (experiment_id, encode({'schema_version': '1.0', 'kind': kind, 'details': details or {}})))
+        measured = {'timestamp_unix_s': time.time()} | (details or {})
+        db.execute('INSERT INTO events(experiment_id,payload) VALUES(?,?)', (experiment_id, encode({'schema_version': '1.0', 'kind': kind, 'details': measured})))
 
     def events(self, experiment_id, after=0):
         with self.connect() as db:

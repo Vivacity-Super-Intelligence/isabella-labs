@@ -34,7 +34,7 @@ export interface ReplayBranch { branch_id: string; source: string; frames: Frame
 export type Replay = Omit<components['schemas']['ReplayResponse'], 'branches'> & { branches: ReplayBranch[] };
 // WebSocket envelopes are not part of REST OpenAPI. Matches EventResponse in
 // vivacity/schemas.py and the versioned WebSocket contract in docs/API.md.
-export interface Event { schema_version:'1.0'; seq:number; kind:'queued'|'running'|'planned'|'branch_completed'|'completed'|'failed'; details:Dict }
+export interface Event { schema_version:'1.0'; seq:number; kind:'queued'|'running'|'planned'|'progress'|'branch_completed'|'completed'|'failed'; details:Dict }
 export interface ScienceObservation { times: number[]; observations: number[][]; config: Dict; selected_model: unknown }
 export const format = (n: unknown, digits = 3) => typeof n === 'number' && Number.isFinite(n) ? n.toFixed(digits) : '—';
 export const number = (d: Dict | undefined, key: string) => typeof d?.[key] === 'number' ? d[key] as number : undefined;

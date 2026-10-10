@@ -148,5 +148,5 @@ class ReplayResponse(Schema):
 class EventResponse(Schema):
     schema_version: Literal['1.0'] = '1.0'
     seq: int
-    kind: Literal['queued', 'running', 'planned', 'branch_completed', 'completed', 'failed']
+    kind: Literal['queued', 'running', 'planned', 'progress', 'branch_completed', 'completed', 'failed']
     details: dict

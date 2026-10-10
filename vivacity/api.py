@@ -73,6 +73,11 @@ def create_app(database=None):
         app.state.runtime.get_experiment(experiment_id)
         return app.state.runtime.store.branches(experiment_id)
 
+    @app.get('/v1/experiments/{experiment_id}/events', response_model=list[EventResponse])
+    def recorded_events(experiment_id: str, after: int = Query(0, ge=0)):
+        app.state.runtime.get_experiment(experiment_id)
+        return app.state.runtime.store.events(experiment_id, after)
+
     @app.post('/v1/worlds/{world_id}/commit', response_model=WorldResponse)
     def commit(world_id: str, request: CommitRequest):
         return app.state.runtime.commit(world_id, request.experiment_id, request.branch_id)
