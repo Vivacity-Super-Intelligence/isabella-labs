@@ -1,3 +1,5 @@
+> Latest verified revision (2026-10-11): actuated Panda cloth fold and custom-domain release at https://demo.tryvivacity.com/. **86 backend tests passed**, zero failures/errors/skips, **416.81 s**. Details, actual evidence and remaining hosting/grasp limitations: [ROBOT_CLOTH_RELEASE.md](ROBOT_CLOTH_RELEASE.md). Older results below remain historical.
+
 # Implementation status
 
 ## Current V2 evidence

@@ -168,6 +168,7 @@ class Runtime:
             def execute_action(action, run_settings):
                 branch_wall = time.perf_counter()
                 branch_instance = None
+                recorded_action = deepcopy(action)
                 phase = 'fork'
                 try:
                     branch_instance = backend.fork(e['snapshot'])
@@ -175,6 +176,7 @@ class Runtime:
                     self.apply_action(e['backend'], branch_instance, action)
                     phase = 'simulate'
                     result = self.simulate(e['backend'], branch_instance, run_settings)
+                    recorded_action = result.get('executed_action', recorded_action)
                     phase = 'evaluate'
                     evaluation = self.evaluate(e['backend'], branch_instance, result)
                     phase = 'snapshot'
@@ -182,7 +184,7 @@ class Runtime:
                     trace = result['trace']
                     phase = 'serialize_result'
                     encode({'evaluation': evaluation, 'trace': trace, 'final_state': final_state})
-                    performance = {'wall_seconds': time.perf_counter()-branch_wall, 'physics_wall_seconds': result['physics_wall_seconds'], 'simulation_steps': result.get('simulation_steps', 0), 'integration_calls': result.get('integration_calls', 0), 'measurement_complete': True}
+                    performance = {'wall_seconds': time.perf_counter()-branch_wall, 'physics_wall_seconds': result['physics_wall_seconds'], 'ik_planning_seconds': result.get('ik_planning_seconds', 0), 'simulation_steps': result.get('simulation_steps', 0), 'integration_calls': result.get('integration_calls', 0), 'measurement_complete': True}
                 except Exception as exc:
                     # Do not invent frames or step counts when an adapter loses its trace.
                     log.error('branch adapter failed: experiment=%s phase=%s type=%s', eid, phase, type(exc).__name__)
@@ -196,7 +198,7 @@ class Runtime:
                     trace = []
                     evaluation = {'success': False, 'status': 'adapter_failure', 'phase': phase, 'error_type': type(exc).__name__, 'trace_available': False, 'final_state_available': final_state is not None}
                     performance = {'wall_seconds': time.perf_counter()-branch_wall, 'physics_wall_seconds': None, 'simulation_steps': None, 'integration_calls': None, 'measurement_complete': False}
-                branch = {'schema_version': '1.0', 'id': uid(), 'experiment_id': eid, 'parent_state_reference': reference, 'initial_state': deepcopy(e['snapshot']), 'action': deepcopy(action), 'trace': trace, 'final_state': final_state, 'evaluation': evaluation, 'performance': performance}
+                branch = {'schema_version': '1.0', 'id': uid(), 'experiment_id': eid, 'parent_state_reference': reference, 'initial_state': deepcopy(e['snapshot']), 'action': deepcopy(recorded_action), 'trace': trace, 'final_state': final_state, 'evaluation': evaluation, 'performance': performance}
                 # Persist evidence and lineage together, even if a later branch/job fails.
                 with self.lock, self.store.connect() as db:
                     db.execute('BEGIN IMMEDIATE')
@@ -240,7 +242,7 @@ class Runtime:
                 e.update(status='failed', error='all_branches_failed:adapter_failure')
             e['stale'] = self.get_world(e['world_id'])['revision'] != e['revision']
             replay = self._replay(e, branches)
-            e['performance'] = {'job_wall_seconds': time.perf_counter()-wall, 'process_cpu_seconds': time.process_time()-cpu, 'queue_wait_seconds': max(0., time.time()-e['submitted_at']-(time.perf_counter()-wall)), 'planning_wall_seconds': planning_time, 'physics_wall_seconds': sum(b['performance']['physics_wall_seconds'] or 0 for b in branches), 'candidate_count': len(branches), 'simulation_steps': sum(b['performance']['simulation_steps'] or 0 for b in branches), 'integration_calls': sum(b['performance']['integration_calls'] or 0 for b in branches), 'replay_payload_bytes': len(encode(replay).encode()), 'branch_failure_rate': sum(not b['evaluation']['success'] for b in branches)/len(branches), 'adapter_error_count': adapter_errors, 'measurement_complete': adapter_errors == 0, 'job_error_rate': float(adapter_errors > 0), 'compute': 'local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy'}
+            e['performance'] = {'job_wall_seconds': time.perf_counter()-wall, 'process_cpu_seconds': time.process_time()-cpu, 'queue_wait_seconds': max(0., time.time()-e['submitted_at']-(time.perf_counter()-wall)), 'planning_wall_seconds': planning_time+sum(b['performance'].get('ik_planning_seconds',0) for b in branches), 'physics_wall_seconds': sum(b['performance']['physics_wall_seconds'] or 0 for b in branches), 'candidate_count': len(branches), 'simulation_steps': sum(b['performance']['simulation_steps'] or 0 for b in branches), 'integration_calls': sum(b['performance']['integration_calls'] or 0 for b in branches), 'replay_payload_bytes': len(encode(replay).encode()), 'branch_failure_rate': sum(not b['evaluation']['success'] for b in branches)/len(branches), 'adapter_error_count': adapter_errors, 'measurement_complete': adapter_errors == 0, 'job_error_rate': float(adapter_errors > 0), 'compute': 'local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy'}
             with self.lock, self.store.connect() as db:
                 w = self.store.get('worlds', e['world_id'], db)
                 e['stale'] = w['revision'] != e['revision']

@@ -105,7 +105,7 @@ export default function App(){
 
       {page==='import'?<Suspense fallback={<div className="viewport-loading">Loading import tools…</div>}><ImportWorld/></Suspense>:<>
 
-        <div className="workspace-intro"><div>{robotics&&<nav className="world-switch" aria-label="Robotics world"><button aria-pressed={!cloth} onClick={()=>choose('mujoco')}>Object Pickup</button><button aria-pressed={cloth} onClick={()=>choose('cloth')}>Cloth Folding</button></nav>}<h1>{robotics?(cloth?'Find a feasible way to fold a cloth.':'Reach the object. Avoid the obstacle.'):'The Invisible Planet'}</h1><p>{robotics?(cloth?'Constrained single fold: fixed hinge, pre-attached clamps and measured deformable dynamics.':'Pickup milestone: pre-grasp reach. Grasp, lift and placement are not implemented.'):'Can an unseen gravitational influence explain the observed orbit?'}</p></div><span className="connection" role="status">{rt.online?'Viva Physics connected':'Runtime offline'}</span></div>
+        <div className="workspace-intro"><div>{robotics&&<nav className="world-switch" aria-label="Robotics world"><button aria-pressed={!cloth} onClick={()=>choose('mujoco')}>Object Pickup</button><button aria-pressed={cloth} onClick={()=>choose('cloth')}>Cloth Folding</button></nav>}<h1>{robotics?(cloth?'Find a feasible way to fold a cloth.':'Reach the object. Avoid the obstacle.'):'The Invisible Planet'}</h1><p>{robotics?(cloth?'The Panda arm folds and releases a physical cloth using a pre-attached folding bar.':'Pickup milestone: pre-grasp reach. Grasp, lift and placement are not implemented.'):'Can an unseen gravitational influence explain the observed orbit?'}</p></div><span className="connection" role="status">{rt.online?'Viva Physics connected':'Runtime offline'}</span></div>
 
         {!rt.online&&rt.loaded&&<div className="offline-notice" role="status"><Warning size={18}/><span>Simulation runtime unavailable. Recorded results remain inspectable.</span><button onClick={rt.reconnect}>Reconnect</button></div>}
 
@@ -157,7 +157,7 @@ export default function App(){
 
     </main>
 
-    <footer><span>Viva Physics</span><details><summary>Credits & scope</summary><p>Vivacity interface. Robotics: MuJoCo and Menagerie Franka Panda (Apache 2.0). Cloth: MuJoCo flex, constrained pre-attached fold benchmark. Science: SciPy, simplified 2D dynamics and synthetic observations. Deterministic policy; no hosted LLM reasoning.</p></details><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
+    <footer><span>Viva Physics</span><details><summary>Credits & scope</summary><p>Vivacity interface. Robotics: MuJoCo and Menagerie Franka Panda (Apache 2.0). Cloth: actuated Panda, MuJoCo flex and a pre-attached folding fixture; no autonomous grasp acquisition. Science: SciPy, simplified 2D dynamics and synthetic observations. Deterministic policy; no hosted LLM reasoning.</p></details><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
 
   </>;
 

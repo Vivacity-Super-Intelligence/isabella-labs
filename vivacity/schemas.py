@@ -49,6 +49,7 @@ class ScienceConfig(Schema):
 
 
 class ClothConfig(Schema):
+    robot_model: Literal['panda'] = 'panda'
     side_length: float = Field(.4,ge=.3,le=.5)
     mass: float = Field(.08,ge=.03,le=.2)
     friction: float = Field(.6,ge=.1,le=1.5)

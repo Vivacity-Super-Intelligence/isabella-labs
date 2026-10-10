@@ -28,7 +28,7 @@ Follow [DEMO_GUIDE.md](DEMO_GUIDE.md) for the three-minute presentation, [DEMO_L
 
 ## Current live demo
 
-The verified Vercel deployment is [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/). Its API is currently reached through a temporary Cloudflare quick tunnel from the local MuJoCo/SciPy process, so the URL is live only while that tunnel and backend process remain running. A durable public release requires a paid/ provisioned Python host with authentication, persistent storage and explicit CORS; the existing `demo.tryvivacity.com` project was intentionally left untouched.
+The current Vercel deployment is [demo.tryvivacity.com](https://demo.tryvivacity.com/). Cloth Folding now uses a real actuated Panda and recorded robot/cloth motion; see [ROBOT_CLOTH_RELEASE.md](ROBOT_CLOTH_RELEASE.md) for current verification and deployment commands. Its API is currently reached through a temporary Cloudflare quick tunnel from the local MuJoCo/SciPy process, so the URL is live only while that tunnel and backend process remain running. A durable public release requires a paid/ provisioned Python host with authentication, persistent storage and explicit CORS. The existing `vivacity-demo` project was updated at the user's request; unrelated projects were preserved.
 
 ## Setup (Windows PowerShell)
 

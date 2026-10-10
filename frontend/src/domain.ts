@@ -17,7 +17,7 @@ export interface ScienceFrame {
   time: number; observed_position: number[]; predicted_position: number[];
   predicted_velocity: number[]; split: 'train' | 'heldout';
 }
-export interface ClothFrame { time:number; vertices:Vec3[]; triangles:number[][]; clamp_position:Vec3; grasp_active:boolean[]; scope:string }
+export interface ClothFrame { time:number; vertices:Vec3[]; triangles:number[][]; clamp_position:Vec3; clamp_quaternion_wxyz?:Quat; body_transforms?:BodyPose[]; qpos?:number[]; qvel?:number[]; ctrl?:number[]; grasp_active:boolean[]; scope:string }
 export type Frame = RobotFrame | ScienceFrame | ClothFrame;
 export interface Evaluation {
   status: string; success: boolean; planning_feasible?: boolean;

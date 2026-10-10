@@ -9,7 +9,7 @@ The product uses the existing Python 3.12 / FastAPI / SQLite runtime and React /
 | Adapter | Source of state and results | Scope |
 | --- | --- | --- |
 | `robotics.py`, backend `mujoco` | Menagerie Panda, MuJoCo integration, contacts, DLS IK and joint-space RRT | Fixed cube/obstacle, collision-free pre-grasp reaching |
-| `cloth.py`, backend `cloth` | MuJoCo triangulated flex vertices, equality/clamp state, actual integration | One constrained fold, fixed hinge/opposite edge, pre-attached clamps, release/settle |
+| `cloth.py`, backend `cloth` | MuJoCo triangulated flex vertices, equality/clamp state, actual integration | Actuated Panda single fold, fixed hinge/opposite edge, pre-attached folding bar, release/retract/settle |
 | `science.py`, backend `scipy` | `solve_ivp`, training-only `least_squares`, held-out residuals/BIC/local uncertainty | Simplified 2D central dynamics with an optional stationary perturber at a known location |
 
 Both MuJoCo adapters serialize `mjSTATE_INTEGRATION`, version, seed, configuration and model hash. This includes controls, warm-start integration information, mocap data and active equality state. Each branch constructs independent `MjModel`/`MjData`. JSON snapshots are not native MJB files. Scientific state contains observations and fitted-model state; hidden generation parameters are removed before the fitting policy can inspect it. No snapshot format is forced onto the other adapter.
@@ -17,6 +17,8 @@ Both MuJoCo adapters serialize `mjSTATE_INTEGRATION`, version, seed, configurati
 ## Search and evidence
 
 Robotics V2 requests 5,000 seeded, continuously varied joint paths. Interior waypoint hashes establish actual distinct count. Cheap joint bounds and selected actual MuJoCo FK/contact checks screen these variants; they do not certify the whole path. A diagnostic direct path and a bounded shortlist receive real dynamic integration. Default UI budget is 12 validation episodes. Failed planning with zero integration steps is counted separately from executed rollouts. Successful branches rank by measured executed duration, sampled joint-path length, goal error and candidate index.
+
+New cloth worlds default to `robot_model: "panda"`. The Menagerie arm has seven joint position actuators and gravity compensation. Its fixed folding bar carries seven pre-attached equality constraints; there is no mocap body. DLS pose IK produces 71 joint waypoints for carrying and retracting. During execution only actuator targets and release flags are commanded, never qpos or cloth vertices. Immutable equality anchors are calibrated once at initialization and reproduced on fork. `legacy_cloth.py` preserves old configurations and hashes; the UI starts a fresh arm world when a locally remembered cloth world lacks `robot_model`.
 
 Cloth requests 5,000 distinct clamp height/duration/lateral-offset parameter sets, screens geometric bounds and integrates eight shortlisted episodes by default. Evaluation measures edge alignment RMSE, fraction of moved vertices inside the destination footprint below a height threshold, clamp-constraint residual, excessive penetration, numerical stability and timeout. **Vertex coverage is not area overlap; constraint validity is not autonomous grasp acquisition.** Ranking uses success, alignment, coverage and measured duration. Cloth vertices are never prescribed as animation coordinates.
 
@@ -28,7 +30,7 @@ Counters/events are computed from work actually performed. `generated`, `distinc
 
 `frontend/src/useRuntime.ts` handles lab-specific persisted IDs, mutation locks, idempotent submission/retry, jobs, WebSocket sequence reconnection and REST history/poll recovery. React lab switching is guarded against stale adapter responses. Progress uses measured event envelopes; complete branch/replay payloads are downloaded at terminal completion, not repeatedly for each branch event. The UI explicitly waits for recorded evidence before enabling new mutations. Terminal WebSocket closure does not trigger an endless reconnect loop. One `TechnicalInspector.tsx` shows a bounded 160-row measured event buffer, preserves scroll position when inspecting older rows and provides persisted failure/history access. The complete event record remains on the server.
 
-`RobotView.tsx` uses the compiled geometry assets in `frontend/public/vivacity`: `robot-geometry.json` and `robot-meshes.bin`. Body transforms and quaternions come from recorded MuJoCo frames; MuJoCo WXYZ is converted to Three.js XYZW. Robot/cloth/science use Z-up. Science remains `[x,y,0]` even in its orbitable 3D viewer. Cloth uses 49 measured vertices and compiled triangle indices. Imported glTF preserves its Y-up convention and applies uploaded node transforms before previewing. Camera centering/zoom and motion interpolation are display operations, never additional simulation.
+`RobotView.tsx` uses the compiled geometry assets in `frontend/public/vivacity`: `robot-geometry.json` and `robot-meshes.bin`. Body transforms and quaternions come from recorded MuJoCo frames; MuJoCo WXYZ is converted to Three.js XYZW. Robot/cloth/science use Z-up. Science remains `[x,y,0]` even in its orbitable 3D viewer. Cloth uses 49 measured vertices, compiled triangle indices and actual Panda body poses. New sheets are centered at world `[0.5,0,0.012]` meters; the bar is fixed at hand-local `[0,0,0.18]`. Its measured quaternion rotates both bar and fixture stem. The arm uses the same Menagerie geometry asset cache as the reaching workcell. Imported glTF preserves its Y-up convention and applies uploaded node transforms before previewing. Camera centering/zoom and motion interpolation are display operations, never additional simulation.
 
 `usePlayback.ts` automatically selects/loops a successful current result using recorded timestamps. Interaction pauses motion. Reduced motion disables autoplay. Failed/stale results do not autoplay. Each top-three card downloads its own complete actual branch action, parent/final state, frames, evaluation, hash/seed/timestamps and metrics. Fewer than three successes remain fewer than three cards.
 
@@ -59,7 +61,7 @@ npm run test:e2e
 Set-Location ..
 powershell -NoProfile -File scripts/start-public-demo.ps1
 # Use the returned HTTPS API URL:
-vercel link --cwd frontend --project vivacity-investor-demo --scope tanishs-projects-66633ee2 --yes
+vercel link --cwd frontend --project vivacity-demo --scope tanishs-projects-66633ee2 --yes
 vercel deploy --cwd frontend --prod --yes --build-env VITE_API_BASE_URL=<returned-api-url>
 ```
 

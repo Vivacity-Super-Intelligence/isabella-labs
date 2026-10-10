@@ -13,7 +13,7 @@ $port=[int]$endpoint.apiPort
 for($i=0;$i -lt 20;$i++){if(!(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue)){break};Start-Sleep -Milliseconds 250}
 if(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue){throw 'Public port remains occupied; no unrelated process was stopped.'}
 $env:VIVACITY_DATABASE=Join-Path $runRoot 'vivacity.sqlite3'
-$env:VIVACITY_CORS_ORIGINS=$endpoint.frontendOrigin.TrimEnd('/')+',http://127.0.0.1:5173,http://localhost:5173'
+$env:VIVACITY_CORS_ORIGINS=$endpoint.frontendOrigin.TrimEnd('/')+',https://demo.tryvivacity.com,https://vivacity-investor-demo.vercel.app,http://127.0.0.1:5173,http://localhost:5173'
 $env:OMP_NUM_THREADS='1';$env:OPENBLAS_NUM_THREADS='1';$env:MKL_NUM_THREADS='1'
 $env:OPENAI_API_KEY=$null;$env:OPENAI_MODEL=$null
 $stamp=Get-Date -Format 'yyyyMMdd-HHmmss'

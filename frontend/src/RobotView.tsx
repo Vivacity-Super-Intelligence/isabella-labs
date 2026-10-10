@@ -8,9 +8,9 @@ import type { Dict, RobotFrame, Vec3 } from './domain';
 type MeshSpec = { id: number; positions: { byte_offset: number; count: number }; indices: { byte_offset: number; count: number } };
 type Geom = { id: number; name: string; body_id: number; type: string; group: number; mesh_id: number | null; position: Vec3; quaternion_wxyz: number[]; size: Vec3; rgba: number[] };
 type Manifest = { bodies: {id: number; name: string}[]; geoms: Geom[]; meshes: MeshSpec[] };
-type Assets = { manifest: Manifest; geometry: Map<number,BufferGeometry> };
+export type Assets = { manifest: Manifest; geometry: Map<number,BufferGeometry> };
 let assetPromise: Promise<Assets> | null = null;
-function loadAssets() {
+export function loadAssets() {
   if (!assetPromise) assetPromise = (async () => {
     const start = performance.now();
     const [a,b] = await Promise.all([fetch('/vivacity/robot-geometry.json'), fetch('/vivacity/robot-meshes.bin')]);
@@ -46,7 +46,7 @@ function CameraInteraction({command}:{command:{key:string;seq:number}}){
   return <OrbitControls ref={c=>{controls.current=c;}} makeDefault target={[.32,.08,.28]} minDistance={.7} maxDistance={4} maxPolarAngle={Math.PI*.49} enableDamping dampingFactor={.12} />;
 }
 
-function GeomMesh({ geom, assets, config }: { geom: Geom; assets: Assets; config: Dict }) {
+export function GeomMesh({ geom, assets, config }: { geom: Geom; assets: Assets; config: Dict }) {
   const q = quaternion(geom.quaternion_wxyz);
   const size = (geom.name === 'obstacle_geom' ? config.obstacle_size : geom.size) as Vec3;
   const color = useMemo(() => new Color().setRGB(geom.rgba[0],geom.rgba[1],geom.rgba[2],SRGBColorSpace),[geom]);

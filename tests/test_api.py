@@ -14,14 +14,15 @@ def finish(client, world):
     response = client.post(f"/v1/worlds/{world['id']}/experiments", json={})
     assert response.status_code == 202
     eid = response.json()['id']
-    deadline = time.monotonic()+30
+    # IK/RRT wall time varies with CPU contention; correctness has no 30 s SLA.
+    deadline = time.monotonic()+120
     while time.monotonic() < deadline:
         e = client.get(f'/v1/experiments/{eid}').json()
         if e['status'] in ('completed', 'failed'):
             assert e['status'] == 'completed', e
             return e
         time.sleep(0.02)
-    pytest.fail('job did not finish in 30 seconds')
+    pytest.fail('job did not finish in 120 seconds')
 
 
 @pytest.mark.parametrize('body', [

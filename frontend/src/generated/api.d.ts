@@ -389,6 +389,12 @@ export interface components {
         /** ClothConfig */
         ClothConfig: {
             /**
+             * Robot Model
+             * @default panda
+             * @constant
+             */
+            robot_model: "panda";
+            /**
              * Side Length
              * @default 0.4
              */

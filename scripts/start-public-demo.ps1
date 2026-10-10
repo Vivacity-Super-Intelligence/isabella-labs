@@ -1,4 +1,4 @@
-param([string]$FrontendOrigin='https://vivacity-investor-demo.vercel.app',[int]$ApiPort=8001)
+param([string]$FrontendOrigin='https://demo.tryvivacity.com',[int]$ApiPort=8001)
 $ErrorActionPreference='Stop'
 $projectRoot=(Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $runRoot=Join-Path $projectRoot 'data\public'
@@ -12,7 +12,7 @@ if(Get-NetTCPConnection -LocalPort $ApiPort -State Listen -ErrorAction SilentlyC
 $uri=[uri]$FrontendOrigin
 if($uri.Scheme -ne 'https' -or $uri.AbsolutePath -ne '/' -or $uri.Query -or $uri.Fragment){throw 'FrontendOrigin must be an HTTPS origin.'}
 $env:VIVACITY_DATABASE=Join-Path $runRoot 'vivacity.sqlite3'
-$env:VIVACITY_CORS_ORIGINS=$FrontendOrigin.TrimEnd('/')+',http://127.0.0.1:5173,http://localhost:5173'
+$env:VIVACITY_CORS_ORIGINS=$FrontendOrigin.TrimEnd('/')+',https://demo.tryvivacity.com,https://vivacity-investor-demo.vercel.app,http://127.0.0.1:5173,http://localhost:5173'
 $env:OMP_NUM_THREADS='1';$env:OPENBLAS_NUM_THREADS='1';$env:MKL_NUM_THREADS='1'
 $env:OPENAI_API_KEY=$null;$env:OPENAI_MODEL=$null
 $stamp=Get-Date -Format 'yyyyMMdd-HHmmss'

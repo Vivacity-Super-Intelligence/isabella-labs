@@ -1,3 +1,7 @@
+> Current arm-fold revision: complete backend **86/86 passed in 416.81 s**; intermediate **85 passed/1 timing failure** retained. Exact reports and current custom-domain browser evidence are linked from [ROBOT_CLOTH_RELEASE.md](ROBOT_CLOTH_RELEASE.md). Earlier V2 measurements below describe the previous release.
+
+The current custom-domain Panda cloth experiment ran eight real flex rollouts and completed in 460.49 seconds under local CPU contention. The original public checker had a 360-second terminal wait and timed out while the background worker kept running; its persisted job completed successfully. The corrected ten-minute checker was then rerun against that exact completed public experiment and passed its exact vertex/body-position/quaternion replay, release, export, desktop and mobile checks. This timing is not presented as a production responsiveness guarantee.
+
 # Vivacity V2 executed verification
 
 Verification environment: Windows, Python 3.12, MuJoCo 3.15.0, SciPy 1.18.1, Node 25.9.0, local Chromium/software rendering. Seeds are fixed. All numbers below are actual executed measurements, not hardware/production guarantees.

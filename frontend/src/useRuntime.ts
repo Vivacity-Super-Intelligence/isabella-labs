@@ -9,7 +9,7 @@ function ensureWorld(backend: Backend) {
   if (!pendingWorlds.has(backend)) {
     const work = (async () => {
       const stored = get(`${backend}:world`);
-      if (stored) { try { return await api.world(stored); } catch (e) { if (!(e instanceof APIError && e.status === 404)) throw e; } }
+      if (stored) { try { const existing=await api.world(stored); if(backend!=='cloth'||existing.config.robot_model==='panda')return existing; } catch (e) { if (!(e instanceof APIError && e.status === 404)) throw e; } }
       const world = await api.create(backend); put(`${backend}:world`, world.id); return world;
     })().finally(() => pendingWorlds.delete(backend));
     pendingWorlds.set(backend, work);

@@ -1,3 +1,5 @@
+> Latest revision: actuated Panda cloth folding at https://demo.tryvivacity.com/. Current verification and remaining limits are in [ROBOT_CLOTH_RELEASE.md](ROBOT_CLOTH_RELEASE.md); the P7 mocap-fixture measurements below describe the previous implementation.
+
 # Vivacity V2 implementation record
 
 ## P0 preservation audit (2026-10-10)

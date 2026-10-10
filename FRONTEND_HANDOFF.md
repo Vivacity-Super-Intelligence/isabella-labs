@@ -1,12 +1,14 @@
+> Current Panda cloth release and custom-domain evidence: [ROBOT_CLOTH_RELEASE.md](ROBOT_CLOTH_RELEASE.md). API contracts remain version 1.0; earlier results below are historical.
+
 # Vivacity frontend handoff
 
 ## V2 integrated application (2026-10-10)
 
 The React frontend now exists. Start with `DEMO_V2_TECHNICAL_ARCHITECTURE.md`, `DEMO_V2_TEST_RESULTS.md`, and `DEMO_V2_LIMITATIONS.md` for current scope/evidence; these supersede historical measurements below. Key files are `frontend/src/App.tsx`, `useRuntime.ts`, `api.ts`, `domain.ts`, `usePlayback.ts`, `RobotView.tsx`, `ClothView.tsx`, `ScienceView.tsx`, `ScienceScene.tsx`, `ImportWorld.tsx`, `ImportScene.tsx`, `ResultCard.tsx`, `TechnicalInspector.tsx`, `workspace.css` and `generated/api.d.ts`.
 
-Additional create example: `POST /v1/worlds` with `{"backend":"cloth","seed":7,"config":{"side_length":0.4,"mass":0.08,"friction":0.6}}`. V2 experiments request `{"search_candidates":5000,"physics_budget":8,"policy":"deterministic"}`; UI robot budget is 12 and cloth budget 8. Counts distinguish generated/screened variants, attempted/integrated episodes and verified successes. Zero-step planning failures do not count as integrated physics.
+Additional create example: `POST /v1/worlds` with `{"backend":"cloth","seed":7,"config":{"robot_model":"panda","side_length":0.4,"mass":0.08,"friction":0.6}}`. V2 experiments request `{"search_candidates":5000,"physics_budget":8,"policy":"deterministic"}`; UI robot budget is 12 and cloth budget 8. Counts distinguish generated/screened variants, attempted/integrated episodes and verified successes. Zero-step planning failures do not count as integrated physics.
 
-Cloth frames contain time, 49 `vertices` (world XYZ meters), compiled `triangles` (indices), `clamp_position`, `grasp_active`, and scope. Robot/cloth/science use Z-up; scientific predictions remain `[x,y,0]`. Imported glTF uses Y-up. Interpolation is display-only. Cloth is a constrained pre-attached fixture, and Panda pickup remains reach-only.
+Cloth frames contain time, 49 `vertices` (world XYZ meters), compiled `triangles` (indices), `clamp_position`, `clamp_quaternion_wxyz`, `grasp_active`, measured robot `body_transforms`, robot `qpos`/`qvel`/`ctrl`, and scope. New sheets are centered at `[0.5,0,0.012]` meters. The folding bar is fixed at hand-local `[0,0,0.18]`; all arm body poses and cloth vertices come from MuJoCo integration. New branch actions include 71 `joint_waypoints` and `waypoint_times`; recorded replay still uses measured frames, not these targets. Robot/cloth/science use Z-up; scientific predictions remain `[x,y,0]`. Imported glTF uses Y-up. Interpolation is display-only. Cloth is an actuated Panda with a constrained pre-attached fixture, and Panda pickup remains reach-only.
 
 `GET /v1/experiments/{id}/events?after=<seq>` recovers persisted event history. `GET /v1/experiments/{id}/branches/{bid}/export` downloads that branch's complete versioned evidence. WebSocket envelopes remain `{schema_version:"1.0",seq,kind,details}` with additional `progress` kind, persisted `details.timestamp_unix_s`, actual work messages/counters, sequence reconnection and completed/failed close. OpenAPI includes this schema in `x-websockets`.
 
