@@ -1,162 +1,147 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api, APIError, errorMessage, websocketURL } from './api';
-import type { Backend, World, Experiment, Branch, Replay, Event, Dict } from './domain';
+import { api, APIError, errorMessage, liveProtocols, liveWebsocketURL, setSessionToken, websocketURL } from './api';
+import type { Backend, World, Experiment, Branch, Event, Dict } from './domain';
+import type { components } from './generated/api';
 
-const get = (key: string) => { try { return localStorage.getItem(`vivacity:${key}`); } catch { return null; } };
-const put = (key: string, value: string) => { try { localStorage.setItem(`vivacity:${key}`, value); } catch { /* UI remains usable without storage. */ } };
-const pendingWorlds = new Map<Backend, Promise<World>>();
-function ensureWorld(backend: Backend) {
-  if (!pendingWorlds.has(backend)) {
-    const work = (async () => {
-      const stored = get(`${backend}:world`);
-      if (stored) { try { const existing=await api.world(stored); if(backend!=='cloth'||existing.config.robot_model==='panda')return existing; } catch (e) { if (!(e instanceof APIError && e.status === 404)) throw e; } }
-      const world = await api.create(backend); put(`${backend}:world`, world.id); return world;
-    })().finally(() => pendingWorlds.delete(backend));
-    pendingWorlds.set(backend, work);
+type Session = components['schemas']['SessionResponse'];
+type Live = components['schemas']['LiveState'];
+const get=(key:string)=>{try{return localStorage.getItem(`vivacity:${key}`);}catch{return null;}};
+const put=(key:string,value:string)=>{try{localStorage.setItem(`vivacity:${key}`,value);}catch{/* Optional persistence. */}};
+const pending=new Map<Backend,Promise<Session>>();
+function freshToken(){return crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','');}
+async function ensureSession(backend:Backend,config?:Dict,fresh=false){
+  if(!pending.has(backend)){
+    const work=(async()=>{
+      const id=get(`${backend}:session`),token=get(`${backend}:token`);
+      if(!fresh&&id&&token){setSessionToken(token);try{return await api.session(id);}catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}}
+      const capability=freshToken();setSessionToken(capability);
+      const session=await api.createSession(backend,capability,config);
+      put(`${backend}:token`,capability);put(`${backend}:session`,session.id);return session;
+    })().finally(()=>pending.delete(backend));pending.set(backend,work);
   }
-  return pendingWorlds.get(backend)!;
+  return pending.get(backend)!;
 }
-export const isBusy = (e: Experiment | null) => e?.status === 'queued' || e?.status === 'running';
-export function useRuntime(backend: Backend) {
-  const [world, setWorld] = useState<World | null>(null);
-  const [observation, setObservation] = useState<Dict | null>(null);
-  const [experiment, setExperiment] = useState<Experiment | null>(null);
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [replay, setReplay] = useState<Replay | null>(null);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [online, setOnline] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [mutating, setMutating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [stream, setStream] = useState<'connecting' | 'live' | 'reconnecting' | 'idle'>('idle');
-  const [epoch, setEpoch] = useState(0);
-  const lock = useRef(false);
-  const generation = useRef(0);
-  const retrySubmission = useRef<{ world: string; key: string; settings: Dict } | null>(null);
-  const current = useRef(experiment); current.current = experiment;
+export const isBusy=(e:Experiment|null)=>e?.status==='queued'||e?.status==='running';
 
-  useEffect(() => {
-    let active = true;
-    const health = async () => { try { await api.health(); if (active) setOnline(true); } catch { if (active) setOnline(false); } };
-    health(); const id = setInterval(health, 5000);
-    return () => { active = false; clearInterval(id); };
-  }, []);
+export function useRuntime(backend:Backend){
+  const [session,setSession]=useState<Session|null>(null),[world,setWorld]=useState<World|null>(null);
+  const [observation,setObservation]=useState<Dict|null>(null),[experiment,setExperiment]=useState<Experiment|null>(null);
+  const [branches,setBranches]=useState<Branch[]>([]),[events,setEvents]=useState<Event[]>([]);
+  const [online,setOnline]=useState(false),[loaded,setLoaded]=useState(false),[mutating,setMutating]=useState(false);
+  const [error,setError]=useState<string|null>(null),[epoch,setEpoch]=useState(0);
+  const [stream,setStream]=useState<'connecting'|'live'|'reconnecting'|'idle'>('idle');
+  const [liveState,setLiveState]=useState<Live|null>(null);
+  const currentSession=useRef(session);currentSession.current=session;
+  const currentWorld=useRef(world);currentWorld.current=world;
+  const currentExperiment=useRef(experiment);currentExperiment.current=experiment;
+  const lock=useRef(false),generation=useRef(0);
+  const inspecting=useRef(false);
 
-  useEffect(() => {
-    const version = ++generation.current; let active = true;
-    setWorld(null); setObservation(null); setExperiment(null); setBranches([]); setReplay(null); setEvents([]); setLoaded(false); setError(null);
-    current.current=null;
-    retrySubmission.current = null;
-    (async () => {
-      try {
-        const w = await ensureWorld(backend); const state = await api.state(w.id);
-        let e: Experiment | null = null;
-        const eid = get(`${backend}:experiment`) ?? w.history.at(-1);
-        if (eid) { try { const candidate = await api.experiment(eid); if (candidate.world_id === w.id) e = candidate; } catch (err) { if (!(err instanceof APIError && err.status === 404)) throw err; } }
-        if (!active || version !== generation.current) return;
-        current.current=e;setWorld(w); setObservation(state.observation as Dict); setExperiment(e); setOnline(true); setLoaded(true);
-        performance.mark(`vivacity:${backend}:world-ready`);
-      } catch (err) { if (active) { setError(errorMessage(err)); setLoaded(true); } }
-    })();
-    return () => { active = false; };
-  }, [backend, epoch]);
+  const adopt=useCallback(async(s:Session,version:number)=>{
+    if(version!==generation.current)return;
+    setSession(s);currentSession.current=s;
+    if(currentWorld.current?.id!==s.world_id){
+      const w=await api.world(s.world_id),state=await api.state(s.world_id);
+      if(version!==generation.current)return;
+      currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);setLiveState(null);setBranches([]);
+    }
+    if(!inspecting.current&&s.experiment_id&&currentExperiment.current?.id!==s.experiment_id){
+      const e=await api.experiment(s.experiment_id);
+      if(version!==generation.current)return;
+      currentExperiment.current=e;setExperiment(e);setBranches([]);setLiveState(null);
+    }
+  },[]);
 
-  useEffect(() => {
-    const id = experiment?.id;
-    if (!id) return;
-    let active = true, stopped = false, socket: WebSocket | null = null;
-    let timer: ReturnType<typeof setTimeout> | null = null, attempts = 0;
-    let cursor = Number(get(`cursor:${id}`) ?? 0), refreshing = false;
-    const appendEvents=(incoming:Event[])=>setEvents(old=>[...new Map([...old,...incoming].map(e=>[e.seq,e])).values()].sort((a,b)=>a.seq-b.seq).slice(-160));
-    // Restore recorded logs independently of the reconnect cursor, including finished jobs.
-    (async()=>{let after=0;for(let page=0;page<20&&active;page++){const batch=await api.events(id,after);if(active&&current.current?.id===id)appendEvents(batch);if(batch.length<100)break;after=batch.at(-1)!.seq;}})().catch(err=>active&&setError(errorMessage(err)));
-    const updateEvidence = async (includeReplay: boolean) => {
-      const b = await api.branches(id); const r = includeReplay ? await api.replay(id) : null;
-      if (active && current.current?.id===id) { setBranches(b); if (r) setReplay(r); }
+  useEffect(()=>{
+    const version=++generation.current;let active=true,refreshing=false;
+    inspecting.current=false;
+    setWorld(null);currentWorld.current=null;setSession(null);currentSession.current=null;
+    setExperiment(null);currentExperiment.current=null;setObservation(null);setBranches([]);setEvents([]);setLiveState(null);setLoaded(false);setError(null);
+    const refresh=async()=>{
+      if(refreshing||!active)return;refreshing=true;
+      try{
+        const s=currentSession.current?await api.session(currentSession.current.id):await ensureSession(backend);
+        if(!active)return;await adopt(s,version);setOnline(true);setLoaded(true);
+      }catch(e){if(active){setError(errorMessage(e));setOnline(false);setLoaded(true);}}
+      finally{refreshing=false;}
     };
-    const refresh = async () => {
-      if (refreshing || !active) return; refreshing = true;
-      try {
-        const e = await api.experiment(id);
-        if (!active || current.current?.id!==id) return;
-        current.current=e;setExperiment(e); setOnline(true);
-        if (!isBusy(e)) {
-          setStream('idle'); await updateEvidence(true);
-          socket?.close();
-          const w = await api.world(e.world_id); const s=await api.state(e.world_id);
-          if (active && current.current?.id===id) {setWorld(w);setObservation(s.observation as Dict);}
-          stopped = true;
+    refresh();const interval=setInterval(refresh,1000);
+    return()=>{active=false;clearInterval(interval);};
+  },[backend,epoch,adopt]);
+
+  useEffect(()=>{
+    const id=experiment?.id;if(!id)return;
+    let active=true,terminal=false,refreshing=false,sequence=-1,eventCursor=0;
+    let eventSocket:WebSocket|null=null,liveSocket:WebSocket|null=null;
+    let reconnect:ReturnType<typeof setTimeout>|null=null;
+    const append=(incoming:Event[])=>setEvents(old=>[...new Map([...old,...incoming].map(e=>[e.seq,e])).values()].sort((a,b)=>a.seq-b.seq).slice(-160));
+    const measured=(live:Live|null)=>{
+      if(!active||!live||live.schema_version!=='vivacity.live/1.0'||live.sequence<=sequence)return;
+      sequence=live.sequence;setLiveState(live);setObservation(live.frame as Dict);
+    };
+    const refresh=async()=>{
+      if(!active||refreshing||terminal)return;refreshing=true;
+      try{
+        const e=await api.experiment(id);
+        if(!active)return;setOnline(true);currentExperiment.current=e;setExperiment(e);
+        const batch=await api.events(id,eventCursor);if(active&&batch.length){append(batch);eventCursor=batch.at(-1)!.seq;}
+        measured(await api.live(id));
+        if(!isBusy(e)){
+          const b=await api.branches(id),w=await api.world(e.world_id);
+          if(!active)return;setBranches(b);setWorld(w);currentWorld.current=w;
+          if(sequence<0){const state=await api.state(w.id);if(active)setObservation(state.observation as Dict);}
+          terminal=true;setStream('idle');eventSocket?.close();liveSocket?.close();
         }
-      } catch (err) { if (active) setError(`Connection lost. ${errorMessage(err)}. The server job is not cancelled.`); }
-      finally { refreshing = false; }
+      }catch(e){if(active){setError(errorMessage(e));setStream('reconnecting');}}
+      finally{refreshing=false;}
     };
-    const connect = () => {
-      if (!active || stopped) return;
-      setStream(attempts ? 'reconnecting' : 'connecting');
-      socket = new WebSocket(websocketURL(id, cursor));
-      socket.onopen = () => { if (active && current.current?.id===id) { setStream('live'); attempts = 0; } };
-      socket.onmessage = (message) => {
-        if (!active || current.current?.id!==id) return;
-        try {
-          const event = JSON.parse(message.data) as Event;
-          if (event.schema_version !== '1.0' || event.seq <= cursor) return;
-          cursor = event.seq; put(`cursor:${id}`, String(cursor));
-          appendEvents([event]);
-          // Events carry evaluations. Download large traces once at completion
-          // rather than repeatedly competing with physics integration.
-          // Keep polling until an authoritative terminal GET completes, including
-          // when this event arrives during another in-flight status request.
-          if (event.kind === 'completed' || event.kind === 'failed') refresh();
-        } catch (err) { setError(`Invalid progress message: ${errorMessage(err)}`); }
-      };
-      socket.onclose = () => {
-        if (!active || current.current?.id!==id) return;
-        refresh();
-        if (!stopped&&isBusy(current.current)) { setStream('reconnecting'); timer = setTimeout(connect, Math.min(5000, 500 * 2 ** attempts++)); }
-      };
-      socket.onerror = () => { if (active && current.current?.id===id && !stopped) setStream('reconnecting'); };
+    const connect=()=>{
+      if(!active||terminal)return;setStream('connecting');
+      liveSocket=new WebSocket(liveWebsocketURL(id),liveProtocols());
+      liveSocket.onopen=()=>active&&setStream('live');
+      liveSocket.onmessage=m=>{try{measured(JSON.parse(m.data) as Live);}catch(e){if(active)setError(errorMessage(e));}};
+      liveSocket.onclose=()=>{if(active&&!terminal){setStream('reconnecting');reconnect=setTimeout(connect,2000);}};
+      eventSocket?.close();eventSocket=new WebSocket(websocketURL(id,eventCursor),liveProtocols());
+      eventSocket.onmessage=m=>{try{const event=JSON.parse(m.data) as Event;if(!active||event.seq<=eventCursor)return;eventCursor=event.seq;append([event]);if(['completed','failed','cancelled'].includes(event.kind))refresh();}catch(e){if(active)setError(errorMessage(e));}};
     };
-    refresh();
-    if (isBusy(experiment)) connect();
-    const poll = setInterval(() => { if (!stopped) refresh(); }, 1000);
-    return () => { active = false; if (timer) clearTimeout(timer); clearInterval(poll); socket?.close(); };
-    // Status changes do not recreate the socket; a new job/lab owns a new effect.
-  }, [experiment?.id]);
+    refresh();if(isBusy(experiment))connect();
+    const poll=setInterval(refresh,1000);
+    return()=>{active=false;clearInterval(poll);if(reconnect)clearTimeout(reconnect);liveSocket?.close();eventSocket?.close();};
+  },[experiment?.id]);
 
-  const perform = useCallback(async (operation: () => Promise<void>) => {
-    if (lock.current) return;
-    lock.current = true; setMutating(true); setError(null);
-    try { await operation(); }
-    catch (err) { setError(errorMessage(err)); }
-    finally { lock.current = false; setMutating(false); }
-  }, []);
-  const run = useCallback(async (w = world, retry = false) => {
-    if (!w || isBusy(current.current)) return;
-    const version = generation.current;
-    const submission = retry && retrySubmission.current?.world === w.id ? retrySubmission.current : { world: w.id, key: crypto.randomUUID(), settings: { candidates: 3, planner_iterations: 1500, max_simulation_seconds: 25, policy: 'deterministic',...(backend!=='scipy'?{search_candidates:5000,physics_budget:backend==='cloth'?8:12}:{}) } };
-    retrySubmission.current = submission;
-    const e = await api.submit(w.id, submission.key, submission.settings);
-    put(`${backend}:experiment`, e.id); retrySubmission.current = null;
-    if (version !== generation.current) return;
-    current.current=e;setExperiment(e); setBranches([]); setReplay(null); setEvents([]);
-  }, [backend, world]);
-  const refreshWorld = async (w: World) => {
-    const state = await api.state(w.id); setWorld(w); setObservation(state.observation as Dict);
-    if (current.current) setExperiment(await api.experiment(current.current.id));
-  };
-  const apply = (config: Dict) => perform(async () => {
-    if (!world || isBusy(current.current)) return;
-    const w = await api.environment(world.id, config); await refreshWorld(w); await run(w);
+  const perform=useCallback(async(operation:()=>Promise<void>)=>{
+    if(lock.current)return;lock.current=true;setMutating(true);setError(null);
+    try{await operation();}catch(e){setError(errorMessage(e));}finally{lock.current=false;setMutating(false);}
+  },[]);
+  const stop=useCallback(async()=>{
+    const s=currentSession.current;if(!s||!['active','stopping'].includes(s.status))return;
+    let result=await api.stopSession(s.id);setSession(result);currentSession.current=result;
+    while(['active','stopping'].includes(result.status)){
+      await new Promise(resolve=>setTimeout(resolve,150));result=await api.session(s.id);
+      setSession(result);currentSession.current=result;
+    }
+  },[]);
+  const start=()=>perform(async()=>{
+    await stop();inspecting.current=false;const s=await ensureSession(backend,currentWorld.current?.config,true);await adopt(s,generation.current);
   });
-  const reset = () => perform(async () => { if (world) await refreshWorld(await api.reset(world.id)); });
-  const commit = (branchId?:string) => perform(async () => {
-    const e = current.current;
-    if (world && e?.selected_branch_id) await refreshWorld(await api.commit(world.id, e.id, branchId??e.selected_branch_id));
+  const apply=(config:Dict)=>perform(async()=>{
+    await stop();inspecting.current=false;const w=currentWorld.current;
+    if(w)await api.environment(w.id,config);
+    const s=await ensureSession(backend,config,true);await adopt(s,generation.current);
   });
-  const history = (id: string) => perform(async () => {
-    const e = await api.experiment(id); current.current=e;setExperiment(e); setReplay(null); setBranches([]); setEvents([]); put(`${backend}:experiment`, id);
+  const reset=()=>perform(async()=>{
+    await stop();const w=currentWorld.current;if(!w)return;
+    const resetWorld=await api.reset(w.id),state=await api.state(w.id);
+    currentWorld.current=resetWorld;setWorld(resetWorld);setObservation(state.observation as Dict);setLiveState(null);
+    if(currentExperiment.current)setExperiment(await api.experiment(currentExperiment.current.id));
   });
-  return { world, observation, experiment, branches, replay, events, online, loaded, mutating, error, stream,
-    busy: mutating || isBusy(experiment), retryAvailable: retrySubmission.current!==null, run: () => perform(() => run()), retry: () => perform(() => run(world, true)),
-    apply, reset, commit, history, reconnect: () => setEpoch(e => e+1), clearError: () => setError(null) };
+  const history=(id:string)=>perform(async()=>{
+    await stop();inspecting.current=true;const e=await api.experiment(id),b=await api.branches(id);
+    currentExperiment.current=e;setExperiment(e);setBranches(b);
+    const batch=await api.events(id);setEvents(batch.slice(-160));
+    // Evidence inspection never substitutes a recorded trajectory into the main scene.
+  });
+  return {world,observation,experiment,branches,events,session,liveState,online,loaded,mutating,error,stream,
+    busy:mutating||isBusy(experiment),active:session?.status==='active'||session?.status==='stopping',
+    run:start,stop,apply,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
 }

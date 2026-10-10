@@ -20,6 +20,7 @@ export interface ScienceFrame {
 export interface ClothFrame { time:number; vertices:Vec3[]; triangles:number[][]; clamp_position:Vec3; clamp_quaternion_wxyz?:Quat; body_transforms?:BodyPose[]; qpos?:number[]; qvel?:number[]; ctrl?:number[]; grasp_active:boolean[]; scope:string }
 export type Frame = RobotFrame | ScienceFrame | ClothFrame;
 export interface Evaluation {
+  grasp_established?:boolean; lifted?:boolean; retained_during_transport?:boolean; released?:boolean; table_supported?:boolean; max_cube_height_m?:number;
   status: string; success: boolean; planning_feasible?: boolean;
   goal_error_m?: number; orientation_error_rad?: number; execution_duration_s?: number;
   joint_path_length_rad?: number;
@@ -37,7 +38,7 @@ export interface ReplayBranch { branch_id: string; source: string; frames: Frame
 export type Replay = Omit<components['schemas']['ReplayResponse'], 'branches'> & { branches: ReplayBranch[] };
 // WebSocket envelopes are not part of REST OpenAPI. Matches EventResponse in
 // vivacity/schemas.py and the versioned WebSocket contract in docs/API.md.
-export interface Event { schema_version:'1.0'; seq:number; kind:'queued'|'running'|'planned'|'progress'|'branch_completed'|'completed'|'failed'; details:Dict }
+export interface Event { schema_version:'1.0'; seq:number; kind:'queued'|'running'|'planned'|'progress'|'branch_completed'|'completed'|'failed'|'cancelled'; details:Dict }
 export interface ScienceObservation { times: number[]; observations: number[][]; config: Dict; selected_model: unknown }
 export const format = (n: unknown, digits = 3) => typeof n === 'number' && Number.isFinite(n) ? n.toFixed(digits) : '—';
 export const number = (d: Dict | undefined, key: string) => typeof d?.[key] === 'number' ? d[key] as number : undefined;

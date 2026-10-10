@@ -1,0 +1,127 @@
+{
+  "url": "http://127.0.0.1:5175/",
+  "api": "http://127.0.0.1:8002",
+  "started_unix_s": 1791662876.885,
+  "checks": [
+    "two_fresh_pickup_cycles",
+    "5000_real_distinct_timed_candidates_per_cycle",
+    "three_validation_rollouts_plus_fresh_execution",
+    "exact_live_body_poses",
+    "selection_does_not_replay",
+    "three_parsed_exports",
+    "keyboard_camera",
+    "no_video_controls",
+    "one_inspector",
+    "fresh_scipy_fits_and_heldout_metrics",
+    "unseen_mass_and_control_select_different_models",
+    "no_hidden_truth",
+    "computed_planar_science_geometry",
+    "fresh_actuated_cloth_execution_and_exact_vertices",
+    "bounded_real_visual_import"
+  ],
+  "errors": [],
+  "sessions": [
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "606a1e17-4aef-4131-bd64-3cbf65345ae6",
+      "backend": "mujoco",
+      "status": "completed",
+      "world_id": "24c28db6-67c5-4127-92a1-2f5055223fda",
+      "experiment_id": "8267599b-4890-442e-af5d-42d430c67b4f",
+      "cycle": 2,
+      "max_cycles": 2,
+      "experiments": [
+        "d52a5d68-75e6-41e3-87ad-03b267cc13ce",
+        "8267599b-4890-442e-af5d-42d430c67b4f"
+      ],
+      "world_ids": [
+        "d7185d66-4f34-4054-9e8e-4e78626f872e",
+        "24c28db6-67c5-4127-92a1-2f5055223fda"
+      ],
+      "error": null,
+      "started_unix_s": 1791662879.270991,
+      "last_heartbeat_unix_s": 1791663107.571223,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "d7185d66-4f34-4054-9e8e-4e78626f872e",
+          "configuration_sha256": "a2faa77716f3b44f8d702a85266d4ebb4be1e432af3940be689c2d58f58a8664"
+        },
+        {
+          "cycle": 2,
+          "seed": 8,
+          "world_id": "24c28db6-67c5-4127-92a1-2f5055223fda",
+          "configuration_sha256": "e4a0945a47ad7c305168ed7700e97859c81a9c9a819ca90967933ba81ba8af02"
+        }
+      ]
+    },
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "2579d97d-33ae-4d36-af3f-38800d1c504f",
+      "backend": "scipy",
+      "status": "completed",
+      "world_id": "730a988e-5d5f-4d1e-8c62-96edc44722b3",
+      "experiment_id": "b9177cc7-b1f8-4671-a8a5-e653ed9eeda3",
+      "cycle": 2,
+      "max_cycles": 2,
+      "experiments": [
+        "bda3350e-9b15-4394-bbd6-2eaf9a873c68",
+        "b9177cc7-b1f8-4671-a8a5-e653ed9eeda3"
+      ],
+      "world_ids": [
+        "21292253-2d7e-4bb3-9ca0-cfee41fd02b4",
+        "730a988e-5d5f-4d1e-8c62-96edc44722b3"
+      ],
+      "error": null,
+      "started_unix_s": 1791663128.582302,
+      "last_heartbeat_unix_s": 1791663134.1368628,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "21292253-2d7e-4bb3-9ca0-cfee41fd02b4",
+          "configuration_sha256": "e926b72659cc590e4f1eca439acd845beae95729bfc8252c0940bc37504f6e68"
+        },
+        {
+          "cycle": 2,
+          "seed": 8,
+          "world_id": "730a988e-5d5f-4d1e-8c62-96edc44722b3",
+          "configuration_sha256": "c463082b75f14fca85db64a6226d75d67b1cfe7237d31d6304b4ea4bc5290932"
+        }
+      ]
+    },
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "1231c834-b819-4ba0-96d7-9cf9768317a5",
+      "backend": "cloth",
+      "status": "completed",
+      "world_id": "52e2288a-482c-46d1-81ce-ad0f451b3706",
+      "experiment_id": "86eb2f4f-8e17-46d9-93d7-431b3948b9f0",
+      "cycle": 1,
+      "max_cycles": 1,
+      "experiments": [
+        "86eb2f4f-8e17-46d9-93d7-431b3948b9f0"
+      ],
+      "world_ids": [
+        "52e2288a-482c-46d1-81ce-ad0f451b3706"
+      ],
+      "error": null,
+      "started_unix_s": 1791663139.216323,
+      "last_heartbeat_unix_s": 1791663266.210337,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "52e2288a-482c-46d1-81ce-ad0f451b3706",
+          "configuration_sha256": "04d6afcb0b5007dc4958b10f2ec7e0622509347bd46f34698838ddae17880102"
+        }
+      ]
+    }
+  ],
+  "state_messages": 441,
+  "event_messages": 70,
+  "axe_violations": [],
+  "status": "passed",
+  "finished_unix_s": 1791663269.615
+}

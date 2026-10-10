@@ -95,14 +95,14 @@ function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime }: 
         renderP95FrameMs:[...frameTimes.current].sort((a,b)=>a-b)[Math.ceil(frameTimes.current.length*.95)-1] };
     }
   });
-  const target = config.target_position as Vec3;
+  const target = (config.task==='pick_place'?config.placement_position:config.target_position) as Vec3;
   const path = useMemo(() => frames.map(f=>f.end_effector),[frames]);
   const contacts = frames.at(-1)?.contacts ?? [];
   const collisionBodies = new Set(contacts.flatMap(c=>c.bodies).filter(n=>n !== 'obstacle' && n !== 'world'));
   const last = frames.at(-1);
   return <group dispose={null}>
     {assets.manifest.bodies.map(body => <group key={body.id} ref={g=>{ if (g) groups.current.set(body.name,g); else groups.current.delete(body.name); }}>
-      {assets.manifest.geoms.filter(g=>g.body_id === body.id && (g.group === 0 || g.group === 2)).map(geom=><GeomMesh key={geom.id} geom={geom} assets={assets} config={config} />)}
+      {assets.manifest.geoms.filter(g=>g.body_id === body.id && (g.group === 0 || g.group === 2) && !(g.name==='obstacle_geom'&&config.obstacle_enabled===false)).map(geom=><GeomMesh key={geom.id} geom={geom} assets={assets} config={config} />)}
     </group>)}
     <gridHelper args={[5,40,'#777970','#aaa99e']} rotation={[Math.PI/2,0,0]} position={[0,0,-.798]} />
     {path.length > 1 && <Line points={path} color={contacts.length ? '#d23a21' : '#2455ff'} lineWidth={2.3} />}
@@ -124,13 +124,13 @@ class SceneBoundary extends Component<{children: ReactNode}, { error: boolean }>
   render() { return this.state.error ? <div className="scene-unavailable">3D rendering is unavailable. Your experiment data remains accessible in the inspector. Try a WebGL2-capable browser.</div> : this.props.children; }
 }
 
-function RobotView({ frames, cursor, config, replaying, playing, renderTime }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number }) {
+function RobotView({ frames, cursor, config, playing, renderTime }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number }) {
   const [assets,setAssets] = useState<Assets | null>(null), [error,setError] = useState<string | null>(null), [cameraKey,setCameraKey] = useState(0);
   const [cameraCommand,setCameraCommand]=useState({key:'',seq:0});
   const resetCamera=()=>{setCameraCommand(c=>({key:'',seq:c.seq+1}));setCameraKey(k=>k+1);};
   useEffect(() => { let active = true; loadAssets().then(a=>active&&setAssets(a)).catch(e=>active&&setError(String(e))); return ()=>{ active=false; }; },[]);
   return <div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label="Franka Panda workcell. Arrow keys orbit, plus and minus zoom, R resets camera. Actual MuJoCo geometry and measured transforms." onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
-    <div className="viewport-label"><span className="mono">01 / ROBOTICS WORKCELL</span><span>{replaying ? 'Recorded physics replay' : 'Current world state'}</span></div>
+    <div className="viewport-label"><span className="mono">ROBOTICS WORKCELL</span><span>Measured simulator state</span></div>
     {error ? <div className="scene-unavailable" role="alert">{error}</div> : !assets || !frames.length ? <div className="scene-unavailable"><Cube size={24} />{!assets ? 'Loading Panda geometry…' : 'Waiting for a measured world state…'}</div> : <SceneBoundary>
       <Canvas key={cameraKey} frameloop="demand" shadows dpr={[1,1.25]} camera={{ position: [1.5,-1.6,1.25], fov: 38, near: .01, far: 15 }} gl={{ antialias: true, preserveDrawingBuffer: true }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#deddd4'); performance.mark('vivacity:robot-scene-ready'); }}>
         <ambientLight intensity={.72} /><hemisphereLight args={['#ffffff','#6f706a',1.8]} />
@@ -140,7 +140,7 @@ function RobotView({ frames, cursor, config, replaying, playing, renderTime }: {
         <CameraInteraction command={cameraCommand} />
       </Canvas>
     </SceneBoundary>}
-    <div className="viewport-bottom"><span><Target size={15} /> Pre-grasp goal · reach only</span><button className="viewport-button" onClick={resetCamera} aria-label="Reset camera"><ArrowCounterClockwise size={17} /> Reset camera</button></div>
+    <div className="viewport-bottom"><span><Target size={15} /> {config.task==='pick_place'?'Physical contact pickup · placement target':'Pre-grasp goal · reach only'}</span><button className="viewport-button" onClick={resetCamera} aria-label="Reset camera"><ArrowCounterClockwise size={17} /> Reset camera</button></div>
     <div className="viewport-instructions">Drag / arrows to orbit · scroll / +/- to zoom <span>METERS / Z-UP</span></div>
   </div>;
 }
