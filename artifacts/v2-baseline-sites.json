@@ -1,0 +1,203 @@
+[
+  {
+    "name": "brand",
+    "url": "https://www.tryvivacity.com/",
+    "errors": [],
+    "title": "Vivacity | Intelligence that can act in the world",
+    "text": "VIVACITY\nVIVACITY\nResearch\nDocs\nEarly access\nTalk to us\n↗\nPRIVATE TECHNICAL ACCESS\nIntelligence that can act in the world.\n\nVivacity is building infrastructure for agents that need more than an answer. They need to understand changing conditions, take action, and stay grounded in what happens next.\n\nWork with Vivacity\nExplore our research\n↗\n∂W / ∂t\nHUMAN-DEFINED PHYSICS\nRUNTIME FOR NON-LIVING SYSTEMS\nFIELD OBSERVATION / 001\nOUR THESIS\n\n01 / OUR THESIS\n\nLanguage helped machines understand what we say. The next step is helping them understand what their actions change.\n\n02 / ACTIVE RESEARCH\n\nBuilding for the space between intent and consequence.\n\nOur work focuses on the systems an agent needs to reason about an environment, make a choice, and learn from the result. We publish when the work is ready to be useful.\n\nResearch index\n↗\n01\nWorld representation\n\nHow agents can work with environments that change, persist, and respond over time.\n\n↗\n02\nAction and consequence\n\nHow proposed actions can be tested against constraints before they reach the real world.\n\n↗\n03\nExecution systems\n\nHow different computational tools can take part in one reliable agent loop.\n\n↗\n01\nΦ\n17\n+\nΔ\n08\nλ\n24\n∴\n52\n×\n03\nψ\n31\n∿\n11\n∴\n40\nVCT / FIELD 02\nVCT.02\n\nResearch should become infrastructure. Infrastructure should disappear into the work.\n\n03 / CONCEPTUAL INSTRUMENT\n\nSee the transition, not just the answer.\n\nAn agent proposes an action. Vivacity keeps the state, isolates possible outcomes, and preserves the evidence behind the path that follows. This instrument is conceptual, but the system boundary is the point.\n\nRead the working concepts\n↗\nRUNTIME\nACTIVE\n01\nDESCRIBE\n02\nCOMPILE\n03\nINSPECT\n04\nACT\n05\nFORK\n06\nEXECUTE\n07\nVERIFY\n08\nOBSERVE\n01\nORBITAL TRANSFER\n02\nCOUPLED DYNAMICS\n03\nCONTACT ACTION\n\nWORLDSTATE\n\nw:01F9 / s:0042\n\nBODY.MASS\n420.000 kg\nORBIT.ALT\n612.000 km\nSTATE.T\n42.600 s\nCONSTRAINT\nenergy\n\nLINEAGE\n\nbase → fork.02\n\nTRANSITION\na:IMPULSE_04\n\nBRANCH 02\n\nVERIFIED\n\n7.62\n\nkm/s / normalized\n\nBRANCH SET\n\nB.01\nDECAY\n−8.0%\nB.02\nSTABLE\nBASE\nB.03\nESCAPE\n+12.0%\nFORK STATE\n−8%\nBASE\n+12%\n\n04 / EXECUTABLE WORLDS\n\nBetween a world model and the world it is asked to predict.\n\nVivacity is designed around a hard boundary: state records what is true, action proposes a transition, and execution determines what can become true next.\n\nA sampled orbital observation with three candidate trajectories\nSTATE VIEW / 01\nOrbital state\nA sampled contact field around a robotic gripper\nSTATE VIEW / 02\nContact action\nA sampled flow field around an asymmetric obstacle\nSTATE VIEW / 03\nFlow state\n\n05 / SELECT PARTNERS\n\nWorking closely with a small number of ambitious technical teams.\n\nWe partner with selected startups where the hard part is not generating an answer. It is building an agent that can operate inside a real, changing system.\n\nEngagements are technical, focused, and shaped around the problem. If that sounds like your work, we should talk.\n\nStart a conversation\n\nVIVACITY / 2026\n\nWe are building for agents that have somewhere to be.\nTalk to the team\nhelp@tryvivacity.com\nVIVACITY\n\nResearch and infrastructure for agents that act in changing environments.\n\nEXPLORE\nResearch\nDocs\nEarly access\nSchedule\nCONTACT\nhelp@tryvivacity.com\nVIVACITY\n© 2026 VIVACITY\nINDEPENDENT SYSTEMS RESEARCH",
+    "font": "Geist, \"Geist Fallback\", sans-serif",
+    "scripts": [
+      "https://www.tryvivacity.com/_next/static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "https://www.tryvivacity.com/_next/static/chunks/255-cb395327542b56ef.js",
+      "https://www.tryvivacity.com/_next/static/chunks/main-app-f9b5d20365cb8be2.js",
+      "",
+      "https://www.tryvivacity.com/_next/static/chunks/polyfills-42372ed130431b0a.js",
+      "https://www.tryvivacity.com/_next/static/chunks/732-86bd1653590efecd.js",
+      "https://www.tryvivacity.com/_next/static/chunks/app/docs/page-905a2548e2326d03.js",
+      "https://www.tryvivacity.com/_next/static/chunks/app/research/page-16310cc61e2f27df.js",
+      "https://www.tryvivacity.com/_next/static/chunks/app/early-access/page-01e5e1a4e7baf3cd.js",
+      "https://www.tryvivacity.com/_next/static/chunks/webpack-d5600b2ecbcb47e8.js",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "animations": [
+      {
+        "name": "intro-grid-breathe",
+        "frames": [
+          {
+            "offset": 0,
+            "easing": "ease",
+            "composite": "auto",
+            "transform": "scale(1.04)",
+            "opacity": "0",
+            "computedOffset": 0
+          },
+          {
+            "offset": 0.48,
+            "easing": "ease",
+            "composite": "auto",
+            "opacity": "0.07",
+            "computedOffset": 0.48
+          },
+          {
+            "offset": 1,
+            "easing": "ease",
+            "composite": "auto",
+            "transform": "scale(1)",
+            "opacity": "0.025",
+            "computedOffset": 1
+          }
+        ]
+      },
+      {
+        "name": "intro-trace",
+        "frames": [
+          {
+            "offset": 0,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "transform": "scaleX(0.05)",
+            "opacity": "0",
+            "computedOffset": 0
+          },
+          {
+            "offset": 0.22,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "opacity": "0.34",
+            "computedOffset": 0.22
+          },
+          {
+            "offset": 0.72,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "transform": "scaleX(1)",
+            "opacity": "0.2",
+            "computedOffset": 0.72
+          },
+          {
+            "offset": 1,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "transform": "scaleX(1)",
+            "opacity": "0",
+            "computedOffset": 1
+          }
+        ]
+      },
+      {
+        "name": "intro-arrival",
+        "frames": [
+          {
+            "offset": 0,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "transform": "translate(-921.6px, -67.2px) rotate(-720deg) scale(0.28)",
+            "filter": "blur(8px)",
+            "opacity": "0",
+            "computedOffset": 0
+          },
+          {
+            "offset": 0.12,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "opacity": "1",
+            "computedOffset": 0.12
+          },
+          {
+            "offset": 0.74,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "transform": "translate(0px) rotate(0deg) scale(0.94)",
+            "filter": "blur(0px)",
+            "computedOffset": 0.74
+          },
+          {
+            "offset": 1,
+            "easing": "cubic-bezier(0.16, 0.78, 0.18, 1)",
+            "composite": "auto",
+            "transform": "translate(0px) rotate(0deg) scale(1)",
+            "filter": "blur(0px)",
+            "opacity": "1",
+            "computedOffset": 1
+          }
+        ]
+      },
+      {
+        "name": "intro-halo",
+        "frames": [
+          {
+            "offset": 0,
+            "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+            "composite": "auto",
+            "transform": "scale(0.48)",
+            "opacity": "0",
+            "computedOffset": 0
+          },
+          {
+            "offset": 0.35,
+            "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+            "composite": "auto",
+            "opacity": "0.28",
+            "computedOffset": 0.35
+          },
+          {
+            "offset": 1,
+            "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+            "composite": "auto",
+            "transform": "scale(1.35)",
+            "opacity": "0",
+            "computedOffset": 1
+          }
+        ]
+      },
+      {
+        "name": "intro-word",
+        "frames": [
+          {
+            "offset": 0,
+            "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+            "composite": "replace",
+            "transform": "translateY(7px)",
+            "opacity": "0",
+            "computedOffset": 0
+          },
+          {
+            "offset": 1,
+            "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+            "composite": "auto",
+            "transform": "translateY(0px)",
+            "opacity": "1",
+            "computedOffset": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "deployed",
+    "url": "https://vivacity-investor-demo.vercel.app/",
+    "errors": [],
+    "title": "Vivacity — Experiment workspace",
+    "text": "Skip to experiment workspace\nvivacity\nEXECUTABLE WORLDS / EXPERIMENT WORKSPACE\nRuntime offline\nVERCEL\n\nAN EXECUTION RUNTIME FOR AGENTS\n\nGive an agent a world.\nLet it experiment.\n\nInspect a state. Fork alternatives.\nMeasure what happens. Decide what comes next.\nActual physics. Persisted evidence.\n\nRobotics Lab\nMUJOCO\nDiscovery Lab\nSCIPY\nWORLD —\nREV —\nBackend unavailable. Saved evidence may remain visible; new experiments require a connection.\nReconnect\nFailed to fetch\nReload evidence\n01 / ROBOTICS WORKCELL\nCurrent world state\nLoading Panda geometry…\nPre-grasp goal · reach only\nReset camera\nDrag / arrows to orbit · scroll / +/- to zoom\nMETERS / Z-UP\n0.00 / 0.00 s\nPlayback speed\n0.25×\n0.5×\n1×\n2×\nCurrent state\nRun experiment\nREACH TARGET\nChange obstacle\nReset\n\nMenagerie Franka Panda meshes · MuJoCo body transforms · reaching, not grasping\n\n01 / THE PROBLEM\nConnecting\nReach the target. Avoid the obstacle.\n\nCan the arm reach the blue cube without colliding with the obstacle?\n\nSuccess: collision-free pre-grasp pose, within 20 mm and 0.08 rad.\nREADY TO EXPERIMENT\nConnection lost\n1\nPropose\n2\nSimulate\n3\nEvaluate\n4\nDecide\nAlternative futures\n—\n\nEach candidate starts from the same independent state. Failed outcomes remain visible.\n\nDETERMINISTIC PLANNER\n\nRun an experiment to compare alternative paths through the same initial state.\n\nTechnical inspector\nSTATE / ACTION / EVIDENCE\nHow Vivacity works\nONE RUNTIME, TWO WORLDS\nvivacity\nInspectable worlds. Reproducible experiments.\nAPI reference",
+    "font": "Geist, Arial, sans-serif",
+    "scripts": [
+      "https://vivacity-investor-demo.vercel.app/assets/index-BgCkP0J_.js"
+    ],
+    "animations": []
+  }
+]
