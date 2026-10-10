@@ -9,6 +9,7 @@ import uuid
 from .agent import DeterministicPolicy, HostedPolicy
 from .robotics import RoboticsBackend
 from .science import ScienceBackend
+from .cloth import ClothBackend
 from .storage import Store, encode
 
 log = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class Unavailable(ValueError):
 class Runtime:
     def __init__(self, database):
         self.store = Store(database)
-        self.backends = {'mujoco': RoboticsBackend(), 'scipy': ScienceBackend()}
+        self.backends = {'mujoco': RoboticsBackend(), 'scipy': ScienceBackend(), 'cloth':ClothBackend()}
         self.lock = threading.RLock()
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='vivacity-simulation')
         self.capacity = threading.BoundedSemaphore(8)
@@ -157,6 +158,8 @@ class Runtime:
             if e['backend']=='mujoco' and settings.get('search_candidates',0):
                 from .search import search_reaches
                 actions, planning_time, search = search_reaches(backend,instance,settings,lambda detail:self.store.event(eid,'progress',detail))
+            elif e['backend']=='cloth' and settings.get('search_candidates',0):
+                actions, planning_time, search = backend.search(instance,settings,lambda detail:self.store.event(eid,'progress',detail))
             else:
                 actions, planning_time = backend.candidates(instance, settings['candidates'], settings['planner_iterations'])
             self.store.event(eid, 'planned', {'candidate_count': len(actions), 'planning_wall_seconds': planning_time})
@@ -282,10 +285,10 @@ class Runtime:
             return w
 
     def environment(self, world_id, config):
-        from .schemas import RoboticsConfig, ScienceConfig
+        from .schemas import RoboticsConfig, ScienceConfig, ClothConfig
         with self.lock, self.store.connect() as db:
             w = self.store.get('worlds', world_id, db)
-            expected = RoboticsConfig if w['backend'] == 'mujoco' else ScienceConfig
+            expected = {'mujoco':RoboticsConfig,'scipy':ScienceConfig,'cloth':ClothConfig}[w['backend']]
             if not isinstance(config, expected):
                 raise ValueError('config does not match world backend')
             instance = self.backends[w['backend']].create_world(config.model_dump(), w['seed'])
@@ -309,4 +312,4 @@ class Runtime:
             raise Conflict('branch does not belong to this experiment')
         state=b['initial_state']
         completed=next((ev['details'].get('timestamp_unix_s') for ev in self.store.events(eid) if ev['kind']=='branch_completed' and ev['details'].get('branch_id')==bid),None)
-        return {'schema_version':'vivacity.branch/1.0','experiment_id':eid,'branch_id':bid,'world_type':'object_pregrasp' if e['backend']=='mujoco' else 'invisible_planet','simulation_backend':e['backend'],'simulator_version':state['version'],'initial_configuration':deepcopy(e['config']),'initial_state_reference':b['parent_state_reference'],'state_encoding':'JSON serialization of mjSTATE_INTEGRATION, not a native binary .mjb file' if e['backend']=='mujoco' else 'JSON numerical observations and fitted-model state','initial_state':state,'final_state':b['final_state'],'action':b['action'],'recorded_frames':b['trace'],'evaluation':b['evaluation'],'constraint_violations':b['evaluation'].get('contact_violations',[]),'success':b['evaluation']['success'],'seed':state['seed'],'configuration_sha256':hashlib.sha256(encode(e['config']).encode()).hexdigest(),'model_hash':state.get('model_hash'),'timestamps':{'submitted_unix_s':e['submitted_at'],'branch_completed_unix_s':completed},'performance':b['performance']}
+        return {'schema_version':'vivacity.branch/1.0','experiment_id':eid,'branch_id':bid,'world_type':{'mujoco':'object_pregrasp','scipy':'invisible_planet','cloth':'constrained_single_fold'}[e['backend']],'simulation_backend':'mujoco' if e['backend']=='cloth' else e['backend'],'simulator_version':state['version'],'initial_configuration':deepcopy(e['config']),'initial_state_reference':b['parent_state_reference'],'state_encoding':'JSON serialization of mjSTATE_INTEGRATION, not a native binary .mjb file' if e['backend'] in ('mujoco','cloth') else 'JSON numerical observations and fitted-model state','initial_state':state,'final_state':b['final_state'],'action':b['action'],'recorded_frames':b['trace'],'evaluation':b['evaluation'],'constraint_violations':b['evaluation'].get('contact_violations',[]),'success':b['evaluation']['success'],'seed':state['seed'],'configuration_sha256':hashlib.sha256(encode(e['config']).encode()).hexdigest(),'model_hash':state.get('model_hash'),'timestamps':{'submitted_unix_s':e['submitted_at'],'branch_completed_unix_s':completed},'performance':b['performance']}

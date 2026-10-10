@@ -132,7 +132,7 @@ export function useRuntime(backend: Backend) {
   const run = useCallback(async (w = world, retry = false) => {
     if (!w || isBusy(current.current)) return;
     const version = generation.current;
-    const submission = retry && retrySubmission.current?.world === w.id ? retrySubmission.current : { world: w.id, key: crypto.randomUUID(), settings: { candidates: 3, planner_iterations: 1500, max_simulation_seconds: 25, policy: 'deterministic',...(backend==='mujoco'?{search_candidates:5000,physics_budget:12}:{}) } };
+    const submission = retry && retrySubmission.current?.world === w.id ? retrySubmission.current : { world: w.id, key: crypto.randomUUID(), settings: { candidates: 3, planner_iterations: 1500, max_simulation_seconds: 25, policy: 'deterministic',...(backend!=='scipy'?{search_candidates:5000,physics_budget:backend==='cloth'?8:12}:{}) } };
     retrySubmission.current = submission;
     const e = await api.submit(w.id, submission.key, submission.settings);
     put(`${backend}:experiment`, e.id); retrySubmission.current = null;

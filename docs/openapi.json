@@ -789,6 +789,34 @@
         ],
         "title": "BranchResponse"
       },
+      "ClothConfig": {
+        "properties": {
+          "side_length": {
+            "type": "number",
+            "maximum": 0.5,
+            "minimum": 0.3,
+            "title": "Side Length",
+            "default": 0.4
+          },
+          "mass": {
+            "type": "number",
+            "maximum": 0.2,
+            "minimum": 0.03,
+            "title": "Mass",
+            "default": 0.08
+          },
+          "friction": {
+            "type": "number",
+            "maximum": 1.5,
+            "minimum": 0.1,
+            "title": "Friction",
+            "default": 0.6
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ClothConfig"
+      },
       "CommitRequest": {
         "properties": {
           "experiment_id": {
@@ -820,7 +848,8 @@
             "type": "string",
             "enum": [
               "mujoco",
-              "scipy"
+              "scipy",
+              "cloth"
             ],
             "title": "Backend"
           },
@@ -838,6 +867,9 @@
               },
               {
                 "$ref": "#/components/schemas/ScienceConfig"
+              },
+              {
+                "$ref": "#/components/schemas/ClothConfig"
               },
               {
                 "type": "null"
@@ -862,6 +894,9 @@
               },
               {
                 "$ref": "#/components/schemas/ScienceConfig"
+              },
+              {
+                "$ref": "#/components/schemas/ClothConfig"
               }
             ],
             "title": "Config"

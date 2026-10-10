@@ -1,0 +1,206 @@
+{
+  "experiment": {
+    "schema_version": "1.0",
+    "id": "66a48e8a-dd48-47f2-98be-384cf5b8e813",
+    "world_id": "83fe8ed8-be6d-4ad1-bb75-8347a0bc2296",
+    "revision": 0,
+    "status": "completed",
+    "request": {
+      "candidates": 3,
+      "planner_iterations": 1500,
+      "max_simulation_seconds": 25,
+      "policy": "deterministic",
+      "search_candidates": 5000,
+      "physics_budget": 8
+    },
+    "selected_branch_id": "fe8e169d-b0bb-4ced-87a7-2a9fb7836be1",
+    "result": {
+      "conclusion": "Measured constrained cloth fold verified.",
+      "ranked_branch_ids": [
+        "fe8e169d-b0bb-4ced-87a7-2a9fb7836be1",
+        "1e19d96f-851d-49eb-8c6f-57895eef84a4",
+        "516253b3-61aa-4144-be9b-3a9d8f0d6235",
+        "5caaed83-536b-4376-b922-da17663b67bc",
+        "56aeee52-cd77-4429-9b43-df93db7762fe",
+        "20cb2aa4-0528-4477-afe0-c6bd550ad02f",
+        "d8d101b0-0c49-45f0-bc00-5a2792f82d51",
+        "e124b583-6310-485c-9508-0eddcc9c34f8"
+      ],
+      "top_feasible_branch_ids": [
+        "fe8e169d-b0bb-4ced-87a7-2a9fb7836be1",
+        "1e19d96f-851d-49eb-8c6f-57895eef84a4",
+        "516253b3-61aa-4144-be9b-3a9d8f0d6235"
+      ],
+      "milestone": "constrained_single_fold",
+      "policy": {
+        "policy": "deterministic_planning_policy",
+        "llm_used": false,
+        "steps": [
+          "Inspect structured observation and valid action schema.",
+          "Generate candidate interventions through backend tools.",
+          "Fork the same persisted state for each candidate.",
+          "Rank measured outcomes; retain failures."
+        ]
+      },
+      "executed_settings": {
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 25,
+        "policy": "deterministic",
+        "search_candidates": 5000,
+        "physics_budget": 8
+      },
+      "followup_settings": null,
+      "search": {
+        "generated": 5000,
+        "distinct_generated": 5000,
+        "screened": 5000,
+        "rejected": 2984,
+        "screening_passed": 2016,
+        "promoted_to_physics": 8,
+        "candidate_catalog_sha256": "bcea1cecc0469ae287645fe1f36a9974d9eaf84394339b772e01caa6d9ab2fb3",
+        "sampling": "seeded continuous uniform clamp height, duration and lateral offset",
+        "screening_scope": "geometric stretch/travel bounds only; grasp constraints, contacts and fold quality require MuJoCo",
+        "ranking_objective": "feasible first, alignment RMSE, descending vertex coverage, executed duration",
+        "fully_simulated": 8,
+        "verified_feasible": 8,
+        "physics_rejected": 0
+      }
+    },
+    "performance": {
+      "job_wall_seconds": 182.91850220000015,
+      "process_cpu_seconds": 132.0625,
+      "queue_wait_seconds": 0.15300852628752182,
+      "planning_wall_seconds": 0.8591200999999273,
+      "physics_wall_seconds": 177.87125059999835,
+      "candidate_count": 8,
+      "simulation_steps": 14152,
+      "integration_calls": 0,
+      "replay_payload_bytes": 2126436,
+      "branch_failure_rate": 0,
+      "adapter_error_count": 0,
+      "measurement_complete": true,
+      "job_error_rate": 0,
+      "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+    },
+    "error": null,
+    "stale": false
+  },
+  "evaluations": [
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.0009129009725767929,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.006237528973849774,
+      "maximum_contact_penetration_m": 0.0013060777376029294,
+      "contact_violations": [],
+      "execution_duration_s": 3.5159999999998344,
+      "fold_quality": 0.9695699675807735,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    },
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.0009314130534712362,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.006260329596936938,
+      "maximum_contact_penetration_m": 0.0013062504319645216,
+      "contact_violations": [],
+      "execution_duration_s": 3.509999999999835,
+      "fold_quality": 0.9689528982176254,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    },
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.001049111578806485,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.006206741154553108,
+      "maximum_contact_penetration_m": 0.0013063174161105813,
+      "contact_violations": [],
+      "execution_duration_s": 3.5219999999998337,
+      "fold_quality": 0.9650296140397838,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    },
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.0010607275037101682,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.006107954417138808,
+      "maximum_contact_penetration_m": 0.0013059354728842433,
+      "contact_violations": [],
+      "execution_duration_s": 3.545999999999831,
+      "fold_quality": 0.9646424165429944,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    },
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.00043749704504074643,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.006174223786865532,
+      "maximum_contact_penetration_m": 0.0013059899223148534,
+      "contact_violations": [],
+      "execution_duration_s": 3.527999999999833,
+      "fold_quality": 0.9854167651653084,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    },
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.0010527997283326304,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.006102190084931268,
+      "maximum_contact_penetration_m": 0.0013072545166766779,
+      "contact_violations": [],
+      "execution_duration_s": 3.547999999999831,
+      "fold_quality": 0.9649066757222456,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    },
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.001057165444502337,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.0060344240920132,
+      "maximum_contact_penetration_m": 0.0013067807829886605,
+      "contact_violations": [],
+      "execution_duration_s": 3.565999999999829,
+      "fold_quality": 0.9647611518499221,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    },
+    {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.000924313539270987,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.0060221677244396005,
+      "maximum_contact_penetration_m": 0.001307842555695448,
+      "contact_violations": [],
+      "execution_duration_s": 3.5679999999998286,
+      "fold_quality": 0.9691895486909671,
+      "milestone": "constrained_single_fold",
+      "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+    }
+  ],
+  "exactVertices": true,
+  "releaseVerified": true,
+  "errors": []
+}

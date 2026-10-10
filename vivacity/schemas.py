@@ -48,15 +48,21 @@ class ScienceConfig(Schema):
         return self
 
 
+class ClothConfig(Schema):
+    side_length: float = Field(.4,ge=.3,le=.5)
+    mass: float = Field(.08,ge=.03,le=.2)
+    friction: float = Field(.6,ge=.1,le=1.5)
+
+
 class CreateWorld(Schema):
     schema_version: Literal['1.0'] = '1.0'
-    backend: Literal['mujoco', 'scipy']
+    backend: Literal['mujoco', 'scipy', 'cloth']
     seed: int = Field(7, ge=0, le=2**32-1)
-    config: RoboticsConfig | ScienceConfig | None = None
+    config: RoboticsConfig | ScienceConfig | ClothConfig | None = None
 
     @model_validator(mode='after')
     def matching_config(self):
-        expected = RoboticsConfig if self.backend == 'mujoco' else ScienceConfig
+        expected = {'mujoco':RoboticsConfig,'scipy':ScienceConfig,'cloth':ClothConfig}[self.backend]
         if self.config is None:
             self.config = expected()
         if not isinstance(self.config, expected):
@@ -79,7 +85,7 @@ class HostedProposal(Schema):
 
 
 class EnvironmentPatch(Schema):
-    config: RoboticsConfig | ScienceConfig
+    config: RoboticsConfig | ScienceConfig | ClothConfig
 
 
 class CommitRequest(Schema):

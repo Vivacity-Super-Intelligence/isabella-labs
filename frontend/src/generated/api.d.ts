@@ -335,6 +335,24 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** ClothConfig */
+        ClothConfig: {
+            /**
+             * Side Length
+             * @default 0.4
+             */
+            side_length: number;
+            /**
+             * Mass
+             * @default 0.08
+             */
+            mass: number;
+            /**
+             * Friction
+             * @default 0.6
+             */
+            friction: number;
+        };
         /** CommitRequest */
         CommitRequest: {
             /** Experiment Id */
@@ -354,19 +372,19 @@ export interface components {
              * Backend
              * @enum {string}
              */
-            backend: "mujoco" | "scipy";
+            backend: "mujoco" | "scipy" | "cloth";
             /**
              * Seed
              * @default 7
              */
             seed: number;
             /** Config */
-            config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | null;
+            config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"] | null;
         };
         /** EnvironmentPatch */
         EnvironmentPatch: {
             /** Config */
-            config: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"];
+            config: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"];
         };
         /** EventResponse */
         EventResponse: {

@@ -3,18 +3,20 @@ import { ArrowRight, ArrowsClockwise, DownloadSimple, Pause, SlidersHorizontal, 
 import { useRuntime, isBusy } from './useRuntime';
 import { usePlayback } from './usePlayback';
 import { API, api, errorMessage } from './api';
-import { format, robotFrame, scienceObservation, type Backend, type RobotFrame, type ScienceFrame } from './domain';
+import { format, robotFrame, clothFrame, scienceObservation, type Backend, type RobotFrame, type ClothFrame, type ScienceFrame } from './domain';
 import Settings from './Settings';
+import ClothSettings from './ClothSettings';
 import TechnicalInspector from './TechnicalInspector';
 import ResultCard from './ResultCard';
 const RobotView=lazy(()=>import('./RobotView'));
 const ScienceView=lazy(()=>import('./ScienceView'));
+const ClothView=lazy(()=>import('./ClothView'));
 
 export default function App(){
   const [backend,setBackend]=useState<Backend>('mujoco');
   const [page,setPage]=useState<'workspace'|'import'>('workspace');
-  const [cloth,setCloth]=useState(false);
-  const rt=useRuntime(backend), robotics=backend==='mujoco';
+  const cloth=backend==='cloth';
+  const rt=useRuntime(backend), robotics=backend!=='scipy';
   const [branchId,setBranchId]=useState<string|null>(null),[recorded,setRecorded]=useState(true),[editing,setEditing]=useState(false);
   const [downloadError,setDownloadError]=useState<string|null>(null);
   const compatible=rt.world?.backend===backend;
@@ -25,7 +27,7 @@ export default function App(){
   },[branches,rt.experiment]);
   const selected=branches.find(b=>b.id===branchId)??branches.find(b=>b.id===rt.experiment?.selected_branch_id)??branches[0];
   const replayBranch=compatible?rt.replay?.branches.find(b=>b.branch_id===selected?.id):undefined;
-  const live=compatible?robotFrame(rt.observation):null;
+  const live=compatible?(cloth?clothFrame(rt.observation):robotFrame(rt.observation)):null;
   const frames=useMemo(()=>recorded&&replayBranch?replayBranch.frames:live?[live]:[],[recorded,replayBranch,live]);
   const robotFrames=useMemo(()=>frames.filter(f=>robotFrame(f)) as RobotFrame[],[frames]);
   const play=usePlayback(frames,`${backend}:${rt.experiment?.id}:${selected?.id}:${recorded}:${rt.world?.revision}`,compatible&&recorded&&!!selected?.evaluation.success&&rt.experiment?.status==='completed'&&!rt.experiment.stale);
@@ -35,8 +37,8 @@ export default function App(){
   const status=!rt.online?'Connection lost':!rt.loaded?'Loading world':!rt.experiment?'Ready':isBusy(rt.experiment)?rt.experiment.status==='queued'?'Queued':'Experiment running':accepted?'Result selected':rt.experiment.status==='failed'?'Experiment failed':'No feasible result';
   const counters=Object.assign({},...rt.events.filter(e=>e.kind==='progress').map(e=>e.details),rt.experiment?.result.search??{}) as Record<string,unknown>;
   useEffect(()=>{setBranchId(null);setRecorded(true);setEditing(false);},[backend,rt.experiment?.id]);
-  const choose=(b:Backend)=>{setBackend(b);setPage('workspace');setCloth(false);try{localStorage.setItem('vivacity:lab',b);}catch{/* Optional storage. */}};
-  const disabled=rt.busy||!compatible||!rt.online||cloth;
+  const choose=(b:Backend)=>{setBackend(b);setPage('workspace');try{localStorage.setItem('vivacity:lab',b);}catch{/* Optional storage. */}};
+  const disabled=rt.busy||!compatible||!rt.online;
   const science=useMemo(()=>{
     if(backend!=='scipy'||!compatible)return null;
     const archive=rt.replay?.branches.find(b=>b.frames.length&&'observed_position' in b.frames[0]);
@@ -48,19 +50,19 @@ export default function App(){
     <header className="site-header"><a className="brand" href="https://www.tryvivacity.com/" target="_blank" rel="noreferrer" aria-label="Vivacity website"><img src="/vivacity/logo.svg" alt="" width="27" height="27"/><span>vivacity</span></a><nav className="main-nav" aria-label="Choose laboratory"><button aria-pressed={page==='workspace'&&robotics} disabled={rt.mutating} onClick={()=>choose('mujoco')}>Robotics</button><button aria-pressed={page==='workspace'&&!robotics} disabled={rt.mutating} onClick={()=>choose('scipy')}>Discovery</button><button aria-pressed={page==='import'} onClick={()=>setPage('import')}>Import World</button></nav></header>
     <main id="workspace">
       {page==='import'?<section className="import-area"><h1>Bring your world.</h1><p>Validated visual and simulation import is being implemented. Existing worlds remain available.</p><button className="secondary" onClick={()=>choose('mujoco')}>Return to Robotics</button></section>:<>
-        <div className="workspace-intro"><div>{robotics&&<nav className="world-switch" aria-label="Robotics world"><button aria-pressed={!cloth} onClick={()=>setCloth(false)}>Object Pickup</button><button aria-pressed={cloth} onClick={()=>setCloth(true)}>Cloth Folding</button></nav>}<h1>{robotics?(cloth?'Find a feasible way to fold a cloth.':'Reach the object. Avoid the obstacle.'):'The Invisible Planet'}</h1><p>{robotics?(cloth?'Deformable physics benchmark is not yet available.':'Pickup milestone: pre-grasp reach. Grasp, lift and placement are not implemented.'):'Can an unseen gravitational influence explain the observed orbit?'}</p></div><span className="connection" role="status">{rt.online?'Viva Physics connected':'Runtime offline'}</span></div>
+        <div className="workspace-intro"><div>{robotics&&<nav className="world-switch" aria-label="Robotics world"><button aria-pressed={!cloth} onClick={()=>choose('mujoco')}>Object Pickup</button><button aria-pressed={cloth} onClick={()=>choose('cloth')}>Cloth Folding</button></nav>}<h1>{robotics?(cloth?'Find a feasible way to fold a cloth.':'Reach the object. Avoid the obstacle.'):'The Invisible Planet'}</h1><p>{robotics?(cloth?'Constrained single fold: fixed hinge, pre-attached clamps and measured deformable dynamics.':'Pickup milestone: pre-grasp reach. Grasp, lift and placement are not implemented.'):'Can an unseen gravitational influence explain the observed orbit?'}</p></div><span className="connection" role="status">{rt.online?'Viva Physics connected':'Runtime offline'}</span></div>
         {!rt.online&&rt.loaded&&<div className="offline-notice" role="status"><Warning size={18}/><span>Simulation runtime unavailable. Recorded results remain inspectable.</span><button onClick={rt.reconnect}>Reconnect</button></div>}
         {rt.error&&<div className="error-notice" role="alert"><Warning size={18}/><span>{rt.error}</span><button onClick={rt.retryAvailable?rt.retry:rt.reconnect} disabled={!rt.online||rt.mutating}>{rt.retryAvailable?'Retry submission':'Reload evidence'}</button><button className="icon-button" aria-label="Dismiss error" onClick={rt.clearError}><X size={17}/></button></div>}
         <div className="workbench">
           <section className="visual-area" aria-label="Simulation and replay"><div onPointerDownCapture={play.pause} onKeyDownCapture={play.pause}>
-            {cloth?<div className="viewport-loading">Physical cloth benchmark pending.</div>:robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={robotFrames} cursor={play.cursor} config={config} replaying={recorded&&!!replayBranch} playing={play.playing} renderTime={play.time}/></Suspense>:<Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={play.time} cursor={play.cursor} playing={play.playing}/></Suspense>}
+            {cloth?<Suspense fallback={<div className="viewport-loading">Loading cloth�</div>}><ClothView frames={frames.filter(f=>clothFrame(f)) as ClothFrame[]} cursor={play.cursor} time={play.time} playing={play.playing} config={config}/></Suspense>:robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={robotFrames} cursor={play.cursor} config={config} replaying={recorded&&!!replayBranch} playing={play.playing} renderTime={play.time}/></Suspense>:<Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={play.time} cursor={play.cursor} playing={play.playing}/></Suspense>}
             </div><div className="playback-bar"><button className="icon-button" aria-label={play.playing?'Pause motion':'Resume motion'} disabled={!play.duration} onClick={play.toggle}><Pause size={18}/></button><span className="timecode mono">{format(play.time,2)} / {format(play.duration,2)} s</span><input aria-label="Replay timeline" type="range" min="0" max={play.duration||1} step="any" value={play.time} disabled={!recorded||!play.duration} onChange={e=>{play.pause();play.seek(Number(e.target.value));}}/><label className="sr-only" htmlFor="playback-speed">Playback speed</label><select id="playback-speed" value={play.speed} onChange={e=>play.setSpeed(Number(e.target.value))}>{[.25,.5,1,2].map(s=><option key={s} value={s}>{s}×</option>)}</select></div>
-            <div className="experiment-actions"><button className="primary run-button" disabled={disabled} onClick={()=>{setRecorded(true);rt.run();}}>{rt.busy?'Experiment running…':'Run experiment'}<ArrowRight size={18}/></button><button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{robotics?'Change obstacle':'Observation settings'}</button><button className="secondary" disabled={disabled} onClick={async()=>{play.pause();await rt.reset();setRecorded(false);}}><ArrowsClockwise size={18}/>Reset</button></div>
+            <div className="experiment-actions"><button className="primary run-button" disabled={disabled} onClick={()=>{setRecorded(true);rt.run();}}>{rt.busy?'Experiment running…':'Run experiment'}<ArrowRight size={18}/></button><button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':robotics?'Change obstacle':'Observation settings'}</button><button className="secondary" disabled={disabled} onClick={async()=>{play.pause();await rt.reset();setRecorded(false);}}><ArrowsClockwise size={18}/>Reset</button></div>
           </section>
           <aside className="results" aria-label="Verified results">
-            <div className="section-heading"><h2>{robotics?'Best verified paths':'Hypotheses'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
-            {editing&&rt.world?<Settings key={`${backend}:${rt.world.revision}`} backend={backend} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
-              {!ranked.length?<p className="results-empty">{cloth?'No cloth execution is available yet.':rt.busy?'Searching and validating independent alternatives…':terminal?'No feasible candidate. Failures are recorded below.':'Run an experiment to measure alternatives from the same initial state.'}</p>:ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} robotics={robotics} choose={()=>{setBranchId(b.id);setRecorded(true);}} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
+            <div className="section-heading"><h2>{cloth?'Best verified folds':robotics?'Best verified paths':'Hypotheses'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
+            {editing&&rt.world?cloth?<ClothSettings key={`${backend}:${rt.world.revision}`} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<Settings key={`${backend}:${rt.world.revision}`} backend={backend} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
+              {!ranked.length?<p className="results-empty">{rt.busy?'Searching and validating independent alternatives…':terminal?'No feasible candidate. Failures are recorded below.':'Run an experiment to measure alternatives from the same initial state.'}</p>:ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} robotics={robotics} choose={()=>{setBranchId(b.id);setRecorded(true);}} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
 
               {downloadError&&<p role="alert" className="negative">{downloadError}</p>}
               <p className="decision" data-testid="decision">{compatible?String(rt.experiment?.error??rt.experiment?.result.conclusion??'') : ''}</p>
@@ -74,6 +76,6 @@ export default function App(){
         <TechnicalInspector events={rt.events} initialized={compatible} playing={play.playing} branches={branches} select={id=>{setBranchId(id);setRecorded(true);}} history={{ids:rt.world?.history??[],open:rt.history,disabled:rt.busy}}/>
       </>}
     </main>
-    <footer><span>Viva Physics</span><details><summary>Credits & scope</summary><p>Vivacity interface. Robotics: MuJoCo and Menagerie Franka Panda (Apache 2.0). Science: SciPy, simplified 2D dynamics and synthetic observations. Deterministic policy; no hosted LLM reasoning.</p></details><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
+    <footer><span>Viva Physics</span><details><summary>Credits & scope</summary><p>Vivacity interface. Robotics: MuJoCo and Menagerie Franka Panda (Apache 2.0). Cloth: MuJoCo flex, constrained pre-attached fold benchmark. Science: SciPy, simplified 2D dynamics and synthetic observations. Deterministic policy; no hosted LLM reasoning.</p></details><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
   </>;
 }

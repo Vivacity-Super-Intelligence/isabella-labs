@@ -1,6 +1,6 @@
 import type { components } from './generated/api';
 
-export type Backend = 'mujoco' | 'scipy';
+export type Backend = 'mujoco' | 'scipy' | 'cloth';
 export type World = components['schemas']['WorldResponse'];
 export type Experiment = components['schemas']['ExperimentResponse'];
 export type Vec3 = [number, number, number];
@@ -17,11 +17,13 @@ export interface ScienceFrame {
   time: number; observed_position: number[]; predicted_position: number[];
   predicted_velocity: number[]; split: 'train' | 'heldout';
 }
-export type Frame = RobotFrame | ScienceFrame;
+export interface ClothFrame { time:number; vertices:Vec3[]; triangles:number[][]; clamp_position:Vec3; grasp_active:boolean[]; scope:string }
+export type Frame = RobotFrame | ScienceFrame | ClothFrame;
 export interface Evaluation {
   status: string; success: boolean; planning_feasible?: boolean;
   goal_error_m?: number; orientation_error_rad?: number; execution_duration_s?: number;
   joint_path_length_rad?: number;
+  milestone?:string; alignment_error_m?:number; vertex_coverage?:number; grasp_valid?:boolean; grasp_constraint_error_m?:number; fold_quality?:number;
   contact_violations?: Contact[]; hypothesis?: string; failure?: string | null;
   parameters?: Record<string, number>; train_rmse?: number; heldout_rmse?: number;
   training_bic?: number; train_count?: number; heldout_count?: number; residuals?: number[][];
@@ -46,4 +48,8 @@ export function robotFrame(value: unknown): RobotFrame | null {
 export function scienceObservation(value: unknown): ScienceObservation | null {
   const v = value as ScienceObservation | null;
   return v && Array.isArray(v.times) && Array.isArray(v.observations) ? v : null;
+}
+export function clothFrame(value:unknown):ClothFrame|null {
+  const v=value as ClothFrame|null;
+  return v&&Array.isArray(v.vertices)&&Array.isArray(v.triangles)?v:null;
 }
