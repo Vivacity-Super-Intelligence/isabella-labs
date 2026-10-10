@@ -10,12 +10,23 @@ Vec3 = Annotated[list[float], Field(min_length=3, max_length=3)]
 
 
 class RoboticsConfig(Schema):
+    task: Literal['reach', 'pick_place'] = 'reach'
+    obstacle_enabled: bool = True
+    cube_position: Vec3 = [0.5, -0.15, 0.026]
+    placement_position: Vec3 = [0.5, 0.18, 0.026]
+    cube_mass: float = Field(0.06, ge=0.02, le=0.15)
+    cube_friction: float = Field(1.0, ge=0.05, le=1.5)
     obstacle_position: Vec3 = [0.45, 0.04, 0.22]
     obstacle_size: Vec3 = [0.055, 0.13, 0.22]
     target_position: Vec3 = [0.55, 0.28, 0.22]
 
     @model_validator(mode='after')
     def bounds(self):
+        for point in (self.cube_position, self.placement_position):
+            if not (.35 <= point[0] <= .65 and abs(point[1]) <= .3 and .025 <= point[2] <= .03):
+                raise ValueError('pickup and placement centers must be on the supported table workspace')
+        if self.task == 'pick_place' and sum((a-b)**2 for a,b in zip(self.cube_position[:2], self.placement_position[:2])) < .01:
+            raise ValueError('pickup and placement must be at least 0.1 m apart')
         x, y, z = self.obstacle_position
         if not (0.15 <= x <= 0.8 and -0.5 <= y <= 0.5 and 0.05 <= z <= 0.6):
             raise ValueError('obstacle outside workcell bounds')

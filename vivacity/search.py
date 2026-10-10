@@ -14,6 +14,18 @@ def search_reaches(backend, world, settings, emit):
     emit({'stage':'planning','message':'Computing seed paths with pose IK and collision-aware RRT.'})
     seeds,_=backend.candidates(world,5,settings['planner_iterations'])
     bases=[a for a in seeds if a['planning_feasible'] and a['waypoints']]
+    if not bases:
+        # Jittering an unusable seed thousands of times cannot repair failed IK
+        # or an initially colliding world. Preserve one honest diagnostic rollout.
+        reason = 'ik_failure' if not seeds[0]['ik']['converged'] else 'no_collision_free_seed_path'
+        summary = {'generated':0,'distinct_generated':0,'screened':0,'rejected':0,
+                   'screening_passed':0,'promoted_to_physics':1,'diagnostic_rollouts':1,
+                   'rejection_reasons':{},'seed_failure':reason,'seed_ik':seeds[0]['ik'],
+                   'sampling':'bulk generation skipped because no usable seed path exists',
+                   'screening_scope':'seed IK and collision-aware planning; diagnostic physics may execute zero steps',
+                   'ranking_objective':'successful execution first, then measured duration, joint path length and goal error'}
+        emit(summary | {'stage':'screening_complete','message':f'No usable seed path: {reason}. Bulk sampling skipped; running one diagnostic.'})
+        return [seeds[0]],time.perf_counter()-tic,summary
     rng=np.random.default_rng(world.seed)
     scratch=RobotWorld(world.model,mj.MjData(world.model),world.config,world.seed,world.model_hash)
     scratch.data.qpos[:]=world.data.qpos

@@ -1,0 +1,17 @@
+# Robotics validation — 2026-10-11
+
+Phase 1 is verified at the adapter and persistent-runtime boundaries. `task: pick_place` is additive; absent/`reach` preserves old Menagerie scene hashes and reaching behavior.
+
+The cube has a free joint, 60 g mass and finite friction. The Panda's existing tendon actuator closes its actual collision pads. No cube weld, mocap, mesh parenting, object pose assignment during execution or artificial lift is used. Arm gravity compensation is a documented simulated controller aid. Approach, descent, close, lift, transport, lower, release and retract are actual actuator commands integrated at 2 ms.
+
+Success requires bilateral force-bearing finger contacts, physical lift, retained contacts during transport, release, table support, final position error below 25 mm, low final object velocity, and no prohibited contact/controller/limit/timeout failure. This synthetic Coulomb-contact workcell is not hardware calibrated. Candidate screening is kinematic and does not imply task success.
+
+Executed fixed benchmark: **20/20 successful**, **0 failures**, **86.5164 s total wall time**, per-rollout physics **3.50–5.45 s**, measured cube peak height **0.1767568 m**, final error **0.00169891 m**. These identical fixed-state repetitions demonstrate executed reproducibility, not statistical robustness to disturbances. Evidence: `artifacts/pick-place-benchmark.json` and `artifacts/pick-place-benchmark-trace.json`. Command: `.venv/Scripts/python.exe -m scripts.benchmark_pick_place --runs 20`.
+
+New checks: **10 passed in 47.95 s** (`artifacts/master-pick-place-tests.xml`): free body/actual grasp/lift/transport/place; exact full-state fork/re-execution; physically missed grasp; deliberately released/dropped object; timeout; blocked geometry; parent validation; persistent branch export; obstacle invalidation; existing hierarchical search. An earlier run had nine passes and a test-request validation failure (60 s exceeds the API's 40 s bound); the corrected request was rerun.
+
+Original compatibility baseline: **86 passed in 352.52 s**, one upstream Starlette/httpx deprecation warning (`artifacts/master-baseline.xml`). This baseline process imported pre-change code; it is historical compatibility evidence, not a complete post-change regression run.
+
+Stored 5,000-rejection diagnosis: local experiment `16ed3913-5608-4161-9263-d5ce1c6d5583` used obstacle center `[.5,.1,.3]`, half-size `[.35,.35,.3]`, and recorded 5,000 kinematic collisions. Public experiments `ed4cd922-04d4-4dbc-88a3-a35213e5098e`, `70809bf3-ebc6-4206-ab3b-d8a6d9d776b4`, `fd9f9c5f-dca9-4233-9c89-42851b84ad56` used target `[.7,.41,.22]` and had no usable seed path. None recorded positive-step physics or a success. Bulk sampling now stops when seed planning fails, exposes seed diagnostics, and retains one honest diagnostic rollout. The prior count of thousands of rejected variants was wasted work, not evidence of thousands of physics trials.
+
+Remaining: obstacle-avoidance pickup detours, randomized scene robustness, live autonomous execution and browser acceptance. Fixed unobstructed pickup is verified; broad manipulation is not yet claimed.
