@@ -1,0 +1,5368 @@
+{
+  "schema_version": "vivacity.verification/1.0",
+  "ui": "https://vivacity-investor-demo.vercel.app/",
+  "api": "https://rid-buffalo-bluetooth-profit.trycloudflare.com",
+  "started_unix_s": 1791654361.15,
+  "experiments": [
+    {
+      "lab": "mujoco",
+      "experiment": {
+        "schema_version": "1.0",
+        "id": "adc67e7a-96d6-45ef-bb39-4528a9868310",
+        "world_id": "8e9d6b23-99ee-4791-bb90-450dd612e77d",
+        "revision": 0,
+        "status": "completed",
+        "request": {
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 25,
+          "policy": "deterministic",
+          "search_candidates": 5000,
+          "physics_budget": 12
+        },
+        "selected_branch_id": "8db7497a-9274-47d4-bc5d-4b9e8847d47a",
+        "result": {
+          "conclusion": "Measured collision-free reach found.",
+          "milestone": "reach_only",
+          "ranked_branch_ids": [
+            "8db7497a-9274-47d4-bc5d-4b9e8847d47a",
+            "61131741-d97f-4ff3-9053-645584b3b891",
+            "f42ead34-0e66-48a4-952f-80d4733d032d",
+            "3e0e4e30-12b9-4554-b5f1-8b446be9d99b",
+            "bbc2742b-26e4-48af-b147-298727d1fb34",
+            "86161321-fda7-422e-80f1-da1e0b288c0d",
+            "8ad970ba-509f-4ff2-b6eb-38345f70cf5e",
+            "8e98df9c-111b-422c-a90a-0e02f2db31d9",
+            "1c63c539-be95-4d13-a04b-f3059c81f0ee",
+            "62c1dbca-96d0-45ee-b67a-4efe0033c5c2",
+            "601270f7-18d4-422d-aa53-785c102b4407",
+            "346b6834-6e79-4ea4-8970-9f159328b84c"
+          ],
+          "top_feasible_branch_ids": [
+            "8db7497a-9274-47d4-bc5d-4b9e8847d47a",
+            "61131741-d97f-4ff3-9053-645584b3b891",
+            "f42ead34-0e66-48a4-952f-80d4733d032d"
+          ],
+          "policy": {
+            "policy": "deterministic_planning_policy",
+            "llm_used": false,
+            "steps": [
+              "Inspect structured observation and valid action schema.",
+              "Generate candidate interventions through backend tools.",
+              "Fork the same persisted state for each candidate.",
+              "Rank measured outcomes; retain failures."
+            ]
+          },
+          "executed_settings": {
+            "candidates": 3,
+            "planner_iterations": 1500,
+            "max_simulation_seconds": 25,
+            "policy": "deterministic",
+            "search_candidates": 5000,
+            "physics_budget": 12
+          },
+          "followup_settings": null,
+          "search": {
+            "generated": 5000,
+            "distinct_generated": 5000,
+            "candidate_catalog_sha256": "d1022164eed5498d661019bffe12695c30f71d670dd0a6beb47960d20ffa8be6",
+            "screened": 5000,
+            "rejected": 104,
+            "screening_passed": 4896,
+            "promoted_to_physics": 12,
+            "diagnostic_rollouts": 1,
+            "rejection_reasons": {
+              "joint_limit": 0,
+              "kinematic_collision": 104,
+              "no_feasible_seed_path": 0
+            },
+            "sampling": "seeded Gaussian perturbations of interior waypoints on dynamically unverified RRT paths",
+            "screening_scope": "joint limits and actual kinematic contacts; full-path/dynamic feasibility decided only by rollouts",
+            "ranking_objective": "successful execution first, then measured duration, joint path length, goal error, candidate index",
+            "fully_simulated": 12,
+            "physics_attempts": 12,
+            "planning_failed": 0,
+            "verified_feasible": 9,
+            "physics_rejected": 3
+          }
+        },
+        "performance": {
+          "job_wall_seconds": 49.65247369999997,
+          "process_cpu_seconds": 47.6875,
+          "queue_wait_seconds": 0.10441801563138142,
+          "planning_wall_seconds": 20.818565300000046,
+          "physics_wall_seconds": 20.33277040000212,
+          "candidate_count": 12,
+          "simulation_steps": 38153,
+          "integration_calls": 0,
+          "replay_payload_bytes": 4346875,
+          "branch_failure_rate": 0.25,
+          "adapter_error_count": 0,
+          "measurement_complete": true,
+          "job_error_rate": 0,
+          "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+        },
+        "error": null,
+        "stale": false
+      },
+      "evaluations": [
+        {
+          "id": "62c1dbca-96d0-45ee-b67a-4efe0033c5c2",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "direct",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": false,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            }
+          },
+          "evaluation": {
+            "success": false,
+            "status": "collision_failure",
+            "planning_feasible": false,
+            "goal_error_m": 0.2544755025541485,
+            "orientation_error_rad": 0.9642158511225443,
+            "contact_violations": [
+              {
+                "bodies": [
+                  "obstacle",
+                  "hand"
+                ],
+                "geoms": [
+                  "obstacle_geom",
+                  "geom_66"
+                ],
+                "penetration_m": 0.0000366926601019178,
+                "category": "environment_collision"
+              }
+            ],
+            "execution_duration_s": 2.6079999999999344,
+            "joint_path_length_rad": 0.8766054691911167,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 0.8354831999986345,
+            "physics_wall_seconds": 0.6034956999992573,
+            "simulation_steps": 1304,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "8db7497a-9274-47d4-bc5d-4b9e8847d47a",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.24450525929487033,
+                0.18340171445915332,
+                0.134315159687898,
+                -1.6739997264388518,
+                0.09747650576402267,
+                2.133928298610778,
+                0.8941149975140789
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 267,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.3551684962691044,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.00882702977732954,
+            "orientation_error_rad": 0.015458254410839313,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.360959329432927,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.901055099999212,
+            "physics_wall_seconds": 1.6431391000005533,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "61131741-d97f-4ff3-9053-645584b3b891",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.23762389473132775,
+                0.2538418538599396,
+                0.19163103706572754,
+                -1.7380844651563114,
+                -0.2462942562662912,
+                2.1670041236589266,
+                1.0406289337355568
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 2716,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.374474634180056,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008826969928727241,
+            "orientation_error_rad": 0.01545816133309397,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.3802209967651966,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.9928734000004624,
+            "physics_wall_seconds": 1.627966900001411,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "f42ead34-0e66-48a4-952f-80d4733d032d",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.3522824578385484,
+                0.2892228652829689,
+                0.22372808416504075,
+                -1.8362090720708815,
+                -0.24397822221459503,
+                2.2442604530276196,
+                1.0499976812068117
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 1864,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.3805777814410902,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.00882703839754311,
+            "orientation_error_rad": 0.015458095008295866,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.386344952434817,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.8812229000013758,
+            "physics_wall_seconds": 1.616279800000484,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "3e0e4e30-12b9-4554-b5f1-8b446be9d99b",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.18571814573821527,
+                0.18756300090615408,
+                0.29552622618317426,
+                -1.7837104983435945,
+                -0.2521145281518389,
+                2.1585279463767355,
+                0.9116272220916009
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 628,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.3821806699125245,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827053757971505,
+            "orientation_error_rad": 0.015458241040701842,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.388086374193131,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.8585697999988042,
+            "physics_wall_seconds": 1.598228900000322,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "bbc2742b-26e4-48af-b147-298727d1fb34",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.2730191134030068,
+                0.27112918238366857,
+                0.20666033274273457,
+                -1.8705299432964178,
+                -0.274726727204537,
+                2.2612529595161703,
+                1.0006869311318245
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 1375,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.3822934448677358,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827071013116103,
+            "orientation_error_rad": 0.01545812295855729,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.3881809297080467,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.8652691000006598,
+            "physics_wall_seconds": 1.6045207000006485,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "601270f7-18d4-422d-aa53-785c102b4407",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.08964158507013724,
+                0.267482452915352,
+                0.09310867843318868,
+                -1.7782270802593128,
+                -0.2087681232029542,
+                2.2416696577478383,
+                0.9878286854943107
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 1207,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.3871263175943143,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": false,
+            "status": "collision_failure",
+            "planning_feasible": true,
+            "goal_error_m": 0.21378218697854134,
+            "orientation_error_rad": 0.2273454514202238,
+            "contact_violations": [
+              {
+                "bodies": [
+                  "obstacle",
+                  "link5"
+                ],
+                "geoms": [
+                  "obstacle_geom",
+                  "geom_33"
+                ],
+                "penetration_m": 0.00008980298684429377,
+                "category": "environment_collision"
+              }
+            ],
+            "execution_duration_s": 5.311999999999637,
+            "joint_path_length_rad": 1.9885032500143074,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 3.1564758000004076,
+            "physics_wall_seconds": 2.7295727000000625,
+            "simulation_steps": 2656,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "86161321-fda7-422e-80f1-da1e0b288c0d",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.202665775490943,
+                0.20424339900014313,
+                0.23248648784222203,
+                -1.677237653658566,
+                -0.23617610590662166,
+                2.1617829205025085,
+                0.9637646234476633
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 3268,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.392576742132746,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008826981873160618,
+            "orientation_error_rad": 0.015458143586804448,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.398135891348943,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 2.0168572000002314,
+            "physics_wall_seconds": 1.7250531999998202,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "8ad970ba-509f-4ff2-b6eb-38345f70cf5e",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.2079459018392249,
+                0.2250487419219656,
+                0.21319313095671688,
+                -1.6889045412790855,
+                -0.23537585205473066,
+                2.2132421533820015,
+                0.9856620330412272
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 3382,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.3943535602046095,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008826965542823197,
+            "orientation_error_rad": 0.015458045586757585,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.399834213156104,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.9544058999999834,
+            "physics_wall_seconds": 1.676522899999327,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "1c63c539-be95-4d13-a04b-f3059c81f0ee",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.16982677186555767,
+                0.1708123176089566,
+                0.2931850235807021,
+                -1.6779283879680642,
+                -0.2027608772789596,
+                2.1842198807957174,
+                0.8863803263110006
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 901,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.3963919451679883,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827019342017697,
+            "orientation_error_rad": 0.015458154948887942,
+            "contact_violations": [],
+            "execution_duration_s": 6.967999999999455,
+            "joint_path_length_rad": 2.4019671357490626,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.9365336999999272,
+            "physics_wall_seconds": 1.657749199999671,
+            "simulation_steps": 3484,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "8e98df9c-111b-422c-a90a-0e02f2db31d9",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.26537894324668954,
+                0.03734873972529116,
+                0.11473829545831848,
+                -1.7354574179140776,
+                0.034677696052753865,
+                2.1939977054503803,
+                0.989401666882738
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 3975,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.399223587918995,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.00882691849187559,
+            "orientation_error_rad": 0.015458072016597754,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.405257424403212,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 2.446227500000532,
+            "physics_wall_seconds": 1.9113756000006106,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "346b6834-6e79-4ea4-8970-9f159328b84c",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.11418627326896612,
+                0.25708344046062787,
+                0.18765438625081504,
+                -1.6349389526326208,
+                -0.14505471693917635,
+                2.1485501107665947,
+                1.007377427326465
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 3331,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.400881359769021,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": false,
+            "status": "collision_failure",
+            "planning_feasible": true,
+            "goal_error_m": 0.08850950438238019,
+            "orientation_error_rad": 0.1133361313962243,
+            "contact_violations": [
+              {
+                "bodies": [
+                  "obstacle",
+                  "link6"
+                ],
+                "geoms": [
+                  "obstacle_geom",
+                  "geom_51"
+                ],
+                "penetration_m": 0.00025415857154754246,
+                "category": "environment_collision"
+              }
+            ],
+            "execution_duration_s": 5.689999999999595,
+            "joint_path_length_rad": 2.207879188921137,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 2.4550147999998444,
+            "physics_wall_seconds": 1.9388656999999512,
+            "simulation_steps": 2845,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        }
+      ]
+    },
+    {
+      "lab": "mujoco",
+      "experiment": {
+        "schema_version": "1.0",
+        "id": "e613de51-da84-4f32-9fca-9d1fdc9ccb82",
+        "world_id": "8e9d6b23-99ee-4791-bb90-450dd612e77d",
+        "revision": 1,
+        "status": "completed",
+        "request": {
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 25,
+          "policy": "deterministic",
+          "search_candidates": 5000,
+          "physics_budget": 12
+        },
+        "selected_branch_id": "08a2433f-4b6a-4bd0-910f-00cd30aadec9",
+        "result": {
+          "conclusion": "Measured collision-free reach found.",
+          "milestone": "reach_only",
+          "ranked_branch_ids": [
+            "08a2433f-4b6a-4bd0-910f-00cd30aadec9",
+            "bf108864-c307-4f8b-a63d-8ed64c4d89f9",
+            "67447177-f3fb-4f86-a3ff-1d9f47118123",
+            "404ed568-f5ce-4b9f-b247-1733c8c952e1",
+            "6da22216-e6e6-40a6-a238-549c0fb5d24d",
+            "bd81c3b4-18c3-4c0e-a6e0-8f8258ab7ac6",
+            "1c17369a-4bb7-40a1-a870-c1ac135afa24",
+            "4b315d0c-c159-40ba-a7ab-476330dd9d52",
+            "1cf49de3-6576-4fc9-bb2c-4589e2ae7e92",
+            "12f1e5a6-61cb-4c9a-8fea-e65de9aabaee",
+            "1b732d08-7bb6-4854-aebd-151e4ea6bfaf",
+            "0c11feb2-ea4b-4941-8631-48da1df9c782"
+          ],
+          "top_feasible_branch_ids": [
+            "08a2433f-4b6a-4bd0-910f-00cd30aadec9",
+            "bf108864-c307-4f8b-a63d-8ed64c4d89f9",
+            "67447177-f3fb-4f86-a3ff-1d9f47118123"
+          ],
+          "policy": {
+            "policy": "deterministic_planning_policy",
+            "llm_used": false,
+            "steps": [
+              "Inspect structured observation and valid action schema.",
+              "Generate candidate interventions through backend tools.",
+              "Fork the same persisted state for each candidate.",
+              "Rank measured outcomes; retain failures."
+            ]
+          },
+          "executed_settings": {
+            "candidates": 3,
+            "planner_iterations": 1500,
+            "max_simulation_seconds": 25,
+            "policy": "deterministic",
+            "search_candidates": 5000,
+            "physics_budget": 12
+          },
+          "followup_settings": null,
+          "search": {
+            "generated": 5000,
+            "distinct_generated": 5000,
+            "candidate_catalog_sha256": "7deaf85f38f6ff37e210fe78ffe235b132596bbe94edee5b404c2441d9ae0898",
+            "screened": 5000,
+            "rejected": 0,
+            "screening_passed": 5000,
+            "promoted_to_physics": 12,
+            "diagnostic_rollouts": 1,
+            "rejection_reasons": {
+              "joint_limit": 0,
+              "kinematic_collision": 0,
+              "no_feasible_seed_path": 0
+            },
+            "sampling": "seeded Gaussian perturbations of interior waypoints on dynamically unverified RRT paths",
+            "screening_scope": "joint limits and actual kinematic contacts; full-path/dynamic feasibility decided only by rollouts",
+            "ranking_objective": "successful execution first, then measured duration, joint path length, goal error, candidate index",
+            "fully_simulated": 12,
+            "physics_attempts": 12,
+            "planning_failed": 0,
+            "verified_feasible": 12,
+            "physics_rejected": 0
+          }
+        },
+        "performance": {
+          "job_wall_seconds": 59.0686216999984,
+          "process_cpu_seconds": 32.625,
+          "queue_wait_seconds": 0.2652186747345695,
+          "planning_wall_seconds": 21.536502499999187,
+          "physics_wall_seconds": 21.256879800001116,
+          "candidate_count": 12,
+          "simulation_steps": 41799,
+          "integration_calls": 0,
+          "replay_payload_bytes": 4752164,
+          "branch_failure_rate": 0,
+          "adapter_error_count": 0,
+          "measurement_complete": true,
+          "job_error_rate": 0,
+          "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+        },
+        "error": null,
+        "stale": false
+      },
+      "evaluations": [
+        {
+          "id": "0c11feb2-ea4b-4941-8631-48da1df9c782",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "direct",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.00882713704548686,
+            "orientation_error_rad": 0.015458312971729435,
+            "contact_violations": [],
+            "execution_duration_s": 6.967999999999455,
+            "joint_path_length_rad": 2.28424108574933,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 2.4634172999994917,
+            "physics_wall_seconds": 2.089719600000535,
+            "simulation_steps": 3484,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "12f1e5a6-61cb-4c9a-8fea-e65de9aabaee",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.15464162141262114,
+                0.16346440636081,
+                0.08557671630035156,
+                -1.7486679789959931,
+                -0.03489638177408588,
+                1.907596725744196,
+                0.2535278371835808
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 3261,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.2772258494316002,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132976736873,
+            "orientation_error_rad": 0.015458335969197221,
+            "contact_violations": [],
+            "execution_duration_s": 6.967999999999455,
+            "joint_path_length_rad": 2.2835932239704753,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 2.9692355999995925,
+            "physics_wall_seconds": 2.5983098999986396,
+            "simulation_steps": 3484,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "1b732d08-7bb6-4854-aebd-151e4ea6bfaf",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.15521470545826724,
+                0.16413708152535633,
+                0.08649675516094837,
+                -1.74986704173579,
+                -0.03649141788686601,
+                1.9104327336350997,
+                0.25708021961238864
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 4138,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.277229010349062,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132954293196,
+            "orientation_error_rad": 0.015458335715625998,
+            "contact_violations": [],
+            "execution_duration_s": 6.967999999999455,
+            "joint_path_length_rad": 2.2836002711572516,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 2.255903600000238,
+            "physics_wall_seconds": 1.9518674000009923,
+            "simulation_steps": 3484,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "08a2433f-4b6a-4bd0-910f-00cd30aadec9",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.15260751005357853,
+                0.16394218933900265,
+                0.08690296416960992,
+                -1.7472042446776366,
+                -0.03541126204491054,
+                1.9101655265687454,
+                0.26159804488468424
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 1703,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.277229764006643,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132594372228,
+            "orientation_error_rad": 0.015458336409887932,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.2835957682098034,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 2.0773789000013494,
+            "physics_wall_seconds": 1.7983494999989489,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "404ed568-f5ce-4b9f-b247-1733c8c952e1",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.1546596030965521,
+                0.16203919507552797,
+                0.08503260567417993,
+                -1.748473618324753,
+                -0.035738815327511705,
+                1.9079106818013571,
+                0.26254006704647814
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 2642,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.277233709431319,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132718441606,
+            "orientation_error_rad": 0.015458336694310381,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.2835996859137895,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.8876884000001155,
+            "physics_wall_seconds": 1.6024942000003648,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "bf108864-c307-4f8b-a63d-8ed64c4d89f9",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.15316052917780962,
+                0.16061156277002242,
+                0.08539910821444702,
+                -1.749565244343649,
+                -0.03738072654399339,
+                1.9100192840564636,
+                0.2585008820751201
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 1358,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.27723475125912,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132558966512,
+            "orientation_error_rad": 0.015458336566638371,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.283596723756565,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.9126384000010148,
+            "physics_wall_seconds": 1.6504777000009199,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "67447177-f3fb-4f86-a3ff-1d9f47118123",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.1574256804291293,
+                0.16339185117370372,
+                0.08683976744291977,
+                -1.747118726000247,
+                -0.035495050346386774,
+                1.9113922496910443,
+                0.26130670300156483
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 4729,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.277235051394264,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.00882713245528452,
+            "orientation_error_rad": 0.015458336459640268,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.2835972058144693,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.7893989000003785,
+            "physics_wall_seconds": 1.5436786000009306,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "1cf49de3-6576-4fc9-bb2c-4589e2ae7e92",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.15602033005694513,
+                0.16651209436997483,
+                0.08908228775496317,
+                -1.748995673668107,
+                -0.03554511435287196,
+                1.9108016459190769,
+                0.2609599360412339
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 2541,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.277235206366485,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.00882713283902603,
+            "orientation_error_rad": 0.015458336468292491,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.2836119377673736,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.7943859999995766,
+            "physics_wall_seconds": 1.551123399998687,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "bd81c3b4-18c3-4c0e-a6e0-8f8258ab7ac6",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.1511869884407314,
+                0.16508011784321958,
+                0.08702112826552146,
+                -1.7471675647667733,
+                -0.03585089481322081,
+                1.9072229277606891,
+                0.2562621055372395
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 806,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.2772352717841438,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132891104898,
+            "orientation_error_rad": 0.015458336291899482,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.28360533190147,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.9723396000008506,
+            "physics_wall_seconds": 1.7168276000011247,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "6da22216-e6e6-40a6-a238-549c0fb5d24d",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.155447521379006,
+                0.16346323563823165,
+                0.08358345246582642,
+                -1.7483225903261232,
+                -0.03678205775556708,
+                1.908469133283651,
+                0.2599158530048436
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 2274,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.2772356075424867,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132649194103,
+            "orientation_error_rad": 0.015458337080724404,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.2836032697294413,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.9204577000000427,
+            "physics_wall_seconds": 1.663380900001357,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "1c17369a-4bb7-40a1-a870-c1ac135afa24",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.15254830122408972,
+                0.16511893644774106,
+                0.08816096892271857,
+                -1.7483842800132119,
+                -0.03309093714398791,
+                1.9100620495203147,
+                0.26233749702899906
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 3501,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.2772362978872325,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132727703394,
+            "orientation_error_rad": 0.015458336688888593,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.2836090173723433,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.7939155000003666,
+            "physics_wall_seconds": 1.5740093999993405,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "4b315d0c-c159-40ba-a7ab-476330dd9d52",
+          "action": {
+            "kind": "joint_trajectory",
+            "planner": "hierarchical_rrt_variant",
+            "waypoints": [
+              [
+                0,
+                0,
+                0,
+                -1.57079,
+                0,
+                1.57079,
+                -0.7853
+              ],
+              [
+                0.152871192556897,
+                0.16357933017069412,
+                0.08645329981747196,
+                -1.749759832416381,
+                -0.03830181533086645,
+                1.9062054698887754,
+                0.25756041189637247
+              ],
+              [
+                0.3085860038082159,
+                0.32653027668575707,
+                0.1739034995555025,
+                -1.9269933566413289,
+                -0.07140202534185068,
+                2.2476918246442787,
+                1.303593481731374
+              ]
+            ],
+            "planning_feasible": true,
+            "ik": {
+              "position_error_m": 0.0002864460052293294,
+              "orientation_error_rad": 0.0001210745468890214,
+              "converged": true
+            },
+            "candidate_index": 725,
+            "screening": {
+              "checks": [
+                "joint_limits",
+                "MuJoCo forward-kinematics contact at changed waypoint",
+                "collision-aware seed path"
+              ],
+              "path_length_proxy_rad": 2.2772364261573363,
+              "full_path_collision_proof": false
+            }
+          },
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "planning_feasible": true,
+            "goal_error_m": 0.008827132964969142,
+            "orientation_error_rad": 0.015458336895272989,
+            "contact_violations": [],
+            "execution_duration_s": 6.965999999999455,
+            "joint_path_length_rad": 2.2836104046407493,
+            "milestone": "collision_free_reach"
+          },
+          "performance": {
+            "wall_seconds": 1.7490356999987853,
+            "physics_wall_seconds": 1.516641599999275,
+            "simulation_steps": 3483,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        }
+      ]
+    },
+    {
+      "lab": "scipy",
+      "experiment": {
+        "schema_version": "1.0",
+        "id": "a6628788-f873-4d2b-a35c-7601a6fa9aa2",
+        "world_id": "5a0791c6-ca58-498c-be07-a64cbf85bf76",
+        "revision": 0,
+        "status": "completed",
+        "request": {
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 25,
+          "policy": "deterministic",
+          "search_candidates": 0,
+          "physics_budget": 12
+        },
+        "selected_branch_id": "f3fe1a0d-293d-46a0-a7b8-110742f26396",
+        "result": {
+          "conclusion": "Additional fixed gravitational influence supported by training complexity penalty and held-out predictions.",
+          "bic_improvement_for_extra_mass": 257722.53540047567,
+          "heldout_rmse_improvement": 0.3064916708701349,
+          "criterion": "extra mass requires BIC improvement > 6 and held-out RMSE improvement > 5%, with full-rank Jacobian",
+          "scope": "Comparison of two simplified models; not discovery of a new physical law.",
+          "policy": {
+            "policy": "deterministic_planning_policy",
+            "llm_used": false,
+            "steps": [
+              "Inspect structured observation and valid action schema.",
+              "Generate candidate interventions through backend tools.",
+              "Fork the same persisted state for each candidate.",
+              "Rank measured outcomes; retain failures."
+            ]
+          },
+          "executed_settings": {
+            "candidates": 3,
+            "planner_iterations": 1500,
+            "max_simulation_seconds": 25,
+            "policy": "deterministic",
+            "search_candidates": 0,
+            "physics_budget": 12
+          },
+          "followup_settings": null
+        },
+        "performance": {
+          "job_wall_seconds": 1.3225707999990846,
+          "process_cpu_seconds": 1.078125,
+          "queue_wait_seconds": 0.10826651317802316,
+          "planning_wall_seconds": 0,
+          "physics_wall_seconds": 0.8396131999998033,
+          "candidate_count": 2,
+          "simulation_steps": 0,
+          "integration_calls": 30,
+          "replay_payload_bytes": 40519,
+          "branch_failure_rate": 0,
+          "adapter_error_count": 0,
+          "measurement_complete": true,
+          "job_error_rate": 0,
+          "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+        },
+        "error": null,
+        "stale": false
+      },
+      "evaluations": [
+        {
+          "id": "e6943c41-8e1d-4fe6-a3a9-9a39d773f2f8",
+          "action": {
+            "kind": "fit_hypothesis",
+            "hypothesis": "central_only",
+            "definition": "Test particle under central Newtonian gravity; one fitted gravitational parameter."
+          },
+          "evaluation": {
+            "failure": null,
+            "fit_message": "`ftol` termination condition is satisfied.",
+            "parameters": {
+              "central_mu": 0.9959514424171484
+            },
+            "uncertainty": {
+              "method": "local linearized covariance using known measurement noise; not posterior probability",
+              "standard_errors": {
+                "central_mu": 0.000039374361940587194
+              },
+              "jacobian_rank": 1,
+              "full_rank": true,
+              "active_bounds": [
+                0
+              ],
+              "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+            },
+            "train_rmse": 0.05128941631010608,
+            "heldout_rmse": 0.30751205896843453,
+            "training_bic": 257803.79905975342,
+            "train_count": 49,
+            "heldout_count": 21,
+            "residuals": [
+              [
+                -0.0000012301533574010648,
+                -0.00029874553750846986
+              ],
+              [
+                0.00015693760861645867,
+                0.0008588728130098089
+              ],
+              [
+                -0.000020090367198966064,
+                0.0008730844175192931
+              ],
+              [
+                -0.0011413614034507802,
+                -0.0015879176330913791
+              ],
+              [
+                -0.0014519948247765369,
+                0.00021339364839872976
+              ],
+              [
+                -0.0035597827380410285,
+                -0.0009438065057160161
+              ],
+              [
+                -0.004568165016147985,
+                0.00014941541001356473
+              ],
+              [
+                -0.006095385893581828,
+                -0.0016832254986033357
+              ],
+              [
+                -0.006710536607279272,
+                -0.0007534367302977074
+              ],
+              [
+                -0.00834767846861495,
+                -0.000169553411364598
+              ],
+              [
+                -0.010857499938592086,
+                -0.0015103184290123917
+              ],
+              [
+                -0.014126298066748255,
+                -0.0023585008781914496
+              ],
+              [
+                -0.018472686231778113,
+                -0.0023176120655168386
+              ],
+              [
+                -0.018928011934188804,
+                -0.002480114360766228
+              ],
+              [
+                -0.024706008131983537,
+                -0.003764817509537166
+              ],
+              [
+                -0.026684673355708177,
+                -0.00394491071277403
+              ],
+              [
+                -0.030812694698330645,
+                -0.004540690212240794
+              ],
+              [
+                -0.03650649776097009,
+                -0.0056376611130452
+              ],
+              [
+                -0.03910436053466115,
+                -0.008601803755988846
+              ],
+              [
+                -0.042238475739632714,
+                -0.009055973290426955
+              ],
+              [
+                -0.0465678196010636,
+                -0.010854142048509763
+              ],
+              [
+                -0.04877413317662933,
+                -0.012648158096460804
+              ],
+              [
+                -0.05476464302299042,
+                -0.01294404202343502
+              ],
+              [
+                -0.0574980357548416,
+                -0.016637525940345288
+              ],
+              [
+                -0.059022273383716184,
+                -0.02061556334002379
+              ],
+              [
+                -0.06321558305749544,
+                -0.01953732754923021
+              ],
+              [
+                -0.06506182933422641,
+                -0.023406757377841148
+              ],
+              [
+                -0.06706598203854364,
+                -0.025519615995930223
+              ],
+              [
+                -0.06918872531488712,
+                -0.02736005216175119
+              ],
+              [
+                -0.07243861766679216,
+                -0.027655389692242016
+              ],
+              [
+                -0.0727167284364581,
+                -0.029218884609018114
+              ],
+              [
+                -0.07396108349052366,
+                -0.029489788810782458
+              ],
+              [
+                -0.07443405951726134,
+                -0.03105217275669847
+              ],
+              [
+                -0.07701859899051822,
+                -0.032478936308074524
+              ],
+              [
+                -0.07591238600181072,
+                -0.03008279928774482
+              ],
+              [
+                -0.07910600317509231,
+                -0.027841314986652543
+              ],
+              [
+                -0.07943797427612731,
+                -0.02807207282572033
+              ],
+              [
+                -0.08294391276187774,
+                -0.026555979074077585
+              ],
+              [
+                -0.08362543110946996,
+                -0.022557504987117005
+              ],
+              [
+                -0.0865938991450863,
+                -0.020893437722190267
+              ],
+              [
+                -0.09008557006131768,
+                -0.014940451235502528
+              ],
+              [
+                -0.09546930634403417,
+                -0.010500667008555037
+              ],
+              [
+                -0.10061110735890177,
+                -0.004489260428435282
+              ],
+              [
+                -0.10772670166585341,
+                0.00012190762337575128
+              ],
+              [
+                -0.11721133815278661,
+                0.004407162992772152
+              ],
+              [
+                -0.1258279564426834,
+                0.009679095078028638
+              ],
+              [
+                -0.1369193327622351,
+                0.014262174376415415
+              ],
+              [
+                -0.1503323962409031,
+                0.01912274440271261
+              ],
+              [
+                -0.16383281483574108,
+                0.022895942489189636
+              ],
+              [
+                -0.1799226614096655,
+                0.027658216647691747
+              ],
+              [
+                -0.199440991166822,
+                0.0274312182789464
+              ],
+              [
+                -0.21958508005499555,
+                0.023400628639006826
+              ],
+              [
+                -0.23964309893555513,
+                0.023269103228755417
+              ],
+              [
+                -0.2628911322869597,
+                0.01673003247810312
+              ],
+              [
+                -0.2855980429314386,
+                0.009301505009884914
+              ],
+              [
+                -0.3101084333546652,
+                -0.0025049204979814554
+              ],
+              [
+                -0.3321608346231586,
+                -0.016140428461931644
+              ],
+              [
+                -0.3567464699940781,
+                -0.03269668538926118
+              ],
+              [
+                -0.37975386091570085,
+                -0.0537979998536674
+              ],
+              [
+                -0.4020322711344413,
+                -0.07912869068653106
+              ],
+              [
+                -0.4210090570499457,
+                -0.10592337777143324
+              ],
+              [
+                -0.43847156550287375,
+                -0.1352367467189466
+              ],
+              [
+                -0.4524799357109348,
+                -0.17122354500739256
+              ],
+              [
+                -0.46343111281892857,
+                -0.20793011721779453
+              ],
+              [
+                -0.47231500674558957,
+                -0.24628363039959544
+              ],
+              [
+                -0.47795648831515214,
+                -0.2865372067060661
+              ],
+              [
+                -0.47966867596999424,
+                -0.32576296885252465
+              ],
+              [
+                -0.4773478800107733,
+                -0.3710834210649665
+              ],
+              [
+                -0.4683278547393154,
+                -0.4119810373618574
+              ],
+              [
+                -0.456250169081769,
+                -0.45362938984829004
+              ]
+            ],
+            "integration_calls": 13,
+            "optimizer_evaluations": 6,
+            "success": true,
+            "status": "fit_completed",
+            "hypothesis": "central_only"
+          },
+          "performance": {
+            "wall_seconds": 0.42994610000096145,
+            "physics_wall_seconds": 0.4239297999993141,
+            "simulation_steps": 0,
+            "integration_calls": 13,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "f3fe1a0d-293d-46a0-a7b8-110742f26396",
+          "action": {
+            "kind": "fit_hypothesis",
+            "hypothesis": "central_plus_fixed_perturber",
+            "definition": "Central gravity plus a stationary external mass at a known declared location; two fitted parameters."
+          },
+          "evaluation": {
+            "failure": null,
+            "fit_message": "`xtol` termination condition is satisfied.",
+            "parameters": {
+              "central_mu": 0.9999784517366527,
+              "perturbing_mass": 0.11987184828663872
+            },
+            "uncertainty": {
+              "method": "local linearized covariance using known measurement noise; not posterior probability",
+              "standard_errors": {
+                "central_mu": 0.00003884405688053984,
+                "perturbing_mass": 0.0002328785179912441
+              },
+              "jacobian_rank": 2,
+              "full_rank": true,
+              "active_bounds": [
+                0,
+                0
+              ],
+              "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+            },
+            "train_rmse": 0.0008577005585677485,
+            "heldout_rmse": 0.0010203880982996062,
+            "training_bic": 81.26365927774904,
+            "train_count": 49,
+            "heldout_count": 21,
+            "residuals": [
+              [
+                -0.0000012301533574010648,
+                -0.00029874553750846986
+              ],
+              [
+                0.0002740579318928349,
+                0.0008905590591817975
+              ],
+              [
+                0.0004543449009092315,
+                0.0009915287370415027
+              ],
+              [
+                -0.0000608901052124855,
+                -0.0013404498303755397
+              ],
+              [
+                0.0004908573375921321,
+                0.0006201119719734249
+              ],
+              [
+                -0.0004919817313469022,
+                -0.0003573715005988354
+              ],
+              [
+                -0.0001085359885121262,
+                0.000929884074498788
+              ],
+              [
+                0.000024955028339657126,
+                -0.0006959531764422766
+              ],
+              [
+                0.001338550954301465,
+                0.00045694023437836684
+              ],
+              [
+                0.001894004678409722,
+                0.0012888797718344502
+              ],
+              [
+                0.0018327819580826743,
+                0.00023449256336360857
+              ],
+              [
+                0.0012565881789013966,
+                -0.0002717660296495117
+              ],
+              [
+                -0.00016967128070799475,
+                0.00018655724551153163
+              ],
+              [
+                0.002501637569867654,
+                0.000538470970354088
+              ],
+              [
+                0.00003105653376056505,
+                -0.00011336215376755998
+              ],
+              [
+                0.0015102710100137196,
+                0.00047788061972708906
+              ],
+              [
+                0.0009561602766439137,
+                0.0008091544186001887
+              ],
+              [
+                -0.001085799238275953,
+                0.0008080524487662499
+              ],
+              [
+                0.000005058141150093842,
+                -0.0008836546076581575
+              ],
+              [
+                0.000553578969709867,
+                0.00011268310420120553
+              ],
+              [
+                -0.000143013281214327,
+                -0.00006250864670209744
+              ],
+              [
+                0.0011900318213559358,
+                -0.00007450510831974455
+              ],
+              [
+                -0.0013962505875103892,
+                0.001549242315006527
+              ],
+              [
+                -0.0008991274211479425,
+                -0.00011665632297686024
+              ],
+              [
+                0.0005995011617451751,
+                -0.0019969379622022387
+              ],
+              [
+                -0.0008063608367420982,
+                0.0012037781714804296
+              ],
+              [
+                -0.00012066639437705029,
+                -0.0005709056741954877
+              ],
+              [
+                0.00014064514196349132,
+                -0.0006754896045033654
+              ],
+              [
+                0.000016422801930260356,
+                -0.0006577870326307522
+              ],
+              [
+                -0.0014905920793472083,
+                0.0006876280278050872
+              ],
+              [
+                -0.0002572623381990602,
+                0.0004783055895973831
+              ],
+              [
+                -0.00018360380538073873,
+                0.0012058104792815882
+              ],
+              [
+                0.000520501501633297,
+                0.00021906882592337418
+              ],
+              [
+                -0.0009603954887823507,
+                -0.0011174086520150395
+              ],
+              [
+                0.0012585654290236947,
+                0.0008281125082857388
+              ],
+              [
+                -0.0007158468433786647,
+                0.0020322797642410295
+              ],
+              [
+                0.00038942591187018927,
+                0.0001442662755438695
+              ],
+              [
+                -0.0013365647586097706,
+                -0.0006346039271187265
+              ],
+              [
+                0.00024065198519096498,
+                0.0004318395924465812
+              ],
+              [
+                0.00015520464654039667,
+                -0.0014512521565687164
+              ],
+              [
+                0.0003229685099175317,
+                0.0003853875884369251
+              ],
+              [
+                -0.00046956731888403436,
+                0.00021214518563728024
+              ],
+              [
+                0.00006631464687012478,
+                0.0012151182256298632
+              ],
+              [
+                -0.00013570658207417985,
+                0.0005540357371043234
+              ],
+              [
+                -0.001332053015599799,
+                -0.0005338413665443541
+              ],
+              [
+                -0.00016305024047025274,
+                -0.000541345839054172
+              ],
+              [
+                0.00012875550960911308,
+                -0.0009187550276577583
+              ],
+              [
+                -0.00023229933122592694,
+                -0.0004456235009615006
+              ],
+              [
+                0.0010240140554143018,
+                -0.00020701805241879478
+              ],
+              [
+                0.0013897151167256983,
+                0.0021738488849410986
+              ],
+              [
+                -0.000027776827879799626,
+                0.0010336887636017145
+              ],
+              [
+                -0.0005318330034613794,
+                -0.002119926870158051
+              ],
+              [
+                0.00042717079637866195,
+                0.0007351521257583649
+              ],
+              [
+                -0.0006473362541202787,
+                -0.00040056647122832523
+              ],
+              [
+                -0.00030276392535905083,
+                0.000274127838447491
+              ],
+              [
+                -0.0012178818110231693,
+                -0.0004816714798220323
+              ],
+              [
+                0.00048391385950580235,
+                0.00008167632864475305
+              ],
+              [
+                -0.0006165309733091873,
+                0.001015564395851154
+              ],
+              [
+                -0.0008687487468919952,
+                0.0007722368024387638
+              ],
+              [
+                -0.001603913811486779,
+                -0.0003301659212668895
+              ],
+              [
+                -0.0007385343599812834,
+                0.0003976643215478637
+              ],
+              [
+                -0.0005417391278642464,
+                0.0017450144794138867
+              ],
+              [
+                0.00046674232416496486,
+                -0.0006774149852067923
+              ],
+              [
+                0.001466752027776852,
+                -0.0012244598630988257
+              ],
+              [
+                0.0010944616438897103,
+                -0.0011982070494629404
+              ],
+              [
+                0.00021133401536160834,
+                -0.0012833173297253087
+              ],
+              [
+                -0.00074058402761501,
+                0.0009714754923214608
+              ],
+              [
+                -0.0018276052274495136,
+                -0.0020652794034898836
+              ],
+              [
+                -0.00047539609190605514,
+                -0.0004041563499442846
+              ],
+              [
+                -0.00033869284503718067,
+                0.00024706022203657696
+              ]
+            ],
+            "integration_calls": 17,
+            "optimizer_evaluations": 6,
+            "success": true,
+            "status": "fit_completed",
+            "hypothesis": "central_plus_fixed_perturber"
+          },
+          "performance": {
+            "wall_seconds": 0.4227387999999337,
+            "physics_wall_seconds": 0.4156834000004892,
+            "simulation_steps": 0,
+            "integration_calls": 17,
+            "measurement_complete": true
+          }
+        }
+      ]
+    },
+    {
+      "lab": "cloth",
+      "experiment": {
+        "schema_version": "1.0",
+        "id": "93a7bd50-6a00-472d-825c-b54253b59dd8",
+        "world_id": "14e01aac-829f-4cc3-8a30-7675420f9c4d",
+        "revision": 0,
+        "status": "completed",
+        "request": {
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 25,
+          "policy": "deterministic",
+          "search_candidates": 5000,
+          "physics_budget": 8
+        },
+        "selected_branch_id": "1fd20c1f-80f8-41bf-b220-dfdc2269bc86",
+        "result": {
+          "conclusion": "Measured constrained cloth fold verified.",
+          "ranked_branch_ids": [
+            "1fd20c1f-80f8-41bf-b220-dfdc2269bc86",
+            "a4497a02-d006-44bc-a033-aa00440403ec",
+            "07caa99a-4e98-4943-a108-2cacccbb27be",
+            "ae7d72dd-678e-423e-ad24-4114ca256a4c",
+            "2c210248-2766-4bc9-882b-2bd0ac6b2c97",
+            "cf6f61ce-e65c-4166-b65b-e4500bdcc080",
+            "c956a63b-d0f3-477a-954c-48b69811a706",
+            "b0ca80d5-3b06-4c67-8dba-0f4662847c38"
+          ],
+          "top_feasible_branch_ids": [
+            "1fd20c1f-80f8-41bf-b220-dfdc2269bc86",
+            "a4497a02-d006-44bc-a033-aa00440403ec",
+            "07caa99a-4e98-4943-a108-2cacccbb27be"
+          ],
+          "milestone": "constrained_single_fold",
+          "policy": {
+            "policy": "deterministic_planning_policy",
+            "llm_used": false,
+            "steps": [
+              "Inspect structured observation and valid action schema.",
+              "Generate candidate interventions through backend tools.",
+              "Fork the same persisted state for each candidate.",
+              "Rank measured outcomes; retain failures."
+            ]
+          },
+          "executed_settings": {
+            "candidates": 3,
+            "planner_iterations": 1500,
+            "max_simulation_seconds": 25,
+            "policy": "deterministic",
+            "search_candidates": 5000,
+            "physics_budget": 8
+          },
+          "followup_settings": null,
+          "search": {
+            "generated": 5000,
+            "distinct_generated": 5000,
+            "screened": 5000,
+            "rejected": 2984,
+            "screening_passed": 2016,
+            "promoted_to_physics": 8,
+            "candidate_catalog_sha256": "bcea1cecc0469ae287645fe1f36a9974d9eaf84394339b772e01caa6d9ab2fb3",
+            "sampling": "seeded continuous uniform clamp height, duration and lateral offset",
+            "screening_scope": "geometric stretch/travel bounds only; grasp constraints, contacts and fold quality require MuJoCo",
+            "ranking_objective": "feasible first, alignment RMSE, descending vertex coverage, executed duration",
+            "fully_simulated": 8,
+            "physics_attempts": 8,
+            "planning_failed": 0,
+            "verified_feasible": 8,
+            "physics_rejected": 0
+          }
+        },
+        "performance": {
+          "job_wall_seconds": 125.33132289999958,
+          "process_cpu_seconds": 106.375,
+          "queue_wait_seconds": 0.061483513069106266,
+          "planning_wall_seconds": 0.8554445000008855,
+          "physics_wall_seconds": 120.89851499999531,
+          "candidate_count": 8,
+          "simulation_steps": 14152,
+          "integration_calls": 0,
+          "replay_payload_bytes": 2126436,
+          "branch_failure_rate": 0,
+          "adapter_error_count": 0,
+          "measurement_complete": true,
+          "job_error_rate": 0,
+          "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+        },
+        "error": null,
+        "stale": false
+      },
+      "evaluations": [
+        {
+          "id": "a4497a02-d006-44bc-a033-aa00440403ec",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 4994,
+            "lift_height": 0.20042275140518262,
+            "motion_seconds": 1.5144591702166386,
+            "lateral_offset": -0.02396938682842169,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.0009129009725767929,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.006237528973849774,
+            "maximum_contact_penetration_m": 0.0013060777376029294,
+            "contact_violations": [],
+            "execution_duration_s": 3.5159999999998344,
+            "fold_quality": 0.9695699675807735,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 16.672393299999385,
+            "physics_wall_seconds": 16.5062711999999,
+            "simulation_steps": 1758,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "ae7d72dd-678e-423e-ad24-4114ca256a4c",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 4480,
+            "lift_height": 0.19675763951223668,
+            "motion_seconds": 1.5099717636627836,
+            "lateral_offset": -0.020289844869471326,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.0009314130534712362,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.006260329596936938,
+            "maximum_contact_penetration_m": 0.0013062504319645216,
+            "contact_violations": [],
+            "execution_duration_s": 3.509999999999835,
+            "fold_quality": 0.9689528982176254,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 16.771745900001406,
+            "physics_wall_seconds": 16.715249400000175,
+            "simulation_steps": 1755,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "2c210248-2766-4bc9-882b-2bd0ac6b2c97",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 365,
+            "lift_height": 0.1940596927912022,
+            "motion_seconds": 1.5206470935418102,
+            "lateral_offset": -0.010226917531085473,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.001049111578806485,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.006206741154553108,
+            "maximum_contact_penetration_m": 0.0013063174161105813,
+            "contact_violations": [],
+            "execution_duration_s": 3.5219999999998337,
+            "fold_quality": 0.9650296140397838,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 14.367851699998937,
+            "physics_wall_seconds": 14.32257429999845,
+            "simulation_steps": 1761,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "b0ca80d5-3b06-4c67-8dba-0f4662847c38",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 4770,
+            "lift_height": 0.20146537093160977,
+            "motion_seconds": 1.5454059300082537,
+            "lateral_offset": -0.00945134498819912,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.0010607275037101682,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.006107954417138808,
+            "maximum_contact_penetration_m": 0.0013059354728842433,
+            "contact_violations": [],
+            "execution_duration_s": 3.545999999999831,
+            "fold_quality": 0.9646424165429944,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 16.91017869999996,
+            "physics_wall_seconds": 16.77410129999953,
+            "simulation_steps": 1773,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "1fd20c1f-80f8-41bf-b220-dfdc2269bc86",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 3740,
+            "lift_height": 0.1927763246846822,
+            "motion_seconds": 1.527654052644729,
+            "lateral_offset": -0.0012850268196452352,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.00043749704504074643,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.006174223786865532,
+            "maximum_contact_penetration_m": 0.0013059899223148534,
+            "contact_violations": [],
+            "execution_duration_s": 3.527999999999833,
+            "fold_quality": 0.9854167651653084,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 13.605816100000084,
+            "physics_wall_seconds": 13.546093899998596,
+            "simulation_steps": 1764,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "cf6f61ce-e65c-4166-b65b-e4500bdcc080",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 4555,
+            "lift_height": 0.19644859351904287,
+            "motion_seconds": 1.546541646210499,
+            "lateral_offset": -0.010782419366277347,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.0010527997283326304,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.006102190084931268,
+            "maximum_contact_penetration_m": 0.0013072545166766779,
+            "contact_violations": [],
+            "execution_duration_s": 3.547999999999831,
+            "fold_quality": 0.9649066757222456,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 15.576048900000387,
+            "physics_wall_seconds": 15.501519699999335,
+            "simulation_steps": 1774,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "c956a63b-d0f3-477a-954c-48b69811a706",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 1150,
+            "lift_height": 0.20182999367648782,
+            "motion_seconds": 1.564300413765121,
+            "lateral_offset": -0.008506387576653784,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.001057165444502337,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.0060344240920132,
+            "maximum_contact_penetration_m": 0.0013067807829886605,
+            "contact_violations": [],
+            "execution_duration_s": 3.565999999999829,
+            "fold_quality": 0.9647611518499221,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 13.776931800000966,
+            "physics_wall_seconds": 13.721997599999668,
+            "simulation_steps": 1783,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "07caa99a-4e98-4943-a108-2cacccbb27be",
+          "action": {
+            "kind": "clamp_fold",
+            "candidate_index": 878,
+            "lift_height": 0.20353193408411124,
+            "motion_seconds": 1.5675325461482972,
+            "lateral_offset": -0.02029788380109203,
+            "planning_feasible": true
+          },
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.000924313539270987,
+            "vertex_coverage": 1,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.0060221677244396005,
+            "maximum_contact_penetration_m": 0.001307842555695448,
+            "contact_violations": [],
+            "execution_duration_s": 3.5679999999998286,
+            "fold_quality": 0.9691895486909671,
+            "milestone": "constrained_single_fold",
+            "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+          },
+          "performance": {
+            "wall_seconds": 13.860971799998879,
+            "physics_wall_seconds": 13.81070759999966,
+            "simulation_steps": 1784,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "mujoco_exact_replay_and_download",
+    "public_obstacle_recomputed_and_stale_commit_rejected",
+    "scipy_exact_replay_and_download",
+    "cloth_exact_replay_and_download",
+    "public_import_and_mobile"
+  ],
+  "errors": [],
+  "websockets": [
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/adc67e7a-96d6-45ef-bb39-4528a9868310/events?after=0",
+      "opened": true
+    },
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/adc67e7a-96d6-45ef-bb39-4528a9868310/events?after=40",
+      "opened": true
+    },
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/e613de51-da84-4f32-9fca-9d1fdc9ccb82/events?after=0",
+      "opened": true
+    },
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/e613de51-da84-4f32-9fca-9d1fdc9ccb82/events?after=80",
+      "opened": true
+    },
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/a6628788-f873-4d2b-a35c-7601a6fa9aa2/events?after=0",
+      "opened": true
+    },
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/a6628788-f873-4d2b-a35c-7601a6fa9aa2/events?after=86",
+      "opened": false
+    },
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/93a7bd50-6a00-472d-825c-b54253b59dd8/events?after=0",
+      "opened": true
+    },
+    {
+      "url": "wss://rid-buffalo-bluetooth-profit.trycloudflare.com/v1/experiments/93a7bd50-6a00-472d-825c-b54253b59dd8/events?after=108",
+      "opened": true
+    }
+  ],
+  "events": [
+    {
+      "schema_version": "1.0",
+      "seq": 1,
+      "kind": "queued",
+      "details": {
+        "timestamp_unix_s": 1791654378.0593386
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 2,
+      "kind": "running",
+      "details": {
+        "timestamp_unix_s": 1791654378.9772568
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 3,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654379.501052,
+        "stage": "planning",
+        "message": "Computing seed paths with pose IK and collision-aware RRT."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 4,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654395.8365452,
+        "stage": "generation",
+        "generated": 1000,
+        "target": 5000,
+        "elapsed_seconds": 16.340218800000002,
+        "message": "Generated 1,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 5,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654396.0977063,
+        "stage": "generation",
+        "generated": 2000,
+        "target": 5000,
+        "elapsed_seconds": 16.59892519999994,
+        "message": "Generated 2,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 6,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654396.7434278,
+        "stage": "generation",
+        "generated": 3000,
+        "target": 5000,
+        "elapsed_seconds": 17.244803800000227,
+        "message": "Generated 3,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 7,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654397.2849581,
+        "stage": "generation",
+        "generated": 4000,
+        "target": 5000,
+        "elapsed_seconds": 17.786693000000014,
+        "message": "Generated 4,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 8,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654397.80784,
+        "stage": "generation",
+        "generated": 5000,
+        "target": 5000,
+        "elapsed_seconds": 18.30849219999982,
+        "message": "Generated 5,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 9,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654398.3149848,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 1000,
+        "rejected": 15,
+        "elapsed_seconds": 18.81658729999981,
+        "message": "Screened 1,000 / 5,000; 15 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 10,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654398.7642095,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 2000,
+        "rejected": 37,
+        "elapsed_seconds": 19.266827999999805,
+        "message": "Screened 2,000 / 5,000; 37 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 11,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654399.2657478,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 3000,
+        "rejected": 58,
+        "elapsed_seconds": 19.766303000000335,
+        "message": "Screened 3,000 / 5,000; 58 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 12,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654399.686246,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 4000,
+        "rejected": 75,
+        "elapsed_seconds": 20.18855900000017,
+        "message": "Screened 4,000 / 5,000; 75 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 13,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654400.1284244,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 5000,
+        "rejected": 104,
+        "elapsed_seconds": 20.631993599999987,
+        "message": "Screened 5,000 / 5,000; 104 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 14,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654400.2093112,
+        "generated": 5000,
+        "distinct_generated": 5000,
+        "candidate_catalog_sha256": "d1022164eed5498d661019bffe12695c30f71d670dd0a6beb47960d20ffa8be6",
+        "screened": 5000,
+        "rejected": 104,
+        "screening_passed": 4896,
+        "promoted_to_physics": 12,
+        "diagnostic_rollouts": 1,
+        "rejection_reasons": {
+          "joint_limit": 0,
+          "kinematic_collision": 104,
+          "no_feasible_seed_path": 0
+        },
+        "sampling": "seeded Gaussian perturbations of interior waypoints on dynamically unverified RRT paths",
+        "screening_scope": "joint limits and actual kinematic contacts; full-path/dynamic feasibility decided only by rollouts",
+        "ranking_objective": "successful execution first, then measured duration, joint path length, goal error, candidate index",
+        "stage": "screening_complete",
+        "elapsed_seconds": 20.697340099999565,
+        "message": "Screening complete. 4,896 passed cheap checks; 12 promoted to real physics (including one diagnostic)."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 15,
+      "kind": "planned",
+      "details": {
+        "timestamp_unix_s": 1791654400.3639357,
+        "candidate_count": 12,
+        "planning_wall_seconds": 20.818565300000046
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 16,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654401.248789,
+        "branch_id": "62c1dbca-96d0-45ee-b67a-4efe0033c5c2",
+        "evaluation": {
+          "success": false,
+          "status": "collision_failure",
+          "planning_feasible": false,
+          "goal_error_m": 0.2544755025541485,
+          "orientation_error_rad": 0.9642158511225443,
+          "contact_violations": [
+            {
+              "bodies": [
+                "obstacle",
+                "hand"
+              ],
+              "geoms": [
+                "obstacle_geom",
+                "geom_66"
+              ],
+              "penetration_m": 0.0000366926601019178,
+              "category": "environment_collision"
+            }
+          ],
+          "execution_duration_s": 2.6079999999999344,
+          "joint_path_length_rad": 0.8766054691911167,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 17,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654401.325936,
+        "stage": "physics",
+        "fully_simulated": 1,
+        "physics_attempts": 1,
+        "physics_target": 12,
+        "verified_feasible": 0,
+        "elapsed_seconds": 23.16203249999853,
+        "message": "Validation 1 / 12; 1 integrated rollouts; 0 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 18,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654403.3695707,
+        "branch_id": "8db7497a-9274-47d4-bc5d-4b9e8847d47a",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.00882702977732954,
+          "orientation_error_rad": 0.015458254410839313,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.360959329432927,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 19,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654403.4596353,
+        "stage": "physics",
+        "fully_simulated": 2,
+        "physics_attempts": 2,
+        "physics_target": 12,
+        "verified_feasible": 1,
+        "elapsed_seconds": 25.297245499999917,
+        "message": "Validation 2 / 12; 2 integrated rollouts; 1 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 20,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654405.5587533,
+        "branch_id": "61131741-d97f-4ff3-9053-645584b3b891",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008826969928727241,
+          "orientation_error_rad": 0.01545816133309397,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.3802209967651966,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 21,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654405.6349952,
+        "stage": "physics",
+        "fully_simulated": 3,
+        "physics_attempts": 3,
+        "physics_target": 12,
+        "verified_feasible": 2,
+        "elapsed_seconds": 27.47262210000008,
+        "message": "Validation 3 / 12; 3 integrated rollouts; 2 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 22,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654407.680753,
+        "branch_id": "f42ead34-0e66-48a4-952f-80d4733d032d",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.00882703839754311,
+          "orientation_error_rad": 0.015458095008295866,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.386344952434817,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 23,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654407.837726,
+        "stage": "physics",
+        "fully_simulated": 4,
+        "physics_attempts": 4,
+        "physics_target": 12,
+        "verified_feasible": 3,
+        "elapsed_seconds": 29.67324759999974,
+        "message": "Validation 4 / 12; 4 integrated rollouts; 3 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 24,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654409.8418517,
+        "branch_id": "3e0e4e30-12b9-4554-b5f1-8b446be9d99b",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827053757971505,
+          "orientation_error_rad": 0.015458241040701842,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.388086374193131,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 25,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654409.9203312,
+        "stage": "physics",
+        "fully_simulated": 5,
+        "physics_attempts": 5,
+        "physics_target": 12,
+        "verified_feasible": 4,
+        "elapsed_seconds": 31.756191399999807,
+        "message": "Validation 5 / 12; 5 integrated rollouts; 4 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 26,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654411.8879385,
+        "branch_id": "bbc2742b-26e4-48af-b147-298727d1fb34",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827071013116103,
+          "orientation_error_rad": 0.01545812295855729,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.3881809297080467,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 27,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654412.0224795,
+        "stage": "physics",
+        "fully_simulated": 6,
+        "physics_attempts": 6,
+        "physics_target": 12,
+        "verified_feasible": 5,
+        "elapsed_seconds": 33.85563589999947,
+        "message": "Validation 6 / 12; 6 integrated rollouts; 5 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 28,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654415.2968943,
+        "branch_id": "601270f7-18d4-422d-aa53-785c102b4407",
+        "evaluation": {
+          "success": false,
+          "status": "collision_failure",
+          "planning_feasible": true,
+          "goal_error_m": 0.21378218697854134,
+          "orientation_error_rad": 0.2273454514202238,
+          "contact_violations": [
+            {
+              "bodies": [
+                "obstacle",
+                "link5"
+              ],
+              "geoms": [
+                "obstacle_geom",
+                "geom_33"
+              ],
+              "penetration_m": 0.00008980298684429377,
+              "category": "environment_collision"
+            }
+          ],
+          "execution_duration_s": 5.311999999999637,
+          "joint_path_length_rad": 1.9885032500143074,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 29,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654415.4222372,
+        "stage": "physics",
+        "fully_simulated": 7,
+        "physics_attempts": 7,
+        "physics_target": 12,
+        "verified_feasible": 5,
+        "elapsed_seconds": 37.25591929999973,
+        "message": "Validation 7 / 12; 7 integrated rollouts; 5 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 30,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654417.558755,
+        "branch_id": "86161321-fda7-422e-80f1-da1e0b288c0d",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008826981873160618,
+          "orientation_error_rad": 0.015458143586804448,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.398135891348943,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 31,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654417.6392093,
+        "stage": "physics",
+        "fully_simulated": 8,
+        "physics_attempts": 8,
+        "physics_target": 12,
+        "verified_feasible": 6,
+        "elapsed_seconds": 39.475798399998894,
+        "message": "Validation 8 / 12; 8 integrated rollouts; 6 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 32,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654419.7086568,
+        "branch_id": "8ad970ba-509f-4ff2-b6eb-38345f70cf5e",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008826965542823197,
+          "orientation_error_rad": 0.015458045586757585,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.399834213156104,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 33,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654419.8169572,
+        "stage": "physics",
+        "fully_simulated": 9,
+        "physics_attempts": 9,
+        "physics_target": 12,
+        "verified_feasible": 7,
+        "elapsed_seconds": 41.6501434999991,
+        "message": "Validation 9 / 12; 9 integrated rollouts; 7 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 34,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654421.858752,
+        "branch_id": "1c63c539-be95-4d13-a04b-f3059c81f0ee",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827019342017697,
+          "orientation_error_rad": 0.015458154948887942,
+          "contact_violations": [],
+          "execution_duration_s": 6.967999999999455,
+          "joint_path_length_rad": 2.4019671357490626,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 35,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654421.950112,
+        "stage": "physics",
+        "fully_simulated": 10,
+        "physics_attempts": 10,
+        "physics_target": 12,
+        "verified_feasible": 8,
+        "elapsed_seconds": 43.786499699999695,
+        "message": "Validation 10 / 12; 10 integrated rollouts; 8 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 36,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654424.95135,
+        "branch_id": "8e98df9c-111b-422c-a90a-0e02f2db31d9",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.00882691849187559,
+          "orientation_error_rad": 0.015458072016597754,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.405257424403212,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 37,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654425.072586,
+        "stage": "physics",
+        "fully_simulated": 11,
+        "physics_attempts": 11,
+        "physics_target": 12,
+        "verified_feasible": 9,
+        "elapsed_seconds": 46.9069230999994,
+        "message": "Validation 11 / 12; 11 integrated rollouts; 9 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 38,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654427.6436718,
+        "branch_id": "346b6834-6e79-4ea4-8970-9f159328b84c",
+        "evaluation": {
+          "success": false,
+          "status": "collision_failure",
+          "planning_feasible": true,
+          "goal_error_m": 0.08850950438238019,
+          "orientation_error_rad": 0.1133361313962243,
+          "contact_violations": [
+            {
+              "bodies": [
+                "obstacle",
+                "link6"
+              ],
+              "geoms": [
+                "obstacle_geom",
+                "geom_51"
+              ],
+              "penetration_m": 0.00025415857154754246,
+              "category": "environment_collision"
+            }
+          ],
+          "execution_duration_s": 5.689999999999595,
+          "joint_path_length_rad": 2.207879188921137,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 39,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654427.6872876,
+        "stage": "physics",
+        "fully_simulated": 12,
+        "physics_attempts": 12,
+        "physics_target": 12,
+        "verified_feasible": 9,
+        "elapsed_seconds": 49.52339479999864,
+        "message": "Validation 12 / 12; 12 integrated rollouts; 9 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 40,
+      "kind": "completed",
+      "details": {
+        "timestamp_unix_s": 1791654428.4943168,
+        "selected_branch_id": "8db7497a-9274-47d4-bc5d-4b9e8847d47a",
+        "stale": false,
+        "adapter_error_count": 0,
+        "error": null
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 41,
+      "kind": "queued",
+      "details": {
+        "timestamp_unix_s": 1791654487.0113704
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 42,
+      "kind": "running",
+      "details": {
+        "timestamp_unix_s": 1791654487.556358
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 43,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654497.2016487,
+        "stage": "planning",
+        "message": "Computing seed paths with pose IK and collision-aware RRT."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 44,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654514.2894833,
+        "stage": "generation",
+        "generated": 1000,
+        "target": 5000,
+        "elapsed_seconds": 17.086822200000825,
+        "message": "Generated 1,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 45,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654514.6670969,
+        "stage": "generation",
+        "generated": 2000,
+        "target": 5000,
+        "elapsed_seconds": 17.46484220000093,
+        "message": "Generated 2,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 46,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654515.0535183,
+        "stage": "generation",
+        "generated": 3000,
+        "target": 5000,
+        "elapsed_seconds": 17.850559099999373,
+        "message": "Generated 3,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 47,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654515.3744156,
+        "stage": "generation",
+        "generated": 4000,
+        "target": 5000,
+        "elapsed_seconds": 18.169708100000207,
+        "message": "Generated 4,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 48,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654515.9192762,
+        "stage": "generation",
+        "generated": 5000,
+        "target": 5000,
+        "elapsed_seconds": 18.71711200000027,
+        "message": "Generated 5,000 / 5,000 distinct joint-space trajectories."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 49,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654516.5206604,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 1000,
+        "rejected": 0,
+        "elapsed_seconds": 19.318989699999292,
+        "message": "Screened 1,000 / 5,000; 0 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 50,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654517.049594,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 2000,
+        "rejected": 0,
+        "elapsed_seconds": 19.846151100000498,
+        "message": "Screened 2,000 / 5,000; 0 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 51,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654517.6118124,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 3000,
+        "rejected": 0,
+        "elapsed_seconds": 20.408281399999396,
+        "message": "Screened 3,000 / 5,000; 0 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 52,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654518.137634,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 4000,
+        "rejected": 0,
+        "elapsed_seconds": 20.933782100000826,
+        "message": "Screened 4,000 / 5,000; 0 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 53,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654518.5735438,
+        "stage": "screening",
+        "generated": 5000,
+        "screened": 5000,
+        "rejected": 0,
+        "elapsed_seconds": 21.370628200000283,
+        "message": "Screened 5,000 / 5,000; 0 rejected by measured kinematic constraints."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 54,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654518.65796,
+        "generated": 5000,
+        "distinct_generated": 5000,
+        "candidate_catalog_sha256": "7deaf85f38f6ff37e210fe78ffe235b132596bbe94edee5b404c2441d9ae0898",
+        "screened": 5000,
+        "rejected": 0,
+        "screening_passed": 5000,
+        "promoted_to_physics": 12,
+        "diagnostic_rollouts": 1,
+        "rejection_reasons": {
+          "joint_limit": 0,
+          "kinematic_collision": 0,
+          "no_feasible_seed_path": 0
+        },
+        "sampling": "seeded Gaussian perturbations of interior waypoints on dynamically unverified RRT paths",
+        "screening_scope": "joint limits and actual kinematic contacts; full-path/dynamic feasibility decided only by rollouts",
+        "ranking_objective": "successful execution first, then measured duration, joint path length, goal error, candidate index",
+        "stage": "screening_complete",
+        "elapsed_seconds": 21.45487990000038,
+        "message": "Screening complete. 5,000 passed cheap checks; 12 promoted to real physics (including one diagnostic)."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 55,
+      "kind": "planned",
+      "details": {
+        "timestamp_unix_s": 1791654518.7592297,
+        "candidate_count": 12,
+        "planning_wall_seconds": 21.536502499999187
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 56,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654521.387235,
+        "branch_id": "0c11feb2-ea4b-4941-8631-48da1df9c782",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.00882713704548686,
+          "orientation_error_rad": 0.015458312971729435,
+          "contact_violations": [],
+          "execution_duration_s": 6.967999999999455,
+          "joint_path_length_rad": 2.28424108574933,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 57,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654521.4610953,
+        "stage": "physics",
+        "fully_simulated": 1,
+        "physics_attempts": 1,
+        "physics_target": 12,
+        "verified_feasible": 1,
+        "elapsed_seconds": 34.19285309999941,
+        "message": "Validation 1 / 12; 1 integrated rollouts; 1 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 58,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654524.651844,
+        "branch_id": "12f1e5a6-61cb-4c9a-8fea-e65de9aabaee",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132976736873,
+          "orientation_error_rad": 0.015458335969197221,
+          "contact_violations": [],
+          "execution_duration_s": 6.967999999999455,
+          "joint_path_length_rad": 2.2835932239704753,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 59,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654524.7333229,
+        "stage": "physics",
+        "fully_simulated": 2,
+        "physics_attempts": 2,
+        "physics_target": 12,
+        "verified_feasible": 2,
+        "elapsed_seconds": 37.46468119999918,
+        "message": "Validation 2 / 12; 2 integrated rollouts; 2 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 60,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654527.1936631,
+        "branch_id": "1b732d08-7bb6-4854-aebd-151e4ea6bfaf",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132954293196,
+          "orientation_error_rad": 0.015458335715625998,
+          "contact_violations": [],
+          "execution_duration_s": 6.967999999999455,
+          "joint_path_length_rad": 2.2836002711572516,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 61,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654527.2714863,
+        "stage": "physics",
+        "fully_simulated": 3,
+        "physics_attempts": 3,
+        "physics_target": 12,
+        "verified_feasible": 3,
+        "elapsed_seconds": 40.00288759999967,
+        "message": "Validation 3 / 12; 3 integrated rollouts; 3 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 62,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654529.4369054,
+        "branch_id": "08a2433f-4b6a-4bd0-910f-00cd30aadec9",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132594372228,
+          "orientation_error_rad": 0.015458336409887932,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.2835957682098034,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 63,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654529.5043118,
+        "stage": "physics",
+        "fully_simulated": 4,
+        "physics_attempts": 4,
+        "physics_target": 12,
+        "verified_feasible": 4,
+        "elapsed_seconds": 42.243149099998845,
+        "message": "Validation 4 / 12; 4 integrated rollouts; 4 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 64,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654531.5471296,
+        "branch_id": "404ed568-f5ce-4b9f-b247-1733c8c952e1",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132718441606,
+          "orientation_error_rad": 0.015458336694310381,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.2835996859137895,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 65,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654531.6171055,
+        "stage": "physics",
+        "fully_simulated": 5,
+        "physics_attempts": 5,
+        "physics_target": 12,
+        "verified_feasible": 5,
+        "elapsed_seconds": 44.34910739999941,
+        "message": "Validation 5 / 12; 5 integrated rollouts; 5 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 66,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654533.6728566,
+        "branch_id": "bf108864-c307-4f8b-a63d-8ed64c4d89f9",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132558966512,
+          "orientation_error_rad": 0.015458336566638371,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.283596723756565,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 67,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654533.7814105,
+        "stage": "physics",
+        "fully_simulated": 6,
+        "physics_attempts": 6,
+        "physics_target": 12,
+        "verified_feasible": 6,
+        "elapsed_seconds": 46.50895049999963,
+        "message": "Validation 6 / 12; 6 integrated rollouts; 6 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 68,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654535.6675766,
+        "branch_id": "67447177-f3fb-4f86-a3ff-1d9f47118123",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.00882713245528452,
+          "orientation_error_rad": 0.015458336459640268,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.2835972058144693,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 69,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654535.7473288,
+        "stage": "physics",
+        "fully_simulated": 7,
+        "physics_attempts": 7,
+        "physics_target": 12,
+        "verified_feasible": 7,
+        "elapsed_seconds": 48.4780996999998,
+        "message": "Validation 7 / 12; 7 integrated rollouts; 7 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 70,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654537.6624634,
+        "branch_id": "1cf49de3-6576-4fc9-bb2c-4589e2ae7e92",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.00882713283902603,
+          "orientation_error_rad": 0.015458336468292491,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.2836119377673736,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 71,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654537.7801766,
+        "stage": "physics",
+        "fully_simulated": 8,
+        "physics_attempts": 8,
+        "physics_target": 12,
+        "verified_feasible": 8,
+        "elapsed_seconds": 50.50756669999828,
+        "message": "Validation 8 / 12; 8 integrated rollouts; 8 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 72,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654539.944694,
+        "branch_id": "bd81c3b4-18c3-4c0e-a6e0-8f8258ab7ac6",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132891104898,
+          "orientation_error_rad": 0.015458336291899482,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.28360533190147,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 73,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654540.0196922,
+        "stage": "physics",
+        "fully_simulated": 9,
+        "physics_attempts": 9,
+        "physics_target": 12,
+        "verified_feasible": 9,
+        "elapsed_seconds": 52.75068789999932,
+        "message": "Validation 9 / 12; 9 integrated rollouts; 9 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 74,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654542.1108902,
+        "branch_id": "6da22216-e6e6-40a6-a238-549c0fb5d24d",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132649194103,
+          "orientation_error_rad": 0.015458337080724404,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.2836032697294413,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 75,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654542.1842706,
+        "stage": "physics",
+        "fully_simulated": 10,
+        "physics_attempts": 10,
+        "physics_target": 12,
+        "verified_feasible": 10,
+        "elapsed_seconds": 54.91701769999963,
+        "message": "Validation 10 / 12; 10 integrated rollouts; 10 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 76,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654544.133274,
+        "branch_id": "1c17369a-4bb7-40a1-a870-c1ac135afa24",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132727703394,
+          "orientation_error_rad": 0.015458336688888593,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.2836090173723433,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 77,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654544.2562513,
+        "stage": "physics",
+        "fully_simulated": 11,
+        "physics_attempts": 11,
+        "physics_target": 12,
+        "verified_feasible": 11,
+        "elapsed_seconds": 56.985403899998346,
+        "message": "Validation 11 / 12; 11 integrated rollouts; 11 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 78,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654546.1131516,
+        "branch_id": "4b315d0c-c159-40ba-a7ab-476330dd9d52",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "planning_feasible": true,
+          "goal_error_m": 0.008827132964969142,
+          "orientation_error_rad": 0.015458336895272989,
+          "contact_violations": [],
+          "execution_duration_s": 6.965999999999455,
+          "joint_path_length_rad": 2.2836104046407493,
+          "milestone": "collision_free_reach"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 79,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654546.2156408,
+        "stage": "physics",
+        "fully_simulated": 12,
+        "physics_attempts": 12,
+        "physics_target": 12,
+        "verified_feasible": 12,
+        "elapsed_seconds": 58.94796649999989,
+        "message": "Validation 12 / 12; 12 integrated rollouts; 12 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 80,
+      "kind": "completed",
+      "details": {
+        "timestamp_unix_s": 1791654546.8810668,
+        "selected_branch_id": "08a2433f-4b6a-4bd0-910f-00cd30aadec9",
+        "stale": false,
+        "adapter_error_count": 0,
+        "error": null
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 81,
+      "kind": "queued",
+      "details": {
+        "timestamp_unix_s": 1791654609.7550924
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 82,
+      "kind": "running",
+      "details": {
+        "timestamp_unix_s": 1791654609.9419634
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 83,
+      "kind": "planned",
+      "details": {
+        "timestamp_unix_s": 1791654610.0721436,
+        "candidate_count": 2,
+        "planning_wall_seconds": 0
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 84,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654610.5770745,
+        "branch_id": "e6943c41-8e1d-4fe6-a3a9-9a39d773f2f8",
+        "evaluation": {
+          "failure": null,
+          "fit_message": "`ftol` termination condition is satisfied.",
+          "parameters": {
+            "central_mu": 0.9959514424171484
+          },
+          "uncertainty": {
+            "method": "local linearized covariance using known measurement noise; not posterior probability",
+            "standard_errors": {
+              "central_mu": 0.000039374361940587194
+            },
+            "jacobian_rank": 1,
+            "full_rank": true,
+            "active_bounds": [
+              0
+            ],
+            "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+          },
+          "train_rmse": 0.05128941631010608,
+          "heldout_rmse": 0.30751205896843453,
+          "training_bic": 257803.79905975342,
+          "train_count": 49,
+          "heldout_count": 21,
+          "residuals": [
+            [
+              -0.0000012301533574010648,
+              -0.00029874553750846986
+            ],
+            [
+              0.00015693760861645867,
+              0.0008588728130098089
+            ],
+            [
+              -0.000020090367198966064,
+              0.0008730844175192931
+            ],
+            [
+              -0.0011413614034507802,
+              -0.0015879176330913791
+            ],
+            [
+              -0.0014519948247765369,
+              0.00021339364839872976
+            ],
+            [
+              -0.0035597827380410285,
+              -0.0009438065057160161
+            ],
+            [
+              -0.004568165016147985,
+              0.00014941541001356473
+            ],
+            [
+              -0.006095385893581828,
+              -0.0016832254986033357
+            ],
+            [
+              -0.006710536607279272,
+              -0.0007534367302977074
+            ],
+            [
+              -0.00834767846861495,
+              -0.000169553411364598
+            ],
+            [
+              -0.010857499938592086,
+              -0.0015103184290123917
+            ],
+            [
+              -0.014126298066748255,
+              -0.0023585008781914496
+            ],
+            [
+              -0.018472686231778113,
+              -0.0023176120655168386
+            ],
+            [
+              -0.018928011934188804,
+              -0.002480114360766228
+            ],
+            [
+              -0.024706008131983537,
+              -0.003764817509537166
+            ],
+            [
+              -0.026684673355708177,
+              -0.00394491071277403
+            ],
+            [
+              -0.030812694698330645,
+              -0.004540690212240794
+            ],
+            [
+              -0.03650649776097009,
+              -0.0056376611130452
+            ],
+            [
+              -0.03910436053466115,
+              -0.008601803755988846
+            ],
+            [
+              -0.042238475739632714,
+              -0.009055973290426955
+            ],
+            [
+              -0.0465678196010636,
+              -0.010854142048509763
+            ],
+            [
+              -0.04877413317662933,
+              -0.012648158096460804
+            ],
+            [
+              -0.05476464302299042,
+              -0.01294404202343502
+            ],
+            [
+              -0.0574980357548416,
+              -0.016637525940345288
+            ],
+            [
+              -0.059022273383716184,
+              -0.02061556334002379
+            ],
+            [
+              -0.06321558305749544,
+              -0.01953732754923021
+            ],
+            [
+              -0.06506182933422641,
+              -0.023406757377841148
+            ],
+            [
+              -0.06706598203854364,
+              -0.025519615995930223
+            ],
+            [
+              -0.06918872531488712,
+              -0.02736005216175119
+            ],
+            [
+              -0.07243861766679216,
+              -0.027655389692242016
+            ],
+            [
+              -0.0727167284364581,
+              -0.029218884609018114
+            ],
+            [
+              -0.07396108349052366,
+              -0.029489788810782458
+            ],
+            [
+              -0.07443405951726134,
+              -0.03105217275669847
+            ],
+            [
+              -0.07701859899051822,
+              -0.032478936308074524
+            ],
+            [
+              -0.07591238600181072,
+              -0.03008279928774482
+            ],
+            [
+              -0.07910600317509231,
+              -0.027841314986652543
+            ],
+            [
+              -0.07943797427612731,
+              -0.02807207282572033
+            ],
+            [
+              -0.08294391276187774,
+              -0.026555979074077585
+            ],
+            [
+              -0.08362543110946996,
+              -0.022557504987117005
+            ],
+            [
+              -0.0865938991450863,
+              -0.020893437722190267
+            ],
+            [
+              -0.09008557006131768,
+              -0.014940451235502528
+            ],
+            [
+              -0.09546930634403417,
+              -0.010500667008555037
+            ],
+            [
+              -0.10061110735890177,
+              -0.004489260428435282
+            ],
+            [
+              -0.10772670166585341,
+              0.00012190762337575128
+            ],
+            [
+              -0.11721133815278661,
+              0.004407162992772152
+            ],
+            [
+              -0.1258279564426834,
+              0.009679095078028638
+            ],
+            [
+              -0.1369193327622351,
+              0.014262174376415415
+            ],
+            [
+              -0.1503323962409031,
+              0.01912274440271261
+            ],
+            [
+              -0.16383281483574108,
+              0.022895942489189636
+            ],
+            [
+              -0.1799226614096655,
+              0.027658216647691747
+            ],
+            [
+              -0.199440991166822,
+              0.0274312182789464
+            ],
+            [
+              -0.21958508005499555,
+              0.023400628639006826
+            ],
+            [
+              -0.23964309893555513,
+              0.023269103228755417
+            ],
+            [
+              -0.2628911322869597,
+              0.01673003247810312
+            ],
+            [
+              -0.2855980429314386,
+              0.009301505009884914
+            ],
+            [
+              -0.3101084333546652,
+              -0.0025049204979814554
+            ],
+            [
+              -0.3321608346231586,
+              -0.016140428461931644
+            ],
+            [
+              -0.3567464699940781,
+              -0.03269668538926118
+            ],
+            [
+              -0.37975386091570085,
+              -0.0537979998536674
+            ],
+            [
+              -0.4020322711344413,
+              -0.07912869068653106
+            ],
+            [
+              -0.4210090570499457,
+              -0.10592337777143324
+            ],
+            [
+              -0.43847156550287375,
+              -0.1352367467189466
+            ],
+            [
+              -0.4524799357109348,
+              -0.17122354500739256
+            ],
+            [
+              -0.46343111281892857,
+              -0.20793011721779453
+            ],
+            [
+              -0.47231500674558957,
+              -0.24628363039959544
+            ],
+            [
+              -0.47795648831515214,
+              -0.2865372067060661
+            ],
+            [
+              -0.47966867596999424,
+              -0.32576296885252465
+            ],
+            [
+              -0.4773478800107733,
+              -0.3710834210649665
+            ],
+            [
+              -0.4683278547393154,
+              -0.4119810373618574
+            ],
+            [
+              -0.456250169081769,
+              -0.45362938984829004
+            ]
+          ],
+          "integration_calls": 13,
+          "optimizer_evaluations": 6,
+          "success": true,
+          "status": "fit_completed",
+          "hypothesis": "central_only"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 85,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654611.071542,
+        "branch_id": "f3fe1a0d-293d-46a0-a7b8-110742f26396",
+        "evaluation": {
+          "failure": null,
+          "fit_message": "`xtol` termination condition is satisfied.",
+          "parameters": {
+            "central_mu": 0.9999784517366527,
+            "perturbing_mass": 0.11987184828663872
+          },
+          "uncertainty": {
+            "method": "local linearized covariance using known measurement noise; not posterior probability",
+            "standard_errors": {
+              "central_mu": 0.00003884405688053984,
+              "perturbing_mass": 0.0002328785179912441
+            },
+            "jacobian_rank": 2,
+            "full_rank": true,
+            "active_bounds": [
+              0,
+              0
+            ],
+            "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+          },
+          "train_rmse": 0.0008577005585677485,
+          "heldout_rmse": 0.0010203880982996062,
+          "training_bic": 81.26365927774904,
+          "train_count": 49,
+          "heldout_count": 21,
+          "residuals": [
+            [
+              -0.0000012301533574010648,
+              -0.00029874553750846986
+            ],
+            [
+              0.0002740579318928349,
+              0.0008905590591817975
+            ],
+            [
+              0.0004543449009092315,
+              0.0009915287370415027
+            ],
+            [
+              -0.0000608901052124855,
+              -0.0013404498303755397
+            ],
+            [
+              0.0004908573375921321,
+              0.0006201119719734249
+            ],
+            [
+              -0.0004919817313469022,
+              -0.0003573715005988354
+            ],
+            [
+              -0.0001085359885121262,
+              0.000929884074498788
+            ],
+            [
+              0.000024955028339657126,
+              -0.0006959531764422766
+            ],
+            [
+              0.001338550954301465,
+              0.00045694023437836684
+            ],
+            [
+              0.001894004678409722,
+              0.0012888797718344502
+            ],
+            [
+              0.0018327819580826743,
+              0.00023449256336360857
+            ],
+            [
+              0.0012565881789013966,
+              -0.0002717660296495117
+            ],
+            [
+              -0.00016967128070799475,
+              0.00018655724551153163
+            ],
+            [
+              0.002501637569867654,
+              0.000538470970354088
+            ],
+            [
+              0.00003105653376056505,
+              -0.00011336215376755998
+            ],
+            [
+              0.0015102710100137196,
+              0.00047788061972708906
+            ],
+            [
+              0.0009561602766439137,
+              0.0008091544186001887
+            ],
+            [
+              -0.001085799238275953,
+              0.0008080524487662499
+            ],
+            [
+              0.000005058141150093842,
+              -0.0008836546076581575
+            ],
+            [
+              0.000553578969709867,
+              0.00011268310420120553
+            ],
+            [
+              -0.000143013281214327,
+              -0.00006250864670209744
+            ],
+            [
+              0.0011900318213559358,
+              -0.00007450510831974455
+            ],
+            [
+              -0.0013962505875103892,
+              0.001549242315006527
+            ],
+            [
+              -0.0008991274211479425,
+              -0.00011665632297686024
+            ],
+            [
+              0.0005995011617451751,
+              -0.0019969379622022387
+            ],
+            [
+              -0.0008063608367420982,
+              0.0012037781714804296
+            ],
+            [
+              -0.00012066639437705029,
+              -0.0005709056741954877
+            ],
+            [
+              0.00014064514196349132,
+              -0.0006754896045033654
+            ],
+            [
+              0.000016422801930260356,
+              -0.0006577870326307522
+            ],
+            [
+              -0.0014905920793472083,
+              0.0006876280278050872
+            ],
+            [
+              -0.0002572623381990602,
+              0.0004783055895973831
+            ],
+            [
+              -0.00018360380538073873,
+              0.0012058104792815882
+            ],
+            [
+              0.000520501501633297,
+              0.00021906882592337418
+            ],
+            [
+              -0.0009603954887823507,
+              -0.0011174086520150395
+            ],
+            [
+              0.0012585654290236947,
+              0.0008281125082857388
+            ],
+            [
+              -0.0007158468433786647,
+              0.0020322797642410295
+            ],
+            [
+              0.00038942591187018927,
+              0.0001442662755438695
+            ],
+            [
+              -0.0013365647586097706,
+              -0.0006346039271187265
+            ],
+            [
+              0.00024065198519096498,
+              0.0004318395924465812
+            ],
+            [
+              0.00015520464654039667,
+              -0.0014512521565687164
+            ],
+            [
+              0.0003229685099175317,
+              0.0003853875884369251
+            ],
+            [
+              -0.00046956731888403436,
+              0.00021214518563728024
+            ],
+            [
+              0.00006631464687012478,
+              0.0012151182256298632
+            ],
+            [
+              -0.00013570658207417985,
+              0.0005540357371043234
+            ],
+            [
+              -0.001332053015599799,
+              -0.0005338413665443541
+            ],
+            [
+              -0.00016305024047025274,
+              -0.000541345839054172
+            ],
+            [
+              0.00012875550960911308,
+              -0.0009187550276577583
+            ],
+            [
+              -0.00023229933122592694,
+              -0.0004456235009615006
+            ],
+            [
+              0.0010240140554143018,
+              -0.00020701805241879478
+            ],
+            [
+              0.0013897151167256983,
+              0.0021738488849410986
+            ],
+            [
+              -0.000027776827879799626,
+              0.0010336887636017145
+            ],
+            [
+              -0.0005318330034613794,
+              -0.002119926870158051
+            ],
+            [
+              0.00042717079637866195,
+              0.0007351521257583649
+            ],
+            [
+              -0.0006473362541202787,
+              -0.00040056647122832523
+            ],
+            [
+              -0.00030276392535905083,
+              0.000274127838447491
+            ],
+            [
+              -0.0012178818110231693,
+              -0.0004816714798220323
+            ],
+            [
+              0.00048391385950580235,
+              0.00008167632864475305
+            ],
+            [
+              -0.0006165309733091873,
+              0.001015564395851154
+            ],
+            [
+              -0.0008687487468919952,
+              0.0007722368024387638
+            ],
+            [
+              -0.001603913811486779,
+              -0.0003301659212668895
+            ],
+            [
+              -0.0007385343599812834,
+              0.0003976643215478637
+            ],
+            [
+              -0.0005417391278642464,
+              0.0017450144794138867
+            ],
+            [
+              0.00046674232416496486,
+              -0.0006774149852067923
+            ],
+            [
+              0.001466752027776852,
+              -0.0012244598630988257
+            ],
+            [
+              0.0010944616438897103,
+              -0.0011982070494629404
+            ],
+            [
+              0.00021133401536160834,
+              -0.0012833173297253087
+            ],
+            [
+              -0.00074058402761501,
+              0.0009714754923214608
+            ],
+            [
+              -0.0018276052274495136,
+              -0.0020652794034898836
+            ],
+            [
+              -0.00047539609190605514,
+              -0.0004041563499442846
+            ],
+            [
+              -0.00033869284503718067,
+              0.00024706022203657696
+            ]
+          ],
+          "integration_calls": 17,
+          "optimizer_evaluations": 6,
+          "success": true,
+          "status": "fit_completed",
+          "hypothesis": "central_plus_fixed_perturber"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 86,
+      "kind": "completed",
+      "details": {
+        "timestamp_unix_s": 1791654611.2262585,
+        "selected_branch_id": "f3fe1a0d-293d-46a0-a7b8-110742f26396",
+        "stale": false,
+        "adapter_error_count": 0,
+        "error": null
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 87,
+      "kind": "queued",
+      "details": {
+        "timestamp_unix_s": 1791654624.7099228
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 88,
+      "kind": "running",
+      "details": {
+        "timestamp_unix_s": 1791654624.9442685
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 89,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654625.1267333,
+        "stage": "generation",
+        "generated": 5000,
+        "elapsed_seconds": 0.0005280000004859176,
+        "message": "Generated 5,000 distinct clamp-motion parameter sets."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 90,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654625.650191,
+        "generated": 5000,
+        "distinct_generated": 5000,
+        "screened": 5000,
+        "rejected": 2984,
+        "screening_passed": 2016,
+        "promoted_to_physics": 8,
+        "candidate_catalog_sha256": "bcea1cecc0469ae287645fe1f36a9974d9eaf84394339b772e01caa6d9ab2fb3",
+        "sampling": "seeded continuous uniform clamp height, duration and lateral offset",
+        "screening_scope": "geometric stretch/travel bounds only; grasp constraints, contacts and fold quality require MuJoCo",
+        "ranking_objective": "feasible first, alignment RMSE, descending vertex coverage, executed duration",
+        "stage": "screening_complete",
+        "elapsed_seconds": 0.5276960999999574,
+        "message": "Screened 5,000; 2,984 geometric rejections; 8 full flex rollouts."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 91,
+      "kind": "planned",
+      "details": {
+        "timestamp_unix_s": 1791654625.9762168,
+        "candidate_count": 8,
+        "planning_wall_seconds": 0.8554445000008855
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 92,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654643.2880304,
+        "branch_id": "a4497a02-d006-44bc-a033-aa00440403ec",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.0009129009725767929,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.006237528973849774,
+          "maximum_contact_penetration_m": 0.0013060777376029294,
+          "contact_violations": [],
+          "execution_duration_s": 3.5159999999998344,
+          "fold_quality": 0.9695699675807735,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 93,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654643.3661127,
+        "stage": "physics",
+        "fully_simulated": 1,
+        "physics_attempts": 1,
+        "physics_target": 8,
+        "verified_feasible": 1,
+        "elapsed_seconds": 18.593127399999503,
+        "message": "Validation 1 / 8; 1 integrated rollouts; 1 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 94,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654660.3973818,
+        "branch_id": "ae7d72dd-678e-423e-ad24-4114ca256a4c",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.0009314130534712362,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.006260329596936938,
+          "maximum_contact_penetration_m": 0.0013062504319645216,
+          "contact_violations": [],
+          "execution_duration_s": 3.509999999999835,
+          "fold_quality": 0.9689528982176254,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 95,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654660.4675524,
+        "stage": "physics",
+        "fully_simulated": 2,
+        "physics_attempts": 2,
+        "physics_target": 8,
+        "verified_feasible": 2,
+        "elapsed_seconds": 35.69418330000008,
+        "message": "Validation 2 / 8; 2 integrated rollouts; 2 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 96,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654674.9557972,
+        "branch_id": "2c210248-2766-4bc9-882b-2bd0ac6b2c97",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.001049111578806485,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.006206741154553108,
+          "maximum_contact_penetration_m": 0.0013063174161105813,
+          "contact_violations": [],
+          "execution_duration_s": 3.5219999999998337,
+          "fold_quality": 0.9650296140397838,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 97,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654675.0863576,
+        "stage": "physics",
+        "fully_simulated": 3,
+        "physics_attempts": 3,
+        "physics_target": 8,
+        "verified_feasible": 3,
+        "elapsed_seconds": 50.3050207999986,
+        "message": "Validation 3 / 8; 3 integrated rollouts; 3 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 98,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654692.1332066,
+        "branch_id": "b0ca80d5-3b06-4c67-8dba-0f4662847c38",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.0010607275037101682,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.006107954417138808,
+          "maximum_contact_penetration_m": 0.0013059354728842433,
+          "contact_violations": [],
+          "execution_duration_s": 3.545999999999831,
+          "fold_quality": 0.9646424165429944,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 99,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654692.2304156,
+        "stage": "physics",
+        "fully_simulated": 4,
+        "physics_attempts": 4,
+        "physics_target": 8,
+        "verified_feasible": 4,
+        "elapsed_seconds": 67.45388079999975,
+        "message": "Validation 4 / 8; 4 integrated rollouts; 4 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 100,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654705.925766,
+        "branch_id": "1fd20c1f-80f8-41bf-b220-dfdc2269bc86",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.00043749704504074643,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.006174223786865532,
+          "maximum_contact_penetration_m": 0.0013059899223148534,
+          "contact_violations": [],
+          "execution_duration_s": 3.527999999999833,
+          "fold_quality": 0.9854167651653084,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 101,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654706.0693724,
+        "stage": "physics",
+        "fully_simulated": 5,
+        "physics_attempts": 5,
+        "physics_target": 8,
+        "verified_feasible": 5,
+        "elapsed_seconds": 81.29449179999938,
+        "message": "Validation 5 / 8; 5 integrated rollouts; 5 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 102,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654721.739281,
+        "branch_id": "cf6f61ce-e65c-4166-b65b-e4500bdcc080",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.0010527997283326304,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.006102190084931268,
+          "maximum_contact_penetration_m": 0.0013072545166766779,
+          "contact_violations": [],
+          "execution_duration_s": 3.547999999999831,
+          "fold_quality": 0.9649066757222456,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 103,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654721.8177266,
+        "stage": "physics",
+        "fully_simulated": 6,
+        "physics_attempts": 6,
+        "physics_target": 8,
+        "verified_feasible": 6,
+        "elapsed_seconds": 97.04591489999984,
+        "message": "Validation 6 / 8; 6 integrated rollouts; 6 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 104,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654735.7002506,
+        "branch_id": "c956a63b-d0f3-477a-954c-48b69811a706",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.001057165444502337,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.0060344240920132,
+          "maximum_contact_penetration_m": 0.0013067807829886605,
+          "contact_violations": [],
+          "execution_duration_s": 3.565999999999829,
+          "fold_quality": 0.9647611518499221,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 105,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654735.7808309,
+        "stage": "physics",
+        "fully_simulated": 7,
+        "physics_attempts": 7,
+        "physics_target": 8,
+        "verified_feasible": 7,
+        "elapsed_seconds": 111.01020979999885,
+        "message": "Validation 7 / 8; 7 integrated rollouts; 7 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 106,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791654749.8269775,
+        "branch_id": "07caa99a-4e98-4943-a108-2cacccbb27be",
+        "evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.000924313539270987,
+          "vertex_coverage": 1,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.0060221677244396005,
+          "maximum_contact_penetration_m": 0.001307842555695448,
+          "contact_violations": [],
+          "execution_duration_s": 3.5679999999998286,
+          "fold_quality": 0.9691895486909671,
+          "milestone": "constrained_single_fold",
+          "scope": "7x7 triangulated inextensible flex; fixed hinge/opposite edge; seven pre-attached ideal clamp constraints; one released fold"
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 107,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791654749.9547474,
+        "stage": "physics",
+        "fully_simulated": 8,
+        "physics_attempts": 8,
+        "physics_target": 8,
+        "verified_feasible": 8,
+        "elapsed_seconds": 125.18202479999854,
+        "message": "Validation 8 / 8; 8 integrated rollouts; 8 verified feasible."
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "seq": 108,
+      "kind": "completed",
+      "details": {
+        "timestamp_unix_s": 1791654750.4646554,
+        "selected_branch_id": "1fd20c1f-80f8-41bf-b220-dfdc2269bc86",
+        "stale": false,
+        "adapter_error_count": 0,
+        "error": null
+      }
+    }
+  ],
+  "status": "passed",
+  "finished_unix_s": 1791654771.598
+}

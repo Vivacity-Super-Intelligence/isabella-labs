@@ -30,7 +30,7 @@ const ImportWorld=lazy(()=>import('./ImportWorld'));
 
 export default function App(){
 
-  const [backend,setBackend]=useState<Backend>('mujoco');
+  const [backend,setBackend]=useState<Backend>(()=>{try{const saved=localStorage.getItem('vivacity:lab');if(saved==='mujoco'||saved==='scipy'||saved==='cloth')return saved;}catch{/* Optional storage. */}return 'mujoco';});
 
   const [page,setPage]=useState<'workspace'|'import'>('workspace');
 
@@ -72,7 +72,8 @@ export default function App(){
 
   const accepted=terminal&&rt.experiment?.status==='completed'&&!!rt.experiment.selected_branch_id;
 
-  const status=!rt.online?'Connection lost':!rt.loaded?'Loading world':!rt.experiment?'Ready':isBusy(rt.experiment)?rt.experiment.status==='queued'?'Queued':'Experiment running':accepted?'Result selected':rt.experiment.status==='failed'?'Experiment failed':'No feasible result';
+  const evidencePending=compatible&&rt.experiment?.status==='completed'&&rt.replay?.experiment_id!==rt.experiment.id;
+  const status=!rt.online?'Connection lost':!rt.loaded?'Loading world':!rt.experiment?'Ready':isBusy(rt.experiment)?rt.experiment.status==='queued'?'Queued':'Experiment running':evidencePending?'Loading recorded evidence':accepted?'Result selected':rt.experiment.status==='failed'?'Experiment failed':'No feasible result';
 
   const counters=Object.assign({},...rt.events.filter(e=>e.kind==='progress').map(e=>e.details),rt.experiment?.result.search??{}) as Record<string,unknown>;
 
@@ -80,7 +81,7 @@ export default function App(){
 
   const choose=(b:Backend)=>{setBackend(b);setPage('workspace');try{localStorage.setItem('vivacity:lab',b);}catch{/* Optional storage. */}};
 
-  const disabled=rt.busy||!compatible||!rt.online;
+  const disabled=rt.busy||!compatible||!rt.online||evidencePending;
 
   const science=useMemo(()=>{
 
@@ -98,7 +99,7 @@ export default function App(){
 
     <a className="skip-link" href="#workspace">Skip to workspace</a>
 
-    <header className="site-header"><Brand/><nav className="main-nav" aria-label="Choose laboratory"><button aria-pressed={page==='workspace'&&robotics} disabled={rt.mutating} onClick={()=>choose('mujoco')}>Robotics</button><button aria-pressed={page==='workspace'&&!robotics} disabled={rt.mutating} onClick={()=>choose('scipy')}>Discovery</button><button aria-pressed={page==='import'} onClick={()=>setPage('import')}>Import World</button></nav></header>
+    <header className="site-header"><Brand/><nav className="main-nav" aria-label="Choose laboratory"><button aria-pressed={page==='workspace'&&robotics} disabled={rt.mutating} onClick={()=>choose('mujoco')}>Robotics</button><button aria-pressed={page==='workspace'&&!robotics} disabled={rt.mutating} onClick={()=>choose('scipy')}>Discovery</button><button aria-pressed={page==='import'} onClick={()=>{play.pause();setPage('import');}}>Import World</button></nav></header>
 
     <main id="workspace">
 
@@ -128,7 +129,7 @@ export default function App(){
 
             {editing&&rt.world?cloth?<ClothSettings key={`${backend}:${rt.world.revision}`} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<Settings key={`${backend}:${rt.world.revision}`} backend={backend} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
 
-              {!ranked.length?<p className="results-empty">{rt.busy?'Searching and validating independent alternatives…':terminal?'No feasible candidate. Failures are recorded below.':'Run an experiment to measure alternatives from the same initial state.'}</p>:ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} robotics={robotics} choose={()=>{setBranchId(b.id);setRecorded(true);}} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
+              {!ranked.length?<p className="results-empty">{evidencePending?'Loading the actual recorded trajectories…':rt.busy?'Searching and validating independent alternatives…':terminal?'No feasible candidate. Failures are recorded below.':'Run an experiment to measure alternatives from the same initial state.'}</p>:ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} robotics={robotics} choose={()=>{setBranchId(b.id);setRecorded(true);}} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
 
 
 
@@ -138,7 +139,7 @@ export default function App(){
 
               {rt.experiment?.stale&&<p className="stale-warning" data-testid="stale-warning">The world changed. This recorded result cannot be committed.</p>}
 
-              {accepted&&<button className="text-button" disabled={disabled||rt.experiment?.stale} onClick={async()=>{play.pause();await rt.commit();setRecorded(false);}}>Commit selected state <ArrowRight size={15}/></button>}
+              {accepted&&<button className="text-button" disabled={disabled||rt.experiment?.stale||!selected?.evaluation.success} onClick={async()=>{play.pause();await rt.commit(selected?.id);setRecorded(false);}}>Commit selected state <ArrowRight size={15}/></button>}
 
               {!robotics&&selected&&<details className="fit-parameters"><summary>Fitted parameters & uncertainty</summary>{Object.entries(selected.evaluation.parameters??{}).map(([k,v])=><p key={k}>{k.replaceAll('_',' ')}: {format(v,5)} ± {format(selected.evaluation.uncertainty?.standard_errors[k],5)}</p>)}<p className="small">{selected.evaluation.uncertainty?.caveat}</p></details>}
 

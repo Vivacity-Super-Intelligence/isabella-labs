@@ -1,0 +1,198 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "P:\\VIVACITY\\DEMO-\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--grep",
+      "Panda search"
+    ],
+    "configFile": "P:\\VIVACITY\\DEMO-\\frontend\\playwright.config.ts",
+    "rootDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "P:/VIVACITY/DEMO-/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 420000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "P:\\VIVACITY\\DEMO-\\frontend\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "snapshotDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 420000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "viewport": {
+            "width": 1440,
+            "height": 1080
+          },
+          "headless": true,
+          "launchOptions": {
+            "args": [
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader"
+            ]
+          },
+          "screenshot": "only-on-failure",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../artifacts/v2-targeted-browser-tests.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "workspace-v2.spec.ts",
+      "file": "workspace-v2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Panda search, three exports, actual transforms, failed branch, selected commit and geometry recomputation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 185415,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Run experiment', exact: true })\nExpected: enabled\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByRole('button', { name: 'Run experiment', exact: true }) with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Run experiment', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Run experiment', exact: true })\nExpected: enabled\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByRole('button', { name: 'Run experiment', exact: true }) with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Run experiment', exact: true })\u001b[22m\n\n    at finished (P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:11:237)\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:24:388",
+                    "location": {
+                      "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                      "column": 237,
+                      "line": 11
+                    },
+                    "snippet": "   9 | const worldId=(p:Page,lab='mujoco')=>p.evaluate(l=>localStorage.getItem(`vivacity:${l}:world`),lab);\n  10 | async function ready(p:Page){await p.goto('/');await expect(p.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();await expect.poll(()=>p.evaluate(()=>(window as any).__vivacityScene?.source)).toBe('measured_mujoco_frames');}\n> 11 | async function finished(p:Page){await expect(p.getByTestId('experiment-status')).toHaveText(/Result selected|No feasible result|Experiment failed/,{timeout:240000});await expect(p.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();}\n     |                                                                                                                                                                                                                                             ^\n  12 | async function run(p:Page,lab='mujoco'){const old=await id(p,lab);await p.getByRole('button',{name:'Run experiment',exact:true}).click();await expect.poll(()=>id(p,lab)).not.toBe(old);await finished(p);return await id(p,lab);}\n  13 | async function pause(p:Page){await expect(p.getByRole('slider',{name:'Replay timeline'})).toBeEnabled();const b=p.getByRole('button',{name:'Pause motion',exact:true});await expect(b).toBeVisible();await b.click();}\n  14 | async function openArchive(p:Page){await p.addInitScript(a=>{localStorage.setItem('vivacity:lab','mujoco');localStorage.setItem('vivacity:mujoco:world',a.world);localStorage.setItem('vivacity:mujoco:experiment',a.experiment);},archive);await ready(p);await finished(p);}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                        "column": 237,
+                        "line": 11
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Run experiment', exact: true })\nExpected: enabled\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByRole('button', { name: 'Run experiment', exact: true }) with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Run experiment', exact: true })\u001b[22m\n\n\n   9 | const worldId=(p:Page,lab='mujoco')=>p.evaluate(l=>localStorage.getItem(`vivacity:${l}:world`),lab);\n  10 | async function ready(p:Page){await p.goto('/');await expect(p.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();await expect.poll(()=>p.evaluate(()=>(window as any).__vivacityScene?.source)).toBe('measured_mujoco_frames');}\n> 11 | async function finished(p:Page){await expect(p.getByTestId('experiment-status')).toHaveText(/Result selected|No feasible result|Experiment failed/,{timeout:240000});await expect(p.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();}\n     |                                                                                                                                                                                                                                             ^\n  12 | async function run(p:Page,lab='mujoco'){const old=await id(p,lab);await p.getByRole('button',{name:'Run experiment',exact:true}).click();await expect.poll(()=>id(p,lab)).not.toBe(old);await finished(p);return await id(p,lab);}\n  13 | async function pause(p:Page){await expect(p.getByRole('slider',{name:'Replay timeline'})).toBeEnabled();const b=p.getByRole('button',{name:'Pause motion',exact:true});await expect(b).toBeVisible();await b.click();}\n  14 | async function openArchive(p:Page){await p.addInitScript(a=>{localStorage.setItem('vivacity:lab','mujoco');localStorage.setItem('vivacity:mujoco:world',a.world);localStorage.setItem('vivacity:mujoco:experiment',a.experiment);},archive);await ready(p);await finished(p);}\n    at finished (P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:11:237)\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:24:388"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:35:09.901Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                    "column": 237,
+                    "line": 11
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-5f2a60704a656371ff10",
+          "file": "workspace-v2.spec.ts",
+          "line": 16,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T17:35:05.840Z",
+    "duration": 205534.47400000002,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

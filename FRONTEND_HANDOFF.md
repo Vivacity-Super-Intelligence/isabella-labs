@@ -1,5 +1,40 @@
 # Vivacity frontend handoff
 
+## V2 integrated application (2026-10-10)
+
+The React frontend now exists. Start with `DEMO_V2_TECHNICAL_ARCHITECTURE.md`, `DEMO_V2_TEST_RESULTS.md`, and `DEMO_V2_LIMITATIONS.md` for current scope/evidence; these supersede historical measurements below. Key files are `frontend/src/App.tsx`, `useRuntime.ts`, `api.ts`, `domain.ts`, `usePlayback.ts`, `RobotView.tsx`, `ClothView.tsx`, `ScienceView.tsx`, `ScienceScene.tsx`, `ImportWorld.tsx`, `ImportScene.tsx`, `ResultCard.tsx`, `TechnicalInspector.tsx`, `workspace.css` and `generated/api.d.ts`.
+
+Additional create example: `POST /v1/worlds` with `{"backend":"cloth","seed":7,"config":{"side_length":0.4,"mass":0.08,"friction":0.6}}`. V2 experiments request `{"search_candidates":5000,"physics_budget":8,"policy":"deterministic"}`; UI robot budget is 12 and cloth budget 8. Counts distinguish generated/screened variants, attempted/integrated episodes and verified successes. Zero-step planning failures do not count as integrated physics.
+
+Cloth frames contain time, 49 `vertices` (world XYZ meters), compiled `triangles` (indices), `clamp_position`, `grasp_active`, and scope. Robot/cloth/science use Z-up; scientific predictions remain `[x,y,0]`. Imported glTF uses Y-up. Interpolation is display-only. Cloth is a constrained pre-attached fixture, and Panda pickup remains reach-only.
+
+`GET /v1/experiments/{id}/events?after=<seq>` recovers persisted event history. `GET /v1/experiments/{id}/branches/{bid}/export` downloads that branch's complete versioned evidence. WebSocket envelopes remain `{schema_version:"1.0",seq,kind,details}` with additional `progress` kind, persisted `details.timestamp_unix_s`, actual work messages/counters, sequence reconnection and completed/failed close. OpenAPI includes this schema in `x-websockets`.
+
+Import raw bytes using `POST /v1/imports?filename=triangle.glb`, `Content-Type: application/octet-stream` (not multipart). Response schema `vivacity.import/1.0` includes UUID, source hash/bytes, format, diagnostics, preview availability, status `visual_only` or `configuration_required`, and always `physics_ready:false`. `GET /v1/imports/{id}` gets metadata; `/preview` gets transformed positions, indices, counts and coordinate convention. `fixtures/imports` has working samples. ZIP manifest is exactly `{"entrypoint":"assets/scene.gltf"}`. Imported robot descriptions cannot be executed; do not invent a working Run control for them.
+
+Commands for Claude Code, from repository root:
+
+```powershell
+powershell -NoProfile -File scripts/stop-demo.ps1
+.\.venv\Scripts\python -m scripts.export_openapi
+Set-Location frontend
+npm ci
+npm run generate:api
+npm run build
+Set-Location ..
+powershell -NoProfile -File scripts/start-demo.ps1 -NoBrowser -Dev
+Set-Location frontend
+npm run test:e2e
+```
+
+The first command stops only identity-matching local services owned by the startup script, so Windows Vite native modules do not prevent `npm ci`. The separately owned public API/tunnel are unaffected. Browser installation instructions for a fresh checkout are in `frontend/README.md`; the current workspace already has Chromium installed.
+
+`VITE_API_BASE_URL` defaults locally to `http://127.0.0.1:8000`. Backend `VIVACITY_CORS_ORIGINS` must contain the exact frontend origin for HTTP and WebSockets. Secrets never belong in `VITE_` variables. Deploy only `vivacity-investor-demo`; the company site and `demo.tryvivacity.com` are separate. See the V2 architecture for deployment commands and temporary-hosting limits.
+
+V2 live URL: **https://vivacity-investor-demo.vercel.app/**. The executed public journey created four real jobs, verified robot/cloth replay exports and solver predictions, obstacle invalidation/HTTP 409, supported upload/mobile layout and 108 WSS events without captured page/console errors. Backend: 84 tests passed. All eight browser journeys passed across a 7/8 full run and repaired 1/1 robot rerun; failed intermediate runs are retained. Complete evidence: `DEMO_V2_TEST_RESULTS.md` and `artifacts/v2-public-verification.json`. The API still uses a temporary tunnel to this machine. Do not rebuild the frontend scaffold or change backend contracts to add presentation polish.
+
+To repeat the public journey from the root, run `node scripts/check-v2-public.mjs` while `data/public/endpoint.json` identifies the running API. It creates new real experiments, can take several minutes, and preserves measured evidence. The smaller `scripts/check-v2-failure-inspector.mjs` requires `EXPERIMENT_ID` for an actual recorded collision and optionally `API_URL`/`UI_URL`; it verifies display/selection of existing real evidence without reintegrating physics.
+
 Verified 2026-10-10 on Windows / Python 3.12. Build the investor UI in `frontend/`, preserving this backend. The functional milestone is **collision-free reaching**, never grasping. Both labs run real numerical experiments. Default orchestration is explicitly a deterministic policy, not an LLM.
 
 ## Files Claude Code should read

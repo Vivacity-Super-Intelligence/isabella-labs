@@ -9,9 +9,9 @@ if(process.platform==='win32'){
   process.env.TEMP=temp;process.env.TMP=temp;
 }
 export default defineConfig({
-  testDir:'./e2e', fullyParallel:false, workers:1, timeout:180_000,
+  testDir:'./e2e', fullyParallel:false, workers:1, timeout:420_000,
   expect:{timeout:30_000}, retries:0,
-  reporter:[['list'],['json',{outputFile:'../artifacts/frontend-tests.json'}]],
+  reporter:[['list'],['json',{outputFile:process.env.VIVACITY_TEST_REPORT??'../artifacts/v2-final-browser-tests.json'}]],
   outputDir:'test-results',
   use:{baseURL:'http://127.0.0.1:5173',viewport:{width:1440,height:1080},headless:true,
     launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']},

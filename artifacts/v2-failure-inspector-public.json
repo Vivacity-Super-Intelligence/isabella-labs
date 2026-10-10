@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "ui": "https://vivacity-investor-demo.vercel.app",
+  "experiment_id": "adc67e7a-96d6-45ef-bb39-4528a9868310",
+  "branch_id": "62c1dbca-96d0-45ee-b67a-4efe0033c5c2",
+  "label": "collision failure · 1 contacts · hand ↔ obstacle",
+  "actual_contacts": 1,
+  "one_inspector": true,
+  "mobile_overflow": false,
+  "errors": []
+}

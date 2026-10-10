@@ -1,5 +1,11 @@
 # Vivacity execution runtime
 
+## Current V2 release
+
+The V2 workspace adds genuine 5,000-candidate screening, separately counted physics shortlists, three measured result cards with automatic recorded replay and JSON exports, solver-derived discovery in a 3D viewer, a constrained MuJoCo flex fold, and bounded static GLB/glTF import previews. Panda Object Pickup remains **reach-only**; imported MJCF/URDF is inspected and staged, never executed.
+
+Start with [DEMO_V2_STATUS.md](DEMO_V2_STATUS.md), [DEMO_V2_TEST_RESULTS.md](DEMO_V2_TEST_RESULTS.md), [DEMO_V2_LIMITATIONS.md](DEMO_V2_LIMITATIONS.md), and [FRONTEND_HANDOFF.md](FRONTEND_HANDOFF.md). These supersede older feature descriptions and measurements below. The current suite contains 84 backend tests and eight browser journeys. The Vercel frontend uses a temporary API tunnel dependent on this computer; it is not independent production hosting.
+
 A local investor application for measured alternative futures. The React/TypeScript workspace renders the real Franka Panda geometry and measured MuJoCo replay, and charts executed SciPy orbital model comparisons. Both labs use the same observe → snapshot → fork → action → simulate → evaluate → commit → replay cycle. The existing Python physics infrastructure is preserved.
 
 ## Investor workspace

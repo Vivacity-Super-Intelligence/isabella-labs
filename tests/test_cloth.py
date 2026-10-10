@@ -38,6 +38,7 @@ def test_cloth_timeout_and_missing_clamps_are_failures():
     b,w=setup();w.data.eq_active[w.grasp_ids]=0;b.apply_action(w,action())
     r=b.simulate(w,{'max_simulation_seconds':25})
     assert r['failure']=='planning_failure' and not b.evaluate(w,r)['success']
+    assert not b.evaluate(w,r)['grasp_valid']
     with pytest.raises(ValueError):b.apply_action(w,action()|{'lift_height':float('nan')})
 
 

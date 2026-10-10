@@ -1,5 +1,17 @@
 # Vivacity: a three-minute investor demonstration
 
+## Current V2 walkthrough
+
+The current interface uses **Robotics**, **Discovery**, and **Import World** navigation with one measured inspector. The older timed walkthrough below describes the preserved pre-V2 UI; use this sequence for V2:
+
+1. Open Robotics → Object Pickup and Run experiment. The UI screens 5,000 distinct candidate paths, then integrates a separately reported shortlist (12 by default). Wait for measured results; do not call the screening count full physics simulations. Select any of the up-to-three successful cards; playback starts and loops from recorded timestamps. Pause or scrub to inspect, and download each card's own JSON evidence. Recorded failures remain accessible in the inspector.
+2. Change obstacle → Clear route → Apply & run new experiment. The old experiment becomes stale and a new job runs. Blocked scene demonstrates honest no-result behavior. Reset before returning to the original problem. Success means pre-grasp reaching, not pickup, lifting or placement.
+3. Open Discovery and Run experiment. Compare the two actual fitted trajectories, training/held-out residuals, complexity and uncertainty. Camera motion is 3D; the computed dynamics are explicitly 2D. The no-influence control can select the simpler model.
+4. Open Robotics → Cloth Folding and Run experiment. This integrates a 7 × 7 MuJoCo flex sheet using pre-attached ideal clamps, a fixed hinge/opposite edge, release and settling. Inspect measured vertex alignment/coverage and exported vertex frames. Reset after committing a released-clamp final state before attempting a new fold. This does not demonstrate autonomous cloth grasping.
+5. Open Import World, choose `fixtures/imports/triangle.glb`, and Inspect file. Orbit/zoom the decoded static preview. `staged-robot.xml` demonstrates honest configuration-required staging; there is no imported simulation Run action.
+
+Runs take real computation time and can fail. The full sequence is not guaranteed to fit three minutes. For public presentations, keep this computer, API and tunnel running; see the V2 test report and limitations for the verified deployment and operational boundary.
+
 This walkthrough runs live MuJoCo and SciPy calculations. It requires the local backend and frontend; there is no offline results substitution. Performance varies with machine load. Use a WebGL2-capable Chromium browser and allow the Panda asset download to finish before presenting.
 
 ## Start

@@ -208,7 +208,8 @@ class Runtime:
                     self.store.event(eid, 'branch_completed', {'branch_id': branch['id'], 'evaluation': evaluation}, db)
                 branches.append(branch)
                 if search is not None:
-                    self.store.event(eid,'progress',{'stage':'physics','fully_simulated':len(branches),'physics_target':len(actions),'verified_feasible':sum(b['evaluation']['success'] for b in branches),'elapsed_seconds':time.perf_counter()-wall,'message':f"Physics validation {len(branches)} / {len(actions)}; {sum(b['evaluation']['success'] for b in branches)} verified feasible."})
+                    integrated=sum(bool((b['performance']['simulation_steps'] or 0)+(b['performance']['integration_calls'] or 0)) for b in branches)
+                    self.store.event(eid,'progress',{'stage':'physics','fully_simulated':integrated,'physics_attempts':len(branches),'physics_target':len(actions),'verified_feasible':sum(b['evaluation']['success'] for b in branches),'elapsed_seconds':time.perf_counter()-wall,'message':f"Validation {len(branches)} / {len(actions)}; {integrated} integrated rollouts; {sum(b['evaluation']['success'] for b in branches)} verified feasible."})
             for action in actions:
                 execute_action(action, settings)
             # Choose additional tool work from measured outcomes, with one bounded retry.
@@ -231,7 +232,8 @@ class Runtime:
                 selected, conclusion = backend.choose(branches)
             e.update(status='completed', selected_branch_id=selected, result=conclusion | {'policy': reasoning, 'executed_settings': settings, 'followup_settings': followup})
             if search is not None:
-                search.update(fully_simulated=sum(b['evaluation']['status']!='adapter_failure' for b in branches),verified_feasible=sum(b['evaluation']['success'] for b in branches),physics_rejected=sum(not b['evaluation']['success'] for b in branches))
+                integrated=lambda b:bool((b['performance']['simulation_steps'] or 0)+(b['performance']['integration_calls'] or 0)) and b['performance']['measurement_complete']
+                search.update(fully_simulated=sum(integrated(b) for b in branches),physics_attempts=len(branches),planning_failed=sum(b['evaluation']['status']=='planning_failure' for b in branches),verified_feasible=sum(b['evaluation']['success'] for b in branches),physics_rejected=sum(not b['evaluation']['success'] and integrated(b) for b in branches))
                 e['result']['search']=search
             adapter_errors = sum(b['evaluation']['status'] == 'adapter_failure' for b in branches)
             if adapter_errors == len(branches):

@@ -4,6 +4,7 @@ __pycache__/
 data/
 *.sqlite3*
 .env
+.env.*
 assets/menagerie/.git/
 assets/menagerie/*
 !assets/menagerie/franka_emika_panda/

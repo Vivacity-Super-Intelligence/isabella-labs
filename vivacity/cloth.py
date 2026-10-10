@@ -102,14 +102,14 @@ class ClothBackend:
             elif d.time-start>=limits['max_simulation_seconds']:failure='timeout'
             if steps%25==0 or failure:trace.append(self.observe(world))
         trace.append(self.observe(world))
-        return {'trace':trace,'failure':failure,'grasp_constraint_error_m':grasp_error,'maximum_contact_penetration_m':max_penetration,'contact_violations':violations,'simulation_steps':steps,'execution_duration_s':float(d.time-start),'physics_wall_seconds':time.perf_counter()-tic}
+        return {'trace':trace,'failure':failure,'grasp_validated':steps>0 and failure!='planning_failure','grasp_constraint_error_m':grasp_error,'maximum_contact_penetration_m':max_penetration,'contact_violations':violations,'simulation_steps':steps,'execution_duration_s':float(d.time-start),'physics_wall_seconds':time.perf_counter()-tic}
 
     def evaluate(self,world,result):
         right=world.initial_vertices[:,0]>1e-6;vertices=world.data.flexvert_xpos[right];target=world.initial_vertices[right,:2].copy();target[:,0]*=-1
         alignment=float(np.sqrt(np.mean(np.sum((vertices[:,:2]-target)**2,axis=1))))
         radius=world.config['side_length']/2
         coverage=float(np.mean((vertices[:,0]>=-radius-.01)&(vertices[:,0]<=.01)&(np.abs(vertices[:,1])<=radius+.01)&(vertices[:,2]<.05)))
-        grasp=result['grasp_constraint_error_m']<=.012
+        grasp=result['grasp_validated'] and result['grasp_constraint_error_m']<=.012
         success=result['failure'] is None and grasp and alignment<=.015 and coverage>=.9
         return {'success':bool(success),'status':result['failure'] or ('fold_success' if success else 'fold_quality_failure'),'alignment_error_m':alignment,'vertex_coverage':coverage,'grasp_valid':bool(grasp),'grasp_constraint_error_m':result['grasp_constraint_error_m'],'maximum_contact_penetration_m':result['maximum_contact_penetration_m'],'contact_violations':result['contact_violations'],'execution_duration_s':result['execution_duration_s'],'fold_quality':max(0.,coverage*(1-alignment/.03)),'milestone':'constrained_single_fold','scope':self.action_schema['scope']}
 

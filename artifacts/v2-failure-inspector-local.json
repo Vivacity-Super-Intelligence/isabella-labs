@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "ui": "http://127.0.0.1:5173/",
+  "experiment_id": "16ed3913-5608-4161-9263-d5ce1c6d5583",
+  "branch_id": "4e1de2ef-4e52-4419-9e53-0efe01683015",
+  "label": "collision failure · 49 contacts · hand ↔ obstacle, left_finger ↔ obstacle, obstacle ↔ right_finger",
+  "actual_contacts": 49,
+  "one_inspector": true,
+  "mobile_overflow": false,
+  "errors": []
+}

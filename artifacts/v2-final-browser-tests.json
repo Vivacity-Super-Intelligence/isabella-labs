@@ -1,0 +1,434 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "P:\\VIVACITY\\DEMO-\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "P:\\VIVACITY\\DEMO-\\frontend\\playwright.config.ts",
+    "rootDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "P:/VIVACITY/DEMO-/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 420000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "P:\\VIVACITY\\DEMO-\\frontend\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "snapshotDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 420000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "viewport": {
+            "width": 1440,
+            "height": 1080
+          },
+          "headless": true,
+          "launchOptions": {
+            "args": [
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader"
+            ]
+          },
+          "screenshot": "only-on-failure",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../artifacts/v2-final-browser-tests.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "workspace-v2.spec.ts",
+      "file": "workspace-v2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Panda search, three exports, actual transforms, failed branch, selected commit and geometry recomputation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 110611,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: locator('button[data-status=\"collision_failure\"]') resolved to 3 elements:\n    1) <button data-status=\"collision_failure\">collision failure · obstacle ↔ hand</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ hand' })\n    2) <button data-status=\"collision_failure\">collision failure · obstacle ↔ link5</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ link5' })\n    3) <button data-status=\"collision_failure\">collision failure · obstacle ↔ link6</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ link6' })\n\nCall log:\n\u001b[2m  - waiting for locator('button[data-status=\"collision_failure\"]')\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: locator('button[data-status=\"collision_failure\"]') resolved to 3 elements:\n    1) <button data-status=\"collision_failure\">collision failure · obstacle ↔ hand</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ hand' })\n    2) <button data-status=\"collision_failure\">collision failure · obstacle ↔ link5</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ link5' })\n    3) <button data-status=\"collision_failure\">collision failure · obstacle ↔ link6</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ link6' })\n\nCall log:\n\u001b[2m  - waiting for locator('button[data-status=\"collision_failure\"]')\u001b[22m\n\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:22:219",
+                    "location": {
+                      "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                      "column": 219,
+                      "line": 22
+                    },
+                    "snippet": "  20 |  for(const pose of final.body_transforms){const actual=await page.evaluate(n=>({p:(window as any).__vivacityScene.bodies[n],q:(window as any).__vivacityScene.orientationsWXYZ[n]}),pose.name);actual.p.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.position[i],8));actual.q.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.quaternion_wxyz[i],8));}\n  21 |  for(let i=1;i<=3;i++){const pending=page.waitForEvent('download');await page.getByRole('button',{name:`Download JSON for result ${i}`,exact:true}).click();const file=await pending,name=path.join(out,`robot-result-${i}.json`);await file.saveAs(name);const data=JSON.parse(fs.readFileSync(name,'utf8'));expect(data.branch_id).toBe(exp.result.top_feasible_branch_ids[i-1]);expect(data.recorded_frames).toEqual(branches.find((b:any)=>b.id===data.branch_id).trace);}\n> 22 |  await page.screenshot({path:path.join(out,'robotics-success.png'),fullPage:true});await page.getByText('Recorded failures & history',{exact:true}).click();await page.locator('button[data-status=\"collision_failure\"]').click();await expect(page.getByRole('button',{name:'Commit selected state'})).toBeDisabled();expect(await page.getByRole('log').count()).toBe(1);\n     |                                                                                                                                                                                                                           ^\n  23 |  const alternative=exp.result.top_feasible_branch_ids[1];await page.getByTestId('branch-row').nth(1).click();await page.getByRole('button',{name:'Commit selected state'}).click();await expect(page.getByTestId('stale-warning')).toBeVisible();const w=await worldId(page);const committed=await(await request.get(`${base}/v1/worlds/${w}`)).json();expect(committed.state).toEqual(branches.find((b:any)=>b.id===alternative).final_state);\n  24 |  await page.getByRole('button',{name:'Reset',exact:true}).click();await expect(page.getByRole('button',{name:'Change obstacle',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Change obstacle',exact:true}).click();await page.getByRole('button',{name:'Clear route',exact:true}).click();await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();await finished(page);const second=await id(page);expect(second).not.toBe(first);expect((await(await request.get(`${base}/v1/experiments/${first}`)).json()).stale).toBe(true);const next=await(await request.get(`${base}/v1/experiments/${second}/branches`)).json();expect(next.every((b:any)=>b.evaluation.success)).toBe(true);expect(next[0].initial_state.config.obstacle_position).toEqual([.75,-.4,.2]);\n  25 |  await page.getByRole('button',{name:'Change obstacle',exact:true}).click();await page.getByRole('button',{name:'Blocked scene',exact:true}).click();await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();await finished(page);await expect(page.getByTestId('experiment-status')).toHaveText('No feasible result');await expect(page.getByTestId('branch-row')).toHaveCount(0);await expect(page.getByRole('button',{name:'Pause motion',exact:true})).toHaveCount(0);await page.screenshot({path:path.join(out,'robotics-blocked.png'),fullPage:true});expect(errors.get(page)).toEqual([]);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                        "column": 219,
+                        "line": 22
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: locator('button[data-status=\"collision_failure\"]') resolved to 3 elements:\n    1) <button data-status=\"collision_failure\">collision failure · obstacle ↔ hand</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ hand' })\n    2) <button data-status=\"collision_failure\">collision failure · obstacle ↔ link5</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ link5' })\n    3) <button data-status=\"collision_failure\">collision failure · obstacle ↔ link6</button> aka getByRole('button', { name: 'collision failure · obstacle ↔ link6' })\n\nCall log:\n\u001b[2m  - waiting for locator('button[data-status=\"collision_failure\"]')\u001b[22m\n\n\n  20 |  for(const pose of final.body_transforms){const actual=await page.evaluate(n=>({p:(window as any).__vivacityScene.bodies[n],q:(window as any).__vivacityScene.orientationsWXYZ[n]}),pose.name);actual.p.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.position[i],8));actual.q.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.quaternion_wxyz[i],8));}\n  21 |  for(let i=1;i<=3;i++){const pending=page.waitForEvent('download');await page.getByRole('button',{name:`Download JSON for result ${i}`,exact:true}).click();const file=await pending,name=path.join(out,`robot-result-${i}.json`);await file.saveAs(name);const data=JSON.parse(fs.readFileSync(name,'utf8'));expect(data.branch_id).toBe(exp.result.top_feasible_branch_ids[i-1]);expect(data.recorded_frames).toEqual(branches.find((b:any)=>b.id===data.branch_id).trace);}\n> 22 |  await page.screenshot({path:path.join(out,'robotics-success.png'),fullPage:true});await page.getByText('Recorded failures & history',{exact:true}).click();await page.locator('button[data-status=\"collision_failure\"]').click();await expect(page.getByRole('button',{name:'Commit selected state'})).toBeDisabled();expect(await page.getByRole('log').count()).toBe(1);\n     |                                                                                                                                                                                                                           ^\n  23 |  const alternative=exp.result.top_feasible_branch_ids[1];await page.getByTestId('branch-row').nth(1).click();await page.getByRole('button',{name:'Commit selected state'}).click();await expect(page.getByTestId('stale-warning')).toBeVisible();const w=await worldId(page);const committed=await(await request.get(`${base}/v1/worlds/${w}`)).json();expect(committed.state).toEqual(branches.find((b:any)=>b.id===alternative).final_state);\n  24 |  await page.getByRole('button',{name:'Reset',exact:true}).click();await expect(page.getByRole('button',{name:'Change obstacle',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Change obstacle',exact:true}).click();await page.getByRole('button',{name:'Clear route',exact:true}).click();await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();await finished(page);const second=await id(page);expect(second).not.toBe(first);expect((await(await request.get(`${base}/v1/experiments/${first}`)).json()).stale).toBe(true);const next=await(await request.get(`${base}/v1/experiments/${second}/branches`)).json();expect(next.every((b:any)=>b.evaluation.success)).toBe(true);expect(next[0].initial_state.config.obstacle_position).toEqual([.75,-.4,.2]);\n  25 |  await page.getByRole('button',{name:'Change obstacle',exact:true}).click();await page.getByRole('button',{name:'Blocked scene',exact:true}).click();await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();await finished(page);await expect(page.getByTestId('experiment-status')).toHaveText('No feasible result');await expect(page.getByTestId('branch-row')).toHaveCount(0);await expect(page.getByRole('button',{name:'Pause motion',exact:true})).toHaveCount(0);await page.screenshot({path:path.join(out,'robotics-blocked.png'),fullPage:true});expect(errors.get(page)).toEqual([]);\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:22:219"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:17:26.076Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                    "column": 219,
+                    "line": 22
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-5f2a60704a656371ff10",
+          "file": "workspace-v2.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "computed SciPy 3D motion, held-out metrics, uncertainty, control rejection and restored history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 57313,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:19:36.112Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-97a3bc94d7df268eb8f9",
+          "file": "workspace-v2.spec.ts",
+          "line": 28,
+          "column": 1
+        },
+        {
+          "title": "lost submission response retries exactly one real scientific job",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 28375,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:20:41.651Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-f82bf83f34169fe07f97",
+          "file": "workspace-v2.spec.ts",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "duplicate guard, real WebSocket reconnect, refresh and repeat history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 162009,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:21:10.148Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-020bd8b70345434c65e3",
+          "file": "workspace-v2.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "automatic looping is measured, interactive pause and exact replay endpoint",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 64540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:23:52.454Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-c0b37fe60750cd7fe0fd",
+          "file": "workspace-v2.spec.ts",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "responsive, keyboard, reduced-motion replay, offline/retry and accessibility",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 59078,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:24:58.948Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-9a189adebf999ab414fb",
+          "file": "workspace-v2.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "real cloth search, measured vertices, release, export and revised conditions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 182202,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:25:59.524Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-ef4456229d3320328cb0",
+          "file": "workspace-v2.spec.ts",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "visual upload, transformed preview, invalid input recovery and staged robot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20952,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:29:01.808Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-00738c8796a1fb588bc4",
+          "file": "workspace-v2.spec.ts",
+          "line": 57,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T17:17:19.149Z",
+    "duration": 724471.463,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -43,3 +43,5 @@ def test_blocked_search_retains_genuine_failure(runtime):
     assert done['selected_branch_id'] is None
     assert done['result']['search']['verified_feasible']==0
     assert done['result']['top_feasible_branch_ids']==[]
+    branches=runtime.store.branches(e['id'])
+    assert done['result']['search']['fully_simulated']==sum(b['performance']['simulation_steps']>0 for b in branches)

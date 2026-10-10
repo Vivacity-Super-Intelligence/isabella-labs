@@ -1,5 +1,11 @@
 # Implementation status
 
+## Current V2 evidence
+
+The current implementation and verification records are [DEMO_V2_STATUS.md](DEMO_V2_STATUS.md), [DEMO_V2_TEST_RESULTS.md](DEMO_V2_TEST_RESULTS.md), [DEMO_V2_TECHNICAL_ARCHITECTURE.md](DEMO_V2_TECHNICAL_ARCHITECTURE.md), and [DEMO_V2_LIMITATIONS.md](DEMO_V2_LIMITATIONS.md). The refined backend passed **84 tests**, zero failures/errors/skips, in **302.63 seconds**. These records supersede the earlier 57-test/six-browser baseline below; that earlier evidence remains historical.
+
+V2 integrates real candidate screening, measured top-three exports and looping replay, 3D visualization of computed 2D scientific predictions, constrained deformable-cloth folding, and bounded static import previews. It does not implement Panda grasp/lift/place or imported robot execution. Public API hosting remains a temporary tunnel to this machine. Final browser and public-release evidence is recorded in the V2 test report.
+
 Verified 2026-10-10 in `P:\VIVACITY\DEMO-`, Windows, Python 3.12. The complete React/TypeScript investor workspace is now integrated with the preserved FastAPI/MuJoCo/SciPy backend. This remains a trusted loopback demonstration, not a public multi-tenant production service.
 
 ## Latest complete-application verification

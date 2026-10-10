@@ -109,7 +109,7 @@
       "specs": [
         {
           "title": "real Panda branches, accurate replay, environment invalidation, commit/reset and all paths fail",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -122,18 +122,50 @@
                 {
                   "workerIndex": 0,
                   "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 49975,
-                  "errors": [],
+                  "status": "timedOut",
+                  "duration": 186653,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                        "column": 88,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('experiment-status')\nExpected pattern: \u001b[32m/Result selected|No feasible result|Experiment failed/\u001b[39m\nReceived string:  \u001b[31m\"Queued\"\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('experiment-status') with timeout 120000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('experiment-status')\u001b[22m\n\u001b[2m    32 × locator resolved to <span aria-live=\"polite\" class=\"status-label \" data-testid=\"experiment-status\">Queued</span>\u001b[22m\n\u001b[2m       - unexpected value \"Queued\"\u001b[22m\n\u001b[2m  - Test timeout of 180000ms exceeded.\u001b[22m\n\n\n  19 | const worldId=(page:Page,lab='mujoco')=>page.evaluate(l=>localStorage.getItem(`vivacity:${l}:world`),lab);\n  20 | async function ready(page:Page){await page.goto('/');await expect(page.getByRole('button',{name:/Run experiment/})).toBeEnabled();await expect.poll(()=>page.evaluate(()=>(window as any).__vivacityScene?.source)).toBe('measured_mujoco_frames');}\n> 21 | async function finished(page:Page){await expect(page.getByTestId('experiment-status')).toHaveText(/Result selected|No feasible result|Experiment failed/,{timeout:120_000});await expect(page.getByRole('button',{name:/Run experiment/})).toBeEnabled();}\n     |                                                                                        ^\n  22 | async function run(page:Page){const previous=await id(page);await page.getByRole('button',{name:/Run experiment/}).click();await expect.poll(()=>id(page)).not.toBe(previous);await finished(page);return await id(page);}\n  23 |\n  24 | test('real Panda branches, accurate replay, environment invalidation, commit/reset and all paths fail',async({page,request})=>{\n    at finished (P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:21:88)\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:62:221"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-10T12:33:02.215Z",
+                  "startTime": "2026-10-10T15:32:45.065Z",
                   "annotations": [],
-                  "attachments": []
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-real-Panda-branc-e6872-it-reset-and-all-paths-fail\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-real-Panda-branc-e6872-it-reset-and-all-paths-fail\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-real-Panda-branc-e6872-it-reset-and-all-paths-fail\\trace.zip"
+                    }
+                  ]
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b163ed09f68681248ada-948fefdf90d892ca13df",
@@ -154,15 +186,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 0,
+                  "workerIndex": 1,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 12215,
+                  "duration": 44248,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-10T12:34:00.051Z",
+                  "startTime": "2026-10-10T15:36:07.375Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -188,15 +220,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 0,
+                  "workerIndex": 1,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 8420,
+                  "duration": 36476,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-10T12:34:12.296Z",
+                  "startTime": "2026-10-10T15:36:52.947Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -222,15 +254,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 0,
+                  "workerIndex": 1,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 20947,
+                  "duration": 72805,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-10T12:34:20.742Z",
+                  "startTime": "2026-10-10T15:37:29.585Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -245,7 +277,7 @@
         },
         {
           "title": "measures load, scene readiness and sustained measured replay frame timing",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -256,20 +288,55 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 0,
+                  "workerIndex": 1,
                   "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 22009,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 48347,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m17\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m17\u001b[39m\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:138:50",
+                    "location": {
+                      "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                      "column": 50,
+                      "line": 138
+                    },
+                    "snippet": "  136 |   await expect(page.getByRole('button',{name:'Play replay',exact:true})).toBeVisible({timeout:30_000});\n  137 |   const frontend=await page.evaluate(()=>({renderer:(window as any).__vivacityPerformance,navigation:performance.getEntriesByType('navigation').map(e=>e.toJSON()),paint:performance.getEntriesByType('paint').map(e=>e.toJSON()),marks:performance.getEntriesByType('mark').filter(e=>e.name.startsWith('vivacity:')).map(e=>e.toJSON()),userAgent:navigator.userAgent}));\n> 138 |   expect(frontend.renderer.playbackFrameSamples).toBeGreaterThan(30);\n      |                                                  ^\n  139 |   const experiment=await (await request.get(`${base}/v1/experiments/${await id(page)}`)).json();\n  140 |   fs.writeFileSync(path.join(evidence,'performance.json'),JSON.stringify({frontend,experiment:experiment.id,backend:experiment.performance,scope:'Local Chromium software rendering; rolling last 180 playback intervals. Navigation load excludes later asynchronous model/mesh fetches. Not a production capacity benchmark.'},null,2));\n  141 |   expect(errors.get(page)).toEqual([]);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                        "column": 50,
+                        "line": 138
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m17\u001b[39m\n\n  136 |   await expect(page.getByRole('button',{name:'Play replay',exact:true})).toBeVisible({timeout:30_000});\n  137 |   const frontend=await page.evaluate(()=>({renderer:(window as any).__vivacityPerformance,navigation:performance.getEntriesByType('navigation').map(e=>e.toJSON()),paint:performance.getEntriesByType('paint').map(e=>e.toJSON()),marks:performance.getEntriesByType('mark').filter(e=>e.name.startsWith('vivacity:')).map(e=>e.toJSON()),userAgent:navigator.userAgent}));\n> 138 |   expect(frontend.renderer.playbackFrameSamples).toBeGreaterThan(30);\n      |                                                  ^\n  139 |   const experiment=await (await request.get(`${base}/v1/experiments/${await id(page)}`)).json();\n  140 |   fs.writeFileSync(path.join(evidence,'performance.json'),JSON.stringify({frontend,experiment:experiment.id,backend:experiment.performance,scope:'Local Chromium software rendering; rolling last 180 playback intervals. Navigation load excludes later asynchronous model/mesh fetches. Not a production capacity benchmark.'},null,2));\n  141 |   expect(errors.get(page)).toEqual([]);\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:138:50"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-10T12:34:41.712Z",
+                  "startTime": "2026-10-10T15:38:42.457Z",
                   "annotations": [],
-                  "attachments": []
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-measures-load-sc-4cb70-easured-replay-frame-timing\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-measures-load-sc-4cb70-easured-replay-frame-timing\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                    "column": 50,
+                    "line": 138
+                  }
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b163ed09f68681248ada-f1e3a1547229764310b4",
@@ -290,15 +357,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 0,
+                  "workerIndex": 2,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 16199,
+                  "duration": 38505,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-10T12:35:03.744Z",
+                  "startTime": "2026-10-10T15:39:35.309Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -316,11 +383,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-10T12:33:00.768Z",
-    "duration": 140708.185,
-    "expected": 6,
+    "startTime": "2026-10-10T15:32:18.046Z",
+    "duration": 477723.735,
+    "expected": 4,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 2,
     "flaky": 0
   }
 }

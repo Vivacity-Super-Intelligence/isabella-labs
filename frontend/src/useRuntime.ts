@@ -79,7 +79,7 @@ export function useRuntime(backend: Backend) {
       try {
         const e = await api.experiment(id);
         if (!active || current.current?.id!==id) return;
-        setExperiment(e); setOnline(true);
+        current.current=e;setExperiment(e); setOnline(true);
         if (!isBusy(e)) {
           setStream('idle'); await updateEvidence(true);
           socket?.close();
@@ -102,7 +102,8 @@ export function useRuntime(backend: Backend) {
           if (event.schema_version !== '1.0' || event.seq <= cursor) return;
           cursor = event.seq; put(`cursor:${id}`, String(cursor));
           appendEvents([event]);
-          if (event.kind === 'branch_completed') updateEvidence(false).catch(err => active && setError(errorMessage(err)));
+          // Events carry evaluations. Download large traces once at completion
+          // rather than repeatedly competing with physics integration.
           // Keep polling until an authoritative terminal GET completes, including
           // when this event arrives during another in-flight status request.
           if (event.kind === 'completed' || event.kind === 'failed') refresh();
@@ -111,7 +112,7 @@ export function useRuntime(backend: Backend) {
       socket.onclose = () => {
         if (!active || current.current?.id!==id) return;
         refresh();
-        if (!stopped) { setStream('reconnecting'); timer = setTimeout(connect, Math.min(5000, 500 * 2 ** attempts++)); }
+        if (!stopped&&isBusy(current.current)) { setStream('reconnecting'); timer = setTimeout(connect, Math.min(5000, 500 * 2 ** attempts++)); }
       };
       socket.onerror = () => { if (active && current.current?.id===id && !stopped) setStream('reconnecting'); };
     };
@@ -148,9 +149,9 @@ export function useRuntime(backend: Backend) {
     const w = await api.environment(world.id, config); await refreshWorld(w); await run(w);
   });
   const reset = () => perform(async () => { if (world) await refreshWorld(await api.reset(world.id)); });
-  const commit = () => perform(async () => {
+  const commit = (branchId?:string) => perform(async () => {
     const e = current.current;
-    if (world && e?.selected_branch_id) await refreshWorld(await api.commit(world.id, e.id, e.selected_branch_id));
+    if (world && e?.selected_branch_id) await refreshWorld(await api.commit(world.id, e.id, branchId??e.selected_branch_id));
   });
   const history = (id: string) => perform(async () => {
     const e = await api.experiment(id); current.current=e;setExperiment(e); setReplay(null); setBranches([]); setEvents([]); put(`${backend}:experiment`, id);

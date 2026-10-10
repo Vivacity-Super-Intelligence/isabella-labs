@@ -1,0 +1,16 @@
+{
+  "schema_version": "vivacity.deployment-verification/1.0",
+  "date": "2026-10-10",
+  "deployment_id": "dpl_G35QMphXwA9k8n2hRo87pUN4cfEV",
+  "deployment_url": "https://vivacity-investor-demo-3pj4irngz-tanishs-projects-66633ee2.vercel.app",
+  "public_url": "https://vivacity-investor-demo.vercel.app/",
+  "api_url": "https://rid-buffalo-bluetooth-profit.trycloudflare.com",
+  "ready_state": "READY",
+  "strict_build_passed": true,
+  "vercel_vite_build_seconds": 3.73,
+  "full_physics_journey_deployment_id": "dpl_BikShrcNkTrcpfjT77oKpAqQhHJ5",
+  "full_physics_journey_evidence": "artifacts/v2-public-verification.json",
+  "changes_since_full_journey": "Only concise unique contact-pair labels and generic validation-candidate text in TechnicalInspector; backend unchanged.",
+  "final_build_browser_evidence": "artifacts/v2-failure-inspector-public.json",
+  "hosting_scope": "Vercel frontend with temporary Cloudflare tunnel to this computer's persistent Python API. Computer, network and processes must remain running. No durable independent hosting or multi-user authentication is implemented."
+}

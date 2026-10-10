@@ -1,0 +1,103 @@
+{
+  "frontend": {
+    "renderer": {
+      "robotAssetLoadMs": 4555,
+      "meshBytes": 6400572,
+      "playbackFrameSamples": 17,
+      "renderMeanFrameMs": 506.5058823529193,
+      "renderP95FrameMs": 1661.9000000003725
+    },
+    "navigation": [
+      {
+        "name": "http://127.0.0.1:5173/",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 6559.200000001118,
+        "navigationId": 8323,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.6000000014901161,
+        "domainLookupStart": 3.5,
+        "domainLookupEnd": 4.400000000372529,
+        "connectStart": 4.400000000372529,
+        "secureConnectionStart": 0,
+        "connectEnd": 6.300000000745058,
+        "requestStart": 6.600000001490116,
+        "responseStart": 23.200000001117587,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 23.200000001117587,
+        "responseEnd": 24.40000000037253,
+        "transferSize": 1120,
+        "encodedBodySize": 820,
+        "decodedBodySize": 820,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 64.90000000037253,
+        "domContentLoadedEventStart": 6256.5,
+        "domContentLoadedEventEnd": 6256.700000001118,
+        "domComplete": 6559.200000001118,
+        "loadEventStart": 6559.200000001118,
+        "loadEventEnd": 6559.200000001118,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "high"
+        }
+      }
+    ],
+    "paint": [
+      {
+        "name": "first-paint",
+        "entryType": "paint",
+        "startTime": 6268,
+        "duration": 0,
+        "navigationId": 8323,
+        "paintTime": 6259.800000000745,
+        "presentationTime": 6268
+      },
+      {
+        "name": "first-contentful-paint",
+        "entryType": "paint",
+        "startTime": 6944,
+        "duration": 0,
+        "navigationId": 8323,
+        "paintTime": 6911.10000000149,
+        "presentationTime": 6944
+      }
+    ]
+  },
+  "backend": {
+    "job_wall_seconds": 6.185433700000431,
+    "process_cpu_seconds": 5.640625,
+    "queue_wait_seconds": 0.1261485625145724,
+    "planning_wall_seconds": 0.24305199999980687,
+    "physics_wall_seconds": 4.21211509999921,
+    "candidate_count": 3,
+    "simulation_steps": 10452,
+    "integration_calls": 0,
+    "replay_payload_bytes": 1188937,
+    "branch_failure_rate": 0,
+    "adapter_error_count": 0,
+    "measurement_complete": true,
+    "job_error_rate": 0,
+    "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+  },
+  "scope": "Measured local Chromium software rendering, no hardware FPS guarantee."
+}

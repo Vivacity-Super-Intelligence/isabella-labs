@@ -1,0 +1,509 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "P:\\VIVACITY\\DEMO-\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "P:\\VIVACITY\\DEMO-\\frontend\\playwright.config.ts",
+    "rootDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "P:/VIVACITY/DEMO-/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 420000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "P:\\VIVACITY\\DEMO-\\frontend\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "snapshotDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 420000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "viewport": {
+            "width": 1440,
+            "height": 1080
+          },
+          "headless": true,
+          "launchOptions": {
+            "args": [
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader"
+            ]
+          },
+          "screenshot": "only-on-failure",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../artifacts/v2-final-browser-tests.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "workspace-v2.spec.ts",
+      "file": "workspace-v2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Panda search, three exports, actual transforms, failed branch, selected commit and geometry recomputation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 335331,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m1e-8\u001b[39m\nReceived:   \u001b[31m0.24213727868814014\u001b[39m\n\nCall Log:\n- Timeout 30000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m1e-8\u001b[39m\nReceived:   \u001b[31m0.24213727868814014\u001b[39m\n\nCall Log:\n- Timeout 30000ms exceeded while waiting on the predicate\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:19:395",
+                    "location": {
+                      "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                      "column": 395,
+                      "line": 19
+                    },
+                    "snippet": "  17 |  await ready(page);const first=await run(page);const exp=await(await request.get(`${base}/v1/experiments/${first}`)).json(),branches=await(await request.get(`${base}/v1/experiments/${first}/branches`)).json();\n  18 |  expect(exp.result.search.generated).toBe(5000);expect(exp.result.search.distinct_generated).toBe(5000);expect(exp.result.search.fully_simulated).toBe(12);expect(exp.result.search.verified_feasible).toBeGreaterThanOrEqual(3);expect(branches.some((b:any)=>b.evaluation.status==='collision_failure')).toBe(true);await expect(page.getByTestId('branch-row')).toHaveCount(3);\n> 19 |  await pause(page);const selected=branches.find((b:any)=>b.id===exp.selected_branch_id);const final=selected.trace.at(-1);await page.getByRole('slider',{name:'Replay timeline'}).focus();await page.keyboard.press('End');await expect.poll(()=>page.evaluate(p=>Math.max(...p.map((v:number,i:number)=>Math.abs(v-((window as any).__vivacityScene?.endEffector?.[i]??Infinity)))),final.end_effector)).toBeLessThan(1e-8);\n     |                                                                                                                                                                                                                                                                                                                                                                                                           ^\n  20 |  for(const pose of final.body_transforms){const actual=await page.evaluate(n=>({p:(window as any).__vivacityScene.bodies[n],q:(window as any).__vivacityScene.orientationsWXYZ[n]}),pose.name);actual.p.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.position[i],8));actual.q.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.quaternion_wxyz[i],8));}\n  21 |  for(let i=1;i<=3;i++){const pending=page.waitForEvent('download');await page.getByRole('button',{name:`Download JSON for result ${i}`,exact:true}).click();const file=await pending,name=path.join(out,`robot-result-${i}.json`);await file.saveAs(name);const data=JSON.parse(fs.readFileSync(name,'utf8'));expect(data.branch_id).toBe(exp.result.top_feasible_branch_ids[i-1]);expect(data.recorded_frames).toEqual(branches.find((b:any)=>b.id===data.branch_id).trace);}\n  22 |  await page.screenshot({path:path.join(out,'robotics-success.png'),fullPage:true});await page.getByText('Recorded failures & history',{exact:true}).click();await page.locator('button[data-status=\"collision_failure\"]').click();await expect(page.getByRole('button',{name:'Commit selected state'})).toBeDisabled();expect(await page.getByRole('log').count()).toBe(1);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                        "column": 395,
+                        "line": 19
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m1e-8\u001b[39m\nReceived:   \u001b[31m0.24213727868814014\u001b[39m\n\nCall Log:\n- Timeout 30000ms exceeded while waiting on the predicate\n\n  17 |  await ready(page);const first=await run(page);const exp=await(await request.get(`${base}/v1/experiments/${first}`)).json(),branches=await(await request.get(`${base}/v1/experiments/${first}/branches`)).json();\n  18 |  expect(exp.result.search.generated).toBe(5000);expect(exp.result.search.distinct_generated).toBe(5000);expect(exp.result.search.fully_simulated).toBe(12);expect(exp.result.search.verified_feasible).toBeGreaterThanOrEqual(3);expect(branches.some((b:any)=>b.evaluation.status==='collision_failure')).toBe(true);await expect(page.getByTestId('branch-row')).toHaveCount(3);\n> 19 |  await pause(page);const selected=branches.find((b:any)=>b.id===exp.selected_branch_id);const final=selected.trace.at(-1);await page.getByRole('slider',{name:'Replay timeline'}).focus();await page.keyboard.press('End');await expect.poll(()=>page.evaluate(p=>Math.max(...p.map((v:number,i:number)=>Math.abs(v-((window as any).__vivacityScene?.endEffector?.[i]??Infinity)))),final.end_effector)).toBeLessThan(1e-8);\n     |                                                                                                                                                                                                                                                                                                                                                                                                           ^\n  20 |  for(const pose of final.body_transforms){const actual=await page.evaluate(n=>({p:(window as any).__vivacityScene.bodies[n],q:(window as any).__vivacityScene.orientationsWXYZ[n]}),pose.name);actual.p.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.position[i],8));actual.q.forEach((v:number,i:number)=>expect(v).toBeCloseTo(pose.quaternion_wxyz[i],8));}\n  21 |  for(let i=1;i<=3;i++){const pending=page.waitForEvent('download');await page.getByRole('button',{name:`Download JSON for result ${i}`,exact:true}).click();const file=await pending,name=path.join(out,`robot-result-${i}.json`);await file.saveAs(name);const data=JSON.parse(fs.readFileSync(name,'utf8'));expect(data.branch_id).toBe(exp.result.top_feasible_branch_ids[i-1]);expect(data.recorded_frames).toEqual(branches.find((b:any)=>b.id===data.branch_id).trace);}\n  22 |  await page.screenshot({path:path.join(out,'robotics-success.png'),fullPage:true});await page.getByText('Recorded failures & history',{exact:true}).click();await page.locator('button[data-status=\"collision_failure\"]').click();await expect(page.getByRole('button',{name:'Commit selected state'})).toBeDisabled();expect(await page.getByRole('log').count()).toBe(1);\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:19:395"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:53:05.232Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-Panda-search--cb35c--and-geometry-recomputation\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                    "column": 395,
+                    "line": 19
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-5f2a60704a656371ff10",
+          "file": "workspace-v2.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "computed SciPy 3D motion, held-out metrics, uncertainty, control rejection and restored history",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 33282,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/0.11987/)\nExpected: visible\nError: strict mode violation: getByText(/0.11987/) resolved to 2 elements:\n    1) <p class=\"inferred-note\">Fitted mass: 0.11987. Location is an assumption s…</p> aka getByText('Fitted mass: 0.11987.')\n    2) <p>perturbing mass: 0.11987 ± 0.00023</p> aka getByText('perturbing mass: 0.11987 ±')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText(/0.11987/) with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/0.11987/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/0.11987/)\nExpected: visible\nError: strict mode violation: getByText(/0.11987/) resolved to 2 elements:\n    1) <p class=\"inferred-note\">Fitted mass: 0.11987. Location is an assumption s…</p> aka getByText('Fitted mass: 0.11987.')\n    2) <p>perturbing mass: 0.11987 ± 0.00023</p> aka getByText('perturbing mass: 0.11987 ±')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText(/0.11987/) with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/0.11987/)\u001b[22m\n\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:30:227",
+                    "location": {
+                      "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                      "column": 227,
+                      "line": 30
+                    },
+                    "snippet": "  28 | test('computed SciPy 3D motion, held-out metrics, uncertainty, control rejection and restored history',async({page,request})=>{\n  29 |  await ready(page);await page.getByRole('button',{name:'Discovery',exact:true}).click();await expect(page.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();const first=await run(page,'scipy');const exp=await(await request.get(`${base}/v1/experiments/${first}`)).json(),branches=await(await request.get(`${base}/v1/experiments/${first}/branches`)).json();const a=branches.find((b:any)=>b.evaluation.hypothesis==='central_only'),b=branches.find((b:any)=>b.evaluation.hypothesis==='central_plus_fixed_perturber');expect(b.evaluation.heldout_rmse).toBeLessThan(a.evaluation.heldout_rmse);expect(b.evaluation.parameters.perturbing_mass).toBeCloseTo(.12,2);expect(exp.selected_branch_id).toBe(b.id);await pause(page);await page.getByRole('slider',{name:'Replay timeline'}).focus();await page.keyboard.press('End');await expect.poll(()=>page.evaluate(p=>Math.max(...p.map((v:number,i:number)=>Math.abs(v-((window as any).__vivacityScience?.predictedPosition[i]??Infinity)))),b.trace.at(-1).predicted_position)).toBeLessThan(1e-8);expect(await page.evaluate(()=>(window as any).__vivacityScience.predictedPosition[2])).toBe(0);\n> 30 |  await page.getByLabel('Show fitted influence').check();await page.getByText('Fitted parameters & uncertainty',{exact:true}).click();await expect(page.getByText(new RegExp(b.evaluation.parameters.perturbing_mass.toFixed(5)))).toBeVisible();const w=await worldId(page,'scipy');expect(JSON.stringify(await(await request.get(`${base}/v1/worlds/${w}`)).json())).not.toContain('hidden_mass');await page.screenshot({path:path.join(out,'discovery.png'),fullPage:true});\n     |                                                                                                                                                                                                                                   ^\n  31 |  await page.getByRole('button',{name:'Observation settings',exact:true}).click();await page.getByLabel('Observation scenario').selectOption('control');await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();await finished(page);const control=await(await request.get(`${base}/v1/experiments/${await id(page,'scipy')}`)).json(),fits=await(await request.get(`${base}/v1/experiments/${control.id}/branches`)).json();expect(fits.find((b:any)=>b.id===control.selected_branch_id).evaluation.hypothesis).toBe('central_only');await page.reload();await expect(page.getByRole('heading',{name:'The Invisible Planet',exact:true})).toBeVisible();await finished(page);expect(await id(page,'scipy')).toBe(control.id);await page.getByText('Recorded failures & history',{exact:true}).click();await page.getByRole('button',{name:'Experiment 1',exact:true}).click();await expect.poll(()=>id(page,'scipy')).toBe(first);await expect(page.getByTestId('stale-warning')).toBeVisible();expect(errors.get(page)).toEqual([]);\n  32 | });\n  33 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                        "column": 227,
+                        "line": 30
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/0.11987/)\nExpected: visible\nError: strict mode violation: getByText(/0.11987/) resolved to 2 elements:\n    1) <p class=\"inferred-note\">Fitted mass: 0.11987. Location is an assumption s…</p> aka getByText('Fitted mass: 0.11987.')\n    2) <p>perturbing mass: 0.11987 ± 0.00023</p> aka getByText('perturbing mass: 0.11987 ±')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText(/0.11987/) with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/0.11987/)\u001b[22m\n\n\n  28 | test('computed SciPy 3D motion, held-out metrics, uncertainty, control rejection and restored history',async({page,request})=>{\n  29 |  await ready(page);await page.getByRole('button',{name:'Discovery',exact:true}).click();await expect(page.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();const first=await run(page,'scipy');const exp=await(await request.get(`${base}/v1/experiments/${first}`)).json(),branches=await(await request.get(`${base}/v1/experiments/${first}/branches`)).json();const a=branches.find((b:any)=>b.evaluation.hypothesis==='central_only'),b=branches.find((b:any)=>b.evaluation.hypothesis==='central_plus_fixed_perturber');expect(b.evaluation.heldout_rmse).toBeLessThan(a.evaluation.heldout_rmse);expect(b.evaluation.parameters.perturbing_mass).toBeCloseTo(.12,2);expect(exp.selected_branch_id).toBe(b.id);await pause(page);await page.getByRole('slider',{name:'Replay timeline'}).focus();await page.keyboard.press('End');await expect.poll(()=>page.evaluate(p=>Math.max(...p.map((v:number,i:number)=>Math.abs(v-((window as any).__vivacityScience?.predictedPosition[i]??Infinity)))),b.trace.at(-1).predicted_position)).toBeLessThan(1e-8);expect(await page.evaluate(()=>(window as any).__vivacityScience.predictedPosition[2])).toBe(0);\n> 30 |  await page.getByLabel('Show fitted influence').check();await page.getByText('Fitted parameters & uncertainty',{exact:true}).click();await expect(page.getByText(new RegExp(b.evaluation.parameters.perturbing_mass.toFixed(5)))).toBeVisible();const w=await worldId(page,'scipy');expect(JSON.stringify(await(await request.get(`${base}/v1/worlds/${w}`)).json())).not.toContain('hidden_mass');await page.screenshot({path:path.join(out,'discovery.png'),fullPage:true});\n     |                                                                                                                                                                                                                                   ^\n  31 |  await page.getByRole('button',{name:'Observation settings',exact:true}).click();await page.getByLabel('Observation scenario').selectOption('control');await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();await finished(page);const control=await(await request.get(`${base}/v1/experiments/${await id(page,'scipy')}`)).json(),fits=await(await request.get(`${base}/v1/experiments/${control.id}/branches`)).json();expect(fits.find((b:any)=>b.id===control.selected_branch_id).evaluation.hypothesis).toBe('central_only');await page.reload();await expect(page.getByRole('heading',{name:'The Invisible Planet',exact:true})).toBeVisible();await finished(page);expect(await id(page,'scipy')).toBe(control.id);await page.getByText('Recorded failures & history',{exact:true}).click();await page.getByRole('button',{name:'Experiment 1',exact:true}).click();await expect.poll(()=>id(page,'scipy')).toBe(first);await expect(page.getByTestId('stale-warning')).toBeVisible();expect(errors.get(page)).toEqual([]);\n  32 | });\n  33 |\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:30:227"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:59:14.661Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-computed-SciP-3663d-ection-and-restored-history\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-computed-SciP-3663d-ection-and-restored-history\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-computed-SciP-3663d-ection-and-restored-history\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                    "column": 227,
+                    "line": 30
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-97a3bc94d7df268eb8f9",
+          "file": "workspace-v2.spec.ts",
+          "line": 28,
+          "column": 1
+        },
+        {
+          "title": "lost submission response retries exactly one real scientific job",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 29936,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:00:06.212Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-f82bf83f34169fe07f97",
+          "file": "workspace-v2.spec.ts",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "duplicate guard, real WebSocket reconnect, refresh and repeat history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 122176,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:00:44.330Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-020bd8b70345434c65e3",
+          "file": "workspace-v2.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "automatic looping is measured, interactive pause and exact replay endpoint",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 48691,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:02:48.689Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-c0b37fe60750cd7fe0fd",
+          "file": "workspace-v2.spec.ts",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "responsive, keyboard, reduced-motion replay, offline/retry and accessibility",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 75502,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByText('Runtime offline', { exact: true })\nExpected: visible\nReceived: hidden\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Runtime offline', { exact: true }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Runtime offline', { exact: true })\u001b[22m\n\u001b[2m    29 × locator resolved to <span role=\"status\" class=\"connection\">Runtime offline</span>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByText('Runtime offline', { exact: true })\nExpected: visible\nReceived: hidden\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Runtime offline', { exact: true }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Runtime offline', { exact: true })\u001b[22m\n\u001b[2m    29 × locator resolved to <span role=\"status\" class=\"connection\">Runtime offline</span>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:50:572",
+                    "location": {
+                      "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                      "column": 572,
+                      "line": 50
+                    },
+                    "snippet": "  48 |  await page.emulateMedia({reducedMotion:'reduce'});await openArchive(page);await expect(page.getByRole('button',{name:'Resume motion',exact:true})).toBeVisible();const camera=await page.evaluate(()=>(window as any).__vivacityScene.cameraPosition);await page.getByTestId('robot-viewport').focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.evaluate(()=>(window as any).__vivacityScene.cameraPosition)).not.toEqual(camera);await page.keyboard.press('+');await page.getByRole('button',{name:'Reset camera',exact:true}).click();await expect.poll(()=>page.evaluate(p=>Math.max(...p.map((v:number,i:number)=>Math.abs(v-(window as any).__vivacityScene.cameraPosition[i]))),camera)).toBeLessThan(1e-8);\n  49 |  const scans=[];for(const width of [1440,768,375]){await page.setViewportSize({width,height:950});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();scans.push({width,violations:scan.violations});expect(scan.violations).toEqual([]);await page.screenshot({path:path.join(out,`workspace-${width}.png`),fullPage:true});}\n> 50 |  await page.getByRole('button',{name:'Change obstacle',exact:true}).focus();await page.keyboard.press('Enter');await page.getByRole('slider',{name:'X obstacle position'}).focus();const before=await page.getByRole('slider',{name:'X obstacle position'}).inputValue();await page.keyboard.press('ArrowRight');expect(await page.getByRole('slider',{name:'X obstacle position'}).inputValue()).not.toBe(before);await page.getByRole('button',{name:'Close settings'}).click();await page.route(`${base}/**`,r=>r.abort());await expect(page.getByText('Runtime offline',{exact:true})).toBeVisible({timeout:15000});await expect(page.getByRole('button',{name:'Run experiment',exact:true})).toBeDisabled();await page.unroute(`${base}/**`);await page.getByRole('button',{name:'Reconnect',exact:true}).click();await expect(page.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();fs.writeFileSync(path.join(out,'accessibility.json'),JSON.stringify(scans,null,2));expect(errors.get(page)).toEqual([]);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  51 | });\n  52 |\n  53 | test('real cloth search, measured vertices, release, export and revised conditions',async({page,request})=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                        "column": 572,
+                        "line": 50
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByText('Runtime offline', { exact: true })\nExpected: visible\nReceived: hidden\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Runtime offline', { exact: true }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Runtime offline', { exact: true })\u001b[22m\n\u001b[2m    29 × locator resolved to <span role=\"status\" class=\"connection\">Runtime offline</span>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  48 |  await page.emulateMedia({reducedMotion:'reduce'});await openArchive(page);await expect(page.getByRole('button',{name:'Resume motion',exact:true})).toBeVisible();const camera=await page.evaluate(()=>(window as any).__vivacityScene.cameraPosition);await page.getByTestId('robot-viewport').focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.evaluate(()=>(window as any).__vivacityScene.cameraPosition)).not.toEqual(camera);await page.keyboard.press('+');await page.getByRole('button',{name:'Reset camera',exact:true}).click();await expect.poll(()=>page.evaluate(p=>Math.max(...p.map((v:number,i:number)=>Math.abs(v-(window as any).__vivacityScene.cameraPosition[i]))),camera)).toBeLessThan(1e-8);\n  49 |  const scans=[];for(const width of [1440,768,375]){await page.setViewportSize({width,height:950});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const scan=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();scans.push({width,violations:scan.violations});expect(scan.violations).toEqual([]);await page.screenshot({path:path.join(out,`workspace-${width}.png`),fullPage:true});}\n> 50 |  await page.getByRole('button',{name:'Change obstacle',exact:true}).focus();await page.keyboard.press('Enter');await page.getByRole('slider',{name:'X obstacle position'}).focus();const before=await page.getByRole('slider',{name:'X obstacle position'}).inputValue();await page.keyboard.press('ArrowRight');expect(await page.getByRole('slider',{name:'X obstacle position'}).inputValue()).not.toBe(before);await page.getByRole('button',{name:'Close settings'}).click();await page.route(`${base}/**`,r=>r.abort());await expect(page.getByText('Runtime offline',{exact:true})).toBeVisible({timeout:15000});await expect(page.getByRole('button',{name:'Run experiment',exact:true})).toBeDisabled();await page.unroute(`${base}/**`);await page.getByRole('button',{name:'Reconnect',exact:true}).click();await expect(page.getByRole('button',{name:'Run experiment',exact:true})).toBeEnabled();fs.writeFileSync(path.join(out,'accessibility.json'),JSON.stringify(scans,null,2));expect(errors.get(page)).toEqual([]);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  51 | });\n  52 |\n  53 | test('real cloth search, measured vertices, release, export and revised conditions',async({page,request})=>{\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts:50:572"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:03:39.846Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-responsive-ke-c547d-ine-retry-and-accessibility\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-responsive-ke-c547d-ine-retry-and-accessibility\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-v2-responsive-ke-c547d-ine-retry-and-accessibility\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace-v2.spec.ts",
+                    "column": 572,
+                    "line": 50
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-9a189adebf999ab414fb",
+          "file": "workspace-v2.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "real cloth search, measured vertices, release, export and revised conditions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 196175,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:05:04.979Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-ef4456229d3320328cb0",
+          "file": "workspace-v2.spec.ts",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "visual upload, transformed preview, invalid input recovery and staged robot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21897,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:08:33.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7fc8ccb289b0e07e37e9-00738c8796a1fb588bc4",
+          "file": "workspace-v2.spec.ts",
+          "line": 57,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T16:53:00.909Z",
+    "duration": 955075.556,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

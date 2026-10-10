@@ -11,6 +11,7 @@ if (!$Dev -and !(Test-Path -LiteralPath (Join-Path $frontendRoot 'dist\index.htm
 $runRoot=Join-Path $projectRoot 'data\run'
 New-Item -ItemType Directory -Path $runRoot -Force | Out-Null
 $stamp=Get-Date -Format 'yyyyMMdd-HHmmss'
+$env:OMP_NUM_THREADS='1';$env:OPENBLAS_NUM_THREADS='1';$env:MKL_NUM_THREADS='1'
 $owned=@()
 function Record-Process([int]$processId,[string]$marker) {
   $info=Get-CimInstance Win32_Process -Filter "ProcessId=$processId"
