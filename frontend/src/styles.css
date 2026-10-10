@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./workspace.css";
 @font-face{font-family:Geist;src:url('/vivacity/geist.woff2') format('woff2');font-weight:100 900;font-display:swap}
 @font-face{font-family:GeistMono;src:url('/vivacity/geist-mono.woff2') format('woff2');font-weight:100 900;font-display:swap}
 :root{font-family:Geist,Arial,sans-serif;color:#f2efe6;background:#08090b;font-synthesis:none;--bg:#08090b;--panel:#0f1114;--rule:#ffffff26;--muted:#b7b3a9;--blue:#557bff;--danger:#ff8874;--success:#a9d8ad}

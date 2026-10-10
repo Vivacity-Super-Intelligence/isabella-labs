@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "base_url": "http://127.0.0.1:8000",
+  "source": "executed_live_api_experiments",
+  "health": {
+    "status": "ok",
+    "schema_version": "1.0",
+    "backends": {
+      "mujoco": "3.15.0",
+      "scipy": "1.18.1"
+    }
+  },
+  "robot_initialization": {
+    "initialization_wall_seconds": 0.3992342000001372
+  },
+  "science_initialization": {
+    "initialization_wall_seconds": 0.11897940000017115
+  },
+  "checks": {
+    "live_http": true,
+    "live_websocket": true,
+    "deterministic_physics_reexecution": true,
+    "failed_and_successful_reach": true,
+    "geometry_replan": true,
+    "stale_commit_rejection": true,
+    "all_paths_fail": true,
+    "competing_scipy_models": true,
+    "unnecessary_mass_rejected": true
+  },
+  "status": "passed",
+  "experiments": [
+    {
+      "id": null,
+      "backend": null,
+      "performance": null,
+      "result": null
+    },
+    {
+      "id": null,
+      "backend": null,
+      "performance": null,
+      "result": null
+    },
+    {
+      "id": null,
+      "backend": null,
+      "performance": null,
+      "result": null
+    },
+    {
+      "id": null,
+      "backend": null,
+      "performance": null,
+      "result": null
+    },
+    {
+      "id": null,
+      "backend": null,
+      "performance": null,
+      "result": null
+    },
+    {
+      "id": null,
+      "backend": null,
+      "performance": null,
+      "result": null
+    }
+  ]
+}

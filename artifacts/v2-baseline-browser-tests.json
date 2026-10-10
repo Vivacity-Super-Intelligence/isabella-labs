@@ -1,0 +1,393 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "P:\\VIVACITY\\DEMO-\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "P:\\VIVACITY\\DEMO-\\frontend\\playwright.config.ts",
+    "rootDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "P:/VIVACITY/DEMO-/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "P:/VIVACITY/DEMO-/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "P:\\VIVACITY\\DEMO-\\frontend\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "snapshotDir": "P:\\VIVACITY\\DEMO-\\frontend\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 180000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "viewport": {
+            "width": 1440,
+            "height": 1080
+          },
+          "headless": true,
+          "launchOptions": {
+            "args": [
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader"
+            ]
+          },
+          "screenshot": "only-on-failure",
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../artifacts/frontend-tests.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "workspace.spec.ts",
+      "file": "workspace.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real Panda branches, accurate replay, environment invalidation, commit/reset and all paths fail",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 186653,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                        "column": 88,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('experiment-status')\nExpected pattern: \u001b[32m/Result selected|No feasible result|Experiment failed/\u001b[39m\nReceived string:  \u001b[31m\"Queued\"\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('experiment-status') with timeout 120000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('experiment-status')\u001b[22m\n\u001b[2m    32 × locator resolved to <span aria-live=\"polite\" class=\"status-label \" data-testid=\"experiment-status\">Queued</span>\u001b[22m\n\u001b[2m       - unexpected value \"Queued\"\u001b[22m\n\u001b[2m  - Test timeout of 180000ms exceeded.\u001b[22m\n\n\n  19 | const worldId=(page:Page,lab='mujoco')=>page.evaluate(l=>localStorage.getItem(`vivacity:${l}:world`),lab);\n  20 | async function ready(page:Page){await page.goto('/');await expect(page.getByRole('button',{name:/Run experiment/})).toBeEnabled();await expect.poll(()=>page.evaluate(()=>(window as any).__vivacityScene?.source)).toBe('measured_mujoco_frames');}\n> 21 | async function finished(page:Page){await expect(page.getByTestId('experiment-status')).toHaveText(/Result selected|No feasible result|Experiment failed/,{timeout:120_000});await expect(page.getByRole('button',{name:/Run experiment/})).toBeEnabled();}\n     |                                                                                        ^\n  22 | async function run(page:Page){const previous=await id(page);await page.getByRole('button',{name:/Run experiment/}).click();await expect.poll(()=>id(page)).not.toBe(previous);await finished(page);return await id(page);}\n  23 |\n  24 | test('real Panda branches, accurate replay, environment invalidation, commit/reset and all paths fail',async({page,request})=>{\n    at finished (P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:21:88)\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:62:221"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:32:45.065Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-real-Panda-branc-e6872-it-reset-and-all-paths-fail\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-real-Panda-branc-e6872-it-reset-and-all-paths-fail\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-real-Panda-branc-e6872-it-reset-and-all-paths-fail\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-948fefdf90d892ca13df",
+          "file": "workspace.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "SciPy predictions, numerical metrics, uncertainty, timeline and rejection of unnecessary mass",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 44248,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:36:07.375Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-132025a0370cd9541573",
+          "file": "workspace.spec.ts",
+          "line": 71,
+          "column": 1
+        },
+        {
+          "title": "lost HTTP submission response retries the same real job and preserves one history entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 36476,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:36:52.947Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-ad521fc95129c4a1357b",
+          "file": "workspace.spec.ts",
+          "line": 102,
+          "column": 1
+        },
+        {
+          "title": "duplicate-click guard, live WebSocket reconnect, refresh/history and repeated experiments",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 72805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:37:29.585Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-d6ecda2f56c7c81e4f02",
+          "file": "workspace.spec.ts",
+          "line": 117,
+          "column": 1
+        },
+        {
+          "title": "measures load, scene readiness and sustained measured replay frame timing",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 48347,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m17\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m17\u001b[39m\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:138:50",
+                    "location": {
+                      "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                      "column": 50,
+                      "line": 138
+                    },
+                    "snippet": "  136 |   await expect(page.getByRole('button',{name:'Play replay',exact:true})).toBeVisible({timeout:30_000});\n  137 |   const frontend=await page.evaluate(()=>({renderer:(window as any).__vivacityPerformance,navigation:performance.getEntriesByType('navigation').map(e=>e.toJSON()),paint:performance.getEntriesByType('paint').map(e=>e.toJSON()),marks:performance.getEntriesByType('mark').filter(e=>e.name.startsWith('vivacity:')).map(e=>e.toJSON()),userAgent:navigator.userAgent}));\n> 138 |   expect(frontend.renderer.playbackFrameSamples).toBeGreaterThan(30);\n      |                                                  ^\n  139 |   const experiment=await (await request.get(`${base}/v1/experiments/${await id(page)}`)).json();\n  140 |   fs.writeFileSync(path.join(evidence,'performance.json'),JSON.stringify({frontend,experiment:experiment.id,backend:experiment.performance,scope:'Local Chromium software rendering; rolling last 180 playback intervals. Navigation load excludes later asynchronous model/mesh fetches. Not a production capacity benchmark.'},null,2));\n  141 |   expect(errors.get(page)).toEqual([]);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                        "column": 50,
+                        "line": 138
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m17\u001b[39m\n\n  136 |   await expect(page.getByRole('button',{name:'Play replay',exact:true})).toBeVisible({timeout:30_000});\n  137 |   const frontend=await page.evaluate(()=>({renderer:(window as any).__vivacityPerformance,navigation:performance.getEntriesByType('navigation').map(e=>e.toJSON()),paint:performance.getEntriesByType('paint').map(e=>e.toJSON()),marks:performance.getEntriesByType('mark').filter(e=>e.name.startsWith('vivacity:')).map(e=>e.toJSON()),userAgent:navigator.userAgent}));\n> 138 |   expect(frontend.renderer.playbackFrameSamples).toBeGreaterThan(30);\n      |                                                  ^\n  139 |   const experiment=await (await request.get(`${base}/v1/experiments/${await id(page)}`)).json();\n  140 |   fs.writeFileSync(path.join(evidence,'performance.json'),JSON.stringify({frontend,experiment:experiment.id,backend:experiment.performance,scope:'Local Chromium software rendering; rolling last 180 playback intervals. Navigation load excludes later asynchronous model/mesh fetches. Not a production capacity benchmark.'},null,2));\n  141 |   expect(errors.get(page)).toEqual([]);\n    at P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts:138:50"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:38:42.457Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-measures-load-sc-4cb70-easured-replay-frame-timing\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "P:\\VIVACITY\\DEMO-\\frontend\\test-results\\workspace-measures-load-sc-4cb70-easured-replay-frame-timing\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "P:\\VIVACITY\\DEMO-\\frontend\\e2e\\workspace.spec.ts",
+                    "column": 50,
+                    "line": 138
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-f1e3a1547229764310b4",
+          "file": "workspace.spec.ts",
+          "line": 133,
+          "column": 1
+        },
+        {
+          "title": "responsive layout, keyboard controls, reduced motion, offline state and accessibility scan",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 38505,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:39:35.309Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-b08235b000c6332ad844",
+          "file": "workspace.spec.ts",
+          "line": 144,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T15:32:18.046Z",
+    "duration": 477723.735,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
