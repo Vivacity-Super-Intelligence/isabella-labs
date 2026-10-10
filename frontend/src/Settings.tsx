@@ -4,12 +4,13 @@ import { format, type Backend, type Dict } from './domain';
 export default function Settings({ backend, config, disabled, apply, close }: { backend: Backend; config: Dict; disabled: boolean; apply:(d:Dict)=>Promise<void>; close:()=>void }) {
   const [position,setPosition] = useState<number[]>(config.obstacle_position as number[] ?? [.45,.04,.22]);
   const [size,setSize] = useState<number[]>(config.obstacle_size as number[] ?? [.055,.13,.22]);
+  const [target,setTarget] = useState<number[]>(config.target_position as number[] ?? [.55,.28,.22]);
   const [noise,setNoise] = useState(Number(config.noise_std ?? .001));
   const [samples,setSamples] = useState(Number(config.samples ?? 70));
   const [horizon,setHorizon] = useState(Number(config.horizon ?? 5));
   const [scenario,setScenario] = useState('perturbed');
   const submit = async () => {
-    await apply(backend === 'mujoco' ? {...config, obstacle_position:position, obstacle_size:size} : {
+    await apply(backend === 'mujoco' ? {...config, obstacle_position:position, obstacle_size:size,target_position:target} : {
       ...config, central_mu:1, hidden_mass:scenario==='perturbed'?.12:0, noise_std:noise, samples, horizon
     }); close();
   };
@@ -19,7 +20,8 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
       <p>The sliders stage a change. Apply to rebuild the physical world and compute new alternatives.</p>
       <div className="presets"><button onClick={()=>{setPosition([.45,.04,.22]);setSize([.055,.13,.22]);}}>Original</button><button onClick={()=>{setPosition([.75,-.4,.2]);setSize([.055,.13,.22]);}}>Clear route</button><button onClick={()=>{setPosition([.5,.1,.3]);setSize([.35,.35,.3]);}}>Blocked scene</button></div>
       {['X','Y','Z'].map((axis,i)=><label className="range-field" key={axis}><span>{axis} position <output>{format(position[i],2)} m</output></span><input aria-label={`${axis} obstacle position`} type="range" min={[.15,-.5,.05][i]} max={[.8,.5,.6][i]} step=".01" value={position[i]} onChange={e=>setPosition(p=>p.map((v,j)=>j===i?Number(e.target.value):v))} /></label>)}
-      <p className="small">Half-sizes: {size.map(v=>format(v,3)).join(' × ')} m. The target stays fixed.</p>
+      {['X','Y'].map((axis,i)=><label className="range-field" key={`target-${axis}`}><span>{axis} target position <output>{format(target[i],2)} m</output></span><input aria-label={`${axis} target position`} type="range" min={i?-.5:.15} max={i?.5:.8} step=".01" value={target[i]} onChange={e=>setTarget(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
+      <p className="small">Obstacle half-sizes: {size.map(v=>format(v,3)).join(' × ')} m. The cube is a fixed target; configuration changes reset the workcell. No grasp attachment is simulated.</p>
     </> : <>
       <p>Generate new noisy observations, then fit both hypotheses. Generation parameters are discarded before the fitting policy sees the data.</p>
       <label className="select-field">Observation scenario<select aria-label="Observation scenario" value={scenario} onChange={e=>setScenario(e.target.value)}><option value="perturbed">Perturbed orbit</option><option value="control">No-influence control</option></select></label>

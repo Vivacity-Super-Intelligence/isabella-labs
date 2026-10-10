@@ -178,7 +178,13 @@ class RoboticsBackend:
         waypoints = np.asarray(action['waypoints'])
         if len(waypoints) and (waypoints.ndim != 2 or waypoints.shape[1] != 7 or not np.isfinite(waypoints).all()):
             raise ValueError('trajectory must contain finite 7-joint waypoints')
-        world.action = action
+        if action.get('kind')!='joint_trajectory':
+            raise ValueError('unsupported robot action')
+        if len(waypoints)>2048:
+            raise ValueError('trajectory exceeds waypoint limit')
+        if len(waypoints) and not np.allclose(waypoints[0],world.data.qpos[:7],rtol=0,atol=1e-6):
+            raise ValueError('trajectory must start from its independently restored parent')
+        world.action = deepcopy(action)
 
     def simulate(self, world, limits):
         tic = time.perf_counter(); d, m = world.data, world.model
