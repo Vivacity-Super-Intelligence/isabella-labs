@@ -1,12 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState,type RefObject } from 'react';
 import type { Branch, ScienceObservation } from './domain';
 import { format } from './domain';
+import ScienceScene from './ScienceScene';
+import SceneBoundary from './SceneBoundary';
 
-export default function ScienceView({ observation, branches, selected, time }: { observation: ScienceObservation | null; branches: Branch[]; selected: string | null; time:number }) {
+export default function ScienceView({ observation, branches, selected, time,cursor,playing=false }: { observation: ScienceObservation | null; branches: Branch[]; selected: string | null; time:number;cursor?:RefObject<number>;playing?:boolean }) {
   const [showInfluence,setShowInfluence] = useState(false);
   // A lab switch can briefly retain the previous adapter's evidence while the
   // replacement world loads. Keep the chart domain-specific during that handoff.
-  const fits = branches.filter(b=>b.evaluation.success && b.trace.length && 'predicted_position' in b.trace[0]);
+  const fits = useMemo(()=>branches.filter(b=>b.evaluation.success && b.trace.length && 'predicted_position' in b.trace[0]),[branches]);
+  const [cameraKey,setCameraKey]=useState(0);
+  const [command,setCommand]=useState({key:'',seq:0});
   const points = observation?.observations ?? [];
   const trainCount = fits[0]?.evaluation.train_count ?? Math.floor(points.length*Number(observation?.config.train_fraction ?? .7));
   const all = [...points,...fits.flatMap(b=>b.trace.map(f=>(f as {predicted_position:number[]}).predicted_position))];
@@ -21,8 +25,11 @@ export default function ScienceView({ observation, branches, selected, time }: {
   const errors = useMemo(()=>fits.map(b=>({ branch:b, errors:(b.evaluation.residuals ?? []).map(r=>Math.hypot(...r)) })),[branches]);
   const errorMax = Math.max(.001,...errors.flatMap(e=>e.errors));
   return <div className="science-viewport" data-testid="science-viewport">
-    <div className="science-header"><span className="mono">02 / THE INVISIBLE PLANET</span><span>Restricted 2D orbital model</span></div>
-    <svg className="orbit-chart" viewBox="0 0 700 470" role="img" aria-label="Observed orbital positions, training and held-out samples, and numerically fitted model predictions">
+    <div className="science-3d" role="region" aria-label="Interactive orbital laboratory. XY plane, normalized units. Arrow keys orbit; plus and minus zoom." tabIndex={0} onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCommand(c=>({key:e.key,seq:c.seq+1}));}}}>
+      <SceneBoundary><ScienceScene observation={observation} fits={fits} selected={selected} time={time} cursor={cursor} playing={playing} influence={showInfluence} cameraKey={cameraKey} command={command}/></SceneBoundary>
+      <div className="science-overlay"><span>Computed XY plane · normalized units</span><button className="viewport-button" onClick={()=>setCameraKey(k=>k+1)}>Reset camera</button></div>
+    </div>
+    <svg className="orbit-chart sr-only" viewBox="0 0 700 470" role="img" aria-label="Observed orbital positions, training and held-out samples, and numerically fitted model predictions">
       <defs><pattern id="orbital-grid" width="35" height="35" patternUnits="userSpaceOnUse"><path d="M 35 0 L 0 0 0 35" fill="none" stroke="#d5d4ca" strokeWidth=".6" /></pattern></defs>
       <rect width="700" height="470" fill="url(#orbital-grid)" />
       <line x1="0" y1={origin[1]} x2="700" y2={origin[1]} stroke="#b2b2a8" /><line x1={origin[0]} y1="0" x2={origin[0]} y2="470" stroke="#b2b2a8" />
