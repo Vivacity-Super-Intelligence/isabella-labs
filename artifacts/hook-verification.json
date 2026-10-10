@@ -1,0 +1,41 @@
+{
+  "diagnosis": "POSIX bracket test fails under Windows shells before Node runs; original command also included literal backslashes before quote characters.",
+  "affected_hooks": [
+    "PostToolUse: Checking UI changes",
+    "Stop: Design deep pass"
+  ],
+  "historical_event": "Available logs do not retain whether the reported occurrence was PostToolUse or Stop; both used the same malformed command.",
+  "backup": "C:\\Users\\Tanish Anand\\.codex\\hooks.json.vivacity-20261010-backup",
+  "command": "node \"C:/Users/Tanish Anand/.agents/skills/impeccable/scripts/hook.mjs\"",
+  "backend_impact": "Neither server nor simulator imports or invokes these agent UI hooks.",
+  "verification": [
+    {
+      "event": "PostToolUse",
+      "shell": "pwsh",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "event": "PostToolUse",
+      "shell": "cmd",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "event": "Stop",
+      "shell": "pwsh",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "event": "Stop",
+      "shell": "cmd",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "status": "passed",
+  "base_url": "http://127.0.0.1:8000",
+  "world_id": "22ec84c9-477e-4153-a8a8-eb29d88e6f2d",
+  "experiment": {
+    "schema_version": "1.0",
+    "id": "c88fde7e-5d83-4937-9b4c-0879733659f8",
+    "world_id": "22ec84c9-477e-4153-a8a8-eb29d88e6f2d",
+    "revision": 0,
+    "status": "completed",
+    "request": {
+      "candidates": 3,
+      "planner_iterations": 1500,
+      "max_simulation_seconds": 25,
+      "policy": "deterministic"
+    },
+    "selected_branch_id": "c428d641-8b3a-44c2-abe1-95963f499d9b",
+    "result": {
+      "conclusion": "Additional fixed gravitational influence supported by training complexity penalty and held-out predictions.",
+      "bic_improvement_for_extra_mass": 257722.53540047567,
+      "heldout_rmse_improvement": 0.3064916708701349,
+      "criterion": "extra mass requires BIC improvement > 6 and held-out RMSE improvement > 5%, with full-rank Jacobian",
+      "scope": "Comparison of two simplified models; not discovery of a new physical law.",
+      "policy": {
+        "policy": "deterministic_planning_policy",
+        "llm_used": false,
+        "steps": [
+          "Inspect structured observation and valid action schema.",
+          "Generate candidate interventions through backend tools.",
+          "Fork the same persisted state for each candidate.",
+          "Rank measured outcomes; retain failures."
+        ]
+      },
+      "executed_settings": {
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 25,
+        "policy": "deterministic"
+      },
+      "followup_settings": null
+    },
+    "performance": {
+      "job_wall_seconds": 1.1727293000003556,
+      "process_cpu_seconds": 0.5,
+      "queue_wait_seconds": 0.29849215266403917,
+      "planning_wall_seconds": 0.0,
+      "physics_wall_seconds": 0.19696840000051452,
+      "candidate_count": 2,
+      "simulation_steps": 0,
+      "integration_calls": 30,
+      "replay_payload_bytes": 40519,
+      "branch_failure_rate": 0.0,
+      "adapter_error_count": 0,
+      "measurement_complete": true,
+      "job_error_rate": 0.0,
+      "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+    },
+    "error": null,
+    "stale": false
+  },
+  "observed_http_statuses": {
+    "first": 202,
+    "retry": 202,
+    "conflict": 409
+  },
+  "fitted_parameters": [
+    {
+      "central_mu": 0.9959514424171484
+    },
+    {
+      "central_mu": 0.9999784517366527,
+      "perturbing_mass": 0.11987184828663872
+    }
+  ],
+  "checks": [
+    "same_key_returns_same_experiment",
+    "conflicting_body_rejected",
+    "single_experiment_in_history",
+    "retry_after_revision_change_is_original_stale_result",
+    "real_scipy_fit_completed"
+  ]
+}

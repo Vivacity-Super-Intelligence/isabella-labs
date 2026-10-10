@@ -1,0 +1,152 @@
+from typing import Annotated, Literal
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+
+class Schema(BaseModel):
+    model_config = ConfigDict(extra='forbid', allow_inf_nan=False)
+
+
+Vec3 = Annotated[list[float], Field(min_length=3, max_length=3)]
+
+
+class RoboticsConfig(Schema):
+    obstacle_position: Vec3 = [0.45, 0.04, 0.22]
+    obstacle_size: Vec3 = [0.055, 0.13, 0.22]
+    target_position: Vec3 = [0.55, 0.28, 0.22]
+
+    @model_validator(mode='after')
+    def bounds(self):
+        x, y, z = self.obstacle_position
+        if not (0.15 <= x <= 0.8 and -0.5 <= y <= 0.5 and 0.05 <= z <= 0.6):
+            raise ValueError('obstacle outside workcell bounds')
+        if not all(0.01 <= v <= 0.4 for v in self.obstacle_size):
+            raise ValueError('obstacle half-sizes must be 0.01..0.4 m')
+        if not (0.15 <= self.target_position[0] <= 0.8 and abs(self.target_position[1]) <= 0.5 and 0.1 <= self.target_position[2] <= 0.7):
+            raise ValueError('target outside workcell bounds')
+        return self
+
+
+class ScienceConfig(Schema):
+    central_mu: float = Field(1, ge=0.7, le=1.3)
+    hidden_mass: float = Field(0.12, ge=0, le=0.3)
+    perturbing_position: Annotated[list[float], Field(min_length=2, max_length=2)] = [2.5, 0.4]
+    initial_state: Annotated[list[float], Field(min_length=4, max_length=4)] = [1.0, 0.0, 0.0, 1.0]
+    noise_std: float = Field(0.001, ge=0.00001, le=0.05)
+    samples: int = Field(70, ge=30, le=200)
+    horizon: float = Field(5, ge=2, le=8)
+    train_fraction: float = Field(0.7, ge=0.5, le=0.85)
+
+    @model_validator(mode='after')
+    def bounds(self):
+        import numpy as np
+        if not (2 <= np.linalg.norm(self.perturbing_position) <= 5):
+            raise ValueError('fixed perturber radius must be 2..5')
+        if not (0.8 <= np.linalg.norm(self.initial_state[:2]) <= 1.2):
+            raise ValueError('initial orbital radius must be 0.8..1.2')
+        if not (0.85 <= np.linalg.norm(self.initial_state[2:]) <= 1.15):
+            raise ValueError('initial orbital speed must be 0.85..1.15')
+        return self
+
+
+class CreateWorld(Schema):
+    schema_version: Literal['1.0'] = '1.0'
+    backend: Literal['mujoco', 'scipy']
+    seed: int = Field(7, ge=0, le=2**32-1)
+    config: RoboticsConfig | ScienceConfig | None = None
+
+    @model_validator(mode='after')
+    def matching_config(self):
+        expected = RoboticsConfig if self.backend == 'mujoco' else ScienceConfig
+        if self.config is None:
+            self.config = expected()
+        if not isinstance(self.config, expected):
+            raise ValueError('config does not match backend')
+        return self
+
+
+class ExperimentRequest(Schema):
+    candidates: int = Field(3, ge=2, le=5)
+    planner_iterations: int = Field(1500, ge=100, le=4000)
+    max_simulation_seconds: float = Field(25, ge=0.1, le=40)
+    policy: Literal['deterministic', 'llm'] = 'deterministic'
+
+
+class HostedProposal(Schema):
+    candidates: int = Field(ge=2, le=5)
+    planner_iterations: int = Field(ge=100, le=4000)
+
+
+class EnvironmentPatch(Schema):
+    config: RoboticsConfig | ScienceConfig
+
+
+class CommitRequest(Schema):
+    experiment_id: str
+    branch_id: str
+
+
+class WorldResponse(Schema):
+    schema_version: Literal['1.0'] = '1.0'
+    id: str
+    backend: str
+    config: dict
+    state: dict
+    initial_state: dict
+    action_schema: dict
+    simulator_version: str
+    seed: int
+    revision: int
+    history: list[str]
+    branches: list[dict]
+    evaluations: list[dict]
+    performance: dict
+
+
+class ExperimentResponse(Schema):
+    schema_version: Literal['1.0'] = '1.0'
+    id: str
+    world_id: str
+    revision: int
+    status: Literal['queued', 'running', 'completed', 'failed']
+    request: dict
+    selected_branch_id: str | None = None
+    result: dict = {}
+    performance: dict = {}
+    error: str | None = None
+    stale: bool = False
+
+
+class BranchResponse(Schema):
+    schema_version: Literal['1.0'] = '1.0'
+    id: str
+    experiment_id: str
+    parent_state_reference: str
+    initial_state: dict
+    action: dict
+    trace: list[dict]
+    final_state: dict | None
+    evaluation: dict
+    performance: dict
+
+
+class StateResponse(Schema):
+    schema_version: Literal['1.0'] = '1.0'
+    world_id: str
+    revision: int
+    observation: dict
+
+
+class ReplayResponse(Schema):
+    schema_version: Literal['1.0'] = '1.0'
+    experiment_id: str
+    backend: str
+    config: dict
+    stale: bool
+    branches: list[dict]
+
+
+class EventResponse(Schema):
+    schema_version: Literal['1.0'] = '1.0'
+    seq: int
+    kind: Literal['queued', 'running', 'planned', 'branch_completed', 'completed', 'failed']
+    details: dict

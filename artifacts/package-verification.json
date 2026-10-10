@@ -1,0 +1,171 @@
+{
+  "status": "passed",
+  "source": "actual_live_experiments_from_export_of_staged_files",
+  "base_url": "http://127.0.0.1:8001",
+  "database": "isolated data/handoff-checkout/data/vivacity.sqlite3",
+  "initial_probe": "Connection refused before application startup completed; after readiness, the full journey passed.",
+  "checks": {
+    "live_http": true,
+    "live_websocket": true,
+    "deterministic_physics_reexecution": true,
+    "failed_and_successful_reach": true,
+    "geometry_replan": true,
+    "stale_commit_rejection": true,
+    "all_paths_fail": true,
+    "competing_scipy_models": true,
+    "unnecessary_mass_rejected": true,
+    "vendored_asset_bytes_match": true,
+    "model_hash_matches_exported_manifest": true,
+    "actions_final_snapshots_evaluations_match_original_execution": true
+  },
+  "experiments": [
+    {
+      "experiment_id": "43aece74-5d91-4b8b-a47f-cf8fb1b6c595",
+      "backend": "mujoco",
+      "candidate_statuses": [
+        "collision_failure",
+        "planning_failure",
+        "execution_success"
+      ],
+      "performance": {
+        "job_wall_seconds": 4.835488800000007,
+        "process_cpu_seconds": 4.578125,
+        "queue_wait_seconds": 0.05400408691093617,
+        "planning_wall_seconds": 3.4358087000000523,
+        "physics_wall_seconds": 0.5545624000000089,
+        "candidate_count": 3,
+        "simulation_steps": 4817,
+        "integration_calls": 0,
+        "replay_payload_bytes": 559262,
+        "branch_failure_rate": 0.6666666666666666,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      }
+    },
+    {
+      "experiment_id": "174df77b-8c9d-4cb8-9b56-4cbc21a9fff3",
+      "backend": "mujoco",
+      "candidate_statuses": [
+        "collision_failure",
+        "planning_failure",
+        "execution_success"
+      ],
+      "performance": {
+        "job_wall_seconds": 4.64384009999992,
+        "process_cpu_seconds": 4.40625,
+        "queue_wait_seconds": 0.066760127569637,
+        "planning_wall_seconds": 3.290709500000048,
+        "physics_wall_seconds": 0.57356110000012,
+        "candidate_count": 3,
+        "simulation_steps": 4817,
+        "integration_calls": 0,
+        "replay_payload_bytes": 559262,
+        "branch_failure_rate": 0.6666666666666666,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      }
+    },
+    {
+      "experiment_id": "59e1373d-8658-4c43-a8b8-6d73b19e3f3d",
+      "backend": "mujoco",
+      "candidate_statuses": [
+        "execution_success",
+        "execution_success",
+        "execution_success"
+      ],
+      "performance": {
+        "job_wall_seconds": 1.9046412000000146,
+        "process_cpu_seconds": 1.65625,
+        "queue_wait_seconds": 0.045798028286753834,
+        "planning_wall_seconds": 0.039409599999999045,
+        "physics_wall_seconds": 1.1004359999999451,
+        "candidate_count": 3,
+        "simulation_steps": 10452,
+        "integration_calls": 0,
+        "replay_payload_bytes": 1188814,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      }
+    },
+    {
+      "experiment_id": "cc6e8f21-3d56-4908-b7db-518b668e236c",
+      "backend": "mujoco",
+      "candidate_statuses": [
+        "collision_failure",
+        "planning_failure",
+        "planning_failure"
+      ],
+      "performance": {
+        "job_wall_seconds": 0.6128683000000592,
+        "process_cpu_seconds": 0.421875,
+        "queue_wait_seconds": 0.04995486013183381,
+        "planning_wall_seconds": 0.010829700000044795,
+        "physics_wall_seconds": 0.004784999999969841,
+        "candidate_count": 3,
+        "simulation_steps": 0,
+        "integration_calls": 0,
+        "replay_payload_bytes": 63873,
+        "branch_failure_rate": 1.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      }
+    },
+    {
+      "experiment_id": "9e9a0ed5-6f49-437a-bed1-91f0077864d6",
+      "backend": "scipy",
+      "candidate_statuses": [
+        "fit_completed",
+        "fit_completed"
+      ],
+      "performance": {
+        "job_wall_seconds": 0.7371061000000054,
+        "process_cpu_seconds": 0.234375,
+        "queue_wait_seconds": 0.04233185610041801,
+        "planning_wall_seconds": 0.0,
+        "physics_wall_seconds": 0.4474140999999463,
+        "candidate_count": 2,
+        "simulation_steps": 0,
+        "integration_calls": 30,
+        "replay_payload_bytes": 40519,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      }
+    },
+    {
+      "experiment_id": "5fc7b5ff-c556-4850-b4af-0de65f618b08",
+      "backend": "scipy",
+      "candidate_statuses": [
+        "fit_completed",
+        "fit_completed"
+      ],
+      "performance": {
+        "job_wall_seconds": 0.5718660999999656,
+        "process_cpu_seconds": 0.3125,
+        "queue_wait_seconds": 0.058604220529218765,
+        "planning_wall_seconds": 0.0,
+        "physics_wall_seconds": 0.25505229999998846,
+        "candidate_count": 2,
+        "simulation_steps": 0,
+        "integration_calls": 53,
+        "replay_payload_bytes": 35120,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      }
+    }
+  ]
+}

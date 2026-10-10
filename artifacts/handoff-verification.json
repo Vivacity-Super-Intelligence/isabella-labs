@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "geometry": {
+    "bodies": 14,
+    "geoms": 85,
+    "meshes": 67,
+    "mesh_buffer_bytes": 6400572,
+    "maximum_world_position_error_m": 1.9229626863835638e-16
+  },
+  "numerical_reintegration": [
+    {
+      "hypothesis": "central_only",
+      "heldout_rmse": 0.30751205896843453,
+      "training_bic": 257803.79905975342
+    },
+    {
+      "hypothesis": "central_plus_fixed_perturber",
+      "heldout_rmse": 0.0010203880982996062,
+      "training_bic": 81.26365927774904
+    },
+    {
+      "hypothesis": "central_only",
+      "heldout_rmse": 0.0017650901593535245,
+      "training_bic": 69.77453849760612
+    },
+    {
+      "hypothesis": "central_plus_fixed_perturber",
+      "heldout_rmse": 0.0017650901426786959,
+      "training_bic": 74.20535529652881
+    }
+  ],
+  "checks": [
+    "live_openapi_matches_both_exports",
+    "live_swagger_200",
+    "browser_cors_preflight",
+    "allowed_browser_websocket_origin",
+    "rejected_websocket_origin_403",
+    "compiled_mesh_roundtrip",
+    "all_geom_world_transforms_match_mujoco",
+    "replay_frames_equal_executed_traces",
+    "scipy_predictions_reintegrated_exactly",
+    "train_heldout_bic_recalculated",
+    "stale_commit_409",
+    "live_science_commit"
+  ],
+  "example_exchange_count": 15
+}

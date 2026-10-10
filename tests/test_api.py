@@ -1,0 +1,103 @@
+import time
+import pytest
+from fastapi.testclient import TestClient
+from vivacity.api import create_app
+
+
+@pytest.fixture
+def client(tmp_path):
+    with TestClient(create_app(tmp_path / 'api.sqlite3')) as c:
+        yield c
+
+
+def finish(client, world):
+    response = client.post(f"/v1/worlds/{world['id']}/experiments", json={})
+    assert response.status_code == 202
+    eid = response.json()['id']
+    deadline = time.monotonic()+30
+    while time.monotonic() < deadline:
+        e = client.get(f'/v1/experiments/{eid}').json()
+        if e['status'] in ('completed', 'failed'):
+            assert e['status'] == 'completed', e
+            return e
+        time.sleep(0.02)
+    pytest.fail('job did not finish in 30 seconds')
+
+
+@pytest.mark.parametrize('body', [
+    {'backend': 'fake'}, {'backend': 'mujoco', 'seed': -1},
+    {'backend': 'mujoco', 'config': {'obstacle_position': [1, 2]}},
+    {'backend': 'mujoco', 'config': {'obstacle_position': [9, 0, 0.2]}},
+    {'backend': 'scipy', 'config': {'noise_std': 0}},
+    {'backend': 'scipy', 'config': {'samples': 100000}},
+    {'backend': 'scipy', 'config': {'unknown': True}},
+    {'backend': 'scipy', 'config': {'initial_state': [0, 0, 0, 1]}},
+    {'backend': 'mujoco', 'config': {'hidden_mass': 0.1}},
+    {'backend': 'scipy', 'config': {'perturbing_position': [0, 0]}},
+])
+def test_request_validation(client, body):
+    assert client.post('/v1/worlds', json=body).status_code == 422
+
+
+def test_api_science_journey_events_commit_reset(client):
+    assert client.get('/health').status_code == 200
+    response = client.post('/v1/worlds', json={'backend': 'scipy'})
+    assert response.status_code == 201
+    w = response.json()
+    assert 'hidden_mass' not in response.text
+    assert client.get(f"/v1/worlds/{w['id']}").json() == w
+    assert client.get(f"/v1/worlds/{w['id']}/state").status_code == 200
+    e = finish(client, w)
+    branches = client.get(f"/v1/experiments/{e['id']}/branches").json()
+    assert len(branches) == 2
+    assert branches[0]['experiment_id'] == e['id']
+    replay = client.get(f"/v1/experiments/{e['id']}/replay")
+    assert replay.status_code == 200 and len(replay.json()['branches']) == 2
+    assert 'hidden_mass' not in replay.text
+    with client.websocket_connect(f"/v1/experiments/{e['id']}/events") as ws:
+        events = []
+        while True:
+            event = ws.receive_json(); events.append(event)
+            if event['kind'] == 'completed':
+                break
+    assert [ev['kind'] for ev in events] == ['queued', 'running', 'planned', 'branch_completed', 'branch_completed', 'completed']
+    assert all(a['seq'] < b['seq'] for a, b in zip(events, events[1:]))
+    commit = {'experiment_id': e['id'], 'branch_id': e['selected_branch_id']}
+    assert client.post(f"/v1/worlds/{w['id']}/commit", json=commit).status_code == 200
+    assert client.post(f"/v1/worlds/{w['id']}/commit", json=commit).status_code == 409
+    reset = client.post(f"/v1/worlds/{w['id']}/reset").json()
+    assert reset['state'] == w['initial_state']
+    assert client.get(f"/v1/experiments/{e['id']}").json()['stale']
+
+
+def test_api_robotics_reposition_and_replan(client):
+    w = client.post('/v1/worlds', json={'backend': 'mujoco'}).json()
+    e = finish(client, w)
+    branches = client.get(f"/v1/experiments/{e['id']}/branches").json()
+    assert any(b['evaluation']['success'] for b in branches)
+    failed = next(b for b in branches if not b['evaluation']['success'])
+    assert client.post(f"/v1/worlds/{w['id']}/commit", json={'experiment_id': e['id'], 'branch_id': failed['id']}).status_code == 409
+    assert client.patch(f"/v1/worlds/{w['id']}/environment", json={'config': {'obstacle_position': [0.75, -0.4, 0.2]}}).status_code == 200
+    assert client.get(f"/v1/experiments/{e['id']}/replay").json()['stale']
+    assert client.post(f"/v1/worlds/{w['id']}/commit", json={'experiment_id': e['id'], 'branch_id': e['selected_branch_id']}).status_code == 409
+    e2 = finish(client, w)
+    assert e2['selected_branch_id']
+
+
+def test_missing_and_invalid_resources(client):
+    for route in ['/v1/worlds/missing', '/v1/worlds/missing/state', '/v1/experiments/missing', '/v1/experiments/missing/branches', '/v1/experiments/missing/replay']:
+        assert client.get(route).status_code == 404
+    assert client.post('/v1/worlds/missing/experiments', json={}).status_code == 404
+    w = client.post('/v1/worlds', json={'backend': 'scipy'}).json()
+    assert client.post(f"/v1/worlds/{w['id']}/experiments", json={'candidates': 50}).status_code == 422
+    assert client.patch(f"/v1/worlds/{w['id']}/environment", json={'config': {'obstacle_position': [0.5, 0, 0.2]}}).status_code == 422
+
+
+def test_cors_and_openapi(client):
+    response = client.options('/v1/worlds', headers={'Origin': 'http://localhost:5173', 'Access-Control-Request-Method': 'POST'})
+    assert response.headers['access-control-allow-origin'] == 'http://localhost:5173'
+    response = client.options('/v1/worlds', headers={'Origin': 'https://untrusted.example', 'Access-Control-Request-Method': 'POST'})
+    assert response.status_code == 400
+    spec = client.get('/openapi.json').json()
+    assert spec['info']['version'] == '1.0.0'
+    assert 'BranchResponse' in spec['components']['schemas']
