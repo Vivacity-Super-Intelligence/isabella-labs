@@ -69,6 +69,8 @@ class ExperimentRequest(Schema):
     planner_iterations: int = Field(1500, ge=100, le=4000)
     max_simulation_seconds: float = Field(25, ge=0.1, le=40)
     policy: Literal['deterministic', 'llm'] = 'deterministic'
+    search_candidates: int = Field(0, ge=0, le=10000)
+    physics_budget: int = Field(12, ge=3, le=24)
 
 
 class HostedProposal(Schema):

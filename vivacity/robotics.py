@@ -240,7 +240,9 @@ class RoboticsBackend:
         failure = result['failure']
         if not failure and (error > 0.02 or orientation > 0.08):
             failure = 'controller_failure'
-        return {'success': failure is None, 'status': failure or 'execution_success', 'planning_feasible': world.action['planning_feasible'], 'goal_error_m': error, 'orientation_error_rad': orientation, 'contact_violations': result['contact_violations'], 'execution_duration_s': result['execution_duration_s'], 'milestone': 'collision_free_reach'}
+        trace=result['trace']
+        path_length=float(sum(np.linalg.norm(np.asarray(b['qpos'][:7])-a['qpos'][:7]) for a,b in zip(trace[:-1],trace[1:])))
+        return {'success': failure is None, 'status': failure or 'execution_success', 'planning_feasible': world.action['planning_feasible'], 'goal_error_m': error, 'orientation_error_rad': orientation, 'contact_violations': result['contact_violations'], 'execution_duration_s': result['execution_duration_s'], 'joint_path_length_rad':path_length, 'milestone': 'collision_free_reach'}
 
     def commit(self, state):
         return self.snapshot(self.fork(state))

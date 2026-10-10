@@ -153,7 +153,12 @@ class Runtime:
             instance = backend.fork(e['snapshot'])
             policy = HostedPolicy() if e['request']['policy'] == 'llm' else DeterministicPolicy()
             settings, reasoning = policy.propose(backend.observe(instance), backend.action_schema, e['request'])
-            actions, planning_time = backend.candidates(instance, settings['candidates'], settings['planner_iterations'])
+            search = None
+            if e['backend']=='mujoco' and settings.get('search_candidates',0):
+                from .search import search_reaches
+                actions, planning_time, search = search_reaches(backend,instance,settings,lambda detail:self.store.event(eid,'progress',detail))
+            else:
+                actions, planning_time = backend.candidates(instance, settings['candidates'], settings['planner_iterations'])
             self.store.event(eid, 'planned', {'candidate_count': len(actions), 'planning_wall_seconds': planning_time})
             branches = []
             reference = f"{e['world_id']}:{e['revision']}:{hashlib.sha256(encode(e['snapshot']).encode()).hexdigest()}"
@@ -199,10 +204,12 @@ class Runtime:
                     self.store.put('branches', branch, db)
                     self.store.event(eid, 'branch_completed', {'branch_id': branch['id'], 'evaluation': evaluation}, db)
                 branches.append(branch)
+                if search is not None:
+                    self.store.event(eid,'progress',{'stage':'physics','fully_simulated':len(branches),'physics_target':len(actions),'verified_feasible':sum(b['evaluation']['success'] for b in branches),'elapsed_seconds':time.perf_counter()-wall,'message':f"Physics validation {len(branches)} / {len(actions)}; {sum(b['evaluation']['success'] for b in branches)} verified feasible."})
             for action in actions:
                 execute_action(action, settings)
             # Choose additional tool work from measured outcomes, with one bounded retry.
-            followup = DeterministicPolicy().next_experiment(e['backend'], backend.observe(instance), branches, settings)
+            followup = None if search is not None else DeterministicPolicy().next_experiment(e['backend'], backend.observe(instance), branches, settings)
             if followup:
                 extra_actions, extra_planning = backend.candidates(instance, followup['candidates'], followup['planner_iterations'])
                 planning_time += extra_planning
@@ -211,14 +218,18 @@ class Runtime:
                     action = action | {'followup': True, 'planning_iterations': followup['planner_iterations']}
                     execute_action(action, followup)
             if e['backend'] == 'mujoco':
-                successful = sorted([b for b in branches if b['evaluation']['success']], key=lambda b: (b['evaluation']['execution_duration_s'], b['evaluation']['goal_error_m']))
+                objective = lambda b:(not b['evaluation']['success'],b['evaluation'].get('execution_duration_s',float('inf')),b['evaluation'].get('joint_path_length_rad',float('inf')),b['evaluation'].get('goal_error_m',float('inf')),b['action'].get('candidate_index',-1))
+                successful = sorted([b for b in branches if b['evaluation']['success']], key=objective)
                 selected = successful[0]['id'] if successful else None
                 # The reported ranking and selected winner use the same measured criterion.
-                ranked = sorted(branches, key=lambda b: (not b['evaluation']['success'], b['evaluation'].get('execution_duration_s', float('inf')), b['evaluation'].get('goal_error_m', float('inf'))))
-                conclusion = {'conclusion': 'Measured collision-free reach found.' if selected else 'No candidate executed a collision-free reach.', 'milestone': 'reach_only', 'ranked_branch_ids': [b['id'] for b in ranked]}
+                ranked = sorted(branches, key=objective)
+                conclusion = {'conclusion': 'Measured collision-free reach found.' if selected else 'No candidate executed a collision-free reach.', 'milestone': 'reach_only', 'ranked_branch_ids': [b['id'] for b in ranked], 'top_feasible_branch_ids':[b['id'] for b in successful[:3]]}
             else:
                 selected, conclusion = backend.choose(branches)
             e.update(status='completed', selected_branch_id=selected, result=conclusion | {'policy': reasoning, 'executed_settings': settings, 'followup_settings': followup})
+            if search is not None:
+                search.update(fully_simulated=sum(b['evaluation']['status']!='adapter_failure' for b in branches),verified_feasible=sum(b['evaluation']['success'] for b in branches),physics_rejected=sum(not b['evaluation']['success'] for b in branches))
+                e['result']['search']=search
             adapter_errors = sum(b['evaluation']['status'] == 'adapter_failure' for b in branches)
             if adapter_errors == len(branches):
                 e.update(status='failed', error='all_branches_failed:adapter_failure')

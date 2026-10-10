@@ -31,6 +31,7 @@ export default function App(){
   const terminal=compatible&&rt.experiment&&!isBusy(rt.experiment);
   const accepted=terminal&&rt.experiment?.status==='completed'&&!!rt.experiment.selected_branch_id;
   const status=!rt.online?'Connection lost':!rt.loaded?'Loading world':!rt.experiment?'Ready':isBusy(rt.experiment)?rt.experiment.status==='queued'?'Queued':'Experiment running':accepted?'Result selected':rt.experiment.status==='failed'?'Experiment failed':'No feasible result';
+  const counters=Object.assign({},...rt.events.filter(e=>e.kind==='progress').map(e=>e.details),rt.experiment?.result.search??{}) as Record<string,unknown>;
   useEffect(()=>{setBranchId(null);setRecorded(true);setEditing(false);},[backend,rt.experiment?.id]);
   const choose=(b:Backend)=>{setBackend(b);setPage('workspace');setCloth(false);try{localStorage.setItem('vivacity:lab',b);}catch{/* Optional storage. */}};
   const disabled=rt.busy||!compatible||!rt.online||cloth;
@@ -65,6 +66,7 @@ export default function App(){
             </>}
           </aside>
         </div>
+        {robotics&&counters.generated!==undefined&&<dl className="search-counts" aria-label="Actual search work">{[['Generated','generated'],['Screened','screened'],['Rejected by screening','rejected'],['Physics rollouts','fully_simulated'],['Verified feasible','verified_feasible']].map(([name,key])=><div key={key}><dt>{name}</dt><dd data-testid={`count-${key}`}>{Number(counters[key]??0).toLocaleString()}</dd></div>)}</dl>}
         <TechnicalInspector events={rt.events} initialized={compatible} playing={play.playing} branches={branches} select={id=>{setBranchId(id);setRecorded(true);}} history={{ids:rt.world?.history??[],open:rt.history,disabled:rt.busy}}/>
       </>}
     </main>

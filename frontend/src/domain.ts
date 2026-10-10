@@ -21,6 +21,7 @@ export type Frame = RobotFrame | ScienceFrame;
 export interface Evaluation {
   status: string; success: boolean; planning_feasible?: boolean;
   goal_error_m?: number; orientation_error_rad?: number; execution_duration_s?: number;
+  joint_path_length_rad?: number;
   contact_violations?: Contact[]; hypothesis?: string; failure?: string | null;
   parameters?: Record<string, number>; train_rmse?: number; heldout_rmse?: number;
   training_bic?: number; train_count?: number; heldout_count?: number; residuals?: number[][];
