@@ -4,7 +4,9 @@ import { format } from './domain';
 
 export default function ScienceView({ observation, branches, selected, time }: { observation: ScienceObservation | null; branches: Branch[]; selected: string | null; time:number }) {
   const [showInfluence,setShowInfluence] = useState(false);
-  const fits = branches.filter(b=>b.evaluation.success && b.trace.length);
+  // A lab switch can briefly retain the previous adapter's evidence while the
+  // replacement world loads. Keep the chart domain-specific during that handoff.
+  const fits = branches.filter(b=>b.evaluation.success && b.trace.length && 'predicted_position' in b.trace[0]);
   const points = observation?.observations ?? [];
   const trainCount = fits[0]?.evaluation.train_count ?? Math.floor(points.length*Number(observation?.config.train_fraction ?? .7));
   const all = [...points,...fits.flatMap(b=>b.trace.map(f=>(f as {predicted_position:number[]}).predicted_position))];

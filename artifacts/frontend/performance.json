@@ -1,19 +1,19 @@
 {
   "frontend": {
     "renderer": {
-      "robotAssetLoadMs": 304.29999999981374,
+      "robotAssetLoadMs": 227.29999999981374,
       "meshBytes": 6400572,
-      "playbackFrameSamples": 37,
-      "renderMeanFrameMs": 209.51081081082089,
-      "renderP95FrameMs": 1037.699999999255
+      "playbackFrameSamples": 41,
+      "renderMeanFrameMs": 195.62926829267838,
+      "renderP95FrameMs": 790
     },
     "navigation": [
       {
         "name": "http://127.0.0.1:5173/",
         "entryType": "navigation",
         "startTime": 0,
-        "duration": 75.70000000018626,
-        "navigationId": 2335,
+        "duration": 74.29999999981374,
+        "navigationId": 4042,
         "initiatorType": "navigation",
         "deliveryType": "",
         "nextHopProtocol": "http/1.1",
@@ -28,16 +28,16 @@
         "redirectStart": 0,
         "redirectEnd": 0,
         "fetchStart": 0.20000000018626451,
-        "domainLookupStart": 1.6000000005587935,
-        "domainLookupEnd": 2.2000000001862645,
-        "connectStart": 2.2000000001862645,
+        "domainLookupStart": 1.599999999627471,
+        "domainLookupEnd": 2.400000000372529,
+        "connectStart": 2.400000000372529,
         "secureConnectionStart": 0,
-        "connectEnd": 3,
-        "requestStart": 3.1000000005587935,
-        "responseStart": 6.2999999998137355,
+        "connectEnd": 3.7999999998137355,
+        "requestStart": 3.900000000372529,
+        "responseStart": 6.7000000001862645,
         "firstInterimResponseStart": 0,
-        "finalResponseHeadersStart": 6.2999999998137355,
-        "responseEnd": 6.900000000372529,
+        "finalResponseHeadersStart": 6.7000000001862645,
+        "responseEnd": 7.099999999627471,
         "transferSize": 1118,
         "encodedBodySize": 818,
         "decodedBodySize": 818,
@@ -45,12 +45,12 @@
         "serverTiming": [],
         "unloadEventStart": 0,
         "unloadEventEnd": 0,
-        "domInteractive": 19.200000000186265,
-        "domContentLoadedEventStart": 75.5,
-        "domContentLoadedEventEnd": 75.70000000018626,
-        "domComplete": 75.70000000018626,
-        "loadEventStart": 75.70000000018626,
-        "loadEventEnd": 75.70000000018626,
+        "domInteractive": 22.59999999962747,
+        "domContentLoadedEventStart": 74.29999999981374,
+        "domContentLoadedEventEnd": 74.29999999981374,
+        "domComplete": 74.29999999981374,
+        "loadEventStart": 74.29999999981374,
+        "loadEventEnd": 74.29999999981374,
         "type": "navigate",
         "redirectCount": 0,
         "activationStart": 0,
@@ -58,7 +58,7 @@
         "notRestoredReasons": null,
         "confidence": {
           "randomizedTriggerRate": 0.4994798,
-          "value": "low"
+          "value": "high"
         }
       }
     ],
@@ -66,47 +66,47 @@
       {
         "name": "first-paint",
         "entryType": "paint",
-        "startTime": 52,
+        "startTime": 40,
         "duration": 0,
-        "navigationId": 2335,
-        "paintTime": 46.5,
-        "presentationTime": 52
+        "navigationId": 4042,
+        "paintTime": 37.200000000186265,
+        "presentationTime": 40
       },
       {
         "name": "first-contentful-paint",
         "entryType": "paint",
-        "startTime": 248,
+        "startTime": 212,
         "duration": 0,
-        "navigationId": 2335,
-        "paintTime": 226.79999999981374,
-        "presentationTime": 248
+        "navigationId": 4042,
+        "paintTime": 192.70000000018626,
+        "presentationTime": 212
       }
     ],
     "marks": [
       {
         "name": "vivacity:mujoco:world-ready",
         "entryType": "mark",
-        "startTime": 771.9000000003725,
+        "startTime": 703.2999999998137,
         "duration": 0,
-        "navigationId": 2335
+        "navigationId": 4042
       },
       {
         "name": "vivacity:robot-scene-ready",
         "entryType": "mark",
-        "startTime": 944.4000000003725,
+        "startTime": 837.7999999998137,
         "duration": 0,
-        "navigationId": 2335
+        "navigationId": 4042
       }
     ],
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36"
   },
-  "experiment": "13fb1c48-14fd-47b5-8ff2-59cb7f58c222",
+  "experiment": "d6d27738-780d-4e98-a63d-884bd29bc94e",
   "backend": {
-    "job_wall_seconds": 4.797161500000584,
-    "process_cpu_seconds": 4.359375,
-    "queue_wait_seconds": 0.18903645412865444,
-    "planning_wall_seconds": 3.2361036999991484,
-    "physics_wall_seconds": 0.5995164000005389,
+    "job_wall_seconds": 4.791369499999746,
+    "process_cpu_seconds": 4.203125,
+    "queue_wait_seconds": 0.05858386556701589,
+    "planning_wall_seconds": 3.420442799999364,
+    "physics_wall_seconds": 0.5716142999999647,
     "candidate_count": 3,
     "simulation_steps": 4817,
     "integration_calls": 0,

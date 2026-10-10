@@ -20,6 +20,10 @@ The UI includes independent computed branches, measured failures, playback/scrub
 
 Follow [DEMO_GUIDE.md](DEMO_GUIDE.md) for the three-minute presentation, [DEMO_LIMITATIONS.md](DEMO_LIMITATIONS.md) for explicit scope, [frontend/README.md](frontend/README.md) for client/assets/testing, and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for executed checks and measurements. This remains a trusted loopback demo, not a public multi-tenant service.
 
+## Current live demo
+
+The verified Vercel deployment is [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/). Its API is currently reached through a temporary Cloudflare quick tunnel from the local MuJoCo/SciPy process, so the URL is live only while that tunnel and backend process remain running. A durable public release requires a paid/ provisioned Python host with authentication, persistent storage and explicit CORS; the existing `demo.tryvivacity.com` project was intentionally left untouched.
+
 ## Setup (Windows PowerShell)
 
 Use Python 3.12, the tested interpreter. The code requires Python 3.11+ but other interpreter/platform combinations have not been verified.

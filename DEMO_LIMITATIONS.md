@@ -31,6 +31,8 @@ The runtime and frontend are a local investor demonstration. Read `IMPLEMENTATIO
 
 ## Browser and performance scope
 
+- The live Vercel URL is backed by a temporary Cloudflare quick tunnel to the local Python process. It will stop when that tunnel or process stops; Railway deployment was blocked by the account's expired trial. This is not a durable production deployment.
+
 - Tested environment: Windows, Python 3.12, local Chromium, the committed npm/Python locks and this workcell. Cross-browser Safari/Firefox, touch hardware, real screen-reader output, remote internet deployment, mobile GPU stability and cross-platform bitwise simulation equivalence are unverified.
 - WebGL2 is required for the robot viewport. A render-error message preserves access to evidence if unavailable. Static robot meshes are about 6.4 MB; Three/R3F code is a separate lazy chunk. Loading and rendering depend on hardware/network/memory.
 - Measured frame timing is a local sampled result, not a guaranteed frame rate. On-demand idle rendering reduces CPU pressure; replay follows elapsed time and may skip displayed intermediate samples on slow hardware. The saved trace remains available for scrubbing.

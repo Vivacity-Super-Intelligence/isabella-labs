@@ -14,6 +14,10 @@ Verified 2026-10-10 in `P:\VIVACITY\DEMO-`, Windows, Python 3.12. The complete R
 
 The new frontend uses the actual Vivacity logo, Geist/Geist Mono and inspected brand colors; actual compiled Panda geometry and measured MuJoCo body poses; recorded trajectory/contact evidence; structured job status; obstacle controls; branch history/commit/reset; actual observed/predicted orbital curves and residuals; parameter/uncertainty inspection; scientific controls/refinement; and a shared technical/architecture inspector. No fixture trajectory, prerecorded animation, fabricated metric or fake LLM reasoning is substituted for API results. Scientific history plots that experiment's recorded observations, not the current regenerated dataset.
 
+### Live Vercel smoke verification
+
+`https://vivacity-investor-demo.vercel.app/` is deployed as a new Vercel project and was verified in Chrome against a real API tunnel: runtime connected, three MuJoCo branches completed with replay and a selected collision-free reach, immediate robotics → science switching remained mounted, and SciPy produced two fitted hypotheses with held-out RMSE/BIC and selected the additional-influence model. The API reference link resolves to the live tunnel. The backend is a temporary Cloudflare quick tunnel to the local process because the authenticated Railway account has no active plan; this is a working investor URL for the current session, not durable hosting.
+
 ### Current performance and limits
 
 `artifacts/frontend/performance.json` is a local Chromium **software rendering** measurement: navigation load **75.7 ms** (excludes asynchronous world/meshes), first contentful paint **248 ms**, world ready **771.9 ms**, canvas ready **944.4 ms**, mesh fetch/decode/normals **304.3 ms**. Panda job **4.797 s**, planning **3.236 s**, physics **0.600 s**, process CPU **4.359 s**, three candidates, **4,817** steps, replay **559,262 bytes**, zero adapter errors. Expected physical/planning branch failure rate: **66.7%**; hosted calls: **0**.
