@@ -83,6 +83,8 @@ class CreateWorld(Schema):
 
 
 class ExperimentRequest(Schema):
+    execute_selected: bool = False
+    realtime_execution: bool = False
     candidates: int = Field(3, ge=2, le=5)
     planner_iterations: int = Field(1500, ge=100, le=4000)
     max_simulation_seconds: float = Field(25, ge=0.1, le=40)
@@ -151,7 +153,7 @@ class ExperimentResponse(Schema):
     id: str
     world_id: str
     revision: int
-    status: Literal['queued', 'running', 'completed', 'failed']
+    status: Literal['queued', 'running', 'completed', 'failed', 'cancelled']
     request: dict
     selected_branch_id: str | None = None
     result: dict = {}
@@ -192,7 +194,7 @@ class ReplayResponse(Schema):
 class EventResponse(Schema):
     schema_version: Literal['1.0'] = '1.0'
     seq: int
-    kind: Literal['queued', 'running', 'planned', 'progress', 'branch_completed', 'completed', 'failed']
+    kind: Literal['queued', 'running', 'planned', 'progress', 'branch_completed', 'completed', 'failed', 'cancelled']
     details: dict
 
 
@@ -218,3 +220,37 @@ class BranchExport(Schema):
     model_hash: str | None
     timestamps: dict
     performance: dict
+
+
+class SessionRequest(CreateWorld):
+    max_cycles: int = Field(4, ge=1, le=8)
+    realtime_execution: bool = True
+    search_candidates: int = Field(0, ge=0, le=10000)
+    physics_budget: int = Field(3, ge=3, le=12)
+
+
+class SessionResponse(Schema):
+    schema_version: Literal['vivacity.session/1.0'] = 'vivacity.session/1.0'
+    id: str
+    backend: str
+    status: Literal['active', 'stopping', 'stopped', 'completed', 'failed']
+    world_id: str
+    experiment_id: str | None = None
+    cycle: int
+    max_cycles: int
+    experiments: list[str]
+    world_ids: list[str]
+    error: str | None = None
+    started_unix_s: float
+    last_heartbeat_unix_s: float
+    conditions: list[dict]
+
+
+class LiveState(Schema):
+    schema_version: Literal['vivacity.live/1.0'] = 'vivacity.live/1.0'
+    experiment_id: str
+    world_id: str
+    sequence: int
+    timestamp_unix_s: float
+    stage: str
+    frame: dict

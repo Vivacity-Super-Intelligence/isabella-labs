@@ -225,6 +225,8 @@ class RoboticsBackend:
 
     def step(self, world, start_time, limits):
         d, m = world.data, world.model
+        if limits.get('cancel_event') and limits['cancel_event'].is_set():
+            return 'cancelled', []
         mj.mj_step(m, d)
         if not np.isfinite(d.qpos).all() or not np.isfinite(d.qvel).all() or np.max(np.abs(d.qvel)) > 100 or np.any(d.warning.number):
             return 'controller_failure', []

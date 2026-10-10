@@ -2,13 +2,15 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 import asyncio
 import os
-from fastapi import FastAPI, Header, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
 from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport
 from .schemas import ImportResponse,ImportPreview
+from .schemas import SessionRequest,SessionResponse,LiveState
 from .imports import ImportService,MAX_UPLOAD
 from pathlib import Path
+from starlette.requests import HTTPConnection
 
 
 def create_app(database=None):
@@ -20,9 +22,29 @@ def create_app(database=None):
         yield
         await asyncio.to_thread(app.state.runtime.close)
 
-    app = FastAPI(title='Vivacity Execution Runtime', version='1.0.0', lifespan=lifespan, description='Measured Panda reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded data-only imports. Single-process demo.')
+    def authorize_request(request:HTTPConnection):
+        if request.scope['type']!='http':return
+        parts=request.url.path.strip('/').split('/')
+        if len(parts)<3 or parts[0]!='v1':return
+        runtime=request.app.state.runtime
+        if parts[1]=='worlds':
+            world_id=parts[2]
+        elif parts[1]=='experiments':
+            world_id=runtime.get_experiment(parts[2])['world_id']
+        else:return
+        try:runtime.supervisor.authorize_world(world_id,request.headers.get('x-session-token'))
+        except PermissionError:raise HTTPException(403,'session capability required')
+
+    app = FastAPI(title='Vivacity Execution Runtime', version='1.0.0', lifespan=lifespan,
+                  dependencies=[Depends(authorize_request)],
+                  description='Measured contact-driven Panda pickup, legacy reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded leased autonomous sessions; data-only imports. Single-process demo.')
     origins = [o.strip() for o in os.getenv('VIVACITY_CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if o.strip()]
-    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key'])
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token'])
+
+    @app.exception_handler(PermissionError)
+    async def permission(request,exc):
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=403,content={'detail':'session capability required'})
 
     @app.exception_handler(KeyError)
     async def missing(request, exc):
@@ -52,6 +74,62 @@ def create_app(database=None):
     @app.get('/health')
     def health():
         return {'status': 'ok', 'schema_version': '1.0', 'backends': {k: b.version for k, b in app.state.runtime.backends.items()}}
+
+    SessionToken=Annotated[str,Header(min_length=32,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
+
+    @app.post('/v1/sessions',response_model=SessionResponse,status_code=201)
+    def create_session(request:SessionRequest,x_session_token:SessionToken):
+        return app.state.runtime.supervisor.create(request,x_session_token)
+
+    @app.get('/v1/sessions/{session_id}',response_model=SessionResponse)
+    def get_session(session_id:str,x_session_token:SessionToken):
+        return app.state.runtime.supervisor.get(session_id,x_session_token)
+
+    @app.post('/v1/sessions/{session_id}/stop',response_model=SessionResponse)
+    def stop_session(session_id:str,x_session_token:SessionToken):
+        return app.state.runtime.supervisor.stop(session_id,x_session_token)
+
+    @app.post('/v1/experiments/{experiment_id}/cancel',response_model=ExperimentResponse)
+    def cancel_experiment(experiment_id:str):
+        return app.state.runtime.cancel(experiment_id)
+
+    @app.get('/v1/experiments/{experiment_id}/live',response_model=LiveState|None)
+    def live_state(experiment_id:str):
+        app.state.runtime.get_experiment(experiment_id)
+        return app.state.runtime.live(experiment_id)
+
+    async def authorize_socket(websocket,eid):
+        origin=websocket.headers.get('origin')
+        if origin and origin not in origins:
+            await websocket.close(code=1008);return False
+        protocols=[p.strip() for p in websocket.headers.get('sec-websocket-protocol','').split(',')]
+        token=next((p[len('vivacity.token.'):] for p in protocols if p.startswith('vivacity.token.')),None)
+        try:
+            e=app.state.runtime.get_experiment(eid)
+            app.state.runtime.supervisor.authorize_world(e['world_id'],token)
+        except (KeyError,PermissionError):
+            await websocket.close(code=1008);return False
+        await websocket.accept(subprotocol='vivacity.live' if 'vivacity.live' in protocols else None)
+        return True
+
+    @app.websocket('/v1/experiments/{experiment_id}/live')
+    async def live_frames(websocket:WebSocket,experiment_id:str):
+        if not await authorize_socket(websocket,experiment_id):return
+        sequence=-1
+        try:
+            while True:
+                # Latest-only backpressure: slow clients receive current measured
+                # state, never an accumulating queue or a recorded replay.
+                frame=app.state.runtime.live(experiment_id)
+                if frame and frame['sequence']>sequence:
+                    await websocket.send_json(LiveState.model_validate(frame).model_dump());sequence=frame['sequence']
+                e=await asyncio.to_thread(app.state.runtime.get_experiment,experiment_id)
+                if e['status'] not in ('queued','running'):
+                    frame=app.state.runtime.live(experiment_id)
+                    if frame and frame['sequence']>sequence:await websocket.send_json(frame)
+                    await websocket.close(code=1000);return
+                await asyncio.sleep(.05)
+        except WebSocketDisconnect:return
 
     @app.post('/v1/imports',response_model=ImportResponse,status_code=201)
     async def import_world(request:Request,filename:str=Query(min_length=1,max_length=180)):
@@ -122,15 +200,7 @@ def create_app(database=None):
 
     @app.websocket('/v1/experiments/{experiment_id}/events')
     async def events(websocket: WebSocket, experiment_id: str, after: int = Query(0, ge=0)):
-        # Same origin policy for browser clients, independent of HTTP CORS middleware.
-        origin = websocket.headers.get('origin')
-        if origin and origin not in origins:
-            await websocket.close(code=1008); return
-        try:
-            app.state.runtime.get_experiment(experiment_id)
-        except KeyError:
-            await websocket.close(code=1008); return
-        await websocket.accept()
+        if not await authorize_socket(websocket,experiment_id):return
         try:
             while True:
                 # Read terminal status first, then drain its atomically persisted event.
@@ -139,9 +209,9 @@ def create_app(database=None):
                 for event in batch:
                     await websocket.send_json(EventResponse.model_validate(event).model_dump())
                     after = event['seq']
-                    if event['kind'] in ('completed', 'failed'):
+                    if event['kind'] in ('completed', 'failed', 'cancelled'):
                         await websocket.close(code=1000); return
-                if not batch and status['status'] in ('completed', 'failed'):
+                if not batch and status['status'] in ('completed', 'failed', 'cancelled'):
                     await websocket.close(code=1000); return
                 await asyncio.sleep(0.1)
         except WebSocketDisconnect:
@@ -152,7 +222,8 @@ def create_app(database=None):
     def openapi():
         if app.openapi_schema is None:
             spec = get_openapi(title=app.title, version=app.version, description=app.description, routes=app.routes)
-            spec['x-websockets'] = {'/v1/experiments/{experiment_id}/events': {'description': 'Persisted progress; reconnect with after=<seq>; closes on terminal event.', 'message_schema': EventResponse.model_json_schema()}}
+            spec['x-websockets'] = {'/v1/experiments/{experiment_id}/events': {'description': 'Persisted progress; reconnect with after=<seq>; closes on terminal event. Session worlds require capability via vivacity.token.<token> WebSocket subprotocol.', 'message_schema': EventResponse.model_json_schema()},
+                                    '/v1/experiments/{experiment_id}/live': {'description':'Latest measured authoritative simulation state, maximum 20 Hz, no replay. Capability subprotocol required for session-owned worlds. Slow clients skip intermediate frames.','message_schema':LiveState.model_json_schema()}}
             app.openapi_schema = spec
         return app.openapi_schema
 

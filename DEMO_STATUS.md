@@ -9,7 +9,7 @@
 
 ## Implemented but not yet verified in the new frontend
 
-Physical pickup adapter and its API configuration. The deployed UI still represents the preceding reach-only/recorded-replay release. No public pickup UI claim is made yet.
+The leased supervisor, session capability isolation, step-boundary cancellation, fresh selected physical execution and latest measured live-state REST/WebSockets are implemented and pass API/runtime checks. Two actual pickup cycles and two different scientific/control cycles recompute successfully. Frontend integration is undergoing full browser acceptance; the deployed UI still represents the preceding release. No public pickup UI claim is made yet.
 
 ## Experimental
 
@@ -17,7 +17,7 @@ Synthetic contact workcell, constrained pre-attached cloth fixture, simplified s
 
 ## Incomplete
 
-Autonomous fresh-world supervisor, selected-plan fresh execution, actual live state streaming, removal of all video controls, current browser acceptance, randomized feasible pickup conditions and obstacle-avoidance detours. Native untrusted import execution remains unavailable; visual import/description staging is retained.
+Complete current browser acceptance/deployment, broad randomized robustness and obstacle-avoidance pickup detours. The new client removes video controls and consumes measured states; production build passes, but the complete browser journey is still being verified. Native untrusted import execution remains unavailable; visual import/description staging is retained.
 
 ## Blocked / operational dependency
 

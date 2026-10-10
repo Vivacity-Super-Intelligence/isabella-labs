@@ -29,6 +29,8 @@ class Store:
                     experiment_id TEXT NOT NULL,
                     PRIMARY KEY(world_id, key)
                 );
+                CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS session_worlds(world_id TEXT PRIMARY KEY, session_id TEXT NOT NULL);
             ''')
 
     @contextmanager
@@ -41,7 +43,7 @@ class Store:
             db.close()
 
     def get(self, table, identifier, db=None):
-        if table not in ('worlds', 'experiments', 'branches'):
+        if table not in ('worlds', 'experiments', 'branches', 'sessions'):
             raise ValueError('invalid table')
         if db is None:
             with self.connect() as connection:
@@ -55,7 +57,7 @@ class Store:
         if db is None:
             with self.connect() as connection:
                 return self.put(table, record, connection)
-        if table in ('worlds', 'experiments'):
+        if table in ('worlds', 'experiments', 'sessions'):
             db.execute(f'INSERT INTO {table}(id,payload) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload', (record['id'], encode(record)))
         elif table == 'branches':
             db.execute('INSERT INTO branches(id,experiment_id,payload) VALUES(?,?,?)', (record['id'], record['experiment_id'], encode(record)))

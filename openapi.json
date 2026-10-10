@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Vivacity Execution Runtime",
-    "description": "Measured Panda reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded data-only imports. Single-process demo.",
+    "description": "Measured contact-driven Panda pickup, legacy reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded leased autonomous sessions; data-only imports. Single-process demo.",
     "version": "1.0.0"
   },
   "paths": {
@@ -16,6 +16,246 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sessions": {
+      "post": {
+        "summary": "Create Session",
+        "operationId": "create_session_v1_sessions_post",
+        "parameters": [
+          {
+            "name": "x-session-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Session-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sessions/{session_id}": {
+      "get": {
+        "summary": "Get Session",
+        "operationId": "get_session_v1_sessions__session_id__get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "x-session-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Session-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sessions/{session_id}/stop": {
+      "post": {
+        "summary": "Stop Session",
+        "operationId": "stop_session_v1_sessions__session_id__stop_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "x-session-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Session-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/cancel": {
+      "post": {
+        "summary": "Cancel Experiment",
+        "operationId": "cancel_experiment_v1_experiments__experiment_id__cancel_post",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Experiment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/live": {
+      "get": {
+        "summary": "Live State",
+        "operationId": "live_state_v1_experiments__experiment_id__live_get",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Experiment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/LiveState"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Live State V1 Experiments  Experiment Id  Live Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -1055,7 +1295,8 @@
               "progress",
               "branch_completed",
               "completed",
-              "failed"
+              "failed",
+              "cancelled"
             ],
             "title": "Kind"
           },
@@ -1076,6 +1317,16 @@
       },
       "ExperimentRequest": {
         "properties": {
+          "execute_selected": {
+            "type": "boolean",
+            "title": "Execute Selected",
+            "default": false
+          },
+          "realtime_execution": {
+            "type": "boolean",
+            "title": "Realtime Execution",
+            "default": false
+          },
           "candidates": {
             "type": "integer",
             "maximum": 5.0,
@@ -1151,7 +1402,8 @@
               "queued",
               "running",
               "completed",
-              "failed"
+              "failed",
+              "cancelled"
             ],
             "title": "Status"
           },
@@ -1353,6 +1605,52 @@
         ],
         "title": "ImportResponse"
       },
+      "LiveState": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.live/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.live/1.0"
+          },
+          "experiment_id": {
+            "type": "string",
+            "title": "Experiment Id"
+          },
+          "world_id": {
+            "type": "string",
+            "title": "World Id"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "timestamp_unix_s": {
+            "type": "number",
+            "title": "Timestamp Unix S"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "frame": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Frame"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "world_id",
+          "sequence",
+          "timestamp_unix_s",
+          "stage",
+          "frame"
+        ],
+        "title": "LiveState"
+      },
       "ReplayResponse": {
         "properties": {
           "schema_version": {
@@ -1400,6 +1698,62 @@
       },
       "RoboticsConfig": {
         "properties": {
+          "task": {
+            "type": "string",
+            "enum": [
+              "reach",
+              "pick_place"
+            ],
+            "title": "Task",
+            "default": "reach"
+          },
+          "obstacle_enabled": {
+            "type": "boolean",
+            "title": "Obstacle Enabled",
+            "default": true
+          },
+          "cube_position": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Cube Position",
+            "default": [
+              0.5,
+              -0.15,
+              0.026
+            ]
+          },
+          "placement_position": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Placement Position",
+            "default": [
+              0.5,
+              0.18,
+              0.026
+            ]
+          },
+          "cube_mass": {
+            "type": "number",
+            "maximum": 0.15,
+            "minimum": 0.02,
+            "title": "Cube Mass",
+            "default": 0.06
+          },
+          "cube_friction": {
+            "type": "number",
+            "maximum": 1.5,
+            "minimum": 0.05,
+            "title": "Cube Friction",
+            "default": 1.0
+          },
           "obstacle_position": {
             "items": {
               "type": "number"
@@ -1523,6 +1877,190 @@
         "additionalProperties": false,
         "type": "object",
         "title": "ScienceConfig"
+      },
+      "SessionRequest": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "backend": {
+            "type": "string",
+            "enum": [
+              "mujoco",
+              "scipy",
+              "cloth"
+            ],
+            "title": "Backend"
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 4294967295.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 7
+          },
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoboticsConfig"
+              },
+              {
+                "$ref": "#/components/schemas/ScienceConfig"
+              },
+              {
+                "$ref": "#/components/schemas/ClothConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config"
+          },
+          "max_cycles": {
+            "type": "integer",
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Max Cycles",
+            "default": 4
+          },
+          "realtime_execution": {
+            "type": "boolean",
+            "title": "Realtime Execution",
+            "default": true
+          },
+          "search_candidates": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Search Candidates",
+            "default": 0
+          },
+          "physics_budget": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 3.0,
+            "title": "Physics Budget",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "backend"
+        ],
+        "title": "SessionRequest"
+      },
+      "SessionResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.session/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.session/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "backend": {
+            "type": "string",
+            "title": "Backend"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "stopping",
+              "stopped",
+              "completed",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "world_id": {
+            "type": "string",
+            "title": "World Id"
+          },
+          "experiment_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experiment Id"
+          },
+          "cycle": {
+            "type": "integer",
+            "title": "Cycle"
+          },
+          "max_cycles": {
+            "type": "integer",
+            "title": "Max Cycles"
+          },
+          "experiments": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Experiments"
+          },
+          "world_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "World Ids"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "started_unix_s": {
+            "type": "number",
+            "title": "Started Unix S"
+          },
+          "last_heartbeat_unix_s": {
+            "type": "number",
+            "title": "Last Heartbeat Unix S"
+          },
+          "conditions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Conditions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "backend",
+          "status",
+          "world_id",
+          "cycle",
+          "max_cycles",
+          "experiments",
+          "world_ids",
+          "started_unix_s",
+          "last_heartbeat_unix_s",
+          "conditions"
+        ],
+        "title": "SessionResponse"
       },
       "StateResponse": {
         "properties": {
@@ -1695,7 +2233,7 @@
   },
   "x-websockets": {
     "/v1/experiments/{experiment_id}/events": {
-      "description": "Persisted progress; reconnect with after=<seq>; closes on terminal event.",
+      "description": "Persisted progress; reconnect with after=<seq>; closes on terminal event. Session worlds require capability via vivacity.token.<token> WebSocket subprotocol.",
       "message_schema": {
         "additionalProperties": false,
         "properties": {
@@ -1717,7 +2255,8 @@
               "progress",
               "branch_completed",
               "completed",
-              "failed"
+              "failed",
+              "cancelled"
             ],
             "title": "Kind",
             "type": "string"
@@ -1734,6 +2273,55 @@
           "details"
         ],
         "title": "EventResponse",
+        "type": "object"
+      }
+    },
+    "/v1/experiments/{experiment_id}/live": {
+      "description": "Latest measured authoritative simulation state, maximum 20 Hz, no replay. Capability subprotocol required for session-owned worlds. Slow clients skip intermediate frames.",
+      "message_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "vivacity.live/1.0",
+            "default": "vivacity.live/1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "experiment_id": {
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "world_id": {
+            "title": "World Id",
+            "type": "string"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "timestamp_unix_s": {
+            "title": "Timestamp Unix S",
+            "type": "number"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "frame": {
+            "additionalProperties": true,
+            "title": "Frame",
+            "type": "object"
+          }
+        },
+        "required": [
+          "experiment_id",
+          "world_id",
+          "sequence",
+          "timestamp_unix_s",
+          "stage",
+          "frame"
+        ],
+        "title": "LiveState",
         "type": "object"
       }
     }

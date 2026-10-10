@@ -161,6 +161,47 @@ class PickPlaceBackend(RoboticsBackend):
                 raise ValueError('stage command outside resource limits')
         world.action = deepcopy(action)
 
+    def search(self, world, settings, emit):
+        """Distinct timed plans; reuse measured kinematics for identical geometry.
+
+        Height templates are screened once. Each proposal varies arm speed and
+        close/release dwell, then receives its own finite/limit/horizon checks.
+        Timing screening cannot prove a frictional grasp: only physics can.
+        """
+        tic=time.perf_counter();templates,_=self.candidates(world,8,settings['planner_iterations'])
+        rng=np.random.default_rng(world.seed);eligible=[];distinct=set();digest=hashlib.sha256()
+        rejected={'kinematic_collision':0,'ik_failure':0,'simulation_horizon':0}
+        total=settings['search_candidates']
+        for i in range(total):
+            action=deepcopy(templates[i%len(templates)])
+            speed=float(rng.uniform(.27,.36));action['speed_rad_s']=speed;action['candidate_index']=i
+            for stage in action['stages']:
+                if stage['duration_s']:
+                    stage['duration_s']=max(.6,float(np.max(np.abs(np.asarray(stage['goal'])-stage['start'])))/speed)
+                if stage['phase']=='close':stage['dwell_s']=float(rng.uniform(.6,.9))
+                if stage['phase']=='release':stage['dwell_s']=float(rng.uniform(.5,.8))
+            duration=sum(s['duration_s']+s['dwell_s'] for s in action['stages'])
+            signature=hashlib.sha256(str(action['stages']).encode()).digest();distinct.add(signature);digest.update(signature)
+            reason=action['screening_rejection']
+            if not reason and duration>=settings['max_simulation_seconds']:reason='simulation_horizon'
+            if reason:rejected[reason]+=1
+            else:eligible.append((duration,i,action))
+            if (i+1)%1000==0 or i+1==total:
+                emit({'stage':'screening','generated':i+1,'screened':i+1,'rejected':sum(rejected.values()),
+                      'screening_passed':len(eligible),'message':f'{i+1:,} distinct timed pickup plans checked; {len(eligible):,} passed screening.'})
+        eligible.sort(key=lambda item:(item[0],item[1]))
+        actions=[item[2] for item in eligible[:settings['physics_budget']]]
+        if not actions:actions=[templates[0]]
+        summary={'generated':total,'distinct_generated':len(distinct),'screened':total,'rejected':sum(rejected.values()),
+                 'screening_passed':len(eligible),'promoted_to_physics':len(actions),
+                 'candidate_catalog_sha256':digest.hexdigest(),'rejection_reasons':rejected,
+                 'kinematic_templates_checked':len(templates),'diagnostic_rollouts':int(not eligible),
+                 'sampling':'seeded lift-height templates and distinct speed/close-dwell/release-dwell commands',
+                 'screening_scope':'actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim',
+                 'ranking_objective':'successful execution, measured duration, placement error, candidate index'}
+        emit(summary|{'stage':'screening_complete','message':f'{len(eligible):,} screened plans eligible; {len(actions)} promoted to actual physics.'})
+        return actions,time.perf_counter()-tic,summary
+
     def simulate(self, world, limits):
         tic = time.perf_counter(); d, m = world.data, world.model
         start_time = float(d.time); trace = [self.observe(world) | {'phase': 'initializing'}]
@@ -173,6 +214,8 @@ class PickPlaceBackend(RoboticsBackend):
                 break
             phase = stage['phase']; duration = stage['duration_s']; total = duration + stage['dwell_s']
             for i in range(int(np.ceil(total / m.opt.timestep))):
+                if limits.get('cancel_event') and limits['cancel_event'].is_set():
+                    failure = 'cancelled'; break
                 alpha = min(1., (i+1) * m.opt.timestep / max(duration, m.opt.timestep))
                 blend = alpha * alpha * (3-2*alpha)
                 d.ctrl[:7] = np.asarray(stage['start']) * (1-blend) + np.asarray(stage['goal']) * blend
@@ -201,6 +244,8 @@ class PickPlaceBackend(RoboticsBackend):
                     trace.append(frame)
                     if limits.get('on_frame'):
                         limits['on_frame'](frame)
+                        if limits.get('realtime'):
+                            time.sleep(max(0., float(d.time-start_time)-(time.perf_counter()-tic)))
                 if failure:
                     break
             evidence = self.contact_evidence(world)
@@ -264,6 +309,9 @@ class RobotAdapter:
 
     def candidates(self, world, count, iterations):
         return self.backend(world.config).candidates(world, count, iterations)
+
+    def search(self, world, settings, emit):
+        return self.pick_place.search(world,settings,emit)
 
     def contacts(self, world):
         return self.backend(world.config).contacts(world)

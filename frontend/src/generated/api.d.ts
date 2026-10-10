@@ -21,6 +21,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Session */
+        post: operations["create_session_v1_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Session */
+        get: operations["get_session_v1_sessions__session_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sessions/{session_id}/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop Session */
+        post: operations["stop_session_v1_sessions__session_id__stop_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/experiments/{experiment_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Experiment */
+        post: operations["cancel_experiment_v1_experiments__experiment_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/experiments/{experiment_id}/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Live State */
+        get: operations["live_state_v1_experiments__experiment_id__live_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/imports": {
         parameters: {
             query?: never;
@@ -457,7 +542,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "queued" | "running" | "planned" | "progress" | "branch_completed" | "completed" | "failed";
+            kind: "queued" | "running" | "planned" | "progress" | "branch_completed" | "completed" | "failed" | "cancelled";
             /** Details */
             details: {
                 [key: string]: unknown;
@@ -465,6 +550,16 @@ export interface components {
         };
         /** ExperimentRequest */
         ExperimentRequest: {
+            /**
+             * Execute Selected
+             * @default false
+             */
+            execute_selected: boolean;
+            /**
+             * Realtime Execution
+             * @default false
+             */
+            realtime_execution: boolean;
             /**
              * Candidates
              * @default 3
@@ -515,7 +610,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "queued" | "running" | "completed" | "failed";
+            status: "queued" | "running" | "completed" | "failed" | "cancelled";
             /** Request */
             request: {
                 [key: string]: unknown;
@@ -604,6 +699,29 @@ export interface components {
             /** Diagnostics */
             diagnostics: string[];
         };
+        /** LiveState */
+        LiveState: {
+            /**
+             * Schema Version
+             * @default vivacity.live/1.0
+             * @constant
+             */
+            schema_version: "vivacity.live/1.0";
+            /** Experiment Id */
+            experiment_id: string;
+            /** World Id */
+            world_id: string;
+            /** Sequence */
+            sequence: number;
+            /** Timestamp Unix S */
+            timestamp_unix_s: number;
+            /** Stage */
+            stage: string;
+            /** Frame */
+            frame: {
+                [key: string]: unknown;
+            };
+        };
         /** ReplayResponse */
         ReplayResponse: {
             /**
@@ -629,6 +747,45 @@ export interface components {
         };
         /** RoboticsConfig */
         RoboticsConfig: {
+            /**
+             * Task
+             * @default reach
+             * @enum {string}
+             */
+            task: "reach" | "pick_place";
+            /**
+             * Obstacle Enabled
+             * @default true
+             */
+            obstacle_enabled: boolean;
+            /**
+             * Cube Position
+             * @default [
+             *       0.5,
+             *       -0.15,
+             *       0.026
+             *     ]
+             */
+            cube_position: number[];
+            /**
+             * Placement Position
+             * @default [
+             *       0.5,
+             *       0.18,
+             *       0.026
+             *     ]
+             */
+            placement_position: number[];
+            /**
+             * Cube Mass
+             * @default 0.06
+             */
+            cube_mass: number;
+            /**
+             * Cube Friction
+             * @default 1
+             */
+            cube_friction: number;
             /**
              * Obstacle Position
              * @default [
@@ -707,6 +864,87 @@ export interface components {
              * @default 0.7
              */
             train_fraction: number;
+        };
+        /** SessionRequest */
+        SessionRequest: {
+            /**
+             * Schema Version
+             * @default 1.0
+             * @constant
+             */
+            schema_version: "1.0";
+            /**
+             * Backend
+             * @enum {string}
+             */
+            backend: "mujoco" | "scipy" | "cloth";
+            /**
+             * Seed
+             * @default 7
+             */
+            seed: number;
+            /** Config */
+            config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"] | null;
+            /**
+             * Max Cycles
+             * @default 4
+             */
+            max_cycles: number;
+            /**
+             * Realtime Execution
+             * @default true
+             */
+            realtime_execution: boolean;
+            /**
+             * Search Candidates
+             * @default 0
+             */
+            search_candidates: number;
+            /**
+             * Physics Budget
+             * @default 3
+             */
+            physics_budget: number;
+        };
+        /** SessionResponse */
+        SessionResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.session/1.0
+             * @constant
+             */
+            schema_version: "vivacity.session/1.0";
+            /** Id */
+            id: string;
+            /** Backend */
+            backend: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "stopping" | "stopped" | "completed" | "failed";
+            /** World Id */
+            world_id: string;
+            /** Experiment Id */
+            experiment_id?: string | null;
+            /** Cycle */
+            cycle: number;
+            /** Max Cycles */
+            max_cycles: number;
+            /** Experiments */
+            experiments: string[];
+            /** World Ids */
+            world_ids: string[];
+            /** Error */
+            error?: string | null;
+            /** Started Unix S */
+            started_unix_s: number;
+            /** Last Heartbeat Unix S */
+            last_heartbeat_unix_s: number;
+            /** Conditions */
+            conditions: {
+                [key: string]: unknown;
+            }[];
         };
         /** StateResponse */
         StateResponse: {
@@ -812,6 +1050,169 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    create_session_v1_sessions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-session-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_session_v1_sessions__session_id__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-session-token": string;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stop_session_v1_sessions__session_id__stop_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-session-token": string;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_experiment_v1_experiments__experiment_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                experiment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExperimentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    live_state_v1_experiments__experiment_id__live_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                experiment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveState"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

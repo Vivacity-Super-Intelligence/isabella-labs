@@ -39,6 +39,8 @@ class Runtime:
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='vivacity-simulation')
         self.capacity = threading.BoundedSemaphore(8)
         self.futures = {}
+        self.cancel_flags = {}
+        self.live_states = {}
         # Single-process local deployment: persisted interrupted jobs cannot be resumed implicitly.
         with self.store.connect() as db:
             records = [json.loads(r[0]) for r in db.execute('SELECT payload FROM experiments')]
@@ -47,8 +49,13 @@ class Runtime:
                     e.update(status='failed', error='worker_interrupted_by_restart')
                     self.store.put('experiments', e, db)
                     self.store.event(e['id'], 'failed', {'error': e['error']}, db)
+        from .supervisor import Supervisor
+        self.supervisor = Supervisor(self)
 
     def close(self):
+        self.supervisor.close()
+        for flag in list(self.cancel_flags.values()):
+            flag.set()
         self.executor.shutdown(wait=True)
 
     def create_world(self, request):
@@ -107,6 +114,7 @@ class Runtime:
                 eid = uid()
                 e = {'schema_version': '1.0', 'id': eid, 'world_id': world_id, 'revision': w['revision'], 'status': 'queued', 'request': request.model_dump(), 'selected_branch_id': None, 'result': {}, 'performance': {}, 'error': None, 'stale': False, 'snapshot': deepcopy(w['state']), 'config': w['config'], 'backend': w['backend'], 'submitted_at': time.time()}
                 self.store.put('experiments', e, db)
+                self.cancel_flags[eid] = threading.Event()
                 self.store.event(eid, 'queued', db=db)
                 if idempotency_key is not None:
                     db.execute('INSERT INTO submissions(world_id,key,fingerprint,experiment_id) VALUES(?,?,?,?)', (world_id, idempotency_key, fingerprint, eid))
@@ -125,6 +133,7 @@ class Runtime:
             def finished(_):
                 with self.lock:
                     self.futures.pop(eid, None)
+                    self.cancel_flags.pop(eid, None)
             future.add_done_callback(finished)
             reserved = False  # The worker wrapper now owns the reserved queue slot.
             return self.get_experiment(eid)
@@ -142,21 +151,27 @@ class Runtime:
 
     def get_experiment(self, eid):
         e = self.store.get('experiments', eid)
-        e['stale'] = self.get_world(e['world_id'])['revision'] != e['revision']
+        e['stale'] = self.get_world(e['world_id'])['revision'] != e.get('result',{}).get('executed_world_revision',e['revision'])
         return {k: v for k, v in e.items() if k not in ('snapshot', 'config', 'backend', 'submitted_at')}
 
     def _execute(self, eid):
         wall, cpu = time.perf_counter(), time.process_time()
         e = self.store.get('experiments', eid)
+        cancellation = self.cancel_flags.get(eid, threading.Event())
         try:
+            if cancellation.is_set():
+                raise InterruptedError('cancelled before execution')
             e['status'] = 'running'
             self.store.put('experiments', e); self.store.event(eid, 'running')
             backend = self.backends[e['backend']]
             instance = backend.fork(e['snapshot'])
+            self.publish_live(eid, e['world_id'], 'observing', backend.observe(instance))
             policy = HostedPolicy() if e['request']['policy'] == 'llm' else DeterministicPolicy()
             settings, reasoning = policy.propose(backend.observe(instance), backend.action_schema, e['request'])
             search = None
-            if e['backend']=='mujoco' and instance.config.get('task') != 'pick_place' and settings.get('search_candidates',0):
+            if e['backend']=='mujoco' and instance.config.get('task') == 'pick_place' and settings.get('search_candidates',0):
+                actions,planning_time,search=backend.search(instance,settings,lambda detail:self.store.event(eid,'progress',detail))
+            elif e['backend']=='mujoco' and settings.get('search_candidates',0):
                 from .search import search_reaches
                 actions, planning_time, search = search_reaches(backend,instance,settings,lambda detail:self.store.event(eid,'progress',detail))
             elif e['backend']=='cloth' and settings.get('search_candidates',0):
@@ -166,7 +181,9 @@ class Runtime:
             self.store.event(eid, 'planned', {'candidate_count': len(actions), 'planning_wall_seconds': planning_time})
             branches = []
             reference = f"{e['world_id']}:{e['revision']}:{hashlib.sha256(encode(e['snapshot']).encode()).hexdigest()}"
-            def execute_action(action, run_settings):
+            def execute_action(action, run_settings, role='validation'):
+                if cancellation.is_set():
+                    raise InterruptedError('cancelled between branches')
                 branch_wall = time.perf_counter()
                 branch_instance = None
                 recorded_action = deepcopy(action)
@@ -176,7 +193,12 @@ class Runtime:
                     phase = 'apply_action'
                     self.apply_action(e['backend'], branch_instance, action)
                     phase = 'simulate'
-                    result = self.simulate(e['backend'], branch_instance, run_settings)
+                    execution_settings = run_settings | {'cancel_event': cancellation}
+                    if role == 'authoritative_execution':
+                        execution_settings |= {'on_frame': lambda frame:self.publish_live(eid,e['world_id'],'executing',frame),
+                                               'realtime': settings.get('realtime_execution',False)}
+                        self.store.event(eid,'progress',{'stage':'executing','message':'Executing the selected action again in an independent authoritative simulator; these are live physics states.'})
+                    result = self.simulate(e['backend'], branch_instance, execution_settings)
                     recorded_action = result.get('executed_action', recorded_action)
                     phase = 'evaluate'
                     evaluation = self.evaluate(e['backend'], branch_instance, result)
@@ -199,7 +221,7 @@ class Runtime:
                     trace = []
                     evaluation = {'success': False, 'status': 'adapter_failure', 'phase': phase, 'error_type': type(exc).__name__, 'trace_available': False, 'final_state_available': final_state is not None}
                     performance = {'wall_seconds': time.perf_counter()-branch_wall, 'physics_wall_seconds': None, 'simulation_steps': None, 'integration_calls': None, 'measurement_complete': False}
-                branch = {'schema_version': '1.0', 'id': uid(), 'experiment_id': eid, 'parent_state_reference': reference, 'initial_state': deepcopy(e['snapshot']), 'action': deepcopy(recorded_action), 'trace': trace, 'final_state': final_state, 'evaluation': evaluation, 'performance': performance}
+                branch = {'schema_version': '1.0', 'id': uid(), 'experiment_id': eid, 'parent_state_reference': reference, 'initial_state': deepcopy(e['snapshot']), 'action': deepcopy(recorded_action) | {'execution_role':role}, 'trace': trace, 'final_state': final_state, 'evaluation': evaluation, 'performance': performance}
                 # Persist evidence and lineage together, even if a later branch/job fails.
                 with self.lock, self.store.connect() as db:
                     db.execute('BEGIN IMMEDIATE')
@@ -210,11 +232,14 @@ class Runtime:
                     self.store.put('branches', branch, db)
                     self.store.event(eid, 'branch_completed', {'branch_id': branch['id'], 'evaluation': evaluation}, db)
                 branches.append(branch)
-                if search is not None:
+                if search is not None and role=='validation':
                     integrated=sum(bool((b['performance']['simulation_steps'] or 0)+(b['performance']['integration_calls'] or 0)) for b in branches)
                     self.store.event(eid,'progress',{'stage':'physics','fully_simulated':integrated,'physics_attempts':len(branches),'physics_target':len(actions),'verified_feasible':sum(b['evaluation']['success'] for b in branches),'elapsed_seconds':time.perf_counter()-wall,'message':f"Validation {len(branches)} / {len(actions)}; {integrated} integrated rollouts; {sum(b['evaluation']['success'] for b in branches)} verified feasible."})
+                return branch
             for action in actions:
                 execute_action(action, settings)
+            if cancellation.is_set():
+                raise InterruptedError('cancelled after current branch')
             # Choose additional tool work from measured outcomes, with one bounded retry.
             followup = None if search is not None else DeterministicPolicy().next_experiment(e['backend'], backend.observe(instance), branches, settings)
             if followup:
@@ -236,22 +261,49 @@ class Runtime:
             else:
                 selected, conclusion = backend.choose(branches)
             e.update(status='completed', selected_branch_id=selected, result=conclusion | {'policy': reasoning, 'executed_settings': settings, 'followup_settings': followup})
+            validation_branches = list(branches)
             if search is not None:
                 integrated=lambda b:bool((b['performance']['simulation_steps'] or 0)+(b['performance']['integration_calls'] or 0)) and b['performance']['measurement_complete']
                 search.update(fully_simulated=sum(integrated(b) for b in branches),physics_attempts=len(branches),planning_failed=sum(b['evaluation']['status']=='planning_failure' for b in branches),verified_feasible=sum(b['evaluation']['success'] for b in branches),physics_rejected=sum(not b['evaluation']['success'] and integrated(b) for b in branches))
                 e['result']['search']=search
+            if selected and settings.get('execute_selected'):
+                winner = next(b for b in validation_branches if b['id']==selected)
+                executed = execute_action(winner['action'],settings,role='authoritative_execution')
+                if cancellation.is_set():
+                    raise InterruptedError('cancelled during authoritative execution')
+                e['result']['execution_branch_id']=executed['id']
+                e['result']['execution_evaluation']=executed['evaluation']
+                # A successful validation never hides a failed live execution.
+                if executed['evaluation']['success']:
+                    with self.lock, self.store.connect() as db:
+                        current = self.store.get('worlds',e['world_id'],db)
+                        if current['revision'] != e['revision']:
+                            raise Conflict('environment changed during authoritative execution')
+                        current['state']=backend.commit(executed['final_state']);current['revision']+=1
+                        self.store.put('worlds',current,db)
+                        e['result']['executed_world_revision']=current['revision']
+                    self.publish_live(eid,e['world_id'],'verified',executed['trace'][-1])
+                    self.store.event(eid,'progress',{'stage':'task_verified','evaluation':executed['evaluation'],
+                                                   'message':'Fresh authoritative execution verified and persisted.'})
+                else:
+                    e['result']['conclusion']='The selected validation passed, but the fresh authoritative execution failed.'
             adapter_errors = sum(b['evaluation']['status'] == 'adapter_failure' for b in branches)
             if adapter_errors == len(branches):
                 e.update(status='failed', error='all_branches_failed:adapter_failure')
-            e['stale'] = self.get_world(e['world_id'])['revision'] != e['revision']
+            e['stale'] = self.get_world(e['world_id'])['revision'] != e['result'].get('executed_world_revision',e['revision'])
             replay = self._replay(e, branches)
             e['performance'] = {'job_wall_seconds': time.perf_counter()-wall, 'process_cpu_seconds': time.process_time()-cpu, 'queue_wait_seconds': max(0., time.time()-e['submitted_at']-(time.perf_counter()-wall)), 'planning_wall_seconds': planning_time+sum(b['performance'].get('ik_planning_seconds',0) for b in branches), 'physics_wall_seconds': sum(b['performance']['physics_wall_seconds'] or 0 for b in branches), 'candidate_count': len(branches), 'simulation_steps': sum(b['performance']['simulation_steps'] or 0 for b in branches), 'integration_calls': sum(b['performance']['integration_calls'] or 0 for b in branches), 'replay_payload_bytes': len(encode(replay).encode()), 'branch_failure_rate': sum(not b['evaluation']['success'] for b in branches)/len(branches), 'adapter_error_count': adapter_errors, 'measurement_complete': adapter_errors == 0, 'job_error_rate': float(adapter_errors > 0), 'compute': 'local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy'}
             with self.lock, self.store.connect() as db:
                 w = self.store.get('worlds', e['world_id'], db)
-                e['stale'] = w['revision'] != e['revision']
+                e['stale'] = w['revision'] != e['result'].get('executed_world_revision',e['revision'])
                 self.store.put('experiments', e, db)
                 terminal = 'failed' if e['status'] == 'failed' else 'completed'
                 self.store.event(eid, terminal, {'selected_branch_id': selected, 'stale': e['stale'], 'adapter_error_count': adapter_errors, 'error': e['error']}, db)
+        except InterruptedError:
+            e.update(status='cancelled',error=None)
+            with self.store.connect() as db:
+                self.store.put('experiments',e,db)
+                self.store.event(eid,'cancelled',{'message':'Cancelled at a safe simulation boundary; completed branch evidence is retained.'},db)
         except Exception as exc:
             log.exception('experiment %s failed', eid)
             # Provider responses and keys are never persisted or logged.
@@ -260,6 +312,28 @@ class Runtime:
             with self.store.connect() as db:
                 self.store.put('experiments', e, db)
                 self.store.event(eid, 'failed', {'error': e['error']}, db)
+
+    def cancel(self, eid):
+        self.get_experiment(eid)
+        with self.lock:
+            flag = self.cancel_flags.get(eid)
+            if flag:
+                flag.set()
+        return self.get_experiment(eid)
+
+    def publish_live(self, eid, world_id, stage, frame):
+        with self.lock:
+            prior = self.live_states.get(eid)
+            self.live_states[eid] = {'schema_version':'vivacity.live/1.0','experiment_id':eid,
+                                    'world_id':world_id,'sequence':prior['sequence']+1 if prior else 0,
+                                    'timestamp_unix_s':time.time(),'stage':stage,'frame':deepcopy(frame)}
+            # One frame per job, with a hard cap. Completed histories live in SQLite.
+            if len(self.live_states)>32:
+                self.live_states.pop(next(iter(self.live_states)))
+
+    def live(self, eid):
+        with self.lock:
+            return deepcopy(self.live_states.get(eid))
 
     def _run_reserved(self, eid):
         # Release before the Future completes, so waiters can immediately reuse capacity.
@@ -309,7 +383,7 @@ class Runtime:
 
     def replay(self, eid):
         e = self.store.get('experiments', eid)
-        e['stale'] = self.get_world(e['world_id'])['revision'] != e['revision']
+        e['stale'] = self.get_world(e['world_id'])['revision'] != e.get('result',{}).get('executed_world_revision',e['revision'])
         return self._replay(e, self.store.branches(eid))
 
     def export_branch(self, eid, bid):

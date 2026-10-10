@@ -137,6 +137,7 @@ class ClothBackend(LegacyClothBackend):
         initial_q=d.qpos[:7].copy();duration=a['motion_seconds']+2.
         if not a['planning_feasible'] or not np.all(d.eq_active[world.grasp_ids]):failure='planning_failure'
         while failure is None and d.time-start<duration:
+            if limits.get('cancel_event') and limits['cancel_event'].is_set():failure='cancelled';break
             t=float(d.time-start)
             d.ctrl[:7]=[np.interp(t,a['waypoint_times'],np.asarray(a['joint_waypoints'])[:,j]) for j in range(7)]
             if t>=a['motion_seconds']:d.eq_active[world.grasp_ids]=0
@@ -158,7 +159,11 @@ class ClothBackend(LegacyClothBackend):
             elif np.any(d.qpos[:7]<m.jnt_range[:7,0]) or np.any(d.qpos[:7]>m.jnt_range[:7,1]):failure='joint_limit_failure'
             elif tracking>.35:failure='controller_failure'
             elif d.time-start>=limits['max_simulation_seconds']:failure='timeout'
-            if steps%25==0 or failure:trace.append(self.observe(world))
+            if steps%25==0 or failure:
+                frame=self.observe(world);trace.append(frame)
+                if limits.get('on_frame'):
+                    limits['on_frame'](frame)
+                    if limits.get('realtime'):time.sleep(max(0.,float(d.time-start)-(time.perf_counter()-tic)))
         trace.append(self.observe(world))
         return {'trace':trace,'failure':failure,'grasp_validated':steps>0 and failure!='planning_failure','grasp_constraint_error_m':grasp_error,'maximum_contact_penetration_m':max_penetration,'contact_violations':violations,'simulation_steps':steps,'execution_duration_s':float(d.time-start),'physics_wall_seconds':time.perf_counter()-tic,'robot_joint_displacement_rad':float(np.linalg.norm(d.qpos[:7]-initial_q)),'maximum_joint_tracking_error_rad':tracking,'ik_planning_seconds':a['ik_planning_seconds'],'executed_action':deepcopy(a)}
 
