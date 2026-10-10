@@ -1,0 +1,678 @@
+{
+  "url": "https://demo.tryvivacity.com/",
+  "api": "https://rid-buffalo-bluetooth-profit.trycloudflare.com",
+  "started_unix_s": 1791664476.142,
+  "checks": [
+    "two_fresh_pickup_cycles",
+    "5000_real_distinct_timed_candidates_per_cycle",
+    "three_validation_rollouts_plus_fresh_execution",
+    "exact_live_body_poses",
+    "selection_does_not_replay",
+    "three_parsed_exports",
+    "keyboard_camera",
+    "no_video_controls",
+    "one_inspector",
+    "obstacle_change_invalidates_results_and_replay",
+    "honest_all_paths_fail_ui",
+    "clear_route_computes_new_success",
+    "fresh_scipy_fits_and_heldout_metrics",
+    "unseen_mass_and_control_select_different_models",
+    "no_hidden_truth",
+    "computed_planar_science_geometry",
+    "fresh_actuated_cloth_execution_and_exact_vertices",
+    "bounded_real_visual_import"
+  ],
+  "errors": [],
+  "sessions": [
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "9226db6a-6742-48b2-8f93-cc03861cd781",
+      "backend": "mujoco",
+      "status": "completed",
+      "world_id": "47b81d14-5da7-41a8-a951-fb70493106b2",
+      "experiment_id": "62154644-519e-4454-889b-455e653f92e8",
+      "cycle": 2,
+      "max_cycles": 2,
+      "experiments": [
+        "f8f938ba-00e4-4d14-a769-a30fc76ee811",
+        "62154644-519e-4454-889b-455e653f92e8"
+      ],
+      "world_ids": [
+        "9e1d28b9-feaa-4e21-9040-b4e28edddcf5",
+        "47b81d14-5da7-41a8-a951-fb70493106b2"
+      ],
+      "error": null,
+      "started_unix_s": 1791664492.2813277,
+      "last_heartbeat_unix_s": 1791664706.7409735,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "9e1d28b9-feaa-4e21-9040-b4e28edddcf5",
+          "configuration_sha256": "97e003b44330a80fb342fc2e2fe8b1cc6662d16a3c4828be38c3cffd6a03c610"
+        },
+        {
+          "cycle": 2,
+          "seed": 8,
+          "world_id": "47b81d14-5da7-41a8-a951-fb70493106b2",
+          "configuration_sha256": "2bf00585d8aba63f7349d5741c7a0c1eb652565c557a287025b124f459a31727"
+        }
+      ]
+    },
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "564caea7-5601-4900-8ccc-cb90c2ed5f82",
+      "backend": "mujoco",
+      "status": "completed",
+      "world_id": "7991668e-4f23-47b3-8c5b-e407f81ba1b1",
+      "experiment_id": "845fa2e4-d415-4696-8fa9-fbd192e71e8b",
+      "cycle": 1,
+      "max_cycles": 1,
+      "experiments": [
+        "845fa2e4-d415-4696-8fa9-fbd192e71e8b"
+      ],
+      "world_ids": [
+        "7991668e-4f23-47b3-8c5b-e407f81ba1b1"
+      ],
+      "error": null,
+      "started_unix_s": 1791664728.289579,
+      "last_heartbeat_unix_s": 1791664733.9762797,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "7991668e-4f23-47b3-8c5b-e407f81ba1b1",
+          "configuration_sha256": "8a19dbddcfae76cb5cdd85cf9790a1c98c72bbfdd4c440e746a1a59e029946fe"
+        }
+      ]
+    },
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "18b84dc9-5fee-4a98-ba55-090b07dadcb9",
+      "backend": "mujoco",
+      "status": "completed",
+      "world_id": "654c8226-63b8-4ed1-94bd-71d40a24bec8",
+      "experiment_id": "f2a00d59-dee9-48eb-ac2d-c5508867fa05",
+      "cycle": 1,
+      "max_cycles": 1,
+      "experiments": [
+        "f2a00d59-dee9-48eb-ac2d-c5508867fa05"
+      ],
+      "world_ids": [
+        "654c8226-63b8-4ed1-94bd-71d40a24bec8"
+      ],
+      "error": null,
+      "started_unix_s": 1791664738.6301768,
+      "last_heartbeat_unix_s": 1791664849.647875,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "654c8226-63b8-4ed1-94bd-71d40a24bec8",
+          "configuration_sha256": "ee4ed4c9c3bbc5eaab5a4970207573b5a2e957ea0d1ff620a3a93104e9cc673c"
+        }
+      ]
+    },
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "7a1db733-c7a3-4a00-bdbc-e2e1359549a1",
+      "backend": "scipy",
+      "status": "completed",
+      "world_id": "8b3055ec-bab8-4ac9-acd1-69ff8ce8cc6a",
+      "experiment_id": "2a2f5406-fce9-4269-8730-aefd1b90cfd3",
+      "cycle": 2,
+      "max_cycles": 2,
+      "experiments": [
+        "f94f1770-09bb-44c3-94f7-b2105ae0d707",
+        "2a2f5406-fce9-4269-8730-aefd1b90cfd3"
+      ],
+      "world_ids": [
+        "e0ac0f35-1a90-41f1-b8d1-6a8e448f000f",
+        "8b3055ec-bab8-4ac9-acd1-69ff8ce8cc6a"
+      ],
+      "error": null,
+      "started_unix_s": 1791664855.6895144,
+      "last_heartbeat_unix_s": 1791664861.517695,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "e0ac0f35-1a90-41f1-b8d1-6a8e448f000f",
+          "configuration_sha256": "e926b72659cc590e4f1eca439acd845beae95729bfc8252c0940bc37504f6e68"
+        },
+        {
+          "cycle": 2,
+          "seed": 8,
+          "world_id": "8b3055ec-bab8-4ac9-acd1-69ff8ce8cc6a",
+          "configuration_sha256": "c463082b75f14fca85db64a6226d75d67b1cfe7237d31d6304b4ea4bc5290932"
+        }
+      ]
+    },
+    {
+      "schema_version": "vivacity.session/1.0",
+      "id": "14749861-5f06-454e-9361-baa39f03d4d4",
+      "backend": "cloth",
+      "status": "completed",
+      "world_id": "453b35a4-09d9-4b1f-84ba-e9634cc2e8d7",
+      "experiment_id": "93bef14e-02a4-4691-a695-d56368b7f2bf",
+      "cycle": 1,
+      "max_cycles": 1,
+      "experiments": [
+        "93bef14e-02a4-4691-a695-d56368b7f2bf"
+      ],
+      "world_ids": [
+        "453b35a4-09d9-4b1f-84ba-e9634cc2e8d7"
+      ],
+      "error": null,
+      "started_unix_s": 1791664866.0042157,
+      "last_heartbeat_unix_s": 1791664978.8563247,
+      "conditions": [
+        {
+          "cycle": 1,
+          "seed": 7,
+          "world_id": "453b35a4-09d9-4b1f-84ba-e9634cc2e8d7",
+          "configuration_sha256": "04d6afcb0b5007dc4958b10f2ec7e0622509347bd46f34698838ddae17880102"
+        }
+      ]
+    }
+  ],
+  "state_messages": 666,
+  "event_messages": 89,
+  "event_message_examples": {
+    "queued": {
+      "schema_version": "1.0",
+      "seq": 565,
+      "kind": "queued",
+      "details": {
+        "timestamp_unix_s": 1791664492.4706864
+      }
+    },
+    "progress": {
+      "schema_version": "1.0",
+      "seq": 566,
+      "kind": "progress",
+      "details": {
+        "timestamp_unix_s": 1791664493.0171735,
+        "stage": "next_experiment_started",
+        "cycle": 1,
+        "seed": 7,
+        "message": "Fresh autonomous experiment 1; recorded seed 7."
+      }
+    },
+    "running": {
+      "schema_version": "1.0",
+      "seq": 567,
+      "kind": "running",
+      "details": {
+        "timestamp_unix_s": 1791664493.2103975
+      }
+    },
+    "planned": {
+      "schema_version": "1.0",
+      "seq": 574,
+      "kind": "planned",
+      "details": {
+        "timestamp_unix_s": 1791664496.6177845,
+        "candidate_count": 3,
+        "planning_wall_seconds": 3.0767933999995876
+      }
+    },
+    "branch_completed": {
+      "schema_version": "1.0",
+      "seq": 575,
+      "kind": "branch_completed",
+      "details": {
+        "timestamp_unix_s": 1791664502.697767,
+        "branch_id": "a1f3d09c-d998-4aee-bd80-bc40827e0e14",
+        "evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "milestone": "physical_pick_and_place",
+          "planning_feasible": true,
+          "goal_error_m": 0.0016582817994905328,
+          "final_cube_position": [
+            0.5012909826132809,
+            0.1799436952400361,
+            0.024960725160155663
+          ],
+          "grasp_established": true,
+          "lifted": true,
+          "retained_during_transport": true,
+          "released": true,
+          "table_supported": true,
+          "max_cube_height_m": 0.15715788694989152,
+          "max_tracking_error_rad": 0.052895480356762586,
+          "contact_violations": [],
+          "phase_evidence": [
+            {
+              "phase": "approach",
+              "time": 3.7959999999998035,
+              "cube_position": [
+                0.5,
+                -0.15,
+                0.024960725160728718
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5885999998431172,
+              "table_support": true
+            },
+            {
+              "phase": "descend",
+              "time": 4.975999999999674,
+              "cube_position": [
+                0.5,
+                -0.15,
+                0.02496072516074728
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.588599999523179,
+              "table_support": true
+            },
+            {
+              "phase": "close",
+              "time": 5.5979999999996055,
+              "cube_position": [
+                0.5000408332050565,
+                -0.15001217876766684,
+                0.024919177917224925
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 3.7056405746619046,
+              "table_support": true
+            },
+            {
+              "phase": "lift",
+              "time": 6.7779999999994756,
+              "cube_position": [
+                0.5003771458135906,
+                -0.15000071123273143,
+                0.15695583860577483
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4975214959841443,
+              "table_support": false
+            },
+            {
+              "phase": "transport",
+              "time": 8.995999999999674,
+              "cube_position": [
+                0.5010510541207381,
+                0.17982302342676584,
+                0.1570515113043307
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4957106246866143,
+              "table_support": false
+            },
+            {
+              "phase": "lower",
+              "time": 10.158000000000062,
+              "cube_position": [
+                0.501359952065819,
+                0.17995757886416053,
+                0.02493522940791617
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 4.160896924410858,
+              "table_support": true
+            },
+            {
+              "phase": "release",
+              "time": 10.768000000000265,
+              "cube_position": [
+                0.5012909825621856,
+                0.17994369523880316,
+                0.024960725160155663
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886,
+              "table_support": true
+            },
+            {
+              "phase": "retract",
+              "time": 12.328000000000786,
+              "cube_position": [
+                0.5012909826132809,
+                0.1799436952400361,
+                0.024960725160155663
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886,
+              "table_support": true
+            }
+          ],
+          "execution_duration_s": 12.328000000000786
+        }
+      }
+    },
+    "completed": {
+      "schema_version": "1.0",
+      "seq": 584,
+      "kind": "completed",
+      "details": {
+        "timestamp_unix_s": 1791664597.3819609,
+        "selected_branch_id": "a1f3d09c-d998-4aee-bd80-bc40827e0e14",
+        "stale": false,
+        "adapter_error_count": 0,
+        "error": null
+      }
+    }
+  },
+  "live_message_example": {
+    "schema_version": "vivacity.live/1.0",
+    "experiment_id": "f8f938ba-00e4-4d14-a769-a30fc76ee811",
+    "world_id": "9e1d28b9-feaa-4e21-9040-b4e28edddcf5",
+    "sequence": 2,
+    "timestamp_unix_s": 1791664513.0516388,
+    "stage": "executing",
+    "frame": {
+      "time": 0.10000000000000007,
+      "qpos": [
+        -0.00009504219940700766,
+        0.00007223270471622999,
+        -0.00007065158986444712,
+        -1.5712515945690462,
+        0.000025079662663221955,
+        1.5713851869508546,
+        -0.7844807439427433,
+        0.04000028115653342,
+        0.03999972035470776,
+        0.5,
+        -0.15,
+        0.024949770745625887,
+        1,
+        0,
+        0,
+        0
+      ],
+      "qvel": [
+        -0.0026975515176175025,
+        0.0023547934851201563,
+        -0.0020760546048624044,
+        -0.012789702210392915,
+        0.0006417692143536368,
+        0.0160606460456074,
+        0.02217548996195155,
+        0.0000018812003522128963,
+        -0.0000018079554180511347,
+        0,
+        0,
+        0.0006184043850471179,
+        0,
+        0,
+        0
+      ],
+      "ctrl": [
+        -0.0003889103373308379,
+        0.00039146386718360025,
+        -0.00031106033812171286,
+        -1.572583582663028,
+        0.00008118592833466775,
+        1.5729711743648165,
+        -0.7822760304381337,
+        255
+      ],
+      "end_effector": [
+        0.55457916930794,
+        -0.00008662393510897555,
+        0.5212968684379172
+      ],
+      "body_transforms": [
+        {
+          "name": "link0",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "quaternion_wxyz": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "link1",
+          "position": [
+            0,
+            0,
+            0.333
+          ],
+          "quaternion_wxyz": [
+            0.9999999988708725,
+            0,
+            0,
+            -0.00004752109968561804
+          ]
+        },
+        {
+          "name": "link2",
+          "position": [
+            0,
+            0,
+            0.333
+          ],
+          "quaternion_wxyz": [
+            0.7071067811405615,
+            -0.7071067787133626,
+            0.00005914060944498516,
+            -0.000008064374185468908
+          ]
+        },
+        {
+          "name": "link3",
+          "position": [
+            0.000022825534567387977,
+            -2.169389032317276e-9,
+            0.648999999175625
+          ],
+          "quaternion_wxyz": [
+            0.9999999959160005,
+            4.4044992157413744e-10,
+            0.000036116352347577626,
+            -0.00008284689448692358
+          ]
+        },
+        {
+          "name": "link4",
+          "position": [
+            0.08252282418684759,
+            -0.000013671906920922779,
+            0.6489940399775059
+          ],
+          "quaternion_wxyz": [
+            0.4998266726795301,
+            0.4999095388709806,
+            0.5000904422143315,
+            -0.5001732698073613
+          ]
+        },
+        {
+          "name": "link5",
+          "position": [
+            0.46656628427724717,
+            -0.00007730510358669449,
+            0.7312914683249938
+          ],
+          "quaternion_wxyz": [
+            0.7069202552639666,
+            0.00006746458400484865,
+            0.7072932529549825,
+            -0.00004970329193899164
+          ]
+        },
+        {
+          "name": "link6",
+          "position": [
+            0.46656628427724717,
+            -0.00007730510358669449,
+            0.7312914683249938
+          ],
+          "quaternion_wxyz": [
+            0.707097914974355,
+            0.7071156417679046,
+            -0.00008028120648156944,
+            -0.000036891893842205814
+          ]
+        },
+        {
+          "name": "link7",
+          "position": [
+            0.5545662829033764,
+            -0.00009188745652497212,
+            0.7312968679765741
+          ],
+          "quaternion_wxyz": [
+            1.4527472712309636e-7,
+            0.9240866439362312,
+            0.3821830365155378,
+            0.00003314234037734912
+          ]
+        },
+        {
+          "name": "hand",
+          "position": [
+            0.5545728488333207,
+            -0.00008920556704158339,
+            0.6242968682116394
+          ],
+          "quaternion_wxyz": [
+            0.00001281724038555257,
+            0.7074896327335862,
+            0.7067237214612647,
+            0.0000305639359267318
+          ]
+        },
+        {
+          "name": "left_finger",
+          "position": [
+            0.5945766900973538,
+            -0.00013106862011116744,
+            0.5658993218230407
+          ],
+          "quaternion_wxyz": [
+            0.00001281724038555257,
+            0.7074896327335862,
+            0.7067237214612647,
+            0.0000305639359267318
+          ]
+        },
+        {
+          "name": "right_finger",
+          "position": [
+            0.5145767356662738,
+            -0.000044415600928810145,
+            0.5658944148912306
+          ],
+          "quaternion_wxyz": [
+            -0.0000305639359267318,
+            0.7067237214612647,
+            -0.7074896327335862,
+            0.00001281724038555257
+          ]
+        },
+        {
+          "name": "target",
+          "position": [
+            0.5,
+            -0.15,
+            0.024949770745625887
+          ],
+          "quaternion_wxyz": [
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "obstacle",
+          "position": [
+            0.75,
+            -0.4,
+            0.22
+          ],
+          "quaternion_wxyz": [
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "target_pose": {
+        "position": [
+          0.55,
+          0.28,
+          0.22
+        ],
+        "rotation_matrix": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ]
+      },
+      "contacts": [],
+      "cube_position": [
+        0.5,
+        -0.15,
+        0.024949770745625887
+      ],
+      "cube_quaternion_wxyz": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "placement_position": [
+        0.5,
+        0.18,
+        0.026
+      ],
+      "grasp": {
+        "finger_contacts": [],
+        "bilateral_grasp": false,
+        "cube_contact_normal_force_n": 0.5867152411715584,
+        "table_support": true
+      },
+      "source": "live_mujoco_state",
+      "phase": "approach"
+    }
+  },
+  "axe_violations": [],
+  "status": "passed",
+  "finished_unix_s": 1791664983.883
+}

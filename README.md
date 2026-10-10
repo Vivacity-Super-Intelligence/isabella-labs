@@ -1,94 +1,66 @@
-# Vivacity execution runtime
+# Vivacity — Viva Physics
 
-## Current V2 release
+The investor workspace executes real MuJoCo robot/cloth dynamics and SciPy orbital model comparisons through one persisted simulation runtime. The React frontend runs bounded autonomous sessions, validates independent alternatives, and streams a **fresh selected physical execution**. It does not substitute prerecorded playback, scripted mesh attachment or canned numerical results.
 
-The V2 workspace adds genuine 5,000-candidate screening, separately counted physics shortlists, three measured result cards with automatic recorded replay and JSON exports, solver-derived discovery in a 3D viewer, a constrained MuJoCo flex fold, and bounded static GLB/glTF import previews. Panda Object Pickup remains **reach-only**; imported MJCF/URDF is inspected and staged, never executed.
+Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. The API currently uses a temporary tunnel to this machine; independent durable hosting is blocked by the expired Railway trial. See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
-Start with [DEMO_V2_STATUS.md](DEMO_V2_STATUS.md), [DEMO_V2_TEST_RESULTS.md](DEMO_V2_TEST_RESULTS.md), [DEMO_V2_LIMITATIONS.md](DEMO_V2_LIMITATIONS.md), and [FRONTEND_HANDOFF.md](FRONTEND_HANDOFF.md). These supersede older feature descriptions and measurements below. The current suite contains 84 backend tests and eight browser journeys. The Vercel frontend uses a temporary API tunnel dependent on this computer; it is not independent production hosting.
+## Verified scope
 
-A local investor application for measured alternative futures. The React/TypeScript workspace renders the real Franka Panda geometry and measured MuJoCo replay, and charts executed SciPy orbital model comparisons. Both labs use the same observe → snapshot → fork → action → simulate → evaluate → commit → replay cycle. The existing Python physics infrastructure is preserved.
+- Contact-driven Panda cube grasp, lift, retention, transport, release and table placement; a fixed benchmark completed **20/20 real executions**. Full integration-state branching, measured failures and deterministic re-execution are tested.
+- Genuine 5,000-proposal timing/geometry screening, separately counted physics validation, actual top-three ranking and JSON evidence exports. Screening is not 5,000 physics episodes.
+- Leased autonomous sessions with fresh worlds/seeds/conditions, independent validation and fresh authoritative execution, REST/WSS state streaming, capability isolation, cancellation and bounded workers.
+- Restricted 2D invisible-planet inference: `solve_ivp`, training `least_squares`, chronological holdout, complexity penalty, local uncertainty and hidden truth isolation. Perturbed and no-influence control cases select different models from actual fits.
+- Experimental actuated Panda/flex folding fixture, pre-attached bar and fixed hinge; separate fixed benchmark **5/5**, with actual release and settling. No general cloth grasp acquisition is claimed.
+- Bounded static GLB/glTF/ZIP previews and robot-description inspection. Imported native robot/world execution is unavailable.
 
-## Investor workspace
+Current full regression: **101 passed**, no failures/errors/skips, **290.66 s**, one upstream Starlette TestClient deprecation warning. Details and current public-browser verification: [DEMO_STATUS.md](DEMO_STATUS.md), [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), [ROBOTICS_VALIDATION.md](ROBOTICS_VALIDATION.md), [SCIENTIFIC_VALIDATION.md](SCIENTIFIC_VALIDATION.md), [CLOTH_VALIDATION.md](CLOTH_VALIDATION.md), [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md), [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
 
-After installing the Python environment below, install/build the frontend with Node.js (25.9.0 verified):
+## Setup — Windows PowerShell
 
-```powershell
-Set-Location frontend
-npm ci
-npm run build
-Set-Location ..
-.\scripts\start-demo.ps1
-```
-
-Open **http://127.0.0.1:5173**. The start script checks both services and opens the workspace. Use `-NoBrowser` to start/check without opening a tab; `-Dev` selects the editable Vite frontend. `scripts/stop-demo.ps1` stops only recorded, matching processes launched by the script. Alternatively run the Uvicorn command below and `npm run preview` from `frontend` in separate terminals. `npm run dev` supports editing.
-
-The UI includes independent computed branches, measured failures, playback/scrubbing/speed controls, camera orbit/zoom/reset (also keyboard), obstacle apply/replan, commit/reset, history, scientific controls/uncertainty/residuals, reconnect/poll fallback and retry keys. No static trajectory or fabricated-data fallback is used.
-
-Follow [DEMO_GUIDE.md](DEMO_GUIDE.md) for the three-minute presentation, [DEMO_LIMITATIONS.md](DEMO_LIMITATIONS.md) for explicit scope, [frontend/README.md](frontend/README.md) for client/assets/testing, and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for executed checks and measurements. This remains a trusted loopback demo, not a public multi-tenant service.
-
-## Current live demo
-
-The current Vercel deployment is [demo.tryvivacity.com](https://demo.tryvivacity.com/). Cloth Folding now uses a real actuated Panda and recorded robot/cloth motion; see [ROBOT_CLOTH_RELEASE.md](ROBOT_CLOTH_RELEASE.md) for current verification and deployment commands. Its API is currently reached through a temporary Cloudflare quick tunnel from the local MuJoCo/SciPy process, so the URL is live only while that tunnel and backend process remain running. A durable public release requires a paid/ provisioned Python host with authentication, persistent storage and explicit CORS. The existing `vivacity-demo` project was updated at the user's request; unrelated projects were preserved.
-
-## Setup (Windows PowerShell)
-
-Use Python 3.12, the tested interpreter. The code requires Python 3.11+ but other interpreter/platform combinations have not been verified.
+Python 3.12 and Node 25.9 were verified. Python 3.11+ is declared; other platform combinations are not established by this Windows run. Dependencies are pinned in Python requirements and the frontend lockfile.
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python -m pip install --cache-dir data/pip-cache -r requirements-lock.txt
-.\.venv\Scripts\python -m uvicorn vivacity.api:app --host 127.0.0.1 --port 8000
+.\.venv\Scripts\python -m pip install -r requirements-lock.txt
+npm ci --prefix frontend
+.\.venv\Scripts\python -m scripts.export_openapi
+npm run generate:api --prefix frontend
+npm run build --prefix frontend
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-demo.ps1 -NoBrowser -Dev
 ```
 
-The Panda assets are already vendored under `assets/menagerie/franka_emika_panda`; no GitHub fetch or GPU is required at startup. Keep the XML, all mesh files, and LICENSE together. Run from the repository root. On Unix, replace the interpreter path with `.venv/bin/python`.
+Open **http://127.0.0.1:5173/**. First visit starts fresh bounded computation automatically. Choose Robotics → Object Pickup / Cloth Folding, or Discovery. Stop experiments cancels backend work; camera controls only change the view. Apply conditions stops work safely, changes physical geometry and computes new alternatives. Result-card selection only inspects evidence. Downloads contain real measured traces/states/evaluations. One Technical Inspector retains useful actual messages.
 
-Open http://127.0.0.1:8000/docs for the interactive API, http://127.0.0.1:8000/openapi.json for generated OpenAPI, and `/health` for simulator versions. Use **one process**, without multiple Uvicorn workers. SQLite and a bounded one-thread experiment executor provide local persistence and resource limits. Simulation jobs survive as records; interrupted jobs are explicitly failed on restart.
+`scripts/stop-demo.ps1` stops only identity-matching owned local processes. Stop an old owned server before starting a changed backend; readiness alone does not reload Python. If Windows holds an old output font open, use a fresh directory: `npm run build --prefix frontend -- --outDir ../data/master-build`.
 
-In another terminal:
+Separate terminals are supported: `.\.venv\Scripts\python -m uvicorn vivacity.api:app --host 127.0.0.1 --port 8000` at the root and `npm run dev --prefix frontend`. Frontend `VITE_API_BASE_URL` defaults to `http://127.0.0.1:8000`; backend `VIVACITY_CORS_ORIGINS` must allow the exact frontend origin. Keep one Uvicorn worker. Set `VIVACITY_DATABASE` to an isolated path when needed; default is `data/vivacity.sqlite3`. Never place API keys in `VITE_` variables.
+
+## Reproduce checks and real experiments
 
 ```powershell
-.\.venv\Scripts\python -m scripts.demo
-.\.venv\Scripts\python -m scripts.verify_live_retries
-.\.venv\Scripts\python -m scripts.test_backend -q --junitxml=artifacts/fullstack-backend-tests.xml
-.\.venv\Scripts\python -m scripts.export_openapi
+.\.venv\Scripts\python -m scripts.test_backend -q --junitxml=artifacts/verification.xml
+.\.venv\Scripts\python -m scripts.benchmark_pick_place --runs 20
+.\.venv\Scripts\python -m scripts.benchmark_cloth --runs 5
+# With the current local backend and UI running:
+$env:UI_URL='http://127.0.0.1:5173/'
+$env:API_URL='http://127.0.0.1:8000'
+$env:CHECK_CONDITIONS='1'
+$env:PROOF_PREFIX='verification-live'
+npm run test:e2e --prefix frontend
 ```
 
-The demonstration performs real HTTP and WebSocket calls, repeated MuJoCo execution, failed/successful branch inspection, obstacle editing, stale commit rejection, replanning, commit/reset, a blocked scene, SciPy model comparison and a zero-mass counterexample. Results are saved to `artifacts/live-demo.json`; failure raises an error and preserves collected evidence. Fixtures set inputs only; neither fixtures nor policy specify which candidate succeeds.
+Browser verification creates real jobs and may take several minutes with software graphics. It tests fresh physical executions, numerical predictions, exact displayed body/vertex states, actual downloads, obstacle failure/recovery when requested, layouts, camera, axe and imports. It requires installed Chromium under `data/playwright`; see [FRONTEND_HANDOFF.md](FRONTEND_HANDOFF.md). Old V2 playback tests and old release documents are historical, not current acceptance checks.
 
-## API journey
+## APIs and architecture
 
-1. `POST /v1/worlds` with `{"backend":"mujoco","seed":7}` or `{"backend":"scipy","seed":7}`. Copy an input from `fixtures/` for explicit settings.
-2. `GET /v1/worlds/{id}/state` reads actual joint state/body transforms or numerical observations. `GET /v1/worlds/{id}` includes full persistent simulator state and history.
-3. `POST /v1/worlds/{id}/experiments` with `{}` returns **202** and an experiment ID. This schedules bounded background work; physics does not block the request.
-4. Subscribe to `WS /v1/experiments/{id}/events`, or poll `GET /v1/experiments/{id}` until `completed` or `failed`.
-5. `GET /v1/experiments/{id}/branches` returns all candidates, including planning and execution failures. `selected_branch_id: null` is a genuine unsupported/failed result. `completed` means evaluation finished, not that a candidate succeeded.
-6. `GET /v1/experiments/{id}/replay` returns actual sampled physics frames or executed numerical predictions. It does not alter the world.
-7. `POST /v1/worlds/{id}/commit` with `{"experiment_id":"...","branch_id":"..."}` explicitly continues from a successful final state. Simulation alone never commits.
-8. `PATCH /v1/worlds/{id}/environment` with `{"config":{"obstacle_position":[0.75,-0.4,0.2]}}` rebuilds the workcell at home, advances its revision, and invalidates previous commits. Configuration objects are complete replacements with documented defaults; this example also uses the default target and obstacle size.
-9. `POST /v1/worlds/{id}/reset` restores the current environment's initial state, retaining history and invalidating prior branch commits.
+OpenAPI: [openapi.json](openapi.json), Swagger `/docs`, health `/health`. [FRONTEND_HANDOFF.md](FRONTEND_HANDOFF.md) contains exact endpoints, headers, requests, response/message examples, geometry conventions, replay/export formats and Claude Code commands. [ARCHITECTURE.md](ARCHITECTURE.md) describes adapters and state ownership.
 
-For science, environment replacement accepts observation settings and generation-only `central_mu` / `hidden_mass`. Those two values are used to create observations and are then discarded. Science reset preserves the exact seeded observations; environment replacement regenerates them. The selection policy sees public observations and declared assumptions, not the hidden truth.
+Shared operations are `create_world`, `observe`, `snapshot`, `fork`, `apply_action`, `simulate`, `evaluate`, `commit`, `replay`. Each backend owns its state representation. MuJoCo stores full `mjSTATE_INTEGRATION` plus scene/version/asset metadata; each branch owns independent model/data. SQLite WAL retains lineage, events, measured outcomes and idempotent submissions. SciPy fits see sanitized noisy observations, not hidden generating parameters. Deterministic planning is explicitly labeled; no hosted LLM call is required or claimed.
 
-For safe experiment submission retries, send one `Idempotency-Key` header per deliberate action. Repeat the same key/settings to retrieve the original job, including after restart; changed settings return 409. Use a new key for a new experiment or revision. Unhandled adapter errors are recorded as failed branches, with unavailable evidence marked explicitly, and remaining candidates still execute. See the API guide for null snapshot/counter handling.
+## Boundaries
 
-## Optional hosted proposal adapter
+Fixed reproducibility does not establish general robot robustness. New pickup uses staged DLS IK and actual kinematic/contact screening; generalized obstacle-detour pickup remains incomplete. Legacy reaching retains RRT. Cloth is a constrained experimental single fold. Science uses simplified synthetic 2D physics, not new-law discovery. Imports are data-only because isolated native workers are unavailable.
 
-Default policy is explicitly `deterministic_planning_policy`. No key or hosted model is needed. To opt in, set server-side `OPENAI_API_KEY` and an exact `OPENAI_MODEL`, then submit `{"policy":"llm"}`. This adapter sends public observations to the configured OpenAI model and accepts only bounded candidate-count/planning-budget proposals. It cannot supply simulation results. Missing configuration or provider failure fails the job honestly; it is never relabeled as a successful LLM run. It is contract-tested with a mock transport; live provider access is **unverified**.
+Two active session slots, one physics worker, bounded job reservations/cycles/leases and latest-only streaming constrain active compute. Legacy standalone worlds/imports remain public demo data; there is no full account authentication, comprehensive rate limiting, database/upload retention quota or distributed scheduler. Durable cloud provision and Docker image execution are not verified in this environment. Consult the status and deployment reports before presenting production availability.
 
-The request format follows [official OpenAI Structured Outputs documentation](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses). Use a model supporting strict structured outputs. API keys remain in environment variables; never put them in fixtures or source.
-
-## Contracts and operating limits
-
-The implemented client uses generated types from root [openapi.json](openapi.json). [FRONTEND_HANDOFF.md](FRONTEND_HANDOFF.md) remains the detailed REST/WS contract, with [actual API examples](docs/frontend-examples.json) and the compiled [robot geometry manifest](docs/robot-geometry.json). `python -m scripts.sync_frontend_assets` regenerates and copies the actual compiled geometry to the frontend. `python -m scripts.verify_handoff` checks exported arrays/transforms against MuJoCo and live API behavior after running the CLI demo. The external UI hook investigation is documented in [HOOK_DIAGNOSTICS.md](docs/HOOK_DIAGNOSTICS.md).
-
-- [Frontend/API guide](docs/API.md), [scientific scope](docs/SCIENTIFIC_SPEC.md), [evaluation](docs/EVALUATION_PROTOCOL.md), [truth isolation](docs/TRUTH_LEAKAGE_POLICY.md), [architecture](docs/ARCHITECTURE.md), [implementation status](IMPLEMENTATION_STATUS.md).
-- Runtime/backend operations are in `vivacity/runtime.py` and `vivacity/backends.py`; adapters retain different raw state representations.
-- `VIVACITY_DATABASE` selects SQLite location; default `data/vivacity.sqlite3`. `VIVACITY_CORS_ORIGINS` is a comma-separated browser allowlist, defaulting to the two local Vite origins. WebSocket browser origins use the same list.
-- This is a local trusted investor demo. Keep it bound to loopback. Multi-tenant authentication, distributed job leasing, billing, cancellation, public deployment hardening and storage-retention controls are not implemented.
-- The arm demonstrates collision-free reaching, not grasping or lifting. The cube and obstacle are fixed bodies moved through configuration, not free bodies pushed by the controller.
-- RRT is bounded and incomplete in finite time. It may fail to find an existing path. Dynamic collisions can invalidate geometrically feasible paths. Failure remains visible.
-- Scientific parameters use nondimensional units. The fixed external mass, known initial state, known perturber location, Gaussian measurement noise and two predefined hypotheses are explicit simplifying assumptions. No novel physical law, posterior probability or real-world astronomical discovery is claimed.
-
-## Documentation used
-
-[MuJoCo state functions](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html), [MuJoCo integration state](https://mujoco.readthedocs.io/en/stable/computation/index.html), [SciPy solve_ivp](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html), [SciPy least_squares](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html), and [Menagerie provenance](assets/PROVENANCE.md).
+Model attribution/licenses: `assets/PROVENANCE.md`, vendored Menagerie Panda Apache 2.0 license, and frontend asset provenance. The repaired external design-hook wrapper is documented in `docs/HOOK_DIAGNOSTICS.md`; it is not part of backend execution.

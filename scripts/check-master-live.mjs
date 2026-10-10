@@ -1,25 +1,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+process.chdir(path.resolve(import.meta.dirname,'..'));
 process.env.PLAYWRIGHT_BROWSERS_PATH=path.resolve('data/playwright');
 process.env.TEMP=process.env.TMP=path.resolve('data/browser-temp');
 const {chromium}=await import('../frontend/node_modules/playwright-core/index.mjs');
 const {AxeBuilder}=await import('../frontend/node_modules/@axe-core/playwright/dist/index.mjs');
-const ui=process.env.UI_URL??'http://127.0.0.1:5175/';
-const base=process.env.API_URL??'http://127.0.0.1:8002';
+const ui=process.env.UI_URL??'http://127.0.0.1:5173/';
+const base=process.env.API_URL??'http://127.0.0.1:8000';
 const prefix=process.env.PROOF_PREFIX??'master-live';
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const proof={url:ui,api:base,started_unix_s:Date.now()/1000,checks:[],errors:[],sessions:[],state_messages:0,event_messages:0};
-let page,capability,latestSession;const liveFrames=[];
+let page,capability,latestSession,conditionCheck=false;const liveFrames=[];
 async function request(route){const response=await fetch(base+route,{headers:{'X-Session-Token':capability}});assert.equal(response.status,200,route);return response.json();}
-async function complete(backend){
+async function complete(backend,expectRows=true){
   await page.waitForFunction(backend=>localStorage.getItem(`vivacity:${backend}:session`),backend,{timeout:60000});
   const stored=await page.evaluate(backend=>({id:localStorage.getItem(`vivacity:${backend}:session`),token:localStorage.getItem(`vivacity:${backend}:token`)}),backend);
   capability=stored.token;
   const deadline=Date.now()+600000;
   while(Date.now()<deadline){latestSession=await request(`/v1/sessions/${stored.id}`);if(!['active','stopping'].includes(latestSession.status))break;await new Promise(resolve=>setTimeout(resolve,1000));}
   assert.equal(latestSession.status,'completed',JSON.stringify(latestSession));
-  await page.getByTestId('branch-row').first().waitFor({timeout:60000});
+  if(expectRows)await page.getByTestId('branch-row').first().waitFor({timeout:60000});
   proof.sessions.push(latestSession);
   const experiments=[];
   for(const eid of latestSession.experiments){const experiment=await request(`/v1/experiments/${eid}`),branches=await request(`/v1/experiments/${eid}/branches`);experiments.push({experiment,branches});}
@@ -29,12 +30,12 @@ try{
   const context=await browser.newContext({viewport:{width:1440,height:960},reducedMotion:'reduce'});
   page=await context.newPage();
   page.on('pageerror',e=>proof.errors.push(e.message));
-  page.on('websocket',socket=>socket.on('framereceived',({payload})=>{try{const message=JSON.parse(String(payload));if(message.schema_version==='vivacity.live/1.0'){proof.state_messages++;liveFrames.push(message);if(liveFrames.length>1500)liveFrames.shift();}else if(message.schema_version==='1.0')proof.event_messages++;}catch{/* Ignore protocol control frames. */}}));
+  page.on('websocket',socket=>socket.on('framereceived',({payload})=>{try{const message=JSON.parse(String(payload));if(message.schema_version==='vivacity.live/1.0'){proof.state_messages++;if(message.stage==='executing')proof.live_message_example??=message;liveFrames.push(message);if(liveFrames.length>1500)liveFrames.shift();}else if(message.schema_version==='1.0'){proof.event_messages++;proof.event_message_examples??={};proof.event_message_examples[message.kind]??=message;}}catch{/* Ignore protocol control frames. */}}));
   // Exercise two actual cycles per lab, with bounded presentation wait. This
   // changes only requested cycle count; every result still comes from the server.
   await page.route(`${base}/v1/sessions`,async route=>{
     if(route.request().method()!=='POST')return route.continue();
-    const body=route.request().postDataJSON();body.max_cycles=body.backend==='cloth'?1:2;
+    const body=route.request().postDataJSON();body.max_cycles=body.backend==='cloth'||conditionCheck?1:2;
     await route.continue({postData:JSON.stringify(body)});
   });
   await page.goto(ui,{waitUntil:'domcontentloaded'});
@@ -77,6 +78,32 @@ try{
   await page.screenshot({path:`artifacts/${prefix}-mobile.png`,fullPage:true});
   await page.setViewportSize({width:1440,height:960});
   const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();proof.axe_violations=axe.violations;assert.equal(axe.violations.length,0);
+  if(process.env.CHECK_CONDITIONS==='1'){
+    conditionCheck=true;
+    const oldSession=latestSession.id,oldCapability=capability;
+    await page.getByRole('button',{name:'Change conditions',exact:true}).click();
+    await page.getByRole('button',{name:'Blocked scene',exact:true}).click();
+    await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();
+    await page.waitForFunction(id=>localStorage.getItem('vivacity:mujoco:session')!==id,oldSession,{timeout:60000});
+    const blocked=await complete('mujoco',false);
+    assert.equal(blocked.length,1);assert.equal(blocked[0].experiment.selected_branch_id,null);
+    assert(!blocked[0].branches.some(b=>b.evaluation.success));
+    await page.getByText('No feasible candidate. Measured failures are retained below.',{exact:true}).waitFor();
+    const staleResponse=await fetch(`${base}/v1/experiments/${final.experiment.id}`,{headers:{'X-Session-Token':oldCapability}});
+    assert.equal(staleResponse.status,200);assert((await staleResponse.json()).stale);
+    const staleReplay=await fetch(`${base}/v1/experiments/${final.experiment.id}/replay`,{headers:{'X-Session-Token':oldCapability}});
+    assert.equal(staleReplay.status,200);assert((await staleReplay.json()).stale);
+    await page.screenshot({path:`artifacts/${prefix}-blocked.png`,fullPage:true});
+    const blockedSession=latestSession.id;
+    await page.getByRole('button',{name:'Change conditions',exact:true}).click();
+    await page.getByRole('button',{name:'Clear route',exact:true}).click();
+    await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();
+    await page.waitForFunction(id=>localStorage.getItem('vivacity:mujoco:session')!==id,blockedSession,{timeout:60000});
+    const cleared=await complete('mujoco');assert(cleared[0].experiment.result.execution_evaluation.success);
+    assert.notEqual(cleared[0].branches[0].initial_state.model_hash,blocked[0].branches[0].initial_state.model_hash);
+    proof.checks.push('obstacle_change_invalidates_results_and_replay','honest_all_paths_fail_ui','clear_route_computes_new_success');
+    conditionCheck=false;console.log('Blocked obstacle, stale records and fresh clear-route execution passed.');
+  }
   await page.getByRole('button',{name:'Discovery',exact:true}).click();
   const science=await complete('scipy');
   const winners=science.map(({experiment,branches})=>branches.find(b=>b.id===experiment.selected_branch_id));

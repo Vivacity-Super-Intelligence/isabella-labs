@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "url": "https://demo.tryvivacity.com/",
+      "real_fits": true,
+      "reload_reuses_session": true,
+      "narrow_no_overflow": true,
+      "offline_preserves_evidence": true,
+      "reconnect": true
+    },
+    {
+      "url": "https://vivacity-investor-demo.vercel.app/",
+      "real_fits": true,
+      "reload_reuses_session": true,
+      "narrow_no_overflow": true,
+      "offline_preserves_evidence": true,
+      "reconnect": true
+    }
+  ],
+  "errors": [],
+  "expected_offline_errors": [
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED"
+  ],
+  "started_unix_s": 1791666057.943,
+  "status": "passed",
+  "finished_unix_s": 1791666073.859
+}

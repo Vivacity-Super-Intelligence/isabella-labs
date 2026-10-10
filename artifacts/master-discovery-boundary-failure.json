@@ -1,0 +1,25 @@
+{
+  "checks": [],
+  "errors": [],
+  "expected_offline_errors": [
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED",
+    "Failed to load resource: net::ERR_CONNECTION_FAILED"
+  ],
+  "started_unix_s": 1791665331.893,
+  "status": "failed",
+  "failure": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Runtime offline', { exact: true }) to be visible\u001b[22m\n\u001b[2m    29 × locator resolved to hidden <span role=\"status\" class=\"connection\">Runtime offline</span>\u001b[22m\n",
+  "finished_unix_s": 1791665356.444
+}

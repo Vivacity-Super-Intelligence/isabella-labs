@@ -1,0 +1,33 @@
+{
+  "verified_at": "2026-10-11",
+  "project": "vivacity-demo",
+  "scope": "tanishs-projects-66633ee2",
+  "deployment_id": "dpl_yP6WDKC22EMLt2y58rUSHGrdXtBz",
+  "immutable_url": "https://vivacity-demo-3oxvuhg3m-tanishs-projects-66633ee2.vercel.app",
+  "aliases": [
+    "https://demo.tryvivacity.com/",
+    "https://vivacity-investor-demo.vercel.app/"
+  ],
+  "api_url": "https://rid-buffalo-bluetooth-profit.trycloudflare.com",
+  "backend_revision": "5de72f8",
+  "status": "READY; verified current aliases and real end-to-end runtime",
+  "backend_hosting": "temporary tunnel to this machine",
+  "durable_hosting_blocker": "Railway trial expired; provisioning rejected",
+  "container_status": "not executed: Docker daemon unavailable",
+  "build": {
+    "typescript": "passed",
+    "remote_vite_seconds": 2.54,
+    "remote_node": "24",
+    "local_node": "25.9.0",
+    "vercel_cli": "54.18.2"
+  },
+  "frontend_layout_revision": "9788f8e",
+  "aliases_html_identical": true,
+  "html_sha256": "d9374464b5d3153107ff9a50d152f56233924e2c64ae6bd419efc008113bda0d",
+  "public_unauthorized_session_read": 403,
+  "proofs": {
+    "full_journey": "artifacts/master-public-verification.json",
+    "full_journey_deployment": "dpl_4odWdeqdZ2VGXu7Shcj8uoR7dyWb",
+    "current_layout_console_reload_offline": "artifacts/master-public-boundaries.json"
+  }
+}
