@@ -1,0 +1,3306 @@
+{
+  "scope": "measured persisted jobs referenced by the browser proof",
+  "proof": "artifacts/master-live-verification.json",
+  "experiments": [
+    {
+      "backend": "mujoco",
+      "id": "d52a5d68-75e6-41e3-87ad-03b267cc13ce",
+      "world_initialization": {
+        "initialization_wall_seconds": 0.1188053999976546
+      },
+      "status": "completed",
+      "selected_branch_id": "59db2c1d-b048-4411-a7f0-a7874f1b5345",
+      "result": {
+        "conclusion": "Measured physical pickup and placement found.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "59db2c1d-b048-4411-a7f0-a7874f1b5345",
+          "ca2b167b-3a0c-4090-8b2c-1f12b4e0cac1",
+          "b28f3c7a-fcb2-4f06-b69a-af0d9c1bbc6f"
+        ],
+        "top_feasible_branch_ids": [
+          "59db2c1d-b048-4411-a7f0-a7874f1b5345",
+          "ca2b167b-3a0c-4090-8b2c-1f12b4e0cac1",
+          "b28f3c7a-fcb2-4f06-b69a-af0d9c1bbc6f"
+        ],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 5000,
+          "physics_budget": 3
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 5000,
+          "distinct_generated": 5000,
+          "screened": 5000,
+          "rejected": 0,
+          "screening_passed": 5000,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "6c61ac58b40e96a78a131b62d7994441679cd64d4fa7e3823a49084c4c67ee74",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "planning_failed": 0,
+          "verified_feasible": 3,
+          "physics_rejected": 0
+        },
+        "execution_branch_id": "778449e0-f538-4b78-92b5-d6d0524e32f2",
+        "execution_evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "milestone": "physical_pick_and_place",
+          "planning_feasible": true,
+          "goal_error_m": 0.0016582817994905328,
+          "final_cube_position": [
+            0.5012909826132809,
+            0.1799436952400361,
+            0.024960725160155663
+          ],
+          "grasp_established": true,
+          "lifted": true,
+          "retained_during_transport": true,
+          "released": true,
+          "table_supported": true,
+          "max_cube_height_m": 0.15715788694989152,
+          "max_tracking_error_rad": 0.052895480356762586,
+          "contact_violations": [],
+          "phase_evidence": [
+            {
+              "phase": "approach",
+              "time": 3.7959999999998035,
+              "cube_position": [
+                0.5,
+                -0.15,
+                0.024960725160728718
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5885999998431172,
+              "table_support": true
+            },
+            {
+              "phase": "descend",
+              "time": 4.975999999999674,
+              "cube_position": [
+                0.5,
+                -0.15,
+                0.02496072516074728
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.588599999523179,
+              "table_support": true
+            },
+            {
+              "phase": "close",
+              "time": 5.5979999999996055,
+              "cube_position": [
+                0.5000408332050565,
+                -0.15001217876766684,
+                0.024919177917224925
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 3.7056405746619046,
+              "table_support": true
+            },
+            {
+              "phase": "lift",
+              "time": 6.7779999999994756,
+              "cube_position": [
+                0.5003771458135906,
+                -0.15000071123273143,
+                0.15695583860577483
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4975214959841443,
+              "table_support": false
+            },
+            {
+              "phase": "transport",
+              "time": 8.995999999999674,
+              "cube_position": [
+                0.5010510541207381,
+                0.17982302342676584,
+                0.1570515113043307
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4957106246866143,
+              "table_support": false
+            },
+            {
+              "phase": "lower",
+              "time": 10.158000000000062,
+              "cube_position": [
+                0.501359952065819,
+                0.17995757886416053,
+                0.02493522940791617
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 4.160896924410858,
+              "table_support": true
+            },
+            {
+              "phase": "release",
+              "time": 10.768000000000265,
+              "cube_position": [
+                0.5012909825621856,
+                0.17994369523880316,
+                0.024960725160155663
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886,
+              "table_support": true
+            },
+            {
+              "phase": "retract",
+              "time": 12.328000000000786,
+              "cube_position": [
+                0.5012909826132809,
+                0.1799436952400361,
+                0.024960725160155663
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886,
+              "table_support": true
+            }
+          ],
+          "execution_duration_s": 12.328000000000786
+        },
+        "executed_world_revision": 1
+      },
+      "performance": {
+        "job_wall_seconds": 110.47473249999894,
+        "process_cpu_seconds": 37.90625,
+        "queue_wait_seconds": 0.02741568023338914,
+        "planning_wall_seconds": 4.634834999997111,
+        "physics_wall_seconds": 102.31252429999222,
+        "candidate_count": 4,
+        "simulation_steps": 24667,
+        "integration_calls": 0,
+        "replay_payload_bytes": 3459595,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      },
+      "branches": [
+        {
+          "id": "59db2c1d-b048-4411-a7f0-a7874f1b5345",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.0016582817994905328,
+            "final_cube_position": [
+              0.5012909826132809,
+              0.1799436952400361,
+              0.024960725160155663
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.15715788694989152,
+            "max_tracking_error_rad": 0.052895480356762586,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 3.7959999999998035,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.024960725160728718
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5885999998431172,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 4.975999999999674,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.02496072516074728
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.588599999523179,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 5.5979999999996055,
+                "cube_position": [
+                  0.5000408332050565,
+                  -0.15001217876766684,
+                  0.024919177917224925
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.7056405746619046,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 6.7779999999994756,
+                "cube_position": [
+                  0.5003771458135906,
+                  -0.15000071123273143,
+                  0.15695583860577483
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4975214959841443,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 8.995999999999674,
+                "cube_position": [
+                  0.5010510541207381,
+                  0.17982302342676584,
+                  0.1570515113043307
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4957106246866143,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.158000000000062,
+                "cube_position": [
+                  0.501359952065819,
+                  0.17995757886416053,
+                  0.02493522940791617
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 4.160896924410858,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 10.768000000000265,
+                "cube_position": [
+                  0.5012909825621856,
+                  0.17994369523880316,
+                  0.024960725160155663
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.328000000000786,
+                "cube_position": [
+                  0.5012909826132809,
+                  0.1799436952400361,
+                  0.024960725160155663
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.328000000000786
+          },
+          "performance": {
+            "wall_seconds": 4.69058369999766,
+            "physics_wall_seconds": 4.5720874999969965,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6164,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "ca2b167b-3a0c-4090-8b2c-1f12b4e0cac1",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.00165597760934958,
+            "final_cube_position": [
+              0.5012880914502961,
+              0.17994531850762932,
+              0.02496072516015568
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.15715872388298754,
+            "max_tracking_error_rad": 0.05282854491737332,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 3.799999999999803,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.024960725160672024
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000015576969,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 4.981999999999673,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.024960725160734058
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5885999998715166,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 5.609999999999604,
+                "cube_position": [
+                  0.5000404056961733,
+                  -0.1500120567270605,
+                  0.02491982537755455
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.6959322778190082,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 6.789999999999474,
+                "cube_position": [
+                  0.500377484147249,
+                  -0.15000080384047304,
+                  0.15695430608710226
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4975217364077387,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 9.009999999999678,
+                "cube_position": [
+                  0.5010480619145222,
+                  0.17982284630644688,
+                  0.1570574267235376
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4956485538297732,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.172000000000066,
+                "cube_position": [
+                  0.5013549269829662,
+                  0.17995790135534037,
+                  0.02493942967679976
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 4.108582459332172,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 10.776000000000268,
+                "cube_position": [
+                  0.5012880913987614,
+                  0.17994531850748105,
+                  0.02496072516015568
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000001,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.33800000000079,
+                "cube_position": [
+                  0.5012880914502961,
+                  0.17994531850762932,
+                  0.02496072516015568
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5885999999999999,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.33800000000079
+          },
+          "performance": {
+            "wall_seconds": 4.2747311999992235,
+            "physics_wall_seconds": 4.167143099999521,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6169,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "b28f3c7a-fcb2-4f06-b69a-af0d9c1bbc6f",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.001645593501523417,
+            "final_cube_position": [
+              0.5012747492202436,
+              0.17994614644848403,
+              0.02496072516015565
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.15715985915932967,
+            "max_tracking_error_rad": 0.052278170751950515,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 3.837999999999799,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.024960725160641215
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000013916808,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 5.027999999999668,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.024960725160750413
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5885999996868038,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 5.6619999999995985,
+                "cube_position": [
+                  0.5000401893338334,
+                  -0.15001203297258756,
+                  0.02492015357148861
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.691038146065208,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 6.851999999999467,
+                "cube_position": [
+                  0.5003724941674117,
+                  -0.15000027916955797,
+                  0.15696094832293103
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4975220661458253,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 9.091999999999706,
+                "cube_position": [
+                  0.5010353915889291,
+                  0.17982542684593802,
+                  0.15705607155162288
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.495667609897943,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.264000000000097,
+                "cube_position": [
+                  0.5013409472721757,
+                  0.17995862303047783,
+                  0.024931966417312067
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 4.167601891241225,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 10.770000000000266,
+                "cube_position": [
+                  0.5012747491684791,
+                  0.17994614644408163,
+                  0.024960725160155673
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.588599999999891,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.34000000000079,
+                "cube_position": [
+                  0.5012747492202436,
+                  0.17994614644848403,
+                  0.02496072516015565
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5885999999999999,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.34000000000079
+          },
+          "performance": {
+            "wall_seconds": 5.275817199999437,
+            "physics_wall_seconds": 5.184835199997906,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6170,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "778449e0-f538-4b78-92b5-d6d0524e32f2",
+          "hypothesis": null,
+          "execution_role": "authoritative_execution",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.0016582817994905328,
+            "final_cube_position": [
+              0.5012909826132809,
+              0.1799436952400361,
+              0.024960725160155663
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.15715788694989152,
+            "max_tracking_error_rad": 0.052895480356762586,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 3.7959999999998035,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.024960725160728718
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5885999998431172,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 4.975999999999674,
+                "cube_position": [
+                  0.5,
+                  -0.15,
+                  0.02496072516074728
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.588599999523179,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 5.5979999999996055,
+                "cube_position": [
+                  0.5000408332050565,
+                  -0.15001217876766684,
+                  0.024919177917224925
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.7056405746619046,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 6.7779999999994756,
+                "cube_position": [
+                  0.5003771458135906,
+                  -0.15000071123273143,
+                  0.15695583860577483
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4975214959841443,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 8.995999999999674,
+                "cube_position": [
+                  0.5010510541207381,
+                  0.17982302342676584,
+                  0.1570515113043307
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4957106246866143,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.158000000000062,
+                "cube_position": [
+                  0.501359952065819,
+                  0.17995757886416053,
+                  0.02493522940791617
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 4.160896924410858,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 10.768000000000265,
+                "cube_position": [
+                  0.5012909825621856,
+                  0.17994369523880316,
+                  0.024960725160155663
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.328000000000786,
+                "cube_position": [
+                  0.5012909826132809,
+                  0.1799436952400361,
+                  0.024960725160155663
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.328000000000786
+          },
+          "performance": {
+            "wall_seconds": 89.01725630000146,
+            "physics_wall_seconds": 88.3884584999978,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6164,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        }
+      ]
+    },
+    {
+      "backend": "mujoco",
+      "id": "8267599b-4890-442e-af5d-42d430c67b4f",
+      "world_initialization": {
+        "initialization_wall_seconds": 0.08148259999870788
+      },
+      "status": "completed",
+      "selected_branch_id": "4360e096-10b1-4eaa-bc9e-effbaef3d244",
+      "result": {
+        "conclusion": "Measured physical pickup and placement found.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "4360e096-10b1-4eaa-bc9e-effbaef3d244",
+          "7c9987ec-feb7-44f5-a192-cc3e59fdea1f",
+          "9c1413fc-d25d-43ea-a9a2-74ebe72c80fc"
+        ],
+        "top_feasible_branch_ids": [
+          "4360e096-10b1-4eaa-bc9e-effbaef3d244",
+          "7c9987ec-feb7-44f5-a192-cc3e59fdea1f",
+          "9c1413fc-d25d-43ea-a9a2-74ebe72c80fc"
+        ],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 5000,
+          "physics_budget": 3
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 5000,
+          "distinct_generated": 5000,
+          "screened": 5000,
+          "rejected": 0,
+          "screening_passed": 5000,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "4f4bfe4eccbd3e451032196dd24e6265b8a702b6ad0aa05bc4b4582dedbe27a7",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "planning_failed": 0,
+          "verified_feasible": 3,
+          "physics_rejected": 0
+        },
+        "execution_branch_id": "397ddc25-abad-424e-ba72-78ef2e4f5497",
+        "execution_evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "milestone": "physical_pick_and_place",
+          "planning_feasible": true,
+          "goal_error_m": 0.00167547269724754,
+          "final_cube_position": [
+            0.4868031104982394,
+            0.20659600601764327,
+            0.024960725160155652
+          ],
+          "grasp_established": true,
+          "lifted": true,
+          "retained_during_transport": true,
+          "released": true,
+          "table_supported": true,
+          "max_cube_height_m": 0.16530394181415364,
+          "max_tracking_error_rad": 0.05240292396399357,
+          "contact_violations": [],
+          "phase_evidence": [
+            {
+              "phase": "approach",
+              "time": 4.121999999999768,
+              "cube_position": [
+                0.4861577167214137,
+                -0.10127231566682815,
+                0.024960725160155652
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886,
+              "table_support": true
+            },
+            {
+              "phase": "descend",
+              "time": 5.411999999999626,
+              "cube_position": [
+                0.4861577167640803,
+                -0.10127231566704724,
+                0.024960725160155652
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886,
+              "table_support": true
+            },
+            {
+              "phase": "close",
+              "time": 6.053999999999555,
+              "cube_position": [
+                0.486192642408753,
+                -0.10128057713206859,
+                0.02492347609411767
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 3.640838125527253,
+              "table_support": true
+            },
+            {
+              "phase": "lift",
+              "time": 7.343999999999413,
+              "cube_position": [
+                0.4865592599157686,
+                -0.10127755898357893,
+                0.1651182876127451
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4975331805504806,
+              "table_support": false
+            },
+            {
+              "phase": "transport",
+              "time": 9.473999999999833,
+              "cube_position": [
+                0.4865789598458776,
+                0.20655844049277403,
+                0.16519455521988788
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4957211640407073,
+              "table_support": false
+            },
+            {
+              "phase": "lower",
+              "time": 10.700000000000243,
+              "cube_position": [
+                0.48686423090076536,
+                0.20661908954061445,
+                0.024876710849980287
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 5.02856155036378,
+              "table_support": true
+            },
+            {
+              "phase": "release",
+              "time": 11.208000000000412,
+              "cube_position": [
+                0.48680311044782837,
+                0.20659600599836367,
+                0.024960725160155704
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886000000000204,
+              "table_support": true
+            },
+            {
+              "phase": "retract",
+              "time": 12.834000000000955,
+              "cube_position": [
+                0.4868031104982394,
+                0.20659600601764327,
+                0.024960725160155652
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886000000000002,
+              "table_support": true
+            }
+          ],
+          "execution_duration_s": 12.834000000000955
+        },
+        "executed_world_revision": 1
+      },
+      "performance": {
+        "job_wall_seconds": 112.73258870000063,
+        "process_cpu_seconds": 38.515625,
+        "queue_wait_seconds": 0.15705377480117022,
+        "planning_wall_seconds": 4.825653899999452,
+        "physics_wall_seconds": 103.05699139999342,
+        "candidate_count": 4,
+        "simulation_steps": 25688,
+        "integration_calls": 0,
+        "replay_payload_bytes": 3804430,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      },
+      "branches": [
+        {
+          "id": "4360e096-10b1-4eaa-bc9e-effbaef3d244",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.00167547269724754,
+            "final_cube_position": [
+              0.4868031104982394,
+              0.20659600601764327,
+              0.024960725160155652
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.16530394181415364,
+            "max_tracking_error_rad": 0.05240292396399357,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 4.121999999999768,
+                "cube_position": [
+                  0.4861577167214137,
+                  -0.10127231566682815,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 5.411999999999626,
+                "cube_position": [
+                  0.4861577167640803,
+                  -0.10127231566704724,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 6.053999999999555,
+                "cube_position": [
+                  0.486192642408753,
+                  -0.10128057713206859,
+                  0.02492347609411767
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.640838125527253,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 7.343999999999413,
+                "cube_position": [
+                  0.4865592599157686,
+                  -0.10127755898357893,
+                  0.1651182876127451
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4975331805504806,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 9.473999999999833,
+                "cube_position": [
+                  0.4865789598458776,
+                  0.20655844049277403,
+                  0.16519455521988788
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4957211640407073,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.700000000000243,
+                "cube_position": [
+                  0.48686423090076536,
+                  0.20661908954061445,
+                  0.024876710849980287
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 5.02856155036378,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 11.208000000000412,
+                "cube_position": [
+                  0.48680311044782837,
+                  0.20659600599836367,
+                  0.024960725160155704
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000204,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.834000000000955,
+                "cube_position": [
+                  0.4868031104982394,
+                  0.20659600601764327,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000002,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.834000000000955
+          },
+          "performance": {
+            "wall_seconds": 4.965441800002736,
+            "physics_wall_seconds": 4.8752422999968985,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6417,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "7c9987ec-feb7-44f5-a192-cc3e59fdea1f",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.0016827639895699458,
+            "final_cube_position": [
+              0.48681257963740393,
+              0.20659719454995912,
+              0.024960725160155673
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.1653025441392239,
+            "max_tracking_error_rad": 0.05272300557607633,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 4.097999999999771,
+                "cube_position": [
+                  0.4861577167206937,
+                  -0.10127231566682442,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000001,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 5.381999999999629,
+                "cube_position": [
+                  0.48615771676310404,
+                  -0.10127231566704221,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 6.01199999999956,
+                "cube_position": [
+                  0.4861930199617005,
+                  -0.10128062511667754,
+                  0.024922772870178033
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.6513255669162206,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 7.2959999999994185,
+                "cube_position": [
+                  0.48656198546055046,
+                  -0.10127767314888418,
+                  0.16511488220784595
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4975329198115315,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 9.413999999999813,
+                "cube_position": [
+                  0.4865845922436456,
+                  0.20655580238217877,
+                  0.16519117579607803
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4956888432665236,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.636000000000221,
+                "cube_position": [
+                  0.4868747079097135,
+                  0.20661966321375258,
+                  0.024873696974367424
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 5.065771336681789,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 11.226000000000418,
+                "cube_position": [
+                  0.48681257958710744,
+                  0.2065971945314868,
+                  0.02496072516015567
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.84600000000096,
+                "cube_position": [
+                  0.48681257963740393,
+                  0.20659719454995912,
+                  0.024960725160155673
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.84600000000096
+          },
+          "performance": {
+            "wall_seconds": 5.320624100000714,
+            "physics_wall_seconds": 5.208454399999027,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6423,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "9c1413fc-d25d-43ea-a9a2-74ebe72c80fc",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.0016846766320440744,
+            "final_cube_position": [
+              0.48681496094437515,
+              0.206596606295841,
+              0.024960725160155628
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.1653005088085075,
+            "max_tracking_error_rad": 0.052910685985488676,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 4.083999999999772,
+                "cube_position": [
+                  0.4861577167201105,
+                  -0.10127231566682142,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 5.363999999999631,
+                "cube_position": [
+                  0.4861577167624969,
+                  -0.10127231566703909,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000001,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 5.975999999999564,
+                "cube_position": [
+                  0.48619341405426725,
+                  -0.10128065522183899,
+                  0.02492184413829544
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.6651571857723266,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 7.255999999999423,
+                "cube_position": [
+                  0.4865639199105356,
+                  -0.10127781357522322,
+                  0.1651104693559961
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.497533123159265,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 9.367999999999798,
+                "cube_position": [
+                  0.4865908628893132,
+                  0.20655487908460898,
+                  0.1651903213842707
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.495708461136746,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.586000000000205,
+                "cube_position": [
+                  0.48687821076322946,
+                  0.20661930848395613,
+                  0.02487616559945845
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 5.045606421512687,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 11.246000000000425,
+                "cube_position": [
+                  0.48681496089387966,
+                  0.20659660627750284,
+                  0.024960725160155628
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000002,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.862000000000965,
+                "cube_position": [
+                  0.48681496094437515,
+                  0.206596606295841,
+                  0.024960725160155628
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.862000000000965
+          },
+          "performance": {
+            "wall_seconds": 4.521680900001229,
+            "physics_wall_seconds": 4.423505999999179,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6431,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "397ddc25-abad-424e-ba72-78ef2e4f5497",
+          "hypothesis": null,
+          "execution_role": "authoritative_execution",
+          "evaluation": {
+            "success": true,
+            "status": "execution_success",
+            "milestone": "physical_pick_and_place",
+            "planning_feasible": true,
+            "goal_error_m": 0.00167547269724754,
+            "final_cube_position": [
+              0.4868031104982394,
+              0.20659600601764327,
+              0.024960725160155652
+            ],
+            "grasp_established": true,
+            "lifted": true,
+            "retained_during_transport": true,
+            "released": true,
+            "table_supported": true,
+            "max_cube_height_m": 0.16530394181415364,
+            "max_tracking_error_rad": 0.05240292396399357,
+            "contact_violations": [],
+            "phase_evidence": [
+              {
+                "phase": "approach",
+                "time": 4.121999999999768,
+                "cube_position": [
+                  0.4861577167214137,
+                  -0.10127231566682815,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "descend",
+                "time": 5.411999999999626,
+                "cube_position": [
+                  0.4861577167640803,
+                  -0.10127231566704724,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886,
+                "table_support": true
+              },
+              {
+                "phase": "close",
+                "time": 6.053999999999555,
+                "cube_position": [
+                  0.486192642408753,
+                  -0.10128057713206859,
+                  0.02492347609411767
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 3.640838125527253,
+                "table_support": true
+              },
+              {
+                "phase": "lift",
+                "time": 7.343999999999413,
+                "cube_position": [
+                  0.4865592599157686,
+                  -0.10127755898357893,
+                  0.1651182876127451
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4975331805504806,
+                "table_support": false
+              },
+              {
+                "phase": "transport",
+                "time": 9.473999999999833,
+                "cube_position": [
+                  0.4865789598458776,
+                  0.20655844049277403,
+                  0.16519455521988788
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 2.4957211640407073,
+                "table_support": false
+              },
+              {
+                "phase": "lower",
+                "time": 10.700000000000243,
+                "cube_position": [
+                  0.48686423090076536,
+                  0.20661908954061445,
+                  0.024876710849980287
+                ],
+                "finger_contacts": [
+                  "left_finger",
+                  "right_finger"
+                ],
+                "bilateral_grasp": true,
+                "cube_contact_normal_force_n": 5.02856155036378,
+                "table_support": true
+              },
+              {
+                "phase": "release",
+                "time": 11.208000000000412,
+                "cube_position": [
+                  0.48680311044782837,
+                  0.20659600599836367,
+                  0.024960725160155704
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000204,
+                "table_support": true
+              },
+              {
+                "phase": "retract",
+                "time": 12.834000000000955,
+                "cube_position": [
+                  0.4868031104982394,
+                  0.20659600601764327,
+                  0.024960725160155652
+                ],
+                "finger_contacts": [],
+                "bilateral_grasp": false,
+                "cube_contact_normal_force_n": 0.5886000000000002,
+                "table_support": true
+              }
+            ],
+            "execution_duration_s": 12.834000000000955
+          },
+          "performance": {
+            "wall_seconds": 89.47920000000158,
+            "physics_wall_seconds": 88.54978869999832,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 6417,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        }
+      ]
+    },
+    {
+      "backend": "scipy",
+      "id": "bda3350e-9b15-4394-bbd6-2eaf9a873c68",
+      "world_initialization": {
+        "initialization_wall_seconds": 0.1308802999992622
+      },
+      "status": "completed",
+      "selected_branch_id": "58af49e1-e6c1-47b6-800f-47b383a22263",
+      "result": {
+        "conclusion": "Additional fixed gravitational influence supported by training complexity penalty and held-out predictions.",
+        "bic_improvement_for_extra_mass": 257722.53540047567,
+        "heldout_rmse_improvement": 0.3064916708701349,
+        "criterion": "extra mass requires BIC improvement > 6 and held-out RMSE improvement > 5%, with full-rank Jacobian",
+        "scope": "Comparison of two simplified models; not discovery of a new physical law.",
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "execute_selected": false,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 0,
+          "physics_budget": 3
+        },
+        "followup_settings": null
+      },
+      "performance": {
+        "job_wall_seconds": 1.7456025999999838,
+        "process_cpu_seconds": 0.5625,
+        "queue_wait_seconds": 0.16385182821613853,
+        "planning_wall_seconds": 0.0,
+        "physics_wall_seconds": 1.0665913999982877,
+        "candidate_count": 2,
+        "simulation_steps": 0,
+        "integration_calls": 30,
+        "replay_payload_bytes": 40519,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      },
+      "branches": [
+        {
+          "id": "169f5a6c-16f4-4cd2-8a14-b5b9f86a9b37",
+          "hypothesis": "central_only",
+          "execution_role": "validation",
+          "evaluation": {
+            "failure": null,
+            "fit_message": "`ftol` termination condition is satisfied.",
+            "parameters": {
+              "central_mu": 0.9959514424171484
+            },
+            "uncertainty": {
+              "method": "local linearized covariance using known measurement noise; not posterior probability",
+              "standard_errors": {
+                "central_mu": 3.9374361940587194e-05
+              },
+              "jacobian_rank": 1,
+              "full_rank": true,
+              "active_bounds": [
+                0
+              ],
+              "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+            },
+            "train_rmse": 0.05128941631010608,
+            "heldout_rmse": 0.30751205896843453,
+            "training_bic": 257803.79905975342,
+            "train_count": 49,
+            "heldout_count": 21,
+            "residuals": [
+              [
+                -1.2301533574010648e-06,
+                -0.00029874553750846986
+              ],
+              [
+                0.00015693760861645867,
+                0.0008588728130098089
+              ],
+              [
+                -2.0090367198966064e-05,
+                0.0008730844175192931
+              ],
+              [
+                -0.0011413614034507802,
+                -0.0015879176330913791
+              ],
+              [
+                -0.0014519948247765369,
+                0.00021339364839872976
+              ],
+              [
+                -0.0035597827380410285,
+                -0.0009438065057160161
+              ],
+              [
+                -0.004568165016147985,
+                0.00014941541001356473
+              ],
+              [
+                -0.006095385893581828,
+                -0.0016832254986033357
+              ],
+              [
+                -0.006710536607279272,
+                -0.0007534367302977074
+              ],
+              [
+                -0.00834767846861495,
+                -0.000169553411364598
+              ],
+              [
+                -0.010857499938592086,
+                -0.0015103184290123917
+              ],
+              [
+                -0.014126298066748255,
+                -0.0023585008781914496
+              ],
+              [
+                -0.018472686231778113,
+                -0.0023176120655168386
+              ],
+              [
+                -0.018928011934188804,
+                -0.002480114360766228
+              ],
+              [
+                -0.024706008131983537,
+                -0.003764817509537166
+              ],
+              [
+                -0.026684673355708177,
+                -0.00394491071277403
+              ],
+              [
+                -0.030812694698330645,
+                -0.004540690212240794
+              ],
+              [
+                -0.03650649776097009,
+                -0.0056376611130452
+              ],
+              [
+                -0.03910436053466115,
+                -0.008601803755988846
+              ],
+              [
+                -0.042238475739632714,
+                -0.009055973290426955
+              ],
+              [
+                -0.0465678196010636,
+                -0.010854142048509763
+              ],
+              [
+                -0.04877413317662933,
+                -0.012648158096460804
+              ],
+              [
+                -0.05476464302299042,
+                -0.01294404202343502
+              ],
+              [
+                -0.0574980357548416,
+                -0.016637525940345288
+              ],
+              [
+                -0.059022273383716184,
+                -0.02061556334002379
+              ],
+              [
+                -0.06321558305749544,
+                -0.01953732754923021
+              ],
+              [
+                -0.06506182933422641,
+                -0.023406757377841148
+              ],
+              [
+                -0.06706598203854364,
+                -0.025519615995930223
+              ],
+              [
+                -0.06918872531488712,
+                -0.02736005216175119
+              ],
+              [
+                -0.07243861766679216,
+                -0.027655389692242016
+              ],
+              [
+                -0.0727167284364581,
+                -0.029218884609018114
+              ],
+              [
+                -0.07396108349052366,
+                -0.029489788810782458
+              ],
+              [
+                -0.07443405951726134,
+                -0.03105217275669847
+              ],
+              [
+                -0.07701859899051822,
+                -0.032478936308074524
+              ],
+              [
+                -0.07591238600181072,
+                -0.03008279928774482
+              ],
+              [
+                -0.07910600317509231,
+                -0.027841314986652543
+              ],
+              [
+                -0.07943797427612731,
+                -0.02807207282572033
+              ],
+              [
+                -0.08294391276187774,
+                -0.026555979074077585
+              ],
+              [
+                -0.08362543110946996,
+                -0.022557504987117005
+              ],
+              [
+                -0.0865938991450863,
+                -0.020893437722190267
+              ],
+              [
+                -0.09008557006131768,
+                -0.014940451235502528
+              ],
+              [
+                -0.09546930634403417,
+                -0.010500667008555037
+              ],
+              [
+                -0.10061110735890177,
+                -0.004489260428435282
+              ],
+              [
+                -0.10772670166585341,
+                0.00012190762337575128
+              ],
+              [
+                -0.11721133815278661,
+                0.004407162992772152
+              ],
+              [
+                -0.1258279564426834,
+                0.009679095078028638
+              ],
+              [
+                -0.1369193327622351,
+                0.014262174376415415
+              ],
+              [
+                -0.1503323962409031,
+                0.01912274440271261
+              ],
+              [
+                -0.16383281483574108,
+                0.022895942489189636
+              ],
+              [
+                -0.1799226614096655,
+                0.027658216647691747
+              ],
+              [
+                -0.199440991166822,
+                0.0274312182789464
+              ],
+              [
+                -0.21958508005499555,
+                0.023400628639006826
+              ],
+              [
+                -0.23964309893555513,
+                0.023269103228755417
+              ],
+              [
+                -0.2628911322869597,
+                0.01673003247810312
+              ],
+              [
+                -0.2855980429314386,
+                0.009301505009884914
+              ],
+              [
+                -0.3101084333546652,
+                -0.0025049204979814554
+              ],
+              [
+                -0.3321608346231586,
+                -0.016140428461931644
+              ],
+              [
+                -0.3567464699940781,
+                -0.03269668538926118
+              ],
+              [
+                -0.37975386091570085,
+                -0.0537979998536674
+              ],
+              [
+                -0.4020322711344413,
+                -0.07912869068653106
+              ],
+              [
+                -0.4210090570499457,
+                -0.10592337777143324
+              ],
+              [
+                -0.43847156550287375,
+                -0.1352367467189466
+              ],
+              [
+                -0.4524799357109348,
+                -0.17122354500739256
+              ],
+              [
+                -0.46343111281892857,
+                -0.20793011721779453
+              ],
+              [
+                -0.47231500674558957,
+                -0.24628363039959544
+              ],
+              [
+                -0.47795648831515214,
+                -0.2865372067060661
+              ],
+              [
+                -0.47966867596999424,
+                -0.32576296885252465
+              ],
+              [
+                -0.4773478800107733,
+                -0.3710834210649665
+              ],
+              [
+                -0.4683278547393154,
+                -0.4119810373618574
+              ],
+              [
+                -0.456250169081769,
+                -0.45362938984829004
+              ]
+            ],
+            "integration_calls": 13,
+            "optimizer_evaluations": 6,
+            "success": true,
+            "status": "fit_completed",
+            "hypothesis": "central_only"
+          },
+          "performance": {
+            "wall_seconds": 0.7487393999981578,
+            "physics_wall_seconds": 0.7471915999994962,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 0,
+            "integration_calls": 13,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "58af49e1-e6c1-47b6-800f-47b383a22263",
+          "hypothesis": "central_plus_fixed_perturber",
+          "execution_role": "validation",
+          "evaluation": {
+            "failure": null,
+            "fit_message": "`xtol` termination condition is satisfied.",
+            "parameters": {
+              "central_mu": 0.9999784517366527,
+              "perturbing_mass": 0.11987184828663872
+            },
+            "uncertainty": {
+              "method": "local linearized covariance using known measurement noise; not posterior probability",
+              "standard_errors": {
+                "central_mu": 3.884405688053984e-05,
+                "perturbing_mass": 0.0002328785179912441
+              },
+              "jacobian_rank": 2,
+              "full_rank": true,
+              "active_bounds": [
+                0,
+                0
+              ],
+              "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+            },
+            "train_rmse": 0.0008577005585677485,
+            "heldout_rmse": 0.0010203880982996062,
+            "training_bic": 81.26365927774904,
+            "train_count": 49,
+            "heldout_count": 21,
+            "residuals": [
+              [
+                -1.2301533574010648e-06,
+                -0.00029874553750846986
+              ],
+              [
+                0.0002740579318928349,
+                0.0008905590591817975
+              ],
+              [
+                0.0004543449009092315,
+                0.0009915287370415027
+              ],
+              [
+                -6.08901052124855e-05,
+                -0.0013404498303755397
+              ],
+              [
+                0.0004908573375921321,
+                0.0006201119719734249
+              ],
+              [
+                -0.0004919817313469022,
+                -0.0003573715005988354
+              ],
+              [
+                -0.0001085359885121262,
+                0.000929884074498788
+              ],
+              [
+                2.4955028339657126e-05,
+                -0.0006959531764422766
+              ],
+              [
+                0.001338550954301465,
+                0.00045694023437836684
+              ],
+              [
+                0.001894004678409722,
+                0.0012888797718344502
+              ],
+              [
+                0.0018327819580826743,
+                0.00023449256336360857
+              ],
+              [
+                0.0012565881789013966,
+                -0.0002717660296495117
+              ],
+              [
+                -0.00016967128070799475,
+                0.00018655724551153163
+              ],
+              [
+                0.002501637569867654,
+                0.000538470970354088
+              ],
+              [
+                3.105653376056505e-05,
+                -0.00011336215376755998
+              ],
+              [
+                0.0015102710100137196,
+                0.00047788061972708906
+              ],
+              [
+                0.0009561602766439137,
+                0.0008091544186001887
+              ],
+              [
+                -0.001085799238275953,
+                0.0008080524487662499
+              ],
+              [
+                5.058141150093842e-06,
+                -0.0008836546076581575
+              ],
+              [
+                0.000553578969709867,
+                0.00011268310420120553
+              ],
+              [
+                -0.000143013281214327,
+                -6.250864670209744e-05
+              ],
+              [
+                0.0011900318213559358,
+                -7.450510831974455e-05
+              ],
+              [
+                -0.0013962505875103892,
+                0.001549242315006527
+              ],
+              [
+                -0.0008991274211479425,
+                -0.00011665632297686024
+              ],
+              [
+                0.0005995011617451751,
+                -0.0019969379622022387
+              ],
+              [
+                -0.0008063608367420982,
+                0.0012037781714804296
+              ],
+              [
+                -0.00012066639437705029,
+                -0.0005709056741954877
+              ],
+              [
+                0.00014064514196349132,
+                -0.0006754896045033654
+              ],
+              [
+                1.6422801930260356e-05,
+                -0.0006577870326307522
+              ],
+              [
+                -0.0014905920793472083,
+                0.0006876280278050872
+              ],
+              [
+                -0.0002572623381990602,
+                0.0004783055895973831
+              ],
+              [
+                -0.00018360380538073873,
+                0.0012058104792815882
+              ],
+              [
+                0.000520501501633297,
+                0.00021906882592337418
+              ],
+              [
+                -0.0009603954887823507,
+                -0.0011174086520150395
+              ],
+              [
+                0.0012585654290236947,
+                0.0008281125082857388
+              ],
+              [
+                -0.0007158468433786647,
+                0.0020322797642410295
+              ],
+              [
+                0.00038942591187018927,
+                0.0001442662755438695
+              ],
+              [
+                -0.0013365647586097706,
+                -0.0006346039271187265
+              ],
+              [
+                0.00024065198519096498,
+                0.0004318395924465812
+              ],
+              [
+                0.00015520464654039667,
+                -0.0014512521565687164
+              ],
+              [
+                0.0003229685099175317,
+                0.0003853875884369251
+              ],
+              [
+                -0.00046956731888403436,
+                0.00021214518563728024
+              ],
+              [
+                6.631464687012478e-05,
+                0.0012151182256298632
+              ],
+              [
+                -0.00013570658207417985,
+                0.0005540357371043234
+              ],
+              [
+                -0.001332053015599799,
+                -0.0005338413665443541
+              ],
+              [
+                -0.00016305024047025274,
+                -0.000541345839054172
+              ],
+              [
+                0.00012875550960911308,
+                -0.0009187550276577583
+              ],
+              [
+                -0.00023229933122592694,
+                -0.0004456235009615006
+              ],
+              [
+                0.0010240140554143018,
+                -0.00020701805241879478
+              ],
+              [
+                0.0013897151167256983,
+                0.0021738488849410986
+              ],
+              [
+                -2.7776827879799626e-05,
+                0.0010336887636017145
+              ],
+              [
+                -0.0005318330034613794,
+                -0.002119926870158051
+              ],
+              [
+                0.00042717079637866195,
+                0.0007351521257583649
+              ],
+              [
+                -0.0006473362541202787,
+                -0.00040056647122832523
+              ],
+              [
+                -0.00030276392535905083,
+                0.000274127838447491
+              ],
+              [
+                -0.0012178818110231693,
+                -0.0004816714798220323
+              ],
+              [
+                0.00048391385950580235,
+                8.167632864475305e-05
+              ],
+              [
+                -0.0006165309733091873,
+                0.001015564395851154
+              ],
+              [
+                -0.0008687487468919952,
+                0.0007722368024387638
+              ],
+              [
+                -0.001603913811486779,
+                -0.0003301659212668895
+              ],
+              [
+                -0.0007385343599812834,
+                0.0003976643215478637
+              ],
+              [
+                -0.0005417391278642464,
+                0.0017450144794138867
+              ],
+              [
+                0.00046674232416496486,
+                -0.0006774149852067923
+              ],
+              [
+                0.001466752027776852,
+                -0.0012244598630988257
+              ],
+              [
+                0.0010944616438897103,
+                -0.0011982070494629404
+              ],
+              [
+                0.00021133401536160834,
+                -0.0012833173297253087
+              ],
+              [
+                -0.00074058402761501,
+                0.0009714754923214608
+              ],
+              [
+                -0.0018276052274495136,
+                -0.0020652794034898836
+              ],
+              [
+                -0.00047539609190605514,
+                -0.0004041563499442846
+              ],
+              [
+                -0.00033869284503718067,
+                0.00024706022203657696
+              ]
+            ],
+            "integration_calls": 17,
+            "optimizer_evaluations": 6,
+            "success": true,
+            "status": "fit_completed",
+            "hypothesis": "central_plus_fixed_perturber"
+          },
+          "performance": {
+            "wall_seconds": 0.32063560000096913,
+            "physics_wall_seconds": 0.3193997999987914,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 0,
+            "integration_calls": 17,
+            "measurement_complete": true
+          }
+        }
+      ]
+    },
+    {
+      "backend": "scipy",
+      "id": "b9177cc7-b1f8-4671-a8a5-e653ed9eeda3",
+      "world_initialization": {
+        "initialization_wall_seconds": 0.007518099999288097
+      },
+      "status": "completed",
+      "selected_branch_id": "66500447-e2df-430a-8a05-8ae7bd99d49a",
+      "result": {
+        "conclusion": "Additional mass is not sufficiently supported; retain the central-only model.",
+        "bic_improvement_for_extra_mass": -4.109971809284119,
+        "heldout_rmse_improvement": -0.00013730124016736044,
+        "criterion": "extra mass requires BIC improvement > 6 and held-out RMSE improvement > 5%, with full-rank Jacobian",
+        "scope": "Comparison of two simplified models; not discovery of a new physical law.",
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "execute_selected": false,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 0,
+          "physics_budget": 3
+        },
+        "followup_settings": null
+      },
+      "performance": {
+        "job_wall_seconds": 0.9471616999981052,
+        "process_cpu_seconds": 0.859375,
+        "queue_wait_seconds": 0.045077688271703664,
+        "planning_wall_seconds": 0.0,
+        "physics_wall_seconds": 0.7168643000004522,
+        "candidate_count": 2,
+        "simulation_steps": 0,
+        "integration_calls": 51,
+        "replay_payload_bytes": 40694,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      },
+      "branches": [
+        {
+          "id": "66500447-e2df-430a-8a05-8ae7bd99d49a",
+          "hypothesis": "central_only",
+          "execution_role": "validation",
+          "evaluation": {
+            "failure": null,
+            "fit_message": "`ftol` termination condition is satisfied.",
+            "parameters": {
+              "central_mu": 1.000032600335455
+            },
+            "uncertainty": {
+              "method": "local linearized covariance using known measurement noise; not posterior probability",
+              "standard_errors": {
+                "central_mu": 2.5678286815924567e-05
+              },
+              "jacobian_rank": 1,
+              "full_rank": true,
+              "active_bounds": [
+                0
+              ],
+              "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+            },
+            "train_rmse": 0.0009670468081632896,
+            "heldout_rmse": 0.0008035318205970152,
+            "training_bic": 119.18344288598122,
+            "train_count": 49,
+            "heldout_count": 21,
+            "residuals": [
+              [
+                0.0015544882685952777,
+                0.0011953262992940449
+              ],
+              [
+                0.0012170814830012588,
+                0.00031443889075932763
+              ],
+              [
+                0.002067593971561643,
+                0.00016889753640336735
+              ],
+              [
+                0.0008549204354449946,
+                -0.0007992218085876024
+              ],
+              [
+                -0.0008576578840646665,
+                -0.0012452968239015094
+              ],
+              [
+                -0.0006894261867644857,
+                4.695430019668878e-05
+              ],
+              [
+                -0.0007733726027943089,
+                -0.001347144795183719
+              ],
+              [
+                0.0005783671905561505,
+                -0.0005471775486148855
+              ],
+              [
+                3.0128280562036203e-05,
+                -0.001289855835848508
+              ],
+              [
+                0.0007382152725738944,
+                0.00026660299884995187
+              ],
+              [
+                -0.0003366420193176012,
+                -0.0002351598130265753
+              ],
+              [
+                0.0014508627523603934,
+                -0.0003280421967511993
+              ],
+              [
+                8.786671222760223e-05,
+                0.00020640434689278564
+              ],
+              [
+                0.0001177607745270759,
+                -0.00020631120729053265
+              ],
+              [
+                0.001600091141043758,
+                -0.0014018351228225479
+              ],
+              [
+                0.0007428851498501032,
+                0.0019873106236243387
+              ],
+              [
+                4.260989202570231e-05,
+                -0.001324686252404006
+              ],
+              [
+                0.0004299326586118535,
+                -0.0014134418295629336
+              ],
+              [
+                -0.0014291497626810583,
+                0.0007397641449204961
+              ],
+              [
+                0.002164969513063303,
+                0.0010665273431832434
+              ],
+              [
+                -0.0011037549785148093,
+                0.0006853001812789916
+              ],
+              [
+                0.0013072496911019915,
+                0.0011433536737320837
+              ],
+              [
+                -4.510844948962811e-05,
+                -3.808352383349867e-05
+              ],
+              [
+                -0.000825294592388337,
+                -0.0009551214521774654
+              ],
+              [
+                0.0007886035074433639,
+                5.970504000918364e-05
+              ],
+              [
+                0.000970314717604448,
+                -0.00015517284170751822
+              ],
+              [
+                0.0009876780065777302,
+                0.000971602415800854
+              ],
+              [
+                -0.0019365381302207663,
+                -0.000141940940658003
+              ],
+              [
+                -0.00060781377924779,
+                -0.0023941798663855707
+              ],
+              [
+                -0.0007290147574127159,
+                -3.386388756421166e-05
+              ],
+              [
+                -6.723729124413769e-05,
+                0.0005184197620419218
+              ],
+              [
+                -0.0009877087261302986,
+                0.00013685231037618983
+              ],
+              [
+                -0.0015745651944679695,
+                0.00013912144830002804
+              ],
+              [
+                0.0003304661093029848,
+                0.00019583865982880644
+              ],
+              [
+                -0.0005313914010947052,
+                -0.00035551250745080587
+              ],
+              [
+                -0.001182915403565521,
+                0.000298445419231394
+              ],
+              [
+                -0.00019929164795773335,
+                -0.0019362500373679183
+              ],
+              [
+                0.00029322342597715156,
+                -0.0006847784233008011
+              ],
+              [
+                -0.001308326916759972,
+                -0.0007070373120929285
+              ],
+              [
+                0.0006848543602012702,
+                0.001630416590878453
+              ],
+              [
+                -0.002001888611374958,
+                -0.0005985015002977767
+              ],
+              [
+                -0.0009676270150783539,
+                0.0002146123123055177
+              ],
+              [
+                -0.0014448991453193116,
+                -0.0006713765825355211
+              ],
+              [
+                0.00015854921479530049,
+                0.000606603654029203
+              ],
+              [
+                -0.00010461320930976736,
+                0.00024448923925424193
+              ],
+              [
+                0.000444959551839208,
+                0.0012720239774123288
+              ],
+              [
+                0.0007047883893458451,
+                -0.0003078924752791812
+              ],
+              [
+                0.0014040007686449973,
+                -0.0002146428282184809
+              ],
+              [
+                -0.00028968382760130584,
+                0.00014437175177006711
+              ],
+              [
+                0.0008751282513317915,
+                0.00044533948982516947
+              ],
+              [
+                -0.0005069760033599713,
+                0.001285765506951475
+              ],
+              [
+                0.0006159976983727833,
+                0.00031308457512779775
+              ],
+              [
+                0.00022893178538135883,
+                2.636358884666734e-05
+              ],
+              [
+                0.0013560684394529482,
+                -0.001832752327041387
+              ],
+              [
+                0.00021215994640678276,
+                0.0012204208183365095
+              ],
+              [
+                0.0011707783517169792,
+                -3.752718153293699e-05
+              ],
+              [
+                -0.00017481969041918677,
+                0.0012800330962705608
+              ],
+              [
+                -0.0002659505625050851,
+                0.0013381859144601105
+              ],
+              [
+                0.0010744653663924963,
+                -0.00062254506939452
+              ],
+              [
+                -0.0011661699686950633,
+                0.0002460570420194097
+              ],
+              [
+                0.0006198011331557951,
+                -0.0009342387204297475
+              ],
+              [
+                0.001286766663711969,
+                -2.0551675153579474e-05
+              ],
+              [
+                0.00010189945237026876,
+                -0.000647467376671762
+              ],
+              [
+                2.318717875948728e-05,
+                0.0005190391924541071
+              ],
+              [
+                -0.0002821685439921007,
+                0.0013121844242741654
+              ],
+              [
+                -0.00048570745172604735,
+                0.0009282116445656907
+              ],
+              [
+                0.001029177740030196,
+                0.0006751528881731028
+              ],
+              [
+                0.00014476747399461143,
+                -0.00027176276426549295
+              ],
+              [
+                0.000345253225530473,
+                -0.0002794943138988981
+              ],
+              [
+                -0.0007492022143930077,
+                0.0004850497858348013
+              ]
+            ],
+            "integration_calls": 7,
+            "optimizer_evaluations": 3,
+            "success": true,
+            "status": "fit_completed",
+            "hypothesis": "central_only"
+          },
+          "performance": {
+            "wall_seconds": 0.04911549999815179,
+            "physics_wall_seconds": 0.04787980000037351,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 0,
+            "integration_calls": 7,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "31210026-1297-42bd-9614-c972b3e373aa",
+          "hypothesis": "central_plus_fixed_perturber",
+          "execution_role": "validation",
+          "evaluation": {
+            "failure": null,
+            "fit_message": "`xtol` termination condition is satisfied.",
+            "parameters": {
+              "central_mu": 1.0000248303164543,
+              "perturbing_mass": 9.962698459207908e-05
+            },
+            "uncertainty": {
+              "method": "local linearized covariance using known measurement noise; not posterior probability",
+              "standard_errors": {
+                "central_mu": 2.8042289250869564e-05,
+                "perturbing_mass": 0.00014455359396296243
+              },
+              "jacobian_rank": 2,
+              "full_rank": true,
+              "active_bounds": [
+                0,
+                0
+              ],
+              "caveat": "Gaussian local approximation; boundary mass and misspecified physics limit interpretation"
+            },
+            "train_rmse": 0.0009650405859490546,
+            "heldout_rmse": 0.0009408330607643756,
+            "training_bic": 123.29341469526534,
+            "train_count": 49,
+            "heldout_count": 21,
+            "residuals": [
+              [
+                0.0015544882685952777,
+                0.0011953262992940449
+              ],
+              [
+                0.001217262507428929,
+                0.0003144772244405014
+              ],
+              [
+                0.002068326675819021,
+                0.00016904388644956025
+              ],
+              [
+                0.0008565878585606868,
+                -0.0007989080454718356
+              ],
+              [
+                -0.00085466187456118,
+                -0.0012447634558935827
+              ],
+              [
+                -0.0006846996598893762,
+                4.775857680855422e-05
+              ],
+              [
+                -0.0007665095503186503,
+                -0.001346010266556008
+              ],
+              [
+                0.0005877717137483529,
+                -0.000545635117066845
+              ],
+              [
+                4.247128298551228e-05,
+                -0.001287799229365394
+              ],
+              [
+                0.000753877888879928,
+                0.00026931804997720743
+              ],
+              [
+                -0.0003173040048957132,
+                -0.00023159696509378325
+              ],
+              [
+                0.0014741959828817874,
+                -0.00032339291076177723
+              ],
+              [
+                0.000115468001528507,
+                0.00021242899734319476
+              ],
+              [
+                0.00014984448704080666,
+                -0.00019857501881448414
+              ],
+              [
+                0.0016368024978038465,
+                -0.0013920102925867317
+              ],
+              [
+                0.0007842907655969955,
+                0.0019996321736992506
+              ],
+              [
+                8.869019942503442e-05,
+                -0.0013094419746267905
+              ],
+              [
+                0.0004805771126647346,
+                -0.0013948461916040156
+              ],
+              [
+                -0.001374144389909137,
+                0.0007621247990295954
+              ],
+              [
+                0.002224041755433781,
+                0.0010930333148012616
+              ],
+              [
+                -0.0010409949733071466,
+                0.0007162796051743969
+              ],
+              [
+                0.0013732429708885607,
+                0.0011790642236528814
+              ],
+              [
+                2.3601750317014947e-05,
+                2.5288037148740727e-06
+              ],
+              [
+                -0.0007544284467479456,
+                -0.0009095384321691213
+              ],
+              [
+                0.000861040333978047,
+                0.000110214612250914
+              ],
+              [
+                0.0010437356734631642,
+                -9.990158810779803e-05
+              ],
+              [
+                0.0010615202334972595,
+                0.0010313463375837273
+              ],
+              [
+                -0.0018627877973543816,
+                -7.813598874117922e-05
+              ],
+              [
+                -0.0005345925150042063,
+                -0.0023268417712695166
+              ],
+              [
+                -0.0006566582235253415,
+                3.6374848890297073e-05
+              ],
+              [
+                4.044158311677926e-06,
+                0.0005908386831319223
+              ],
+              [
+                -0.0009175662201211798,
+                0.00021066444331491185
+              ],
+              [
+                -0.001505461511361883,
+                0.00021349924488139882
+              ],
+              [
+                0.0003988081805195165,
+                0.0002699434976627946
+              ],
+              [
+                -0.00046334864040542545,
+                -0.0002824977110070792
+              ],
+              [
+                -0.0011145224530820785,
+                0.0003696093205623058
+              ],
+              [
+                -0.00012971574867226554,
+                -0.0018676059327292806
+              ],
+              [
+                0.0003649878346262403,
+                -0.0006191952248468455
+              ],
+              [
+                -0.0012332127378102964,
+                -0.0006448938343336097
+              ],
+              [
+                0.0007646121193303212,
+                0.0016889361360299393
+              ],
+              [
+                -0.001916090426020589,
+                -0.0005435666398004857
+              ],
+              [
+                -0.0008743233399702843,
+                0.0002662494775115265
+              ],
+              [
+                -0.0013425962596269603,
+                -0.0006224834297490212
+              ],
+              [
+                0.0002713300062680002,
+                0.0006535854713523026
+              ],
+              [
+                2.006304576429585e-05,
+                0.00029067679728478346
+              ],
+              [
+                0.0005828396269182967,
+                0.001318816497176245
+              ],
+              [
+                0.0008570231840315801,
+                -0.00025882387914044624
+              ],
+              [
+                0.001571536436717924,
+                -0.00016137328211118795
+              ],
+              [
+                -0.0001061512162999767,
+                0.00020399428075545956
+              ],
+              [
+                0.0010750627716482608,
+                0.0005136605252539228
+              ],
+              [
+                -0.00029056240884878237,
+                0.0013652828704424635
+              ],
+              [
+                0.0008486094299147151,
+                0.0004064008808359887
+              ],
+              [
+                0.00047707957386911026,
+                0.0001361337928126316
+              ],
+              [
+                0.001618693830798032,
+                -0.0017038785821354985
+              ],
+              [
+                0.00048780215659097875,
+                0.0013709826678593995
+              ],
+              [
+                0.001457577379741816,
+                0.0001371804735642579
+              ],
+              [
+                0.0001208899029469801,
+                0.001481155298523995
+              ],
+              [
+                3.6059721765041575e-05,
+                0.0015677424658344652
+              ],
+              [
+                0.0013798351854202306,
+                -0.00036284139320208464
+              ],
+              [
+                -0.0008606715334696369,
+                0.0005372605098018512
+              ],
+              [
+                0.0009219575211922848,
+                -0.0006105901723567619
+              ],
+              [
+                0.0015819285385061388,
+                0.00033603930072989563
+              ],
+              [
+                0.00038629674560497484,
+                -0.00025791611875414233
+              ],
+              [
+                0.0002930023725669084,
+                0.0009410660485503763
+              ],
+              [
+                -3.0726297959193793e-05,
+                0.0017656866684261363
+              ],
+              [
+                -0.00025632614091219974,
+                0.0014116720444485864
+              ],
+              [
+                0.001232990985259419,
+                0.0011865454787521879
+              ],
+              [
+                0.0003197626060211789,
+                0.0002650475144911346
+              ],
+              [
+                0.0004885114991901585,
+                0.00027976137747820484
+              ],
+              [
+                -0.0006401974901799612,
+                0.0010633612173349127
+              ]
+            ],
+            "integration_calls": 44,
+            "optimizer_evaluations": 15,
+            "success": true,
+            "status": "fit_completed",
+            "hypothesis": "central_plus_fixed_perturber"
+          },
+          "performance": {
+            "wall_seconds": 0.6704943000004278,
+            "physics_wall_seconds": 0.6689845000000787,
+            "ik_planning_seconds": 0,
+            "simulation_steps": 0,
+            "integration_calls": 44,
+            "measurement_complete": true
+          }
+        }
+      ]
+    },
+    {
+      "backend": "cloth",
+      "id": "86eb2f4f-8e17-46d9-93d7-431b3948b9f0",
+      "world_initialization": {
+        "initialization_wall_seconds": 0.20798040000227047
+      },
+      "status": "completed",
+      "selected_branch_id": "2ec4b242-530e-478e-a22d-68fea3d22a95",
+      "result": {
+        "conclusion": "Measured constrained cloth fold verified.",
+        "ranked_branch_ids": [
+          "2ec4b242-530e-478e-a22d-68fea3d22a95",
+          "a6c466f3-c4d9-4b1d-8670-f50bc1742fda",
+          "11391a88-3a09-453c-8d78-6b6cc5ddabe2"
+        ],
+        "top_feasible_branch_ids": [
+          "2ec4b242-530e-478e-a22d-68fea3d22a95",
+          "a6c466f3-c4d9-4b1d-8670-f50bc1742fda",
+          "11391a88-3a09-453c-8d78-6b6cc5ddabe2"
+        ],
+        "milestone": "constrained_single_fold",
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 5000,
+          "physics_budget": 3
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 5000,
+          "distinct_generated": 5000,
+          "screened": 5000,
+          "rejected": 2984,
+          "screening_passed": 2016,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "bcea1cecc0469ae287645fe1f36a9974d9eaf84394339b772e01caa6d9ab2fb3",
+          "sampling": "seeded clamp height, lateral travel and duration; Panda joint IK before physics",
+          "screening_scope": "geometric stretch/travel bounds only; grasp constraints, contacts and fold quality require MuJoCo",
+          "ranking_objective": "feasible first, alignment RMSE, descending vertex coverage, executed duration",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "planning_failed": 0,
+          "verified_feasible": 3,
+          "physics_rejected": 0
+        },
+        "execution_branch_id": "f843d8fb-99f9-4efb-8974-4c28bba8a392",
+        "execution_evaluation": {
+          "success": true,
+          "status": "fold_success",
+          "alignment_error_m": 0.0009233650520320607,
+          "vertex_coverage": 1.0,
+          "grasp_valid": true,
+          "grasp_constraint_error_m": 0.0006735515760709481,
+          "maximum_contact_penetration_m": 0.0019814808604523178,
+          "contact_violations": [],
+          "execution_duration_s": 5.5159999999996145,
+          "fold_quality": 0.9692211649322646,
+          "milestone": "constrained_single_fold",
+          "scope": "Actuated Franka Panda carries a folding bar with seven pre-attached constraints; 7x7 MuJoCo flex, fixed hinge/opposite edge, release and settling; no autonomous grasp acquisition.",
+          "robot_joint_displacement_rad": 2.0245857497736317,
+          "maximum_joint_tracking_error_rad": 0.08619985526401663,
+          "manipulator": "Franka Panda joint actuators"
+        },
+        "executed_world_revision": 1
+      },
+      "performance": {
+        "job_wall_seconds": 122.78247740000006,
+        "process_cpu_seconds": 54.5625,
+        "queue_wait_seconds": 0.041325076832436025,
+        "planning_wall_seconds": 4.354832400000305,
+        "physics_wall_seconds": 113.13535850000335,
+        "candidate_count": 4,
+        "simulation_steps": 11032,
+        "integration_calls": 0,
+        "replay_payload_bytes": 2914786,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+      },
+      "branches": [
+        {
+          "id": "2ec4b242-530e-478e-a22d-68fea3d22a95",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.0009233650520320607,
+            "vertex_coverage": 1.0,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.0006735515760709481,
+            "maximum_contact_penetration_m": 0.0019814808604523178,
+            "contact_violations": [],
+            "execution_duration_s": 5.5159999999996145,
+            "fold_quality": 0.9692211649322646,
+            "milestone": "constrained_single_fold",
+            "scope": "Actuated Franka Panda carries a folding bar with seven pre-attached constraints; 7x7 MuJoCo flex, fixed hinge/opposite edge, release and settling; no autonomous grasp acquisition.",
+            "robot_joint_displacement_rad": 2.0245857497736317,
+            "maximum_joint_tracking_error_rad": 0.08619985526401663,
+            "manipulator": "Franka Panda joint actuators"
+          },
+          "performance": {
+            "wall_seconds": 15.225429400001303,
+            "physics_wall_seconds": 12.39511720000155,
+            "ik_planning_seconds": 2.0220914999990782,
+            "simulation_steps": 2758,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "a6c466f3-c4d9-4b1d-8670-f50bc1742fda",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.000978526881530465,
+            "vertex_coverage": 1.0,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.0006115234845486362,
+            "maximum_contact_penetration_m": 0.001981426207816748,
+            "contact_violations": [],
+            "execution_duration_s": 5.509999999999615,
+            "fold_quality": 0.9673824372823179,
+            "milestone": "constrained_single_fold",
+            "scope": "Actuated Franka Panda carries a folding bar with seven pre-attached constraints; 7x7 MuJoCo flex, fixed hinge/opposite edge, release and settling; no autonomous grasp acquisition.",
+            "robot_joint_displacement_rad": 2.025352593223006,
+            "maximum_joint_tracking_error_rad": 0.08640796642926185,
+            "manipulator": "Franka Panda joint actuators"
+          },
+          "performance": {
+            "wall_seconds": 15.84895939999842,
+            "physics_wall_seconds": 14.695436699999846,
+            "ik_planning_seconds": 0.3814487999989069,
+            "simulation_steps": 2755,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "11391a88-3a09-453c-8d78-6b6cc5ddabe2",
+          "hypothesis": null,
+          "execution_role": "validation",
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.0010690345419847047,
+            "vertex_coverage": 1.0,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.0003835471363199506,
+            "maximum_contact_penetration_m": 0.0019813145193989974,
+            "contact_violations": [],
+            "execution_duration_s": 5.521999999999614,
+            "fold_quality": 0.9643655152671765,
+            "milestone": "constrained_single_fold",
+            "scope": "Actuated Franka Panda carries a folding bar with seven pre-attached constraints; 7x7 MuJoCo flex, fixed hinge/opposite edge, release and settling; no autonomous grasp acquisition.",
+            "robot_joint_displacement_rad": 2.0268681341610497,
+            "maximum_joint_tracking_error_rad": 0.08622861541265658,
+            "manipulator": "Franka Panda joint actuators"
+          },
+          "performance": {
+            "wall_seconds": 13.923082699999213,
+            "physics_wall_seconds": 12.983888200000365,
+            "ik_planning_seconds": 0.5715874000015901,
+            "simulation_steps": 2761,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        },
+        {
+          "id": "f843d8fb-99f9-4efb-8974-4c28bba8a392",
+          "hypothesis": null,
+          "execution_role": "authoritative_execution",
+          "evaluation": {
+            "success": true,
+            "status": "fold_success",
+            "alignment_error_m": 0.0009233650520320607,
+            "vertex_coverage": 1.0,
+            "grasp_valid": true,
+            "grasp_constraint_error_m": 0.0006735515760709481,
+            "maximum_contact_penetration_m": 0.0019814808604523178,
+            "contact_violations": [],
+            "execution_duration_s": 5.5159999999996145,
+            "fold_quality": 0.9692211649322646,
+            "milestone": "constrained_single_fold",
+            "scope": "Actuated Franka Panda carries a folding bar with seven pre-attached constraints; 7x7 MuJoCo flex, fixed hinge/opposite edge, release and settling; no autonomous grasp acquisition.",
+            "robot_joint_displacement_rad": 2.0245857497736317,
+            "maximum_joint_tracking_error_rad": 0.08619985526401663,
+            "manipulator": "Franka Panda joint actuators"
+          },
+          "performance": {
+            "wall_seconds": 74.83013469999787,
+            "physics_wall_seconds": 73.06091640000159,
+            "ik_planning_seconds": 1.032850799998414,
+            "simulation_steps": 2758,
+            "integration_calls": 0,
+            "measurement_complete": true
+          }
+        }
+      ]
+    }
+  ]
+}
