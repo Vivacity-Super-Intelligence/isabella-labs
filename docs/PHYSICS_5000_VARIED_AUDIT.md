@@ -1,11 +1,12 @@
 # Varied 5,000-trial MuJoCo audit
 
-The authoritative requested run executes in the backend's cloud Docker image.
-Progress is printed to the private GitHub Actions log at
-https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38175668423.
-The job uploads its aggregate report, catalog, replay exports and SQLite state
-database as the `backend-physics-5000` artifact. An earlier complete local run
-is retained as separate evidence. The public Render Free service currently
+The authoritative requested run **completed successfully** in the backend's
+cloud Docker image on 2026-10-11. Its measured progress and final verification
+are in the [GitHub Actions log](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38175668423/job/114577414902).
+The [30-day cloud artifact](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38175668423/artifacts/11715639246)
+contains the aggregate report, 5,000-row catalog, replay exports and SQLite
+state database. An earlier complete local run is retained as separate evidence.
+The public Render Free service currently
 allows eight trials per web request; the cloud audit has a 2 GB container limit
 and cannot be presented as a 5,000-trial Render Free performance measurement.
 The deployed physics source is byte-identical to the validated release: the
@@ -40,12 +41,28 @@ No LLM calls, recorded videos or fabricated physics outputs are used.
 
 ## Evidence and progress
 
+- **Completed cloud result:** 5,000 distinct positive-step trials across 50
+  configurations, with 4,000 measured successes and 1,000 collision failures.
+  Validation integrated **29,625,840 MuJoCo steps**; fresh selected executions
+  bring the total to **29,880,282 steps**. The run took **894.512 s** wall time
+  and **870.533 s** process CPU time in a 2 GB Docker container on a hosted
+  runner. MuJoCo was version 3.15.0. Both a measured success and a measured
+  failure reproduced their evaluation and full final state exactly. These
+  counts are from the downloaded cloud report, not the earlier local run.
+- **Persisted verification:** the downloaded catalog has exactly 5,000 rows,
+  5,000 unique control hashes and a matching SHA-256 digest. Every row records
+  positive simulation steps. SQLite contains 50 worlds, 50 experiments and
+  5,000 trial records. Three successful branches have full replay exports.
+  The hosted workflow independently checked the report, catalog digest and
+  SQLite counts before uploading the artifact. The 80% success proportion
+  reflects this deliberately mixed, bounded test distribution, including ten
+  blocked configurations; it is not a general robot reliability estimate.
 - **Cloud backend:** `.github/workflows/backend-physics-5000.yml` runs the
   backend Docker image. It logs measured per-scenario physics progress and
-  verifies 5,000 catalog rows and SQLite trial records before upload. The
-  run link above is the current status source; a queued or running job is not
-  evidence of completion. Artifact copies downloaded later are evidence from
-  that cloud run and are not additional local simulations.
+  verifies 5,000 catalog rows and SQLite trial records before upload. Run
+  38175668423 completed with every workflow step successful. Artifact copies
+  downloaded afterward are evidence from that cloud run, not additional local
+  simulations.
 - **Local control run:** `artifacts/varied-physics-5000.json` records 5,000
   trials across 50 configurations, 4,000 successes, 1,000 collision failures,
   29,625,840 validation steps, 29,880,282 total steps, 2,382.123 s elapsed,

@@ -3,16 +3,17 @@
 **Current deployment truth:** the UI uses Render Free at `https://vivacity-runtime.onrender.com`
 and `https://demo.tryvivacity.com`. This free service sleeps after inactivity and
 loses SQLite data on restart. Its true pickup limit is eight physics trials. Latest
-release and actual test results: `docs/HOSTING_STATUS.md`. The 5000-trial audit
-and preceding test/browser tables below are historical local/prior-release results,
-not proof of the current free Render service. A measured slow-CPU pickup execution
+release and actual test results: `docs/HOSTING_STATUS.md`. The completed 5,000-trial
+hosted backend-image audit is documented in `docs/PHYSICS_5000_VARIED_AUDIT.md`;
+it does not measure the current free Render instance. Earlier test/browser tables
+below are historical local/prior-release results. A measured slow-CPU pickup execution
 timeout is addressed with a tested 300-second host wall deadline. The public
 pickup journey was verified on release 2f61389; current Orbital verification
 and release evidence is recorded in docs/FINAL_VERIFICATION.md.
 
-The latest Render deployment image passed **135 tests**, plus a separate 512 MB lab test. Windows with bounded numerical threads passed **134 tests with one Linux-only skip**; unrestricted Windows deadline failures remain preserved. Fixed pickup benchmark: **20/20**. Final public adapted Orbital journey passed **12 checks**, including blocked-reactor invalidation and real failed alternatives, with **30,757 actual physics steps** and **1.717717 mm** measured successful placement error. Both public aliases passed real SciPy fits, reload, mobile layout and offline recovery. Current UI uses Start/Stop without video controls; native Pause/Resume remains a tested API capability. The 5,000-trial audit is local historical evidence. Exact current evidence, limitations and reproduce commands: `docs/FINAL_VERIFICATION.md`, `docs/HOSTING_STATUS.md`. API/frontend contracts: `FRONTEND_HANDOFF.md`, `docs/ORBITAL_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
+The latest Render deployment image passed **135 tests**, plus a separate 512 MB lab test. Windows with bounded numerical threads passed **134 tests with one Linux-only skip**; unrestricted Windows deadline failures remain preserved. Fixed pickup benchmark: **20/20**. Final public adapted Orbital journey passed **12 checks**, including blocked-reactor invalidation and real failed alternatives, with **30,757 actual physics steps** and **1.717717 mm** measured successful placement error. Both public aliases passed real SciPy fits, reload, mobile layout and offline recovery. Current UI uses Start/Stop without video controls; native Pause/Resume remains a tested API capability. A separate hosted backend-image audit completed 5,000 full MuJoCo trials: 4,000 measured successes, 1,000 collision failures, 29,625,840 validation steps, with live cloud logs and persisted records. Exact current evidence, limitations and reproduce commands: `docs/FINAL_VERIFICATION.md`, `docs/HOSTING_STATUS.md`, `docs/PHYSICS_5000_VARIED_AUDIT.md`. API/frontend contracts: `FRONTEND_HANDOFF.md`, `docs/ORBITAL_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
 
-**Render Free is provisioned:** `https://vivacity-runtime.onrender.com`, with both public frontend aliases connected. Paid activation remains blocked by the payment method requirement despite the existing credits. Free hosting sleeps after 15 idle minutes; SQLite data is ephemeral. Public pickup uses eight real physics trials and rejects oversized jobs. Always-on availability, durable cloud persistence and a completed 5,000-trial cloud run are **not** implemented by this free fallback. `docs/HOSTING_STATUS.md` records the current configuration and executed evidence.
+**Render Free is provisioned:** `https://vivacity-runtime.onrender.com`, with both public frontend aliases connected. Paid activation remains blocked by the payment method requirement despite the existing credits. Free hosting sleeps after 15 idle minutes; SQLite data is ephemeral. Public pickup uses eight real physics trials and rejects oversized jobs. Always-on availability and durable persistence are **not** implemented by this free fallback. The completed 5,000-trial cloud run used the same backend Docker image on a separate hosted runner with 2 GB memory; it did not execute on Render Free. `docs/HOSTING_STATUS.md` records the deployed configuration and executed evidence.
 
 ## Working and actually tested
 

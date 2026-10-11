@@ -103,9 +103,12 @@ for host smoke, 16-trial paused completion and two-cycle pickup. Cause was not
 isolated; latest full suite was verified on Linux, not successfully rerun on Windows.
 Reports: `render-memory-backend.xml`, `render-memory-regression.xml`, `render-final-backend.xml`.
 
-The completed 5,000-trial audit is **local fixed-scene evidence** in
-`artifacts/physics-5000.json`; completed 5,000 cloud trials are unverified and
-unsupported by the free-host budget. General cloth grasp acquisition, generalized
+The earlier 5,000-trial audit is **local fixed-scene evidence** in
+`artifacts/physics-5000.json`. A later, separate 5,000-trial varied audit
+completed in the backend Docker image on a GitHub-hosted 2 GB runner, with
+measured live logs and a persisted artifact; see
+`docs/PHYSICS_5000_VARIED_AUDIT.md`. The 512 MB Render Free service still
+supports only eight trials per public request. General cloth grasp acquisition, generalized
 pickup detours, native execution of imported robots and distributed durable workers
 remain incomplete. Cloth uses an actuated Panda, pre-attached bar and hinge; it is
 not arbitrary garment grasping. Deterministic planning is labelled correctly.

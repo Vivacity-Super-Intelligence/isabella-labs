@@ -9,6 +9,8 @@ The investor workspace executes real MuJoCo robot/cloth dynamics and SciPy orbit
 
 Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. Backend: [vivacity-runtime.onrender.com](https://vivacity-runtime.onrender.com/docs). Render Free is the fallback after the required card was declined; it sleeps after 15 idle minutes and its SQLite storage is ephemeral. The public pickup budget is eight real physics trials; local/default paid configuration retains 5,000. Current release, executed verification and hosting limits: [docs/HOSTING_STATUS.md](docs/HOSTING_STATUS.md).
 
+A separate [hosted backend-image audit](docs/PHYSICS_5000_VARIED_AUDIT.md) completed **5,000 full MuJoCo trials** across 50 varied configurations, with live GitHub Actions logs, a persisted trial database and replay exports. It used a 2 GB hosted runner and does not change the eight-trial limit of the public Render Free service.
+
 ## Verified scope
 
 - Contact-driven Panda cube grasp, lift, retention, transport, release and table placement; a fixed benchmark completed **20/20 real executions**. Full integration-state branching, measured failures and deterministic re-execution are tested.
