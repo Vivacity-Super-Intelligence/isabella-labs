@@ -28,6 +28,13 @@ def test_forks_share_only_immutable_geometry_and_release_templates(kind, monkeyp
         mj.mj_step(child.model, child.data)
     child.config['test_only'] = True
     assert backend.snapshot(parent) == saved == backend.snapshot(sibling)
+    parent.data.ctrl[0] += .2
+    for _ in range(5):
+        mj.mj_step(parent.model, parent.data)
+    fresh = backend.create_world(config.model_dump(), 11)
+    assert fresh.model is parent.model and fresh.data is not parent.data
+    assert backend.snapshot(fresh)['integration_state'] == saved['integration_state']
+    assert fresh.seed == 11
     reference = weakref.ref(parent)
     del parent
     gc.collect()

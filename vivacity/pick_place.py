@@ -14,13 +14,14 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from .robotics import ASSET_DIR, DOWN, RobotWorld, RoboticsBackend, asset_digest
-from .compiled import remember
+from .compiled import remember, reuse_world
 
 
 class PickPlaceBackend(RoboticsBackend):
     action_schema = {'type': 'pick_place', 'joints': 7, 'gripper_control': '0 closed, 255 open',
                      'milestone': 'physical_pick_and_place', 'planner': 'DLS pose IK; collision-screened joint segments'}
 
+    @reuse_world('mujoco')
     def create_world(self, config, seed, diagnostics=False):
         root = ET.parse(ASSET_DIR / 'panda.xml').getroot()
         root.find('compiler').set('meshdir', str(ASSET_DIR / 'assets'))

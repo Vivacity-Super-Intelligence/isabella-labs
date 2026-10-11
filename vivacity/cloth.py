@@ -13,7 +13,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from .robotics import ASSET_DIR, DOWN, asset_digest
 from .legacy_cloth import LegacyClothBackend, ClothWorld, N
-from .compiled import remember
+from .compiled import remember, reuse_world
 
 
 @dataclass
@@ -31,6 +31,7 @@ class ClothBackend(LegacyClothBackend):
     def __init__(self):
         self.legacy = LegacyClothBackend()
 
+    @reuse_world('cloth')
     def create_world(self, config, seed):
         if config.get('robot_model') != 'panda':
             return self.legacy.create_world(config, seed)

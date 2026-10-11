@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 import mujoco as mj
 import numpy as np
 from scipy.spatial.transform import Rotation
-from .compiled import remember, fork_geometry
+from .compiled import remember, fork_geometry, reuse_world
 
 ASSET_DIR = Path(__file__).resolve().parents[1] / 'assets/menagerie/franka_emika_panda'
 STATE_SPEC = mj.mjtState.mjSTATE_INTEGRATION
@@ -39,6 +39,7 @@ class RoboticsBackend:
     version = mj.__version__
     action_schema = {'type': 'joint_trajectory', 'joints': 7, 'units': 'radians', 'planner': 'DLS pose IK + seeded joint-space RRT', 'milestone': 'reach_only'}
 
+    @reuse_world('mujoco')
     def create_world(self, config, seed):
         root = ET.parse(ASSET_DIR / 'panda.xml').getroot()
         root.find('compiler').set('meshdir', str(ASSET_DIR / 'assets'))
