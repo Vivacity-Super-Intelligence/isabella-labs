@@ -6,10 +6,12 @@ from vivacity.api import create_app
 
 def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
     monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS', '1')
+    monkeypatch.setenv('VIVACITY_PICKUP_REALTIME', '0')
     with TestClient(create_app(tmp_path / 'host.sqlite3')) as client:
         for backend, config, settings in [
             ('mujoco', {'task': 'pick_place', 'obstacle_enabled': False},
-             {'physics_trials': 8, 'search_candidates': 8, 'execute_selected': True}),
+             {'physics_trials': 8, 'search_candidates': 8, 'execute_selected': True,
+              'realtime_execution': True}),
             ('mujoco', {'task': 'pick_place', 'obstacle_enabled': False},
              {'physics_trials': 8, 'search_candidates': 8, 'execute_selected': True}),
             ('cloth', None, {'search_candidates': 50, 'physics_budget': 3,
@@ -34,6 +36,8 @@ def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
                 time.sleep(.05)
             assert experiment['status'] == 'completed', experiment
             assert experiment['selected_branch_id'], experiment
+            if backend == 'mujoco':
+                assert experiment['result']['executed_settings']['realtime_execution'] is False
             replay = client.get(f'/v1/experiments/{eid}/replay').json()
             assert all(branch['frames'] for branch in replay['branches'])
             if backend != 'scipy':

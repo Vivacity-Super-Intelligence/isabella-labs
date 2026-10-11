@@ -38,6 +38,7 @@ class Runtime:
         self.max_physics_trials = int(os.getenv('VIVACITY_MAX_PHYSICS_TRIALS', '5000'))
         if not 1 <= self.max_physics_trials <= 5000:
             raise ValueError('VIVACITY_MAX_PHYSICS_TRIALS must be 1..5000')
+        self.pickup_realtime = os.getenv('VIVACITY_PICKUP_REALTIME', '1') == '1'
         self.store = Store(database)
         self.backends = {'mujoco': RobotAdapter(), 'scipy': ScienceBackend(), 'cloth':ClothBackend()}
         self.lock = threading.RLock()
@@ -190,6 +191,7 @@ class Runtime:
             policy = HostedPolicy() if e['request']['policy'] == 'llm' else DeterministicPolicy()
             settings, reasoning = policy.propose(backend.observe(instance), backend.action_schema, e['request'])
             settings=settings|{'checkpoint':checkpoint,'pause_seconds':control.elapsed}
+            pickup_realtime = settings.get('realtime_execution', False) and self.pickup_realtime
             search = None
             if e['backend']=='mujoco' and instance.config.get('task') == 'pick_place' and settings.get('search_candidates',0):
                 actions,planning_time,search=backend.search(instance,settings,lambda detail:self.store.event(eid,'progress',detail))
@@ -218,7 +220,7 @@ class Runtime:
                     execution_settings = run_settings | {'cancel_event': cancellation,'checkpoint':checkpoint,'pause_seconds':control.elapsed}
                     if role == 'authoritative_execution':
                         execution_settings |= {'on_frame': lambda frame:self.publish_live(eid,e['world_id'],'executing',frame),
-                                               'realtime': settings.get('realtime_execution',False)}
+                                               'realtime': pickup_realtime}
                         self.store.event(eid,'progress',{'stage':'executing','message':'Executing the selected action again in an independent authoritative simulator; these are live physics states.'})
                     result = self.simulate(e['backend'], branch_instance, execution_settings)
                     recorded_action = result.get('executed_action', recorded_action)
@@ -291,6 +293,8 @@ class Runtime:
             else:
                 selected, conclusion = backend.choose(branches)
             public_settings={k:v for k,v in settings.items() if k not in ('checkpoint','pause_seconds')}
+            if e['backend'] == 'mujoco' and e['config'].get('task') == 'pick_place':
+                public_settings['realtime_execution'] = pickup_realtime
             safe_followup={k:v for k,v in followup.items() if k not in ('checkpoint','pause_seconds')} if followup else None
             e.update(status='completed', selected_branch_id=selected, result=conclusion | {'policy': reasoning, 'executed_settings': public_settings, 'followup_settings': safe_followup})
             validation_branches = list(branches)
