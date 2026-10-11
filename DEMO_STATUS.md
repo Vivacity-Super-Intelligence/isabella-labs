@@ -2,7 +2,7 @@
 
 Public frontend: **https://demo.tryvivacity.com/**. Current evidence: **119 Windows tests passed**, **119 Linux container tests passed**, and **5,000 actual independent pickup trials completed**. Real Pause/Resume and manual start are implemented. See the current release section below for exact evidence and limits.
 
-**Public backend currently unavailable:** the old tunnel hostname stopped resolving; replacement connectivity failed. The local API is healthy. Render configuration/private source are ready, but sign-in and approval of paid activation are pending. No Render service or always-on availability is claimed. See `docs/RENDER_DEPLOYMENT.md`.
+**Public backend currently unavailable:** the old tunnel hostname stopped resolving; replacement connectivity failed. The local API is healthy. Render/GitHub are connected and $100 credits are verified, but Render requires a card on file before activating the paid service. No Render service or always-on availability is claimed. See `docs/RENDER_DEPLOYMENT.md`.
 
 ## Verified outcomes — earlier master release
 
@@ -79,8 +79,8 @@ must be rerun after the hosting endpoint is available.
 
 `render.yaml` proposes one paid 1 CPU / 2 GB instance, a persistent 5 GB `/data`
 disk, Singapore, exact CORS/WS origins, health checks and manual deployments.
-**Render is not deployed:** dashboard is signed out and no Render credential is
-configured. Paid activation, Render TLS/WSS, restart/disk persistence and remote
+**Render is not deployed:** dashboard and GitHub are connected; $100 credits are
+verified. Render requires card registration before paid activation. Render TLS/WSS, restart/disk persistence and remote
 performance remain unverified. No paid service has been purchased. The current
 temporary tunnel stopped resolving and its renewal failed once; this illustrates
 why it cannot provide independently durable availability. Instructions and exact

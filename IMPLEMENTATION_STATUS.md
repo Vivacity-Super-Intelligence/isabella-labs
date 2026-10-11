@@ -2,7 +2,7 @@
 
 Current code includes real Pause/Resume and a completed 5,000-trial MuJoCo audit. **119 tests passed on Windows and in the Linux deployment container.** Exact current evidence and limitations appear in the current release section below. Earlier release artifacts remain evidence of those revisions. Architecture/API handoff: `ARCHITECTURE.md`, `FRONTEND_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
 
-**Render hosting is not provisioned:** account sign-in and paid activation are pending. The public tunnel is currently unavailable; local API is healthy. `docs/RENDER_DEPLOYMENT.md` records the prepared configuration and remaining live verification gates.
+**Render hosting is not provisioned:** Render/GitHub are connected and $100 credits are verified. Render requires card registration before paid activation. The public tunnel is currently unavailable; local API is healthy. `docs/RENDER_DEPLOYMENT.md` records the prepared configuration and remaining live verification gates.
 
 ## Working and actually tested
 
@@ -97,8 +97,8 @@ must be rerun after the hosting endpoint is available.
 
 `render.yaml` proposes one paid 1 CPU / 2 GB instance, a persistent 5 GB `/data`
 disk, Singapore, exact CORS/WS origins, health checks and manual deployments.
-**Render is not deployed:** dashboard is signed out and no Render credential is
-configured. Paid activation, Render TLS/WSS, restart/disk persistence and remote
+**Render is not deployed:** dashboard and GitHub are connected; $100 credits are
+verified. Render requires card registration before paid activation. Render TLS/WSS, restart/disk persistence and remote
 performance remain unverified. No paid service has been purchased. The current
 temporary tunnel stopped resolving and its renewal failed once; this illustrates
 why it cannot provide independently durable availability. Instructions and exact

@@ -13,8 +13,9 @@ failed and external readiness did not pass. No frontend was rebound to an
 unverified replacement URL.
 
 Render is the requested durable host. `render.yaml`, a dedicated private backend
-repository and executed Linux Docker verification are ready. Account sign-in and
-paid activation are pending, so no Render deployment or cloud persistence is
+repository and executed Linux Docker verification are ready. Render/GitHub are
+connected and $100 credits are verified. Required card registration and paid
+activation are pending, so no Render deployment or cloud persistence is
 claimed. Exact configuration, cost, commands and verification gates:
 `docs/RENDER_DEPLOYMENT.md`.
 

@@ -1,7 +1,8 @@
 # Current frontend handoff — master runtime, 2026-10-11
 
 **Hosting update:** Render source/configuration and Linux verification are ready;
-Render sign-in and paid activation are pending. The previous public tunnel is
+Render/GitHub are connected; paid activation is pending Render's required card
+registration, despite the verified $100 credit balance. The previous public tunnel is
 currently unavailable. Use the local backend for development until a verified
 Render URL is assigned. Exact deployment and connection commands:
 `docs/RENDER_DEPLOYMENT.md`. Do not compile a guessed backend URL into the UI.

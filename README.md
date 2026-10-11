@@ -2,7 +2,7 @@
 
 The investor workspace executes real MuJoCo robot/cloth dynamics and SciPy orbital model comparisons through one persisted simulation runtime. The React frontend runs bounded autonomous sessions, validates independent alternatives, and streams a **fresh selected physical execution**. It does not substitute prerecorded playback, scripted mesh attachment or canned numerical results.
 
-Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. The API currently uses a temporary tunnel to this machine; Render hosting is prepared but awaits account sign-in and paid-service activation. See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. Its previous API tunnel is unavailable. Render/GitHub are connected and $100 credits are verified, but Render requires a card on file before paid activation. The local API works; public end-to-end service is pending activation and verification. See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ## Verified scope
 

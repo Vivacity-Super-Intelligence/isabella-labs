@@ -1,7 +1,10 @@
 # Render deployment handoff — 2026-10-11
 
-Status: prepared, **not provisioned on Render**. The dashboard is signed out and
-no Render API key/CLI account is configured. A paid service has not been created.
+Status: prepared, **not provisioned on Render**. Render and GitHub are connected.
+The dashboard confirms $100 credits, valid until July 1, 2027, and no card on file.
+Render requires a payment method before activating this paid Blueprint even
+with those credits. The user must enter card details directly in Render; none
+are collected in this workspace. A paid service has not been created.
 The Vercel frontend remains at https://demo.tryvivacity.com/.
 
 Private deployment repository: https://github.com/Tanish-Anand1/vivacity-runtime.
@@ -18,7 +21,9 @@ Import `render.yaml` as a Render Blueprint from that repository:
 - Paid `1c-2g` compute: one CPU, 2 GB RAM. One instance, one Uvicorn process.
 - 5 GB persistent disk mounted at `/data`; SQLite WAL and staged imports reside
   beneath it through `VIVACITY_DATABASE=/data/vivacity.sqlite3`.
-- `healthCheckPath: /health`, 60-second graceful shutdown limit.
+- `healthCheckPath: /health`; platform shutdown defaults. Render's live validator
+  rejected `maxShutdownDelaySeconds` for a service with a disk, so that optional
+  setting was removed in deployment revision `7d899a2`.
 - Platform-provided `PORT`; HTTPS and WebSockets use the same web service.
 - Exact CORS/WS origins: `https://demo.tryvivacity.com` and
   `https://vivacity-investor-demo.vercel.app`.
@@ -27,8 +32,9 @@ Import `render.yaml` as a Render Blueprint from that repository:
 
 Published pricing inspected on 2026-10-11: $25/month compute plus $1.25/month
 disk, **$26.25/month before tax and usage overages**, on a Hobby workspace with
-no additional workspace subscription. Review the account's actual recurring
-price before activation; approval has been requested.
+no additional workspace subscription. The user authorized using the $100 credit
+balance for the proposed hosting. Card registration remains an account-side
+activation prerequisite; the displayed form states a temporary $1 authorization.
 Persistent disks are published at $0.25/GB/month: the proposed disk contributes
 $1.25/month, before compute, taxes and usage overages. No financial commitment
 has been made. Do not select the free service as an “always-on” substitute:
@@ -51,6 +57,25 @@ Docker build and all **119 tests in 269.17 s**:
 [final run](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38140064902),
 `artifacts/render-linux-final/backend-linux.xml`. The exported source bytes and
 the deployment checkout now match, including Panda assets.
+
+Corrected disk-compatible Blueprint revision `7d899a2` passed the source
+manifest check, Docker build and **119 tests** again (JUnit suite 146.820 s,
+zero failures/errors/skips). Evidence:
+`artifacts/render-linux-deployment/backend-linux.xml` and
+[deployment revision CI](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38141857265).
+Render has not provisioned the service: its current activation form explicitly
+requires payment information. The existing suspended `vivacity-api` points to
+`Tanish-Anand1/newmanim`; it was inspected and left untouched.
+
+Current local preflight passed the real HTTP/WebSocket investor journey in
+`artifacts/render-preflight-summary.json`; the complete executed responses are
+preserved in `artifacts/render-preflight-live.json.gz` with an uncompressed SHA-256
+in the summary. Independent pickup API diagnostics
+passed eight full native trials and fresh grasp/placement in 17.417 s in
+`artifacts/native-api-diagnostic.json`. These are local measurements, not
+Render service measurements. The latest browser control run passed native
+pause/resume and then failed on a transport reset during later checks;
+`artifacts/pause-local-control.json` retains that partial result.
 
 After Render reports a successful deployment, use its **actual** HTTPS URL:
 

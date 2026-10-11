@@ -1,0 +1,404 @@
+{
+  "url": "http://127.0.0.1:5173/",
+  "api": "http://127.0.0.1:8000",
+  "checks": [
+    "page_load_has_no_automatic_experiments",
+    "pause_freezes_native_simulator_state",
+    "resume_continues_same_world_and_experiment",
+    "native_trials_record_real_states",
+    "stop_cancels_paused_or_running_work",
+    "camera_remains_interactive_while_paused"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "backend": "mujoco",
+      "seed": 7,
+      "max_cycles": 1,
+      "realtime_execution": true,
+      "physics_trials": 5000,
+      "search_candidates": 5000,
+      "physics_budget": 3,
+      "config": {
+        "task": "pick_place",
+        "obstacle_enabled": false,
+        "cube_position": [
+          0.5,
+          -0.15,
+          0.026
+        ],
+        "placement_position": [
+          0.5,
+          0.18,
+          0.026
+        ],
+        "cube_mass": 0.06,
+        "cube_friction": 1,
+        "obstacle_position": [
+          0.75,
+          -0.4,
+          0.22
+        ],
+        "obstacle_size": [
+          0.055,
+          0.13,
+          0.22
+        ],
+        "target_position": [
+          0.55,
+          0.28,
+          0.22
+        ]
+      }
+    },
+    {
+      "backend": "mujoco",
+      "seed": 7,
+      "max_cycles": 1,
+      "realtime_execution": true,
+      "physics_trials": 8,
+      "search_candidates": 8,
+      "physics_budget": 3,
+      "config": {
+        "task": "pick_place",
+        "obstacle_enabled": false,
+        "cube_position": [
+          0.5,
+          -0.15,
+          0.026
+        ],
+        "placement_position": [
+          0.5,
+          0.18,
+          0.026
+        ],
+        "cube_mass": 0.06,
+        "cube_friction": 1,
+        "obstacle_position": [
+          0.75,
+          -0.4,
+          0.22
+        ],
+        "obstacle_size": [
+          0.055,
+          0.13,
+          0.22
+        ],
+        "target_position": [
+          0.55,
+          0.28,
+          0.22
+        ]
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "eb2f151b-46ea-404d-ac26-eb8a8c6307a1",
+      "experiment_id": "05b24848-ab74-4648-8895-b96d3bedb721",
+      "default_trials_requested": 5000,
+      "actual_trials_before_stop": 4,
+      "paused_frame": {
+        "schema_version": "vivacity.live/1.0",
+        "experiment_id": "05b24848-ab74-4648-8895-b96d3bedb721",
+        "world_id": "3b56ce64-86b2-4231-b06e-a970fad9851c",
+        "sequence": 109,
+        "timestamp_unix_s": 1791724277.0880089,
+        "stage": "testing_candidates",
+        "frame": {
+          "time": 3.327999999999855,
+          "qpos": [
+            -0.15774277036613754,
+            0.1588149575951806,
+            -0.12617847394859516,
+            -2.298185442500028,
+            0.032921484330744315,
+            2.4552334493269745,
+            0.4409159351922789,
+            0.03999998327614775,
+            0.04000018788082058,
+            0.5,
+            -0.15,
+            0.024960725160732156,
+            1,
+            0,
+            0,
+            0
+          ],
+          "qvel": [
+            -0.021571640763337927,
+            0.02172244041638663,
+            -0.017262656289950627,
+            -0.09948311599394818,
+            0.004504821227545177,
+            0.12097033472103974,
+            0.16773455428923076,
+            0.0000014255036156710356,
+            0.0000014861603331913492,
+            0,
+            0,
+            3.5440612878851536e-11,
+            0,
+            0,
+            0
+          ],
+          "ctrl": [
+            -0.1598240407911275,
+            0.16087342266703808,
+            -0.12783131584948101,
+            -2.3078689644354693,
+            0.033363636489784375,
+            2.467151107415032,
+            0.4574106924538383,
+            255
+          ],
+          "end_effector": [
+            0.5049259671551333,
+            -0.14748030521461045,
+            0.17717798011871325
+          ],
+          "body_transforms": [
+            {
+              "name": "link0",
+              "position": [
+                0,
+                0,
+                0
+              ],
+              "quaternion_wxyz": [
+                1,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "link1",
+              "position": [
+                0,
+                0,
+                0.333
+              ],
+              "quaternion_wxyz": [
+                0.9968912643424884,
+                0,
+                0,
+                -0.07878963813620983
+              ]
+            },
+            {
+              "name": "link2",
+              "position": [
+                0,
+                0,
+                0.333
+              ],
+              "quaternion_wxyz": [
+                0.7071066795765911,
+                -0.6982679671458248,
+                0.11145333578694364,
+                0.0003790754120214998
+              ]
+            },
+            {
+              "name": "link3",
+              "position": [
+                0.049354359491443435,
+                -0.007850515891437327,
+                0.6450232629138855
+              ],
+              "quaternion_wxyz": [
+                0.9868210829835801,
+                0.001251852004796241,
+                0.07931417516788652,
+                -0.1410384510093255
+              ]
+            },
+            {
+              "name": "link4",
+              "position": [
+                0.12753423328890753,
+                -0.03079878640553315,
+                0.632079762095928
+              ],
+              "quaternion_wxyz": [
+                0.14309047097312125,
+                0.3257996381059447,
+                0.6195995491867166,
+                -0.6996256939066368
+              ]
+            },
+            {
+              "name": "link5",
+              "position": [
+                0.4210587465489939,
+                -0.12102577442271231,
+                0.38720285271332183
+              ],
+              "quaternion_wxyz": [
+                0.3324418807511939,
+                0.14453182036863704,
+                0.9305801920229505,
+                -0.05112196238472158
+              ]
+            },
+            {
+              "name": "link6",
+              "position": [
+                0.4210587465489939,
+                -0.12102577442271231,
+                0.38720285271332183
+              ],
+              "quaternion_wxyz": [
+                0.6984003124407916,
+                0.6990953715065568,
+                -0.10835592349884743,
+                -0.10845118239754337
+              ]
+            },
+            {
+              "name": "link7",
+              "position": [
+                0.5049222774877483,
+                -0.14768862413324327,
+                0.38717787676062687
+              ],
+              "quaternion_wxyz": [
+                -0.00046485620328975117,
+                0.9307378116473719,
+                -0.36568686041363163,
+                -0.00017320332446176922
+              ]
+            },
+            {
+              "name": "hand",
+              "position": [
+                0.5049241574611302,
+                -0.14758248068422558,
+                0.2801779294240328
+              ],
+              "quaternion_wxyz": [
+                -0.0004957531747944554,
+                0.9998319175492476,
+                0.01832731729174336,
+                0.000017873752342178095
+              ]
+            },
+            {
+              "name": "left_finger",
+              "position": [
+                0.5063911225793407,
+                -0.1874976405659135,
+                0.22173833080243605
+              ],
+              "quaternion_wxyz": [
+                -0.0004957531747944554,
+                0.9998319175492476,
+                0.01832731729174336,
+                0.000017873752342178095
+              ]
+            },
+            {
+              "name": "right_finger",
+              "position": [
+                0.503459237002327,
+                -0.107551251336861,
+                0.22181758573511148
+              ],
+              "quaternion_wxyz": [
+                -0.000017873752342178095,
+                0.01832731729174336,
+                -0.9998319175492476,
+                -0.0004957531747944554
+              ]
+            },
+            {
+              "name": "target",
+              "position": [
+                0.5,
+                -0.15,
+                0.024960725160732156
+              ],
+              "quaternion_wxyz": [
+                1,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "obstacle",
+              "position": [
+                0.75,
+                -0.4,
+                0.22
+              ],
+              "quaternion_wxyz": [
+                1,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "target_pose": {
+            "position": [
+              0.55,
+              0.28,
+              0.22
+            ],
+            "rotation_matrix": [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                -1,
+                0
+              ],
+              [
+                0,
+                0,
+                -1
+              ]
+            ]
+          },
+          "contacts": [],
+          "cube_position": [
+            0.5,
+            -0.15,
+            0.024960725160732156
+          ],
+          "cube_quaternion_wxyz": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "placement_position": [
+            0.5,
+            0.18,
+            0.026
+          ],
+          "grasp": {
+            "finger_contacts": [],
+            "bilateral_grasp": false,
+            "cube_contact_normal_force_n": 0.5886000015251596,
+            "table_support": true
+          },
+          "source": "live_mujoco_state",
+          "phase": "approach",
+          "candidate_index": 3692
+        }
+      }
+    }
+  ],
+  "live_messages": 289,
+  "event_messages": 20,
+  "started_unix_s": 1791724123.869,
+  "status": "failed",
+  "failure": "fetch failed",
+  "finished_unix_s": 1791724736.702
+}

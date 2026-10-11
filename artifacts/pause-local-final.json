@@ -1,0 +1,57 @@
+{
+  "url": "http://127.0.0.1:5173/",
+  "api": "http://127.0.0.1:8000",
+  "checks": [
+    "page_load_has_no_automatic_experiments"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "backend": "mujoco",
+      "seed": 7,
+      "max_cycles": 1,
+      "realtime_execution": true,
+      "physics_trials": 5000,
+      "search_candidates": 5000,
+      "physics_budget": 3,
+      "config": {
+        "task": "pick_place",
+        "obstacle_enabled": false,
+        "cube_position": [
+          0.5,
+          -0.15,
+          0.026
+        ],
+        "placement_position": [
+          0.5,
+          0.18,
+          0.026
+        ],
+        "cube_mass": 0.06,
+        "cube_friction": 1,
+        "obstacle_position": [
+          0.75,
+          -0.4,
+          0.22
+        ],
+        "obstacle_size": [
+          0.055,
+          0.13,
+          0.22
+        ],
+        "target_position": [
+          0.55,
+          0.28,
+          0.22
+        ]
+      }
+    }
+  ],
+  "sessions": [],
+  "live_messages": 207,
+  "event_messages": 11,
+  "started_unix_s": 1791722620.232,
+  "status": "failed",
+  "failure": "Measured condition timed out",
+  "finished_unix_s": 1791723033.788
+}

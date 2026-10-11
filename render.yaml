@@ -11,7 +11,6 @@ services:
     dockerContext: .
     autoDeployTrigger: off
     healthCheckPath: /health
-    maxShutdownDelaySeconds: 60
     disk:
       name: vivacity-state
       mountPath: /data

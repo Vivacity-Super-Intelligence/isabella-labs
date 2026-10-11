@@ -113,7 +113,7 @@ progress messages, zero page errors/axe violations in checked scope. Evidence:
 real exports but timed out waiting for a fast scientific fit to acknowledge
 pause; persisted science evidence actually completed. The harness now requests
 science pause immediately through REST after session creation before delivering
-the response to the browser. This removes the completed-fit timing race;
+the response to the browser. This reduces the completed-fit timing race;
 subsequent public outcomes are recorded separately, not retroactively changed.
 
 Linux deployment image also built and passed all 119 tests in 148.34 s. Final
@@ -122,3 +122,40 @@ again in 269.17 s. Reports: `artifacts/render-linux/backend-linux.xml` and
 `artifacts/render-linux-final/backend-linux.xml`. Neither run deploys a Render
 service or establishes cloud uptime. Render preparation and deployment blockers:
 `docs/RENDER_DEPLOYMENT.md`.
+
+## Deployment preflight and slow local browser diagnostic
+
+The live HTTP/WebSocket demonstration passed again on the current local API:
+`artifacts/render-preflight-summary.json` and the complete responses in
+`artifacts/render-preflight-live.json.gz`. It measured failed/successful reaches,
+exact reruns, environment invalidation, stale commit rejection, replanning,
+all-paths-fail behavior, SciPy held-out predictions and unnecessary-mass
+rejection. A separate direct API pickup completed eight native trials plus a
+fresh contact-validated execution in 17.417 s, with 67,488 actual integration
+steps and 1.749 mm placement error: `artifacts/native-api-diagnostic.json`.
+
+An additional local browser attempt failed its six-minute wait for ten initial
+trials, before testing pause. Seven successful trials and one cancelled trial
+were actually persisted; 207 measured live messages arrived and no page errors
+were recorded. This failure is retained in `artifacts/pause-local-final.json`;
+it does not replace the earlier complete 17-check pass. Trial wall times during
+that browser run were 24–60 s, versus 0.355–0.676 s in the direct API diagnostic.
+The underlying contention cause has not been isolated. The control journey now
+waits for two genuine trials before pause and two additional trials after resume,
+because throughput is verified separately by the completed exhaustive audit.
+This smaller sample does not claim 5,000 browser-driven trials finished.
+
+The subsequent run passed six checks, including native worker pause/resume,
+same-world continuation, measured trials, Stop and interactive camera controls.
+It then failed on an Undici `UND_ERR_SOCKET` connection reset while reading the
+bounded second session. The API remained healthy; the server also logged a
+Windows Proactor `WinError 10054`. This is not a complete browser pass:
+`artifacts/pause-local-control.json`. The harness now retries only transport
+errors of idempotent GETs (at most twice) and records each retry; HTTP/contract
+failures still fail immediately and mutations are not retried. Syntax was
+checked, but the complete journey with this retry repair still needs execution
+against the provisioned Render service.
+
+Disk-compatible deployment revision `7d899a2` passed all 119 Linux tests again,
+JUnit suite time 146.820 s, zero failures/errors/skips:
+`artifacts/render-linux-deployment/backend-linux.xml`.
