@@ -82,7 +82,7 @@
   "assets/menagerie/franka_emika_panda/README.md": "85cdebf8f4dd52e29b77984e934b815b488b24717a350521b44827680dbbf085",
   "assets/menagerie/franka_emika_panda/scene.xml": "60658e01f59909eadaffbb4eb98a98715f67f67e9ae49f42ac114567fddaf230",
   "Dockerfile": "496c2c601c4bdc797124166b57a7ac1df80b220b85d4effb9c4bc583f5d713dd",
-  "render.yaml": "16da30289a5c5c338ff11588d30d04b02873829f4446211105a83476a412a3fa",
+  "render.yaml": "5460dd2cf60769f738c690742a7625ed8c7619fda19e4af0e63d1c8fb69de6a2",
   "requirements-lock.txt": "ff6b1551a9523bd32f01843fbbaf7adb3b88e4bf1b1c3f811591c0c8edc3544b",
   "tests/conftest.py": "1c07c8067a412a70a1f44b896072a605a889f15e6b77743d50b112a9c59fa643",
   "tests/test_api.py": "31b7650b0856711e2a1524cf8be3cae846479cf0821c1d27ad61f3e6f189cd49",
