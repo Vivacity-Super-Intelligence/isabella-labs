@@ -1,8 +1,17 @@
-# Implementation status — 2026-10-11 master runtime
+# Implementation status — current Render handoff, 2026-10-11
 
-Current code includes real Pause/Resume and a completed 5,000-trial MuJoCo audit. **119 tests passed on Windows and in the Linux deployment container.** Exact current evidence and limitations appear in the current release section below. Earlier release artifacts remain evidence of those revisions. Architecture/API handoff: `ARCHITECTURE.md`, `FRONTEND_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
+**Current deployment truth:** the UI uses Render Free at `https://vivacity-runtime.onrender.com`
+and `https://demo.tryvivacity.com`. This free service sleeps after inactivity and
+loses SQLite data on restart. Its true pickup limit is eight physics trials. Latest
+release and actual test results: `docs/HOSTING_STATUS.md`. The 5000-trial audit
+and preceding test/browser tables below are historical local/prior-release results,
+not proof of the current free Render service. A measured slow-CPU pickup execution
+timeout is addressed with a tested 300-second host wall deadline; do not call the
+current public pickup journey successful until its verified redeploy is live.
 
-**Render hosting is not provisioned:** Render/GitHub are connected and $100 credits are verified. Render requires card registration before paid activation. The public tunnel is currently unavailable; local API is healthy. `docs/RENDER_DEPLOYMENT.md` records the prepared configuration and remaining live verification gates.
+Current code includes real Pause/Resume and a completed local 5,000-trial MuJoCo audit. The latest Render deployment image passed **125 tests**, plus a separate 512 MB container test executing repeated pickup, cloth and SciPy. Actual current release evidence, public checks and failed Windows deadline checks are recorded in `docs/HOSTING_STATUS.md`. Earlier release artifacts remain evidence of those revisions. Architecture/API handoff: `ARCHITECTURE.md`, `FRONTEND_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
+
+**Render Free is provisioned:** `https://vivacity-runtime.onrender.com`, with both public frontend aliases connected. Paid activation remains blocked by the payment method requirement despite the existing credits. Free hosting sleeps after 15 idle minutes; SQLite data is ephemeral. Public pickup uses eight real physics trials and rejects oversized jobs. Always-on availability, durable cloud persistence and a completed 5,000-trial cloud run are **not** implemented by this free fallback. `docs/HOSTING_STATUS.md` records the current configuration and executed evidence.
 
 ## Working and actually tested
 
@@ -51,7 +60,7 @@ The backend suite retains one upstream Starlette/httpx TestClient deprecation wa
 - Imports cannot execute native uploaded robots/worlds; isolated untrusted worker execution is missing. Static mesh previews do not promise every glTF feature. Never treat them as physics-ready.
 - Session capabilities are not full account authentication. Legacy public worlds/imports remain public. Per-account/IP quotas, retention/deletion/backups, global disk bounds, deployment tenancy controls and distributed scheduling are incomplete.
 - Deterministic policy requires no LLM key. Optional hosted proposal adapter is separated; no configured real hosted call or model-cost telemetry is claimed for this release.
-- Independent durable cloud backend hosting is **blocked**: Railway refused provisioning because the trial expired. The public API is a temporary local tunnel. Docker persistent-volume defaults and context exclusions are prepared, but Docker image execution is **unverified** because the daemon is unavailable. No unrelated Railway service was changed or paid plan purchased.
+- Current Render Free hosting works within a finite eight-trial budget but is neither always-on nor durable. Paid activation is blocked by the payment-method prerequisite. Linux Docker execution is verified by the 125-test workflow and 512 MB smoke. No unrelated service was changed or paid plan purchased.
 - Full screen-reader/user research, every mobile/device combination, field Core Web Vitals, long-duration soak/load testing and cross-platform bitwise determinism remain unverified. Axe/layout checks cover only their executed scope.
 
 ## Hook investigation
@@ -66,7 +75,7 @@ Use the commands in `README.md` and `FRONTEND_HANDOFF.md`. The live browser demo
 
 The page now waits for Start experiments. Lab switches, reloads and Apply settings do not submit experiments; explicitly staged settings survive reload. Existing active sessions are cancelled on reload and completed evidence stays inspectable. Layout/styles and physics are unchanged. Local browser checks passed (14 checks); production checks passed (15 checks), including zero automatic session submissions, real SciPy control fits, 5,000 screened pickup commands / three validations / fresh successful execution, eventual safe cancellation and mobile layout. The first production harness incorrectly expected synchronous cancellation; it was corrected to wait for the actual stopped state. Source TypeScript/production builds passed (latest local Vite 12.57 s, remote 2.56 s). Proof: artifacts/manual-start-public.json and manual-start-deployment.json. Backend tests were not rerun for this frontend-only release.
 
-## Current pause, real 5,000-trial audit and Render preparation — 2026-10-11
+## Earlier pause, local 5,000-trial audit and paid Render preparation — 2026-10-11 (historical)
 
 The page waits for Start experiments; settings, lab switches and reload do not
 start new work. Pause/Resume controls the actual worker and retains the same
@@ -97,7 +106,7 @@ must be rerun after the hosting endpoint is available.
 
 `render.yaml` proposes one paid 1 CPU / 2 GB instance, a persistent 5 GB `/data`
 disk, Singapore, exact CORS/WS origins, health checks and manual deployments.
-**Render is not deployed:** dashboard and GitHub are connected; $100 credits are
+**At this earlier checkpoint, Render was not deployed:** dashboard and GitHub are connected; $100 credits are
 verified. Render requires card registration before paid activation. Render TLS/WSS, restart/disk persistence and remote
 performance remain unverified. No paid service has been purchased. The current
 temporary tunnel stopped resolving and its renewal failed once; this illustrates

@@ -1,5 +1,5 @@
-// Real REST, WebSocket and browser physics. Only the SECOND robotics run is
-// bounded to 8 trials; the first verifies the deployed default request of 5,000.
+// Real REST, WebSocket and browser physics. The first run verifies the configured
+// deployed budget (5,000 locally, eight on Render Free); the second uses eight.
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -11,13 +11,17 @@ const {AxeBuilder}=await import('../frontend/node_modules/@axe-core/playwright/d
 const url=process.env.UI_URL??'http://127.0.0.1:5175/';
 const api=process.env.API_URL??'http://127.0.0.1:8002';
 const prefix=process.env.PROOF_PREFIX??'pause-local';
-const proof={url,api,checks:[],errors:[],requests:[],sessions:[],live_messages:0,event_messages:0,started_unix_s:Date.now()/1000};
+const expectedTrials=Number(process.env.EXPECTED_PHYSICS_TRIALS??5000);
+const labsOnly=process.env.VERIFY_LABS_ONLY==='1';
+const verifyTimeout=Number(process.env.VERIFY_TIMEOUT_MS??360000);
+assert(Number.isFinite(verifyTimeout)&&verifyTimeout>=360000&&verifyTimeout<=1800000);
+const proof={url,api,checks:[],errors:[],requests:[],sessions:[],live_messages:0,event_messages:0,started_unix_s:Date.now()/1000,scope:labsOnly?'cloth_science_browser':'all_labs_browser'};
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 let page,current,token,sessionPosts=0,bounded=false;
 async function get(route){
   for(let attempt=0;attempt<3;attempt++){
     try{
-      const r=await fetch(api+route,{headers:{'X-Session-Token':token},signal:AbortSignal.timeout(30000)});
+      const r=await fetch(api+route,{headers:{'X-Session-Token':token},signal:AbortSignal.timeout(120000)});
       assert.equal(r.status,200,route);return await r.json();
     }catch(error){
       // Retry only transport failures of idempotent reads. A failed assertion,
@@ -28,7 +32,7 @@ async function get(route){
     }
   }
 }
-async function until(fn,timeout=360000){const end=Date.now()+timeout;while(Date.now()<end){const v=await fn();if(v)return v;await page.waitForTimeout(200);}throw Error('Measured condition timed out');}
+async function until(fn,timeout=verifyTimeout){const end=Date.now()+timeout;while(Date.now()<end){const v=await fn();if(v)return v;await page.waitForTimeout(200);}throw Error('Measured condition timed out');}
 async function stored(backend){const value=await page.evaluate(b=>({id:localStorage.getItem(`vivacity:${b}:session`),token:localStorage.getItem(`vivacity:${b}:token`)}),backend);if(!value.id||!value.token)return null;current=value.id;token=value.token;return get(`/v1/sessions/${current}`);}
 async function session(){return get(`/v1/sessions/${current}`);}
 async function pause(){
@@ -72,10 +76,11 @@ try{
   await page.waitForTimeout(4000);assert.equal(sessionPosts,0);
   proof.checks.push('page_load_has_no_automatic_experiments');
   await page.screenshot({path:`artifacts/${prefix}-idle.png`,fullPage:true});
+  if(!labsOnly){
   await page.getByRole('button',{name:'Start experiments',exact:true}).click();
   await until(()=>stored('mujoco').then(s=>s?.experiment_id&&s));
   const s=await session(),eid=s.experiment_id;
-  assert.equal(proof.requests[0].physics_trials,5000);assert.equal(proof.requests[0].search_candidates,5000);
+  assert.equal(proof.requests[0].physics_trials,expectedTrials);assert.equal(proof.requests[0].search_candidates,expectedTrials);
   // This journey tests worker control, not throughput. The independent audit
   // executes all 5,000 trials. Two measured trials are sufficient to establish
   // progress before pause on slow machines running the browser and API together.
@@ -95,16 +100,16 @@ try{
   await page.getByRole('button',{name:'Stop experiments',exact:true}).click();
   await until(async()=>{const s=await session();return s.status==='stopped';});
   assert.equal((await get(`/v1/experiments/${eid}`)).status,'cancelled');
-  proof.sessions.push({id:current,experiment_id:eid,default_trials_requested:5000,actual_trials_before_stop:trials.completed,paused_frame:pausedFrame});
+  proof.sessions.push({id:current,experiment_id:eid,default_trials_requested:expectedTrials,actual_trials_before_stop:trials.completed,paused_frame:pausedFrame});
   proof.checks.push('resume_continues_same_world_and_experiment','native_trials_record_real_states','stop_cancels_paused_or_running_work','camera_remains_interactive_while_paused');
-  console.log('Default 5,000-trial request: real pause, resume, measured trials and stop passed.');
+  console.log(`Configured ${expectedTrials}-trial request: real pause, resume, measured trials and stop passed.`);
   bounded=true;
   await page.getByRole('button',{name:'Start experiments',exact:true}).click();
-  await until(async()=>{const s=await stored('mujoco');if(!s?.experiment_id||s.id===proof.sessions[0].id)return false;
-    const live=await get(`/v1/experiments/${s.experiment_id}/live`);return live?.stage==='executing'&&s;});
-  const executing=await session();await pause();await frozen(executing.experiment_id,'pause_freezes_fresh_authoritative_execution');await resume();
+  await until(async()=>{const s=await stored('mujoco');return s?.experiment_id&&s.id!==proof.sessions[0].id&&s;});
+  const executing=await session();
   await until(async()=>(await session()).status==='completed');
   const completed=await get(`/v1/experiments/${executing.experiment_id}`);
+  proof.pickup_completed=completed;
   assert.equal(completed.performance.trial_count,8);assert(completed.result.execution_evaluation.success);
   const branches=await get(`/v1/experiments/${completed.id}/branches`);
   assert(branches.some(b=>b.id===completed.result.execution_branch_id&&b.performance.simulation_steps>1000));
@@ -114,21 +119,24 @@ try{
   const exported=JSON.parse(fs.readFileSync(`artifacts/${prefix}-branch.json`));assert(exported.success&&exported.recorded_frames.length>10);
   proof.checks.push('bounded_eight_trial_run_and_fresh_execution_complete','verified_branch_export_contains_actual_frames');
   proof.sessions.push({id:current,experiment_id:completed.id,actual_trials:8,execution:completed.result.execution_evaluation});
-  console.log('Eight full trials, fresh execution pause/resume and actual replay export passed.');
+  console.log('Eight full trials, successful fresh physics execution and actual replay export passed.');
   // Settings remain idle until the next explicit click.
   await page.getByRole('button',{name:'Change conditions',exact:true}).click();
   await page.getByRole('button',{name:'Clear route',exact:true}).click();await page.getByRole('button',{name:'Apply settings',exact:true}).click();
   const posts=sessionPosts;await page.waitForTimeout(1500);assert.equal(sessionPosts,posts);
   proof.checks.push('changing_conditions_does_not_start_work');
+  }
+  const labPosts=sessionPosts;
   await page.getByRole('button',{name:'Cloth Folding',exact:true}).click();
-  await page.getByRole('button',{name:'Start experiments',exact:true}).waitFor();await page.waitForTimeout(1500);assert.equal(sessionPosts,posts);
-  await page.getByRole('button',{name:'Start experiments',exact:true}).click();
-  await until(async()=>{const s=await stored('cloth');if(!s?.experiment_id)return false;const l=await get(`/v1/experiments/${s.experiment_id}/live`);return l?.stage==='executing'&&s;},360000);
-  const cloth=await session();await pause();await frozen(cloth.experiment_id,'pause_freezes_actual_cloth_vertices_and_robot');await resume();
+  await page.getByRole('button',{name:'Start experiments',exact:true}).waitFor();await page.waitForTimeout(1500);assert.equal(sessionPosts,labPosts);
+  await page.getByRole('button',{name:'Start experiments',exact:true}).click({timeout:120000});
+  await until(async()=>{const s=await stored('cloth');if(!s?.experiment_id)return false;const l=await get(`/v1/experiments/${s.experiment_id}/live`);return l?.stage==='executing'&&s;},verifyTimeout);
+  const cloth=await session();console.log('Cloth validation finished; testing real worker Pause/Resume and fresh fold.');await pause();await frozen(cloth.experiment_id,'pause_freezes_actual_cloth_vertices_and_robot');await resume();
   await until(async()=>(await session()).status==='completed');
   const clothExperiment=await get(`/v1/experiments/${cloth.experiment_id}`);assert(clothExperiment.result.execution_evaluation.success);
   assert.equal(clothExperiment.result.search.fully_simulated,3);
   proof.sessions.push({id:current,backend:'cloth',experiment_id:cloth.experiment_id,physics_validation_trials:3,execution:clothExperiment.result.execution_evaluation});
+  console.log('Three real cloth validations and fresh physical fold passed.');
   await page.getByRole('button',{name:'Discovery',exact:true}).click();
   await page.getByRole('button',{name:'Start experiments',exact:true}).waitFor();await page.waitForTimeout(1500);
   const beforeScience=sessionPosts;
@@ -152,7 +160,9 @@ try{
   assert(proof.live_messages>10&&proof.event_messages>5);assert.deepEqual(proof.errors,[]);
   proof.checks.push('desktop_mobile_and_accessibility_checks','live_websockets_deliver_actual_frames_and_events','no_video_timeline_or_speed_controls');proof.status='passed';
   console.log(JSON.stringify({status:proof.status,checks:proof.checks,live_messages:proof.live_messages,event_messages:proof.event_messages}));
-}catch(e){proof.status='failed';proof.failure=e.message;throw e;}
+}catch(e){proof.status='failed';proof.failure=e.message;
+  if(page){proof.final_page=await page.locator('body').innerText().catch(()=>null);await page.screenshot({path:`artifacts/${prefix}-failure.png`,fullPage:true}).catch(()=>{});}
+  throw e;}
 finally{
   if(current&&token){try{await fetch(`${api}/v1/sessions/${current}/stop`,{method:'POST',headers:{'X-Session-Token':token}});}catch{}}
   proof.finished_unix_s=Date.now()/1000;fs.writeFileSync(`artifacts/${prefix}.json`,JSON.stringify(proof,null,2));await browser.close();

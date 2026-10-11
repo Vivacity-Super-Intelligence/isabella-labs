@@ -1,0 +1,100 @@
+{
+  "source_sha256": "6d623c9fbd7aa337b195282f55dbbcc83432ffad69a95090dde2a831a4763354",
+  "entrypoint": "Orbital_Salvage_Lab.xml",
+  "structural_counts": {
+    "body": 6,
+    "link": 0,
+    "joint": 3,
+    "geom": 16,
+    "collision": 0,
+    "actuator": 1
+  },
+  "simulator_version": "3.15.0",
+  "compiled": true,
+  "nq": 10,
+  "nv": 9,
+  "nu": 3,
+  "joints": [
+    {
+      "name": null,
+      "type": 0,
+      "range": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "yaw",
+      "type": 3,
+      "range": [
+        -2.8797932657906435,
+        2.8797932657906435
+      ]
+    },
+    {
+      "name": "shoulder_pitch",
+      "type": 3,
+      "range": [
+        -1.7453292519943295,
+        1.7453292519943295
+      ]
+    },
+    {
+      "name": "elbow_pitch",
+      "type": 3,
+      "range": [
+        -2.530727415391778,
+        2.530727415391778
+      ]
+    }
+  ],
+  "actuators": [
+    {
+      "name": "yaw_motor",
+      "joint": "yaw"
+    },
+    {
+      "name": "shoulder_motor",
+      "joint": "shoulder_pitch"
+    },
+    {
+      "name": "elbow_motor",
+      "joint": "elbow_pitch"
+    }
+  ],
+  "initial_qpos": [
+    0.75,
+    -0.5,
+    0.135,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "gripper_joints": [],
+  "notes": [
+    "Fixed finger geoms have no finger joints or actuators.",
+    "Cargo width 0.21 m exceeds the fixed inner finger gap 0.13 m.",
+    "Original cargo and dock are beyond the roughly 1.12 m link reach from arm base.",
+    "This probe verifies basic actuation, not manipulation feasibility."
+  ],
+  "final_qpos": [
+    0.7499999997130977,
+    -0.5000001638491949,
+    0.14076774391452437,
+    1.0,
+    -6.180114034486893e-15,
+    6.819443382599625e-18,
+    2.1863966078081024e-11,
+    0.0742062855470423,
+    3.4561610073246037e-19,
+    1.7005513848448882e-19
+  ],
+  "simulation_steps": 125,
+  "simulated_seconds": 0.5000000000000003,
+  "finite": true,
+  "warning_count": 0
+}

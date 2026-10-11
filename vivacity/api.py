@@ -73,7 +73,7 @@ def create_app(database=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'schema_version': '1.0', 'backends': {k: b.version for k, b in app.state.runtime.backends.items()}}
+        return {'status': 'ok', 'schema_version': '1.0', 'backends': {k: b.version for k, b in app.state.runtime.backends.items()}, 'limits': {'max_physics_trials': app.state.runtime.max_physics_trials}}
 
     SessionToken=Annotated[str,Header(min_length=32,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
 

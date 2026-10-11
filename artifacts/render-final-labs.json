@@ -1,0 +1,34 @@
+{
+  "url": "https://demo.tryvivacity.com/",
+  "api": "https://vivacity-runtime.onrender.com",
+  "checks": [
+    "page_load_has_no_automatic_experiments"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "backend": "cloth",
+      "seed": 7,
+      "max_cycles": 1,
+      "realtime_execution": true,
+      "physics_trials": 0,
+      "search_candidates": 5000,
+      "physics_budget": 3,
+      "config": {
+        "robot_model": "panda",
+        "side_length": 0.4,
+        "mass": 0.08,
+        "friction": 0.6
+      }
+    }
+  ],
+  "sessions": [],
+  "live_messages": 1,
+  "event_messages": 10,
+  "started_unix_s": 1791735698.045,
+  "scope": "cloth_science_browser",
+  "status": "failed",
+  "failure": "Measured condition timed out",
+  "final_page": "Skip to workspace\nvivacity\nRobotics\nDiscovery\nImport World\nObject Pickup\nCloth Folding\nFold the cloth. Verify the result.\n\nAn actuated Panda carries a pre-attached folding bar through a physical flex sheet.\n\nViva Physics connected\n\nPanda arm · pre-attached folding bar · measured physics\n\nReset view\n\nDrag to orbit. Arrow keys orbit, plus and minus zoom, R resets. Motion interpolates recorded robot body poses and physical cloth vertices.\n\nPause simulation\nStop experiments\nCloth settings\nReset world\nBest verified folds\nEvaluating alternatives\n#1 Best\nVerified constrained fold\nAlignment error\n0.92 mm\nVertex coverage\n100.0%\nClamp constraints\nValid\nExecution\n5.52 s\n#2 Alternative\nVerified constrained fold\nAlignment error\n0.98 mm\nVertex coverage\n100.0%\nClamp constraints\nValid\nExecution\n5.51 s\n\nGenerated\n5,000\nScreened\n5,000\nPassed screening\n2,016\nValidation rollouts\n2\nVerified feasible\n2\nTechnical Inspector\n\nWorld initialized. Actual state restored.\n\n[00:00.00] Experiment submitted. Independent parent state preserved.\n\n[00:00.02] Fresh autonomous experiment 1; recorded seed 7.\n\n[00:00.04] Candidate generation started. Deterministic planning policy.\n\n[00:00.05] Generated 5,000 distinct clamp-motion parameter sets.\n\n[00:00.12] Screened 5,000; 2,984 geometric rejections; 3 full flex rollouts.\n\n[00:00.12] Planning complete: 3 validation candidates; 0.08 s.\n\n[02:11.51] Flex validation: fold success; alignment 0.92 mm; vertex coverage 100.0%; clamp constraints valid.\n\n[02:11.53] Validation 1 / 3; 1 integrated rollouts; 1 verified feasible.\n\n[04:29.61] Flex validation: fold success; alignment 0.98 mm; vertex coverage 100.0%; clamp constraints valid.\n\n[04:29.63] Validation 2 / 3; 2 integrated rollouts; 2 verified feasible.\n\nRecorded failures & history\nViva Physics\nCredits & scope\nAPI reference",
+  "finished_unix_s": 1791736070.449
+}

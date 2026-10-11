@@ -64,6 +64,7 @@ class Supervisor:
             return self.public(s) | (control.state() if control else {})
 
     def create(self, request, token):
+        self.runtime.validate_trial_budget(request.physics_trials)
         from .runtime import Busy, Unavailable, Conflict
         with self.lock:
             with self.runtime.store.connect() as db:

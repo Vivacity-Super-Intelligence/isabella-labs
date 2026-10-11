@@ -1,11 +1,19 @@
 # Current frontend handoff — master runtime, 2026-10-11
 
-**Hosting update:** Render source/configuration and Linux verification are ready;
-Render/GitHub are connected; paid activation is pending Render's required card
-registration, despite the verified $100 credit balance. The previous public tunnel is
-currently unavailable. Use the local backend for development until a verified
-Render URL is assigned. Exact deployment and connection commands:
-`docs/RENDER_DEPLOYMENT.md`. Do not compile a guessed backend URL into the UI.
+**Hosting update:** the frontend uses `https://vivacity-runtime.onrender.com`.
+Render Free is the fallback after the required payment method was declined.
+The public pickup budget is eight real physics trials (`VITE_PHYSICS_TRIALS=8`);
+the server rejects larger requests before allocating a job. Local/default paid
+configuration retains 5,000. No UI layout was changed. Free hosting sleeps after
+15 idle minutes and loses local SQLite data on restart, redeploy or sleep.
+Download evidence while the instance is running. Exact current release and
+executed checks: `docs/HOSTING_STATUS.md`.
+
+For a public frontend build, set `VITE_API_BASE_URL=https://vivacity-runtime.onrender.com`
+and `VITE_PHYSICS_TRIALS=8` before `npm run build --prefix frontend`.
+The server allows exactly the two public demo origins. Never put keys in `VITE_`
+variables. Session HTTP requests require `X-Session-Token`; session WebSockets use
+the existing capability protocol documented below. HTTPS uses WSS automatically.
 
 The existing React/TypeScript/Three.js frontend now runs bounded autonomous laboratories. **Do not scaffold over it or reinstate recorded playback.** The main robot/cloth scene consumes fresh authoritative MuJoCo states after independently validating candidates. Scientific paths are executed SciPy predictions. Result selection inspects evidence; it does not replay a branch in the main scene. Historical V2 release documents describe an earlier interface and are not the current contract.
 
@@ -174,4 +182,4 @@ Download version `vivacity.branch/1.0` includes experiment/branch IDs, world typ
 
 ## Remaining limitations
 
-Current pickup proves a fixed unobstructed contact benchmark and supported new-condition cycles; general obstacle-detour pickup planning/randomized robustness are incomplete. Existing reaching has RRT; new staged pickup has DLS and actual kinematic screening. All-paths-fail is honest. Cloth is constrained experimental manipulation. Science is synthetic restricted model comparison. Imports are data-only; isolated native execution is unavailable. Legacy public worlds/imports have no account auth or storage-retention quota. The Vercel frontend currently relies on a temporary local API tunnel: consult `DEPLOYMENT_GUIDE.md`, not historical production claims.
+Current pickup proves a fixed unobstructed contact benchmark; generalized obstacle-detour pickup planning/randomized robustness remain incomplete. Existing reaching has RRT; new staged pickup has DLS and actual kinematic screening. All-paths-fail is honest. Cloth is constrained experimental manipulation. Science is synthetic restricted model comparison. Imports are data-only; isolated native execution is unavailable. Legacy public worlds/imports have no account auth or storage-retention quota. Both public frontend aliases connect to `https://vivacity-runtime.onrender.com`; the Render Free limits and actual evidence are in `docs/HOSTING_STATUS.md`. Public pickup is capped at eight actual physics trials, and the free service loses SQLite state on sleep/restart.

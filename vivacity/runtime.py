@@ -3,6 +3,7 @@ from copy import deepcopy
 import hashlib
 import json
 import logging
+import os
 import threading
 import time
 import uuid
@@ -34,6 +35,12 @@ class Unavailable(ValueError):
 
 class Runtime:
     def __init__(self, database):
+        self.max_physics_trials = int(os.getenv('VIVACITY_MAX_PHYSICS_TRIALS', '5000'))
+        if not 1 <= self.max_physics_trials <= 5000:
+            raise ValueError('VIVACITY_MAX_PHYSICS_TRIALS must be 1..5000')
+        self.max_pickup_wall_seconds = int(os.getenv('VIVACITY_MAX_PICKUP_WALL_SECONDS', '120'))
+        if not 60 <= self.max_pickup_wall_seconds <= 1800:
+            raise ValueError('VIVACITY_MAX_PICKUP_WALL_SECONDS must be 60..1800')
         self.store = Store(database)
         self.backends = {'mujoco': RobotAdapter(), 'scipy': ScienceBackend(), 'cloth':ClothBackend()}
         self.lock = threading.RLock()
@@ -59,6 +66,10 @@ class Runtime:
         for flag in list(self.cancel_flags.values()):
             flag.set()
         self.executor.shutdown(wait=True)
+
+    def validate_trial_budget(self, requested):
+        if requested > self.max_physics_trials:
+            raise ValueError(f'this host supports at most {self.max_physics_trials} full physics trials per experiment')
 
     def create_world(self, request):
         tic = time.perf_counter()
@@ -94,6 +105,7 @@ class Runtime:
         return self.backends[backend].evaluate(instance, result)
 
     def submit(self, world_id, request, idempotency_key=None, control=None):
+        self.validate_trial_budget(request.physics_trials)
         if idempotency_key is not None:
             import re
             if not re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', idempotency_key):
@@ -208,6 +220,7 @@ class Runtime:
                     phase = 'simulate'
                     execution_settings = run_settings | {'cancel_event': cancellation,'checkpoint':checkpoint,'pause_seconds':control.elapsed}
                     if role == 'authoritative_execution':
+                        execution_settings['max_wall_seconds'] = self.max_pickup_wall_seconds
                         execution_settings |= {'on_frame': lambda frame:self.publish_live(eid,e['world_id'],'executing',frame),
                                                'realtime': settings.get('realtime_execution',False)}
                         self.store.event(eid,'progress',{'stage':'executing','message':'Executing the selected action again in an independent authoritative simulator; these are live physics states.'})
@@ -282,6 +295,8 @@ class Runtime:
             else:
                 selected, conclusion = backend.choose(branches)
             public_settings={k:v for k,v in settings.items() if k not in ('checkpoint','pause_seconds')}
+            if e['backend'] == 'mujoco' and e['config'].get('task') == 'pick_place':
+                public_settings['max_wall_seconds'] = self.max_pickup_wall_seconds
             safe_followup={k:v for k,v in followup.items() if k not in ('checkpoint','pause_seconds')} if followup else None
             e.update(status='completed', selected_branch_id=selected, result=conclusion | {'policy': reasoning, 'executed_settings': public_settings, 'followup_settings': safe_followup})
             validation_branches = list(branches)
@@ -316,7 +331,7 @@ class Runtime:
                 e.update(status='failed', error='all_branches_failed:adapter_failure')
             e['stale'] = self.get_world(e['world_id'])['revision'] != e['result'].get('executed_world_revision',e['revision'])
             replay = self._replay(e, branches)
-            e['performance'] = {'job_wall_seconds': time.perf_counter()-wall, 'process_cpu_seconds': time.process_time()-cpu, 'queue_wait_seconds': max(0., time.time()-e['submitted_at']-(time.perf_counter()-wall)), 'planning_wall_seconds': planning_time+sum(b['performance'].get('ik_planning_seconds',0) for b in branches), 'physics_wall_seconds': sum(b['performance']['physics_wall_seconds'] or 0 for b in branches), 'candidate_count': len(branches), 'simulation_steps': sum(b['performance']['simulation_steps'] or 0 for b in branches), 'integration_calls': sum(b['performance']['integration_calls'] or 0 for b in branches), 'replay_payload_bytes': len(encode(replay).encode()), 'branch_failure_rate': sum(not b['evaluation']['success'] for b in branches)/len(branches), 'adapter_error_count': adapter_errors, 'measurement_complete': adapter_errors == 0, 'job_error_rate': float(adapter_errors > 0), 'compute': 'local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy'}
+            e['performance'] = {'job_wall_seconds': time.perf_counter()-wall, 'process_cpu_seconds': time.process_time()-cpu, 'queue_wait_seconds': max(0., time.time()-e['submitted_at']-(time.perf_counter()-wall)), 'planning_wall_seconds': planning_time+sum(b['performance'].get('ik_planning_seconds',0) for b in branches), 'physics_wall_seconds': sum(b['performance']['physics_wall_seconds'] or 0 for b in branches), 'candidate_count': len(branches), 'simulation_steps': sum(b['performance']['simulation_steps'] or 0 for b in branches), 'integration_calls': sum(b['performance']['integration_calls'] or 0 for b in branches), 'replay_payload_bytes': len(encode(replay).encode()), 'branch_failure_rate': sum(not b['evaluation']['success'] for b in branches)/len(branches), 'adapter_error_count': adapter_errors, 'measurement_complete': adapter_errors == 0, 'job_error_rate': float(adapter_errors > 0), 'compute': 'CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy'}
             if trial_metrics:
                 extra=branches[-1] if settings.get('execute_selected') and selected else None
                 e['performance'].update(trial_metrics)

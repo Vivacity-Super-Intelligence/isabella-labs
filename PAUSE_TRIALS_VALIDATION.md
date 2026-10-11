@@ -1,11 +1,16 @@
 # Real pause/resume and exhaustive pickup trials
 
-The current Object Pickup client requests one experiment with 5,000 distinct
+The local/default paid Object Pickup client requests one experiment with 5,000 distinct
 commands and `physics_trials:5000`. All 5,000 commands, including screening
 rejections, are attempted in independent MuJoCo states. Success comes only from
 measured grasp, lift, retention, release, table support and placement checks.
 The selected successful command is then executed again using the existing
 authoritative adapter. A failed fresh execution is reported honestly.
+
+The current Render Free frontend uses `VITE_PHYSICS_TRIALS=8`, and the server
+enforces `VIVACITY_MAX_PHYSICS_TRIALS=8`. Those eight commands each undergo real
+physics; the current public release does not claim a completed 5,000-trial cloud
+run. Current executed cloud evidence and resource limits: `docs/HOSTING_STATUS.md`.
 
 Cloth still uses 5,000 screening proposals and three physics validations plus
 fresh execution. Discovery fits two hypotheses using SciPy. The exhaustive

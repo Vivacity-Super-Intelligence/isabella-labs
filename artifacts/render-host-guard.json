@@ -1,0 +1,18 @@
+{
+  "status": 422,
+  "body": {
+    "detail": "this host supports at most 8 full physics trials per experiment"
+  },
+  "health": {
+    "status": "ok",
+    "schema_version": "1.0",
+    "backends": {
+      "mujoco": "3.15.0",
+      "scipy": "1.18.1",
+      "cloth": "3.15.0"
+    },
+    "limits": {
+      "max_physics_trials": 8
+    }
+  }
+}

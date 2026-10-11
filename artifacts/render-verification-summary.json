@@ -1,0 +1,218 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-11",
+  "backend_revision": "2f6138927442906e989e105b9539f00f190d8ee7",
+  "render_deployment": "dep-db5r3v0473hc73c4cen0",
+  "frontend_deployment": "dpl_7YERMyaXLpNcZQb614HXCsUnuY8F",
+  "ui": "https://demo.tryvivacity.com/",
+  "api": "https://vivacity-runtime.onrender.com",
+  "tests": {
+    "backend-linux": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "125",
+      "time": "314.099",
+      "timestamp": "2026-10-11T15:50:19.235517+00:00",
+      "hostname": "c3feb4190570"
+    },
+    "host-memory": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "1",
+      "time": "56.502",
+      "timestamp": "2026-10-11T15:55:36.843881+00:00",
+      "hostname": "192417eac98f"
+    }
+  },
+  "public_pickup": {
+    "composite_status": "failed",
+    "passed_checks": [
+      "page_load_has_no_automatic_experiments",
+      "pause_freezes_native_simulator_state",
+      "resume_continues_same_world_and_experiment",
+      "native_trials_record_real_states",
+      "stop_cancels_paused_or_running_work",
+      "camera_remains_interactive_while_paused",
+      "bounded_eight_trial_run_and_fresh_execution_complete",
+      "verified_branch_export_contains_actual_frames",
+      "changing_conditions_does_not_start_work"
+    ],
+    "live_messages": 851,
+    "event_messages": 22,
+    "evaluation": {
+      "success": true,
+      "status": "execution_success",
+      "milestone": "physical_pick_and_place",
+      "planning_feasible": true,
+      "goal_error_m": 0.0017493925758389837,
+      "final_cube_position": [
+        0.5014060467194379,
+        0.17994242557490564,
+        0.024960725160155624
+      ],
+      "grasp_established": true,
+      "lifted": true,
+      "retained_during_transport": true,
+      "released": true,
+      "table_supported": true,
+      "max_cube_height_m": 0.18100245221438854,
+      "max_tracking_error_rad": 0.048040465672963495,
+      "contact_violations": [],
+      "phase_evidence": [
+        {
+          "phase": "approach",
+          "time": 4.177999999999762,
+          "cube_position": [
+            0.5,
+            -0.15,
+            0.024960725160812946
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5885999995592756,
+          "table_support": true
+        },
+        {
+          "phase": "descend",
+          "time": 5.591999999999606,
+          "cube_position": [
+            0.5,
+            -0.15,
+            0.02496072516077654
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5885999998218892,
+          "table_support": true
+        },
+        {
+          "phase": "close",
+          "time": 6.489999999999507,
+          "cube_position": [
+            0.5000278705817849,
+            -0.1500103529010312,
+            0.02493387212786782
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 3.486168629580381,
+          "table_support": true
+        },
+        {
+          "phase": "lift",
+          "time": 7.901999999999352,
+          "cube_position": [
+            0.5004247075666262,
+            -0.15000421475398693,
+            0.18084279428423677
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 2.49752211289412,
+          "table_support": false
+        },
+        {
+          "phase": "transport",
+          "time": 10.278000000000102,
+          "cube_position": [
+            0.5010758440012408,
+            0.17984665187373924,
+            0.18088899892759425
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 2.495734357851283,
+          "table_support": false
+        },
+        {
+          "phase": "lower",
+          "time": 11.670000000000567,
+          "cube_position": [
+            0.5014725372111803,
+            0.17995995264347533,
+            0.02489688246156769
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 4.600800502458962,
+          "table_support": true
+        },
+        {
+          "phase": "release",
+          "time": 12.236000000000756,
+          "cube_position": [
+            0.5014060466628061,
+            0.17994242555966905,
+            0.024960725160155618
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5886000000000001,
+          "table_support": true
+        },
+        {
+          "phase": "retract",
+          "time": 14.026000000001353,
+          "cube_position": [
+            0.5014060467194379,
+            0.17994242557490564,
+            0.024960725160155624
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5886000000000001,
+          "table_support": true
+        }
+      ],
+      "execution_duration_s": 14.026000000001353
+    },
+    "performance": {
+      "job_wall_seconds": 269.27033425075933,
+      "process_cpu_seconds": 40.317765237,
+      "queue_wait_seconds": 0.006644187029451132,
+      "planning_wall_seconds": 7.509072029031813,
+      "physics_wall_seconds": 259.12641867948696,
+      "candidate_count": 4,
+      "simulation_steps": 67488,
+      "integration_calls": 0,
+      "replay_payload_bytes": 1628759,
+      "branch_failure_rate": 0,
+      "adapter_error_count": 0,
+      "measurement_complete": true,
+      "job_error_rate": 0,
+      "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+      "trial_count": 8,
+      "trial_simulation_steps": 60475,
+      "trial_physics_wall_seconds": 59.41124220145866,
+      "trial_failure_rate": 0,
+      "trial_engine": "mujoco.rollout/contact-sensors-v1"
+    }
+  },
+  "hosting_limits": {
+    "plan": "free",
+    "cpu": 0.1,
+    "memory_mb": 512,
+    "max_physics_trials": 8,
+    "pickup_wall_limit_seconds": 300,
+    "idle_sleep_minutes": 15,
+    "sqlite_storage": "ephemeral",
+    "always_on": false,
+    "paid_activation": "payment method required"
+  }
+}

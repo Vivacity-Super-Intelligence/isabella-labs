@@ -1,11 +1,16 @@
 # Render deployment handoff — 2026-10-11
 
-Status: prepared, **not provisioned on Render**. Render and GitHub are connected.
-The dashboard confirms $100 credits, valid until July 1, 2027, and no card on file.
-Render requires a payment method before activating this paid Blueprint even
-with those credits. The user must enter card details directly in Render; none
-are collected in this workspace. A paid service has not been created.
-The Vercel frontend remains at https://demo.tryvivacity.com/.
+Status: **Render Free provisioned** at `https://vivacity-runtime.onrender.com`,
+service `srv-db5p7pjbc2fs739lnl6g`, Oregon. Both public frontend aliases use it.
+Paid activation was blocked by Render's card-on-file requirement after the user's
+card was declined, despite the verified $100 credits. No paid compute/disk/workspace
+upgrade was activated. Free hosting sleeps after 15 idle minutes and its SQLite
+data is ephemeral; always-on availability and durable history remain incomplete.
+The public pickup budget is eight genuine physics trials. Exact current release,
+source revision, tests, live evidence and limits: `docs/HOSTING_STATUS.md`.
+
+The paid Blueprint below is a prepared future configuration, not the current
+free service configuration. No card details are collected in this workspace.
 
 Private deployment repository: https://github.com/Tanish-Anand1/vivacity-runtime.
 It contains only backend source, Panda assets/licensing, pinned dependencies,
@@ -57,6 +62,12 @@ Docker build and all **119 tests in 269.17 s**:
 [final run](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38140064902),
 `artifacts/render-linux-final/backend-linux.xml`. The exported source bytes and
 the deployment checkout now match, including Panda assets.
+
+## Previous local preflight and payment-gate investigation (superseded deployment status)
+
+The following records are historical evidence and local preflight, not the current
+Render Free deployment. Current service/revision/status:
+`docs/HOSTING_STATUS.md`.
 
 Corrected disk-compatible Blueprint revision `7d899a2` passed the source
 manifest check, Docker build and **119 tests** again (JUnit suite 146.820 s,

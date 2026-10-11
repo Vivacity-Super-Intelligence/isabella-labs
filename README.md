@@ -2,7 +2,7 @@
 
 The investor workspace executes real MuJoCo robot/cloth dynamics and SciPy orbital model comparisons through one persisted simulation runtime. The React frontend runs bounded autonomous sessions, validates independent alternatives, and streams a **fresh selected physical execution**. It does not substitute prerecorded playback, scripted mesh attachment or canned numerical results.
 
-Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. Its previous API tunnel is unavailable. Render/GitHub are connected and $100 credits are verified, but Render requires a card on file before paid activation. The local API works; public end-to-end service is pending activation and verification. See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. Backend: [vivacity-runtime.onrender.com](https://vivacity-runtime.onrender.com/docs). Render Free is the fallback after the required card was declined; it sleeps after 15 idle minutes and its SQLite storage is ephemeral. The public pickup budget is eight real physics trials; local/default paid configuration retains 5,000. Current release, executed verification and hosting limits: [docs/HOSTING_STATUS.md](docs/HOSTING_STATUS.md).
 
 ## Verified scope
 
@@ -13,7 +13,7 @@ Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). 
 - Experimental actuated Panda/flex folding fixture, pre-attached bar and fixed hinge; separate fixed benchmark **5/5**, with actual release and settling. No general cloth grasp acquisition is claimed.
 - Bounded static GLB/glTF/ZIP previews and robot-description inspection. Imported native robot/world execution is unavailable.
 
-Current full regression: **119 passed**, no failures/errors/skips, **410.15 s**, one upstream Starlette TestClient deprecation warning. Details and public-browser verification: [DEMO_STATUS.md](DEMO_STATUS.md), [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), [ROBOTICS_VALIDATION.md](ROBOTICS_VALIDATION.md), [SCIENTIFIC_VALIDATION.md](SCIENTIFIC_VALIDATION.md), [CLOTH_VALIDATION.md](CLOTH_VALIDATION.md), [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md), [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
+Earlier full regression: **119 passed**, **410.15 s** on Windows. Latest deployment-image results and failed Windows deadline checks are recorded in [docs/HOSTING_STATUS.md](docs/HOSTING_STATUS.md). Historical feature verification: [DEMO_STATUS.md](DEMO_STATUS.md), [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), [ROBOTICS_VALIDATION.md](ROBOTICS_VALIDATION.md), [SCIENTIFIC_VALIDATION.md](SCIENTIFIC_VALIDATION.md), [CLOTH_VALIDATION.md](CLOTH_VALIDATION.md), [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md), [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
 
 ## Setup — Windows PowerShell
 

@@ -14,12 +14,14 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from .robotics import ASSET_DIR, DOWN, RobotWorld, RoboticsBackend, asset_digest
+from .compiled import remember, reuse_world
 
 
 class PickPlaceBackend(RoboticsBackend):
     action_schema = {'type': 'pick_place', 'joints': 7, 'gripper_control': '0 closed, 255 open',
                      'milestone': 'physical_pick_and_place', 'planner': 'DLS pose IK; collision-screened joint segments'}
 
+    @reuse_world('mujoco')
     def create_world(self, config, seed, diagnostics=False):
         root = ET.parse(ASSET_DIR / 'panda.xml').getroot()
         root.find('compiler').set('meshdir', str(ASSET_DIR / 'assets'))
@@ -61,7 +63,10 @@ class PickPlaceBackend(RoboticsBackend):
         data.ctrl[:7] = data.qpos[:7]; data.ctrl[7] = 255
         mj.mj_forward(model, data)
         root.find('compiler').set('meshdir', 'assets')
-        return RobotWorld(model, data, deepcopy(config), seed, digest)
+        world = RobotWorld(model, data, deepcopy(config), seed, digest)
+        # Instrumented native rollout models have additional sensors and must
+        # not replace the normal model associated with this physical hash.
+        return world if diagnostics else remember(world, 'mujoco')
 
     def contact_evidence(self, world):
         m, d = world.model, world.data

@@ -2,6 +2,8 @@ import type { Backend, World, Experiment, Branch, Replay, Dict, Event } from './
 import type { components } from './generated/api';
 
 export const API = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
+const pickupTrials = Number(import.meta.env.VITE_PHYSICS_TRIALS ?? 5000);
+if (!Number.isInteger(pickupTrials) || pickupTrials < 1 || pickupTrials > 5000) throw new Error('VITE_PHYSICS_TRIALS must be 1..5000');
 let sessionToken: string | null = null;
 export function setSessionToken(token: string) { sessionToken = token; }
 export function liveProtocols() { return sessionToken ? ['vivacity.live', `vivacity.token.${sessionToken}`] : []; }
@@ -27,8 +29,8 @@ const defaultConfig = (backend: Backend): Dict | undefined => backend==='mujoco'
 export const api = {
   createSession: (backend: Backend, token: string, config?: Dict) => request<components['schemas']['SessionResponse']>('/v1/sessions',json('POST',{
     backend,seed:7,max_cycles:backend==='mujoco'?1:backend==='cloth'?2:4,realtime_execution:true,
-    physics_trials:backend==='mujoco'?5000:0,
-    search_candidates:backend==='scipy'?0:5000,physics_budget:3,
+    physics_trials:backend==='mujoco'?pickupTrials:0,
+    search_candidates:backend==='scipy'?0:backend==='mujoco'?pickupTrials:5000,physics_budget:3,
     config:config??defaultConfig(backend)
   },{'X-Session-Token':token})),
   session: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}`),

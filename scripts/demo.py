@@ -13,11 +13,16 @@ async def read_events(base, eid):
     events = []
     async with websockets.connect(url) as ws:
         async for message in ws:
-            events.append(json.loads(message))
+            event = json.loads(message)
+            events.append(event)
+            # The terminal event is the protocol's completion signal. Do not
+            # depend on a reverse proxy forwarding the server's close frame.
+            if event['kind'] in ('completed', 'failed', 'cancelled'):
+                break
     return events
 
 
-def run(base, output):
+def run(base, output, timeout_seconds=120):
     evidence = {'schema_version': '1.0', 'base_url': base, 'source': 'executed_live_api_experiments', 'experiments': []}
     with httpx.Client(base_url=base, timeout=60) as client:
         def post(route, body=None):
@@ -25,11 +30,11 @@ def run(base, output):
 
         def experiment(world, settings=None):
             e = post(f"/v1/worlds/{world['id']}/experiments", settings or {})
-            eid = e['id']; deadline = time.monotonic()+120
+            eid = e['id']; deadline = time.monotonic()+timeout_seconds
             while e['status'] in ('queued', 'running'):
                 if time.monotonic() > deadline:
                     raise RuntimeError('live experiment timed out')
-                time.sleep(0.05)
+                time.sleep(0.5)
                 r = client.get(f'/v1/experiments/{eid}'); r.raise_for_status(); e = r.json()
             branches = client.get(f'/v1/experiments/{eid}/branches').json()
             replay = client.get(f'/v1/experiments/{eid}/replay').json()
@@ -91,5 +96,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--base-url', default='http://127.0.0.1:8000')
     parser.add_argument('--output', default='artifacts/live-demo.json')
+    parser.add_argument('--timeout-seconds', type=float, default=120)
     args = parser.parse_args()
-    run(args.base_url.rstrip('/'), args.output)
+    run(args.base_url.rstrip('/'), args.output, args.timeout_seconds)

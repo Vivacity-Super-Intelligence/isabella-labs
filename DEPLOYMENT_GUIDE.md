@@ -1,26 +1,22 @@
-# Verified deployment — 2026-10-11
+# Current deployment — 2026-10-11
 
 ## Current hosting status
 
-The frontend's latest pause/resume release is deployment
-`dpl_AprLKpiPQX8ETK3RSmQd1c6u17TQ`, immutable URL
-`https://vivacity-demo-pjihhlimv-tanishs-projects-66633ee2.vercel.app`, with
-both public demo aliases assigned. Its compiled API hostname
-`stayed-oem-founded-son.trycloudflare.com` is **currently unavailable**.
-An owned local API restart passed local readiness, but that hostname stopped
-resolving. Renewal registered a replacement but its QUIC/TCP connectivity checks
-failed and external readiness did not pass. No frontend was rebound to an
-unverified replacement URL.
+The frontend at **https://demo.tryvivacity.com/** connects to the live Render API
+at **https://vivacity-runtime.onrender.com/**. Alias:
+https://vivacity-investor-demo.vercel.app/. Current release and public evidence:
+`docs/HOSTING_STATUS.md`.
 
-Render is the requested durable host. `render.yaml`, a dedicated private backend
-repository and executed Linux Docker verification are ready. Render/GitHub are
-connected and $100 credits are verified. Required card registration and paid
-activation are pending, so no Render deployment or cloud persistence is
-claimed. Exact configuration, cost, commands and verification gates:
-`docs/RENDER_DEPLOYMENT.md`.
+The deployed Render Free instance uses 0.1 CPU / 512 MB, sleeps after 15 minutes
+idle and has ephemeral SQLite storage. Public pickup runs eight real physics trials.
+These limits cannot deliver always-on hosting or durable history. The paid upgrade
+was blocked by Render's card requirement after the debit card was declined; no
+payment action was made. The constrained-host 300-second execution deadline passed
+125 Linux tests plus the 512 MB smoke and is deployed. For the final public run, use
+`docs/HOSTING_STATUS.md` as the current behavior.
 
-The remaining sections document earlier successful temporary releases.
-They do not establish current public backend availability.
+The rest of this file records the earlier temporary-tunnel deployment and is
+historical evidence only; it is not the current backend URL.
 
 ## Previous temporary deployment evidence
 

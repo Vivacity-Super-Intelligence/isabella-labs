@@ -1,8 +1,8 @@
 # Master demo status — 2026-10-11
 
-Public frontend: **https://demo.tryvivacity.com/**. Current evidence: **119 Windows tests passed**, **119 Linux container tests passed**, and **5,000 actual independent pickup trials completed**. Real Pause/Resume and manual start are implemented. See the current release section below for exact evidence and limits.
+Public frontend: **https://demo.tryvivacity.com/**. Backend: **https://vivacity-runtime.onrender.com**. Latest deployment-image evidence: **125 Linux tests passed**, plus a repeated all-lab test under a 512 MB container limit. The previous **5,000 actual independent pickup trials** were executed locally. Real Pause/Resume and manual start are implemented. Current cloud evidence and failed Windows deadline checks are recorded in `docs/HOSTING_STATUS.md`; older sections below describe their respective revisions.
 
-**Public backend currently unavailable:** the old tunnel hostname stopped resolving; replacement connectivity failed. The local API is healthy. Render/GitHub are connected and $100 credits are verified, but Render requires a card on file before activating the paid service. No Render service or always-on availability is claimed. See `docs/RENDER_DEPLOYMENT.md`.
+**Hosting limit:** Render Free is the fallback after the required card was declined. It sleeps after 15 idle minutes and loses local SQLite data on restart, redeploy or sleep. Public pickup is bounded to eight real trials; cloth still screens 5,000 proposals and validates three in physics. This release cannot provide always-on availability or persistent cloud history. No paid service/disk upgrade was activated. See `docs/HOSTING_STATUS.md`.
 
 ## Verified outcomes — earlier master release
 
