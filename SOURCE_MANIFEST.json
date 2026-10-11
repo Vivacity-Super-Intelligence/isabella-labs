@@ -101,7 +101,7 @@
   "tests/test_imports.py": "e35e8af9728cba3496adfcba2d451d359830fe2b8cefd32c9ceb8d53235517d2",
   "tests/test_orbital.py": "0ff4b24981be1215da1635dccab9bfa090d313af90fbe56829212208c248fe4d",
   "tests/test_pause_trials.py": "3c0f010c78dae6663df08e196c4f9de96713d8f713349eeb0dba62014bbcfe75",
-  "tests/test_pick_place.py": "35e5f5a6dcccdf113eb09dbb279d01b4b95b92488a8dfc06aacd68610f30ef9d",
+  "tests/test_pick_place.py": "5dcdb420b447afb9952bf99ec55df06b7f8276170d0359e89026a51af06a37da",
   "tests/test_reach_hardening.py": "23901feabb907bc82375f565062f381b0ea33e8178512ff3fd2f163c60378888",
   "tests/test_reliability.py": "e9257574e2b9fd1152620f14a501efcbbef59b5cedc3861b44f064ae2eae073d",
   "tests/test_robotics.py": "f688c1a45327bdb8e023c2a3daba9839ac676dae44a67feabebb946a0170d4f1",
@@ -121,12 +121,12 @@
   "vivacity/legacy_cloth.py": "febfa2b692e4d0f8a4d8a5e7b3b878121568ed437457bcaef6acae1cc605e959",
   "vivacity/native_pick_place.py": "0af601dcc805d98790f2455ae1b1efe01acfea86abed38908cdcc22a1c2de042",
   "vivacity/orbital.py": "483d178c9200cc83c0acaa1070525f382277352c9a7fe2422c799b4459ad4f16",
-  "vivacity/pick_place.py": "44869ba96770d5c2418f2ed9f856943bb5235682cf8dd92bbb2f45cd93dddd9f",
+  "vivacity/pick_place.py": "595dab6e67347e9beb02f5fd38b2f402899dc9dc9a2ad411b37bcc15a704235a",
   "vivacity/robotics.py": "53ab9915f954c1d42142df071d39cc0d6bc4f409d02ff1747d1d872bbdcbc2c5",
   "vivacity/runtime.py": "90d4838145edd87175b1185b5a9514252dfdc501a8576c4a853abc19e447744a",
-  "vivacity/schemas.py": "82042325fe6b6c0611f0b9a28c6d781b60f862bf7c046f11d38347ac8f77406f",
+  "vivacity/schemas.py": "efad286ce9881305a145f45e530f69a128803a0e45303a2c81fac328cc7dc964",
   "vivacity/science.py": "dc3bf2d3a304d6fceb51d48285aa9515770ec5c665c7b100e6ad5a3cddaf20ee",
   "vivacity/search.py": "0c3bdbecc8c0d71787ffe861d17cdedb1cc131868b02465dc84cfd3056ca58ef",
   "vivacity/storage.py": "68d08cae9a1dc5a07ab5d238904d05b3c9652765498d42b3a08e571bb1669bb7",
-  "vivacity/supervisor.py": "93a15282f8bb6af756ff02615a57f947cf7cb31bc6e7f9cbe4699f211a04e15a"
+  "vivacity/supervisor.py": "18058680613ea38e90046728a44a1748f212c9c429ac3c85ae4e1a5ceff74395"
 }

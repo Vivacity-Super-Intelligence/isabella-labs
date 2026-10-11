@@ -16,6 +16,7 @@ class RoboticsConfig(Schema):
     obstacle_enabled: bool = True
     cube_position: Vec3 = [0.5, -0.15, 0.026]
     placement_position: Vec3 = [0.5, 0.18, 0.026]
+    cube_half_size: float = Field(0.025, ge=0.02, le=0.03)
     cube_mass: float = Field(0.06, ge=0.02, le=0.15)
     cube_friction: float = Field(1.0, ge=0.05, le=1.5)
     obstacle_position: Vec3 = [0.45, 0.04, 0.22]
@@ -29,9 +30,13 @@ class RoboticsConfig(Schema):
                 raise ValueError('Orbital task requires pickup and a verified source import')
             if abs(self.obstacle_size[0]-self.obstacle_size[1]) > 1e-8:
                 raise ValueError('reactor radial half-sizes must match')
+            if abs(self.cube_half_size - .025) > 1e-9:
+                raise ValueError('Orbital cargo geometry is fixed by its adapted source fixture')
         for point in (self.cube_position, self.placement_position):
-            if not (.35 <= point[0] <= .65 and abs(point[1]) <= .3 and .025 <= point[2] <= .03):
+            if not (.35 <= point[0] <= .65 and abs(point[1]) <= .3 and .02 <= point[2] <= .032):
                 raise ValueError('pickup and placement centers must be on the supported table workspace')
+        if self.task == 'pick_place' and any(abs(point[2] - (self.cube_half_size + .001)) > .002 for point in (self.cube_position, self.placement_position)):
+            raise ValueError('pickup and placement center heights must match the cube size')
         if self.task == 'pick_place' and sum((a-b)**2 for a,b in zip(self.cube_position[:2], self.placement_position[:2])) < .01:
             raise ValueError('pickup and placement must be at least 0.1 m apart')
         x, y, z = self.obstacle_position
