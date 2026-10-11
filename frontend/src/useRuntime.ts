@@ -31,12 +31,22 @@ export function useRuntime(backend:Backend){
   const [error,setError]=useState<string|null>(null),[epoch,setEpoch]=useState(0);
   const [stream,setStream]=useState<'connecting'|'live'|'reconnecting'|'idle'>('idle');
   const [liveState,setLiveState]=useState<Live|null>(null);
+  const [hostPhysicsLimit,setHostPhysicsLimit]=useState<number|null>(null);
   const currentSession=useRef(session);currentSession.current=session;
   const currentWorld=useRef(world);currentWorld.current=world;
   const currentExperiment=useRef(experiment);currentExperiment.current=experiment;
   const lock=useRef(false),generation=useRef(0);
   const inspecting=useRef(false);
   const stagedConfig=useRef<Dict|null>(null);
+
+  useEffect(()=>{
+    let active=true;
+    setHostPhysicsLimit(null);
+    const probe=()=>api.health().then(health=>{if(active){setHostPhysicsLimit(health.limits?.max_physics_trials??null);clearInterval(retry);}}).catch(()=>{});
+    const retry=setInterval(probe,5000);
+    probe();
+    return()=>{active=false;clearInterval(retry);};
+  },[backend,epoch]);
 
   const adopt=useCallback(async(s:Session,version:number)=>{
     if(version!==generation.current)return;
@@ -96,7 +106,7 @@ export function useRuntime(backend:Backend){
             put(`${backend}:world`,w.id);currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);
           }
         }
-        if(active&&version===generation.current){setOnline(true);setLoaded(true);}
+        if(active&&version===generation.current){setOnline(true);setLoaded(true);setError(previous=>previous==='Failed to fetch'?null:previous);}
       }catch(e){if(active){setError(errorMessage(e));setOnline(false);setLoaded(true);}}
       finally{refreshing=false;}
     };
@@ -118,7 +128,7 @@ export function useRuntime(backend:Backend){
       if(!active||refreshing||terminal)return;refreshing=true;
       try{
         const e=await api.experiment(id);
-        if(!active)return;setOnline(true);currentExperiment.current=e;setExperiment(e);
+        if(!active)return;setOnline(true);setError(previous=>previous==='Failed to fetch'?null:previous);currentExperiment.current=e;setExperiment(e);
         const batch=await api.events(id,eventCursor);if(active&&batch.length){append(batch);eventCursor=batch.at(-1)!.seq;}
         measured(await api.live(id));
         if(isBusy(e)&&Date.now()-lastBranches>5000){
@@ -190,7 +200,7 @@ export function useRuntime(backend:Backend){
     const batch=await api.events(id);setEvents(batch.slice(-160));
     // Evidence inspection never substitutes a recorded trajectory into the main scene.
   });
-  return {world,observation,experiment,branches,events,session,liveState,online,loaded,mutating,error,stream,
+  return {world,observation,experiment,branches,events,session,liveState,hostPhysicsLimit,online,loaded,mutating,error,stream,
     busy:mutating||isBusy(experiment),active:session?.status==='active'||session?.status==='stopping',
     run:start,stop,togglePause,apply,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
 }

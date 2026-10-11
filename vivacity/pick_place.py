@@ -38,7 +38,9 @@ class PickPlaceBackend(RoboticsBackend):
         ET.SubElement(wb, 'geom', name='table', type='box', pos='.4 0 -.04', size='.7 .65 .04', friction='1 .005 .0001')
         target = ET.SubElement(wb, 'body', name='target', pos=' '.join(map(str, config['cube_position'])))
         ET.SubElement(target, 'freejoint', name='cube_free')
-        ET.SubElement(target, 'geom', name='cube', type='box', size='.025 .025 .025',
+        half_size = config.get('cube_half_size', .025)
+        cube_geometry = '.025 .025 .025' if half_size == .025 else ' '.join([str(half_size)] * 3)
+        ET.SubElement(target, 'geom', name='cube', type='box', size=cube_geometry,
                       mass=str(config['cube_mass']), friction=f"{config['cube_friction']} .005 .0001",
                       condim='4', solref='.004 1', rgba='.05 .35 .9 1')
         obstacle = ET.SubElement(wb, 'body', name='obstacle', pos=' '.join(map(str, config['obstacle_position'])))
@@ -147,13 +149,14 @@ class PickPlaceBackend(RoboticsBackend):
         for index in range(count):
             height = .19 if index == 0 else float(rng.uniform(.17, .25))
             speed = .32 if index == 0 else float(rng.uniform(.27, .36))
+            grasp_z = .038 + (world.config.get('cube_half_size', .025) - .025)
             specs = [('approach', [cube[0], cube[1], height], 255, .3),
-                     ('descend', [cube[0], cube[1], .038], 255, .3),
-                     ('close', [cube[0], cube[1], .038], 0, .7),
+                     ('descend', [cube[0], cube[1], grasp_z], 255, .3),
+                     ('close', [cube[0], cube[1], grasp_z], 0, .7),
                      ('lift', [cube[0], cube[1], height], 0, .3),
                      ('transport', [dest[0], dest[1], height], 0, .3),
-                     ('lower', [dest[0], dest[1], .038], 0, .3),
-                     ('release', [dest[0], dest[1], .038], 255, .6),
+                     ('lower', [dest[0], dest[1], grasp_z], 0, .3),
+                     ('release', [dest[0], dest[1], grasp_z], 255, .6),
                      ('retract', [dest[0], dest[1], height], 255, .7)]
             q = world.data.qpos[:7].copy(); stages = []; converged = True
             for phase, pose, gripper, dwell in specs:

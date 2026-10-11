@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from vivacity.pick_place import PickPlaceBackend
+from vivacity.native_pick_place import NativePickup
 from vivacity.schemas import RoboticsConfig, CreateWorld, ExperimentRequest
 
 
@@ -16,6 +17,41 @@ def test_cube_obstacle_contact_is_prohibited_even_without_robot_contact():
     violations = backend.contacts(world)
     assert any(v['category'] == 'object_environment_collision' and
                set(v['geoms']) == {'cube', 'obstacle_geom'} for v in violations)
+
+
+@pytest.mark.parametrize('half_size', [.02, .03])
+def test_configured_object_size_changes_real_geometry_and_grasp(half_size):
+    height = half_size + .001
+    config = RoboticsConfig(task='pick_place', obstacle_enabled=False,
+                            cube_half_size=half_size,
+                            cube_position=[.5, -.15, height],
+                            placement_position=[.5, .18, height])
+    backend = PickPlaceBackend()
+    world = backend.create_world(config.model_dump(), 7)
+    assert world.model.geom_size[world.model.geom('cube').id, 0] == pytest.approx(half_size)
+    action = backend.candidates(world, 1, 100)[0][0]
+    assert action['planning_feasible']
+    result, evaluation, final_state = NativePickup(backend, backend.snapshot(world)).simulate(
+        action, {'max_simulation_seconds': 40, 'max_wall_seconds': 120})
+    assert result['simulation_steps'] > 1000
+    assert evaluation['success'], evaluation
+    assert evaluation['grasp_established'] and evaluation['lifted'] and evaluation['released']
+    assert evaluation['goal_error_m'] < .025
+    assert final_state['config']['cube_half_size'] == half_size
+
+
+def test_older_pickup_snapshot_without_size_retains_default_geometry():
+    backend = PickPlaceBackend()
+    config = RoboticsConfig(task='pick_place', obstacle_enabled=False).model_dump()
+    legacy = dict(config)
+    legacy.pop('cube_half_size')
+    previous = backend.create_world(legacy, 7)
+    current = backend.create_world(config, 7)
+    assert previous.model_hash == current.model_hash
+    snapshot = backend.snapshot(previous)
+    restored = backend.fork(snapshot)
+    assert restored.model_hash == previous.model_hash
+    assert backend.snapshot(restored) == snapshot
 
 
 @pytest.fixture(scope='module')
@@ -91,6 +127,10 @@ def test_runtime_pickup_persistence_exports_and_geometry_invalidation(runtime):
     exported = runtime.export_branch(e['id'], e['selected_branch_id'])
     assert exported['evaluation']['grasp_established'] and exported['success']
     assert exported['recorded_frames'][-1]['cube_position'] == exported['evaluation']['final_cube_position']
+    resized = runtime.environment(w['id'], RoboticsConfig(task='pick_place', obstacle_enabled=False,
+        cube_half_size=.03, cube_position=[.5,-.15,.031], placement_position=[.5,.18,.031]))
+    assert resized['state']['model_hash'] != w['state']['model_hash']
+    assert runtime.get_experiment(e['id'])['stale']
     changed = runtime.environment(w['id'], RoboticsConfig(task='pick_place', obstacle_position=[.5,0,.2],obstacle_size=[.3,.3,.2]))
     assert changed['state']['model_hash'] != w['state']['model_hash']
     assert runtime.get_experiment(e['id'])['stale']

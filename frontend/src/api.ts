@@ -4,6 +4,7 @@ import type { components } from './generated/api';
 export const API = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
 const pickupTrials = Number(import.meta.env.VITE_PHYSICS_TRIALS ?? 5000);
 if (!Number.isInteger(pickupTrials) || pickupTrials < 1 || pickupTrials > 5000) throw new Error('VITE_PHYSICS_TRIALS must be 1..5000');
+export const requestedPickupTrials = pickupTrials;
 let sessionToken: string | null = null;
 export function setSessionToken(token: string) { sessionToken = token; }
 export function liveProtocols() { return sessionToken ? ['vivacity.live', `vivacity.token.${sessionToken}`] : []; }
@@ -27,18 +28,22 @@ const json = (method: string, body?: object, headers: Record<string,string> = {}
 const defaultConfig = (backend: Backend): Dict | undefined => backend==='mujoco'
   ? {task:'pick_place',obstacle_enabled:false,obstacle_position:[.75,-.4,.22]} : undefined;
 export const api = {
-  createSession: (backend: Backend, token: string, config?: Dict) => request<components['schemas']['SessionResponse']>('/v1/sessions',json('POST',{
-    backend,seed:7,max_cycles:backend==='mujoco'?1:backend==='cloth'?2:4,realtime_execution:true,
-    physics_trials:backend==='mujoco'?pickupTrials:0,
-    search_candidates:backend==='scipy'?0:backend==='mujoco'?pickupTrials:5000,physics_budget:3,
-    config:config??defaultConfig(backend)
-  },{'X-Session-Token':token})),
+  createSession: async (backend: Backend, token: string, config?: Dict) => {
+    const health=await request<{limits?:{max_physics_trials:number}}>('/health');
+    const trials=Math.min(pickupTrials,health.limits?.max_physics_trials??pickupTrials);
+    return request<components['schemas']['SessionResponse']>('/v1/sessions',json('POST',{
+      backend,seed:7,max_cycles:backend==='mujoco'?1:backend==='cloth'?2:4,realtime_execution:true,
+      physics_trials:backend==='mujoco'?trials:0,
+      search_candidates:backend==='scipy'?0:backend==='mujoco'?trials:5000,physics_budget:3,
+      config:config??defaultConfig(backend)
+    },{'X-Session-Token':token}));
+  },
   session: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}`),
   stopSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/stop`,json('POST')),
   pauseSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/pause`,json('POST')),
   resumeSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/resume`,json('POST')),
   live: (id:string) => request<components['schemas']['LiveState']|null>(`/v1/experiments/${encodeURIComponent(id)}/live`),
-  health: () => request<{ status: string; backends: Record<string,string> }>('/health'),
+  health: () => request<{ status: string; backends: Record<string,string>; limits?: {max_physics_trials:number} }>('/health'),
   create: (backend: Backend, config = defaultConfig(backend)) => request<World>('/v1/worlds', json('POST', { backend, seed: 7, config })),
   world: (id: string) => request<World>(`/v1/worlds/${encodeURIComponent(id)}`),
   state: (id: string) => request<components['schemas']['StateResponse']>(`/v1/worlds/${encodeURIComponent(id)}/state`),

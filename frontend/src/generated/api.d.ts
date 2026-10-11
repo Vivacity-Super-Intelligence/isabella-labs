@@ -885,6 +885,11 @@ export interface components {
              */
             placement_position: number[];
             /**
+             * Cube Half Size
+             * @default 0.025
+             */
+            cube_half_size: number;
+            /**
              * Cube Mass
              * @default 0.06
              */

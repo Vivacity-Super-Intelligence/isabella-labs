@@ -49,7 +49,8 @@ function CameraInteraction({command}:{command:{key:string;seq:number}}){
 export function GeomMesh({ geom, assets, config }: { geom: Geom; assets: Assets; config: Dict }) {
   const q = quaternion(geom.quaternion_wxyz);
   if(geom.type==='cylinder'||geom.type==='capsule')q.multiply(new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI/2));
-  const size = (geom.name === 'obstacle_geom' ? config.obstacle_size ?? geom.size : geom.size) as Vec3;
+  const size = (geom.name === 'obstacle_geom' ? config.obstacle_size ?? geom.size : geom.name === 'cube' && config.task === 'pick_place'
+    ? [Number(config.cube_half_size??.025),Number(config.cube_half_size??.025),Number(config.cube_half_size??.025)] : geom.size) as Vec3;
   const color = useMemo(() => new Color().setRGB(geom.rgba[0],geom.rgba[1],geom.rgba[2],SRGBColorSpace),[geom]);
   return <mesh position={geom.position} quaternion={q} geometry={geom.mesh_id !== null ? assets.geometry.get(geom.mesh_id) : undefined} castShadow={geom.type !== 'plane'} receiveShadow>
     {geom.type === 'box' && <boxGeometry args={[size[0]*2,size[1]*2,size[2]*2]} />}

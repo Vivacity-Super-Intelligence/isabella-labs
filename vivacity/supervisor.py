@@ -139,8 +139,9 @@ class Supervisor:
                     if cycle:
                         rng=np.random.default_rng(seed)
                         if s['backend']=='mujoco' and config.get('task')=='pick_place':
-                            config['cube_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(-.2,-.1)),.026]
-                            config['placement_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(.12,.23)),.026]
+                            center_z=config.get('cube_half_size',.025)+.001
+                            config['cube_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(-.2,-.1)),center_z]
+                            config['placement_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(.12,.23)),center_z]
                         elif s['backend']=='scipy':
                             config['noise_std']=float(rng.uniform(.0006,.0015))
                             config['horizon']=float(rng.uniform(4,6))

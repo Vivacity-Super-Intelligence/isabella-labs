@@ -2044,6 +2044,13 @@
               0.026
             ]
           },
+          "cube_half_size": {
+            "type": "number",
+            "maximum": 0.03,
+            "minimum": 0.02,
+            "title": "Cube Half Size",
+            "default": 0.025
+          },
           "cube_mass": {
             "type": "number",
             "maximum": 0.15,

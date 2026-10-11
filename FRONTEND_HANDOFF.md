@@ -144,6 +144,24 @@ Exact contact-pickup session request body:
 {"backend":"mujoco","seed":7,"config":{"task":"pick_place","obstacle_enabled":false},"max_cycles":1,"realtime_execution":true,"search_candidates":5000,"physics_trials":5000,"physics_budget":3}
 ```
 
+The frontend now checks `GET /health` before starting pickup and submits the
+smaller of its requested trial budget and `limits.max_physics_trials`, with
+matching `search_candidates`. The live counter displays completed backend
+physics trials, not generated proposals. A 5,000-trial request is possible only
+on a host reporting a 5,000-trial limit; Render Free currently reports eight.
+The separate hosted [5,000-trial audit](docs/PHYSICS_5000_VARIED_AUDIT.md)
+cannot be substituted for a visitor's newly configured experiment.
+
+For workcell pickup, the full robotics configuration supports
+`cube_half_size` from `0.020` to `0.030` metres, corresponding to a 40–60 mm
+cube. A 60 mm example sets `"cube_half_size":0.030`,
+`"cube_position":[0.5,-0.15,0.031]` and
+`"placement_position":[0.5,0.18,0.031]`; the vertical center must track the
+half-size plus 1 mm table clearance. Pickup and placement X/Y sliders choose
+the positions. Applying a size or position change recompiles actual MuJoCo
+geometry and invalidates older results. The adapted Orbital cargo fixture keeps
+its original 50 mm cube; arbitrary cargo resizing is unsupported there.
+
 For cloth use `{"backend":"cloth","seed":7,"max_cycles":1,"search_candidates":5000,"physics_budget":3}`. For science use `{"backend":"scipy","seed":7,"max_cycles":2,"search_candidates":0,"physics_budget":3}`. API robotics default without `task` remains legacy reaching; the current frontend explicitly requests pickup. Omitted config fields receive validated defaults, not frontend guesses.
 
 Session response version is `vivacity.session/1.0`, with `id`, `backend`, `status`, `world_id`, nullable `experiment_id`, `cycle`, `max_cycles`, `experiments`, `world_ids`, `conditions`, `error`, `started_unix_s`, `last_heartbeat_unix_s`, plus `pause_requested`, `paused` and `paused_seconds`. Earlier real response examples are in `docs/master-frontend-examples.json`; the additive pause fields and trial records are specified in `PAUSE_TRIALS_VALIDATION.md`. Each next cycle changes world ID and recorded seed/conditions; reconnect to that experiment's sockets. Sessions run at most eight cycles (cloth at most two), expire after a 180 s heartbeat lapse, and have a 30 min wall bound (two hours for exhaustive pickup). GET heartbeat every second, including while paused. The current frontend requests one exhaustive pickup cycle.

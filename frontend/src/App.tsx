@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowsClockwise, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
 import { useRuntime, isBusy } from './useRuntime';
-import { API, api, errorMessage } from './api';
+import { API, api, errorMessage, requestedPickupTrials } from './api';
 import { format, robotFrame, clothFrame, scienceObservation, type Backend, type Branch, type RobotFrame, type ClothFrame } from './domain';
 import Settings from './Settings';
 import ClothSettings from './ClothSettings';
@@ -74,12 +74,13 @@ export default function App(){
               <button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':robotics?'Change conditions':'Observation settings'}</button>
               <button className="secondary" disabled={disabled} onClick={rt.reset}><ArrowsClockwise size={18}/>Reset world</button>
             </div>
+            {backend==='mujoco'&&rt.hostPhysicsLimit!==null&&<p className="small" role="status">This host can run {Math.min(rt.hostPhysicsLimit,requestedPickupTrials).toLocaleString()} measured physics trials per pickup. Progress below counts completed backend simulations.</p>}
           </section>
           <aside className="results" aria-label="Verified results">
             <div className="section-heading"><h2>{cloth?'Best verified folds':robotics?'Best verified placements':'Hypotheses'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
             {editing&&rt.world?cloth?<ClothSettings key={rt.world.id} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:
               <Settings key={rt.world.id} backend={backend} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
-              {!ranked.length?<p className="results-empty">{rt.busy?'Computing and validating independent alternatives…':terminal?'No feasible candidate. Measured failures are retained below.':rt.loaded?'Choose Start experiments when you’re ready. You can change the settings first.':'Initializing an actual physical world…'}</p>:
+              {!ranked.length?<p className="results-empty">{rt.busy?'Computing and validating independent alternatives…':terminal&&rt.experiment?.selected_branch_id?'Loading measured results…':terminal?'No feasible candidate. Measured failures are retained below.':rt.loaded?'Choose Start experiments when you’re ready. You can change the settings first.':'Initializing an actual physical world…'}</p>:
                 ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} robotics={robotics} choose={()=>setBranchId(b.id)} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
               {downloadError&&<p role="alert" className="negative">{downloadError}</p>}
               <p className="decision" data-testid="decision">{compatible?String(rt.experiment?.error??rt.experiment?.result.conclusion??''):''}</p>
