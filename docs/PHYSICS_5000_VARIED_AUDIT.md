@@ -1,8 +1,15 @@
 # Varied 5,000-trial MuJoCo audit
 
-This is a fresh local execution of the current backend, separate from the
-historical fixed-scene `artifacts/physics-5000.json` report and from the public
-Render host's eight-trial budget. The website and deployed physics are unchanged.
+The authoritative requested run executes in the backend's cloud Docker image.
+Progress is printed to the private GitHub Actions log at
+https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38175668423.
+The job uploads its aggregate report, catalog, replay exports and SQLite state
+database as the `backend-physics-5000` artifact. An earlier complete local run
+is retained as separate evidence. The public Render Free service currently
+allows eight trials per web request; the cloud audit has a 2 GB container limit
+and cannot be presented as a 5,000-trial Render Free performance measurement.
+The deployed physics source is byte-identical to the validated release: the
+private source export added only this audit script and its manual workflow.
 
 ## Scope
 
@@ -33,6 +40,17 @@ No LLM calls, recorded videos or fabricated physics outputs are used.
 
 ## Evidence and progress
 
+- **Cloud backend:** `.github/workflows/backend-physics-5000.yml` runs the
+  backend Docker image. It logs measured per-scenario physics progress and
+  verifies 5,000 catalog rows and SQLite trial records before upload. The
+  run link above is the current status source; a queued or running job is not
+  evidence of completion. Artifact copies downloaded later are evidence from
+  that cloud run and are not additional local simulations.
+- **Local control run:** `artifacts/varied-physics-5000.json` records 5,000
+  trials across 50 configurations, 4,000 successes, 1,000 collision failures,
+  29,625,840 validation steps, 29,880,282 total steps, 2,382.123 s elapsed,
+  5,000 distinct commands and exact native repetition of one success and one
+  failure. It is not evidence that the cloud job has finished.
 - `artifacts/varied-physics-5000.json`: atomic progress and final aggregate report.
   `status: running` is not completion. Only the finished audit records `passed`.
 - `artifacts/varied-physics-5000-trials.jsonl`: one measured catalog entry per
