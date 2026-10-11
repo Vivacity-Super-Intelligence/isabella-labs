@@ -13,6 +13,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from .robotics import ASSET_DIR, DOWN, asset_digest
 from .legacy_cloth import LegacyClothBackend, ClothWorld, N
+from .compiled import remember
 
 
 @dataclass
@@ -79,7 +80,7 @@ class ClothBackend(LegacyClothBackend):
         world.initial_vertices = data.flexvert_xpos.copy()
         root.find('compiler').set('meshdir','assets')
         world.model_hash = hashlib.sha256((ET.tostring(root,encoding='unicode')+asset_digest()+self.version).encode()+model.eq_data.tobytes()).hexdigest()
-        return world
+        return remember(world, 'cloth')
 
     def ik(self, world, position, initial):
         m=world.model; d=mj.MjData(m); d.qpos[:]=world.data.qpos

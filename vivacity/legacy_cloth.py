@@ -10,6 +10,7 @@ import time
 import mujoco as mj
 import numpy as np
 from .robotics import STATE_SPEC
+from .compiled import fork_geometry
 
 N=7
 
@@ -50,7 +51,8 @@ class LegacyClothBackend:
         return {'backend':'cloth','engine':'mujoco','version':self.version,'seed':world.seed,'config':deepcopy(world.config),'model_hash':world.model_hash,'state_spec':int(STATE_SPEC),'integration_state':state.tolist()}
 
     def fork(self,state):
-        w=self.create_world(state['config'],state['seed'])
+        w=fork_geometry(state)
+        if w is None:w=self.create_world(state['config'],state['seed'])
         if state['version']!=self.version or state['model_hash']!=w.model_hash or state['state_spec']!=int(STATE_SPEC):raise ValueError('cloth snapshot model/version mismatch')
         mj.mj_setState(w.model,w.data,np.asarray(state['integration_state']),STATE_SPEC);mj.mj_forward(w.model,w.data);mj.mj_setState(w.model,w.data,np.asarray(state['integration_state']),STATE_SPEC)
         return w

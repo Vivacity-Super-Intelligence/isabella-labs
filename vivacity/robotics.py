@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 import mujoco as mj
 import numpy as np
 from scipy.spatial.transform import Rotation
+from .compiled import remember, fork_geometry
 
 ASSET_DIR = Path(__file__).resolve().parents[1] / 'assets/menagerie/franka_emika_panda'
 STATE_SPEC = mj.mjtState.mjSTATE_INTEGRATION
@@ -60,7 +61,7 @@ class RoboticsBackend:
         # Hash scene code's generated geometry plus mesh content, independent of installation path.
         root.find('compiler').set('meshdir', 'assets')
         digest = hashlib.sha256((ET.tostring(root, encoding='unicode') + asset_digest() + self.version).encode()).hexdigest()
-        return RobotWorld(model, data, deepcopy(config), seed, digest)
+        return remember(RobotWorld(model, data, deepcopy(config), seed, digest), 'mujoco')
 
     def snapshot(self, world):
         state = np.zeros(mj.mj_stateSize(world.model, STATE_SPEC))
@@ -68,7 +69,9 @@ class RoboticsBackend:
         return {'backend': 'mujoco', 'version': self.version, 'model_hash': world.model_hash, 'config': deepcopy(world.config), 'seed': world.seed, 'state_spec': int(STATE_SPEC), 'integration_state': state.tolist()}
 
     def fork(self, state):
-        world = self.create_world(state['config'], state['seed'])
+        world = fork_geometry(state)
+        if world is None:
+            world = self.create_world(state['config'], state['seed'])
         self.restore(world, state)
         return world
 

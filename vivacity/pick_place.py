@@ -14,6 +14,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from .robotics import ASSET_DIR, DOWN, RobotWorld, RoboticsBackend, asset_digest
+from .compiled import remember
 
 
 class PickPlaceBackend(RoboticsBackend):
@@ -61,7 +62,10 @@ class PickPlaceBackend(RoboticsBackend):
         data.ctrl[:7] = data.qpos[:7]; data.ctrl[7] = 255
         mj.mj_forward(model, data)
         root.find('compiler').set('meshdir', 'assets')
-        return RobotWorld(model, data, deepcopy(config), seed, digest)
+        world = RobotWorld(model, data, deepcopy(config), seed, digest)
+        # Instrumented native rollout models have additional sensors and must
+        # not replace the normal model associated with this physical hash.
+        return world if diagnostics else remember(world, 'mujoco')
 
     def contact_evidence(self, world):
         m, d = world.model, world.data
