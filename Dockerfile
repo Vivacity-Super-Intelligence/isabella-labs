@@ -16,6 +16,7 @@ RUN python -m pip install --no-cache-dir -r requirements-lock.txt
 
 COPY vivacity ./vivacity
 COPY assets ./assets
+COPY fixtures/imports ./fixtures/imports
 
 EXPOSE 8000
 VOLUME ["/data"]
