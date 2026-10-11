@@ -7,7 +7,7 @@
   "vercel_deployment": "dpl_9kYzmrxJgMi2mLFmB8fAX8a1bBEX",
   "linux_tests": {"passed": 135, "failed": 0, "skipped": 0, "seconds": 351.494},
   "container_512_mb_test": {"passed": 1, "seconds": 56.313},
-  "windows_bounded_threads": {"passed": 134, "failed": 0, "skipped": 1, "seconds": 408.16},
+  "windows_bounded_threads": {"passed": 134, "failed": 0, "skipped": 1, "pytest_wall_seconds": 408.16, "junit_seconds": 405.798},
   "windows_unrestricted_failure_preserved": {"passed": 132, "failed": 2, "skipped": 1, "seconds": 729.45},
   "fixed_scene_pickup_benchmark": {"successful": 20, "failed": 0, "seconds": 127.969784498, "randomized_geometry": false},
   "public_orbital": {

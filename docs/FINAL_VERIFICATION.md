@@ -24,6 +24,7 @@ Orbital adaptation, experimental flex folding and SciPy inference.
   Preserve `artifacts/master-final-backend.xml`; do not describe it as passing.
   A separate run with numerical threads fixed at one is recorded independently.
 - Bounded-thread Windows rerun: **134 passed, one Linux-only skip, 408.16 s**,
+  pytest wall time; JUnit reports **405.798 s**. Report:
   `artifacts/master-final-backend-bounded.xml`. Tests were not weakened and
   supervisor deadlines were not extended to manufacture a passing report.
 - TypeScript check and production Vite build executed successfully. Three.js
