@@ -10,6 +10,15 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+      - name: Verify exported source manifest
+        if: hashFiles('SOURCE_MANIFEST.json') != ''
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          for name, expected in json.loads(Path('SOURCE_MANIFEST.json').read_text()).items():
+              assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
+          PY
       - name: Build the deployment image
         run: docker build --tag vivacity-runtime:verification .
       - name: Run the full suite in the deployment image
