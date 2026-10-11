@@ -114,7 +114,7 @@
   "vivacity/compiled.py": "6d189405d8953b1762df6e184a7ee09dc63d5906c799d5515171268d961b57e5",
   "vivacity/control.py": "677dd69295a05d2ac80b74d2db85da030e9a4a48342822acf170054550d2ab7e",
   "vivacity/import_physics.py": "40f7e1376166827f84c23bf3ee1c7bd7d41507dda4921500bc8858ed3e69e100",
-  "vivacity/import_worker.py": "696d62a39a2c3aff17d8f6c26144000791711e8c074bc2ee7933e1215ad80cc5",
+  "vivacity/import_worker.py": "04128de6e37bb7a620f3ce1911f966c62804bae7d13b9f1fded0047a56fd88e2",
   "vivacity/imports.py": "e0162a9ec972a3eab835d0674708af5d932a48ee557165e0997aa282f626712d",
   "vivacity/legacy_cloth.py": "febfa2b692e4d0f8a4d8a5e7b3b878121568ed437457bcaef6acae1cc605e959",
   "vivacity/native_pick_place.py": "0af601dcc805d98790f2455ae1b1efe01acfea86abed38908cdcc22a1c2de042",
