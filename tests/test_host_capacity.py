@@ -6,7 +6,7 @@ from vivacity.api import create_app
 
 def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
     monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS', '1')
-    monkeypatch.setenv('VIVACITY_PICKUP_REALTIME', '0')
+    monkeypatch.setenv('VIVACITY_MAX_PICKUP_WALL_SECONDS', '300')
     with TestClient(create_app(tmp_path / 'host.sqlite3')) as client:
         for backend, config, settings in [
             ('mujoco', {'task': 'pick_place', 'obstacle_enabled': False},
@@ -37,7 +37,7 @@ def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
             assert experiment['status'] == 'completed', experiment
             assert experiment['selected_branch_id'], experiment
             if backend == 'mujoco':
-                assert experiment['result']['executed_settings']['realtime_execution'] is False
+                assert experiment['result']['executed_settings']['max_wall_seconds'] == 300
             replay = client.get(f'/v1/experiments/{eid}/replay').json()
             assert all(branch['frames'] for branch in replay['branches'])
             if backend != 'scipy':
