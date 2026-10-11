@@ -92,6 +92,7 @@
   "tests/test_event_history.py": "236a6927b25cef4d4ec962779d5b6dd08d27b8867e974b28995c110ea08a2944",
   "tests/test_hierarchical_search.py": "88f1670e171c6a5bb685e5b3466cefdf65f2a3284f45affa44467843579deb4c",
   "tests/test_host_capacity.py": "0275ccfc507b87df74461517e2390ad44c91fa6d4755696981f504a0f96823f3",
+  "tests/test_host_limits.py": "9fbddd6649675161571363654683d260f4b037ac90e846417f3164e70937641f",
   "tests/test_imports.py": "e35e8af9728cba3496adfcba2d451d359830fe2b8cefd32c9ceb8d53235517d2",
   "tests/test_pause_trials.py": "3c0f010c78dae6663df08e196c4f9de96713d8f713349eeb0dba62014bbcfe75",
   "tests/test_pick_place.py": "35e5f5a6dcccdf113eb09dbb279d01b4b95b92488a8dfc06aacd68610f30ef9d",
@@ -103,7 +104,7 @@
   "tests/test_supervisor.py": "01c3e68550c102179eef0ca0979ff4181bea12d2c694a55071da85aa29af909e",
   "vivacity/__init__.py": "03b254be2b319a71cfd9779832de62dfb63dfb238cef8c5a3e85b74da858ae1e",
   "vivacity/agent.py": "a7591384f6114068d50199a1dff722f993cef6cb9d9e7e2776975eddcbec3805",
-  "vivacity/api.py": "2e4c206c13b23cd666a055586be0011e5eb437b284c75f09a7cc72b72ebd90a3",
+  "vivacity/api.py": "72a4652d236cf9da9532c9b055225fa851269100e1c5c8224a751c2e35c65ad8",
   "vivacity/backends.py": "19cb2aa7eaa17bf8e77f745efbaa85f5be1ba60a0896d080e63eb89f4b1e1456",
   "vivacity/cloth.py": "478c45f0328d9d2a40d79fdab8541e29ac9b8c695966369181f9fda776f95bb0",
   "vivacity/compiled.py": "d7e43cc3b38cf4dc850af717a2222a418dc63f992e1b6283aecbb5d07d3d1ff6",
@@ -113,10 +114,10 @@
   "vivacity/native_pick_place.py": "0af601dcc805d98790f2455ae1b1efe01acfea86abed38908cdcc22a1c2de042",
   "vivacity/pick_place.py": "40165a5eb58118b300e1df06ae7261b5256a9d50c7cc5ba4e974a45e044010c3",
   "vivacity/robotics.py": "f20c55c07493f76bd20302692f3a78071fde060cc3606fb1d8e01cf1d03a599c",
-  "vivacity/runtime.py": "21504b4d3e47f719df63598847dd5f47fa3c822d141d1397b26f7f87a81b0d56",
+  "vivacity/runtime.py": "98205b803d56dbd67ec808fc537eb0114e5cf68d2547b48c12df1f66243e224d",
   "vivacity/schemas.py": "8b5302543436ea43e5537c97f8574584ea0bebf57745cf097d68e7d3d72e2a80",
   "vivacity/science.py": "dc3bf2d3a304d6fceb51d48285aa9515770ec5c665c7b100e6ad5a3cddaf20ee",
   "vivacity/search.py": "0c3bdbecc8c0d71787ffe861d17cdedb1cc131868b02465dc84cfd3056ca58ef",
   "vivacity/storage.py": "68d08cae9a1dc5a07ab5d238904d05b3c9652765498d42b3a08e571bb1669bb7",
-  "vivacity/supervisor.py": "a7781ed45da9f92c3d800e7598d769865190f49f5d91a0a1216848f1591564d2"
+  "vivacity/supervisor.py": "93a15282f8bb6af756ff02615a57f947cf7cb31bc6e7f9cbe4699f211a04e15a"
 }
