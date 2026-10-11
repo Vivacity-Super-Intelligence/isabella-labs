@@ -4,7 +4,8 @@ import time
 from vivacity.api import create_app
 
 
-def test_all_labs_execute_sequentially_in_host_container(tmp_path):
+def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
+    monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS', '1')
     with TestClient(create_app(tmp_path / 'host.sqlite3')) as client:
         for backend, config, settings in [
             ('mujoco', {'task': 'pick_place', 'obstacle_enabled': False},

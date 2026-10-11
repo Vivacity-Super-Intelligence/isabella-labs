@@ -11,7 +11,8 @@ from vivacity.schemas import ClothConfig, RoboticsConfig
 
 
 @pytest.mark.parametrize('kind', ['reach', 'pick_place', 'cloth'])
-def test_forks_share_only_immutable_geometry_and_release_templates(kind):
+def test_forks_share_only_immutable_geometry_and_release_templates(kind, monkeypatch):
+    monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS', '1')
     backend = {'reach': RoboticsBackend, 'pick_place': PickPlaceBackend,
                'cloth': ClothBackend}[kind]()
     config = ClothConfig() if kind == 'cloth' else RoboticsConfig(task=kind)
