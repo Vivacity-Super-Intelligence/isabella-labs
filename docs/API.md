@@ -6,6 +6,16 @@ Current master handoff: `FRONTEND_HANDOFF.md`, `docs/master-frontend-examples.js
 
 ## Autonomous sessions and live state
 
+Current additive controls: POST `/v1/sessions/{id}/pause` and `/resume` use the
+same capability and return `pause_requested`, `paused` and `paused_seconds`.
+Acknowledged pause freezes the actual worker at a safe boundary; Resume keeps
+the same world/experiment/state. No recorded-playback behavior is involved.
+`physics_trials:5000` with matching `search_candidates:5000` requests exhaustive
+Panda pickup physics. Other backends reject this option. GET
+`/v1/experiments/{id}/trials?after=-1&limit=50` exposes every measured trial;
+pagination uses returned completion-sequence `next_after`, not candidate index.
+Full schemas, execution details and proof scope: `PAUSE_TRIALS_VALIDATION.md`.
+
 POST `/v1/sessions` creates a bounded session; GET `/v1/sessions/{id}` reads status and refreshes its browser lease; POST `/v1/sessions/{id}/stop` requests cancellation. Required `X-Session-Token` is a client-generated 32–128 character random capability. The same capability protects every REST and WS route for that session's worlds/experiments. Only its SHA-256 digest is persisted; response/export records do not reveal it. Reusing the same token/settings is idempotent; conflicting settings return 409. Legacy standalone worlds and imports remain public demo data; this is not account authentication.
 
 POST `/v1/experiments/{id}/cancel` requests asynchronous cancellation. GET and WS `/v1/experiments/{id}/live` expose `{schema_version:"vivacity.live/1.0",experiment_id,world_id,sequence,timestamp_unix_s,stage,frame}` (GET can return null). WS offers `vivacity.live` and `vivacity.token.<capability>` subprotocols, never a secret query string. The persisted-events socket uses the same capability convention. Exact Origin must be allowed for both protocols.

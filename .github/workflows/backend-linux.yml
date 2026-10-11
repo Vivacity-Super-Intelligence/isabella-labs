@@ -1,0 +1,33 @@
+name: Backend Linux verification
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exported source manifest
+        if: hashFiles('SOURCE_MANIFEST.json') != ''
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          for name, expected in json.loads(Path('SOURCE_MANIFEST.json').read_text()).items():
+              assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
+          PY
+      - name: Build the deployment image
+        run: docker build --tag vivacity-runtime:verification .
+      - name: Run the full suite in the deployment image
+        run: |
+          mkdir -p artifacts
+          docker run --rm -v "$PWD/tests:/app/tests:ro" -v "$PWD/artifacts:/verification" vivacity-runtime:verification python -m pytest /app/tests -q --junitxml=/verification/backend-linux.xml
+      - name: Upload executed test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-linux-verification
+          path: artifacts/backend-linux.xml

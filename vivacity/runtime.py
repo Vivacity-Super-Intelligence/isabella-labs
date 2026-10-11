@@ -11,6 +11,7 @@ from .pick_place import RobotAdapter
 from .science import ScienceBackend
 from .cloth import ClothBackend
 from .storage import Store, encode
+from .control import PauseControl
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ class Runtime:
         self.capacity = threading.BoundedSemaphore(8)
         self.futures = {}
         self.cancel_flags = {}
+        self.controls = {}
         self.live_states = {}
         # Single-process local deployment: persisted interrupted jobs cannot be resumed implicitly.
         with self.store.connect() as db:
@@ -91,7 +93,7 @@ class Runtime:
     def evaluate(self, backend, instance, result):
         return self.backends[backend].evaluate(instance, result)
 
-    def submit(self, world_id, request, idempotency_key=None):
+    def submit(self, world_id, request, idempotency_key=None, control=None):
         if idempotency_key is not None:
             import re
             if not re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', idempotency_key):
@@ -105,16 +107,23 @@ class Runtime:
                     prior = db.execute('SELECT fingerprint,experiment_id FROM submissions WHERE world_id=? AND key=?', (world_id, idempotency_key)).fetchone()
                     if prior:
                         if prior[0] != fingerprint:
-                            raise Conflict('idempotency key was already used with different experiment settings')
+                            # Additive defaults must not invalidate a pre-upgrade retry.
+                            from .schemas import ExperimentRequest
+                            saved=self.store.get('experiments',prior[1],db)['request']
+                            if ExperimentRequest.model_validate(saved).model_dump()!=request.model_dump():
+                                raise Conflict('idempotency key was already used with different experiment settings')
                         return self.get_experiment(prior[1])
                 if not self.capacity.acquire(blocking=False):
                     raise Busy('experiment queue is full; retry after a job completes')
                 reserved = True
                 w = self.store.get('worlds', world_id, db)
+                if request.physics_trials and (w['backend']!='mujoco' or w['config'].get('task')!='pick_place'):
+                    raise ValueError('full physics trials require a Panda pickup world')
                 eid = uid()
                 e = {'schema_version': '1.0', 'id': eid, 'world_id': world_id, 'revision': w['revision'], 'status': 'queued', 'request': request.model_dump(), 'selected_branch_id': None, 'result': {}, 'performance': {}, 'error': None, 'stale': False, 'snapshot': deepcopy(w['state']), 'config': w['config'], 'backend': w['backend'], 'submitted_at': time.time()}
                 self.store.put('experiments', e, db)
                 self.cancel_flags[eid] = threading.Event()
+                self.controls[eid] = control or PauseControl()
                 self.store.event(eid, 'queued', db=db)
                 if idempotency_key is not None:
                     db.execute('INSERT INTO submissions(world_id,key,fingerprint,experiment_id) VALUES(?,?,?,?)', (world_id, idempotency_key, fingerprint, eid))
@@ -134,6 +143,7 @@ class Runtime:
                 with self.lock:
                     self.futures.pop(eid, None)
                     self.cancel_flags.pop(eid, None)
+                    self.controls.pop(eid, None)
             future.add_done_callback(finished)
             reserved = False  # The worker wrapper now owns the reserved queue slot.
             return self.get_experiment(eid)
@@ -158,8 +168,10 @@ class Runtime:
         wall, cpu = time.perf_counter(), time.process_time()
         e = self.store.get('experiments', eid)
         cancellation = self.cancel_flags.get(eid, threading.Event())
+        control=self.controls.get(eid,PauseControl())
+        checkpoint=lambda:control.checkpoint(cancellation)
         try:
-            if cancellation.is_set():
+            if not checkpoint():
                 raise InterruptedError('cancelled before execution')
             e['status'] = 'running'
             self.store.put('experiments', e); self.store.event(eid, 'running')
@@ -168,6 +180,7 @@ class Runtime:
             self.publish_live(eid, e['world_id'], 'observing', backend.observe(instance))
             policy = HostedPolicy() if e['request']['policy'] == 'llm' else DeterministicPolicy()
             settings, reasoning = policy.propose(backend.observe(instance), backend.action_schema, e['request'])
+            settings=settings|{'checkpoint':checkpoint,'pause_seconds':control.elapsed}
             search = None
             if e['backend']=='mujoco' and instance.config.get('task') == 'pick_place' and settings.get('search_candidates',0):
                 actions,planning_time,search=backend.search(instance,settings,lambda detail:self.store.event(eid,'progress',detail))
@@ -193,7 +206,7 @@ class Runtime:
                     phase = 'apply_action'
                     self.apply_action(e['backend'], branch_instance, action)
                     phase = 'simulate'
-                    execution_settings = run_settings | {'cancel_event': cancellation}
+                    execution_settings = run_settings | {'cancel_event': cancellation,'checkpoint':checkpoint,'pause_seconds':control.elapsed}
                     if role == 'authoritative_execution':
                         execution_settings |= {'on_frame': lambda frame:self.publish_live(eid,e['world_id'],'executing',frame),
                                                'realtime': settings.get('realtime_execution',False)}
@@ -208,6 +221,8 @@ class Runtime:
                     phase = 'serialize_result'
                     encode({'evaluation': evaluation, 'trace': trace, 'final_state': final_state})
                     performance = {'wall_seconds': time.perf_counter()-branch_wall, 'physics_wall_seconds': result['physics_wall_seconds'], 'ik_planning_seconds': result.get('ik_planning_seconds', 0), 'simulation_steps': result.get('simulation_steps', 0), 'integration_calls': result.get('integration_calls', 0), 'measurement_complete': True}
+                except InterruptedError:
+                    raise
                 except Exception as exc:
                     # Do not invent frames or step counts when an adapter loses its trace.
                     log.error('branch adapter failed: experiment=%s phase=%s type=%s', eid, phase, type(exc).__name__)
@@ -236,8 +251,14 @@ class Runtime:
                     integrated=sum(bool((b['performance']['simulation_steps'] or 0)+(b['performance']['integration_calls'] or 0)) for b in branches)
                     self.store.event(eid,'progress',{'stage':'physics','fully_simulated':integrated,'physics_attempts':len(branches),'physics_target':len(actions),'verified_feasible':sum(b['evaluation']['success'] for b in branches),'elapsed_seconds':time.perf_counter()-wall,'message':f"Validation {len(branches)} / {len(actions)}; {integrated} integrated rollouts; {sum(b['evaluation']['success'] for b in branches)} verified feasible."})
                 return branch
-            for action in actions:
-                execute_action(action, settings)
+            trial_metrics=None
+            if settings.get('physics_trials'):
+                if e['backend']!='mujoco' or instance.config.get('task')!='pick_place':
+                    raise ValueError('full physics trials currently require the Panda pick-and-place world')
+                branches,trial_metrics=self._bulk_trials(e,actions,settings,search,reference,cancellation)
+            else:
+                for action in actions:
+                    execute_action(action, settings)
             if cancellation.is_set():
                 raise InterruptedError('cancelled after current branch')
             # Choose additional tool work from measured outcomes, with one bounded retry.
@@ -260,11 +281,14 @@ class Runtime:
                 conclusion = {'conclusion': ('Measured physical pickup and placement found.' if selected else 'No candidate completed physical pickup and placement.') if pickup else ('Measured collision-free reach found.' if selected else 'No candidate executed a collision-free reach.'), 'milestone': milestone, 'ranked_branch_ids': [b['id'] for b in ranked], 'top_feasible_branch_ids':[b['id'] for b in successful[:3]]}
             else:
                 selected, conclusion = backend.choose(branches)
-            e.update(status='completed', selected_branch_id=selected, result=conclusion | {'policy': reasoning, 'executed_settings': settings, 'followup_settings': followup})
+            public_settings={k:v for k,v in settings.items() if k not in ('checkpoint','pause_seconds')}
+            safe_followup={k:v for k,v in followup.items() if k not in ('checkpoint','pause_seconds')} if followup else None
+            e.update(status='completed', selected_branch_id=selected, result=conclusion | {'policy': reasoning, 'executed_settings': public_settings, 'followup_settings': safe_followup})
             validation_branches = list(branches)
             if search is not None:
                 integrated=lambda b:bool((b['performance']['simulation_steps'] or 0)+(b['performance']['integration_calls'] or 0)) and b['performance']['measurement_complete']
-                search.update(fully_simulated=sum(integrated(b) for b in branches),physics_attempts=len(branches),planning_failed=sum(b['evaluation']['status']=='planning_failure' for b in branches),verified_feasible=sum(b['evaluation']['success'] for b in branches),physics_rejected=sum(not b['evaluation']['success'] and integrated(b) for b in branches))
+                if not trial_metrics:
+                    search.update(fully_simulated=sum(integrated(b) for b in branches),physics_attempts=len(branches),planning_failed=sum(b['evaluation']['status']=='planning_failure' for b in branches),verified_feasible=sum(b['evaluation']['success'] for b in branches),physics_rejected=sum(not b['evaluation']['success'] and integrated(b) for b in branches))
                 e['result']['search']=search
             if selected and settings.get('execute_selected'):
                 winner = next(b for b in validation_branches if b['id']==selected)
@@ -293,6 +317,11 @@ class Runtime:
             e['stale'] = self.get_world(e['world_id'])['revision'] != e['result'].get('executed_world_revision',e['revision'])
             replay = self._replay(e, branches)
             e['performance'] = {'job_wall_seconds': time.perf_counter()-wall, 'process_cpu_seconds': time.process_time()-cpu, 'queue_wait_seconds': max(0., time.time()-e['submitted_at']-(time.perf_counter()-wall)), 'planning_wall_seconds': planning_time+sum(b['performance'].get('ik_planning_seconds',0) for b in branches), 'physics_wall_seconds': sum(b['performance']['physics_wall_seconds'] or 0 for b in branches), 'candidate_count': len(branches), 'simulation_steps': sum(b['performance']['simulation_steps'] or 0 for b in branches), 'integration_calls': sum(b['performance']['integration_calls'] or 0 for b in branches), 'replay_payload_bytes': len(encode(replay).encode()), 'branch_failure_rate': sum(not b['evaluation']['success'] for b in branches)/len(branches), 'adapter_error_count': adapter_errors, 'measurement_complete': adapter_errors == 0, 'job_error_rate': float(adapter_errors > 0), 'compute': 'local CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy'}
+            if trial_metrics:
+                extra=branches[-1] if settings.get('execute_selected') and selected else None
+                e['performance'].update(trial_metrics)
+                e['performance']['simulation_steps']=trial_metrics['trial_simulation_steps']+(extra['performance']['simulation_steps'] or 0 if extra else 0)
+                e['performance']['physics_wall_seconds']=trial_metrics['trial_physics_wall_seconds']+(extra['performance']['physics_wall_seconds'] or 0 if extra else 0)
             with self.lock, self.store.connect() as db:
                 w = self.store.get('worlds', e['world_id'], db)
                 e['stale'] = w['revision'] != e['result'].get('executed_world_revision',e['revision'])
@@ -312,6 +341,52 @@ class Runtime:
             with self.store.connect() as db:
                 self.store.put('experiments', e, db)
                 self.store.event(eid, 'failed', {'error': e['error']}, db)
+
+    def _bulk_trials(self, e, actions, settings, search, reference, cancellation):
+        from .native_pick_place import NativePickup
+        engine=NativePickup(self.backends['mujoco'].pick_place,e['snapshot'])
+        best=[];simulated=0;feasible=0;steps=0;physics=0.;last_frame=[0.]
+        objective=lambda b:(not b['evaluation']['success'],b['evaluation'].get('execution_duration_s',float('inf')),
+                            b['evaluation'].get('goal_error_m',float('inf')),b['action']['candidate_index'])
+        def live(frame):
+            now=time.perf_counter()
+            if now-last_frame[0]>=.05:
+                self.publish_live(e['id'],e['world_id'],'testing_candidates',frame)
+                last_frame[0]=now
+        for action in actions:
+            if not settings['checkpoint']():raise InterruptedError('cancelled between physical trials')
+            result,evaluation,final_state=engine.simulate(action,settings|{'cancel_event':cancellation,
+                'on_frame':lambda frame:live(frame|{'candidate_index':action['candidate_index']})})
+            performance={'wall_seconds':result['physics_wall_seconds'],'physics_wall_seconds':result['physics_wall_seconds'],
+                         'simulation_steps':result['simulation_steps'],'integration_calls':0,'measurement_complete':True}
+            record={'schema_version':'vivacity.trial/1.0','candidate_index':action['candidate_index'],
+                    'parent_state_reference':reference,'action':deepcopy(action),'engine':engine.engine,
+                    'control_sha256':hashlib.sha256(encode(action['stages']).encode()).hexdigest(),
+                    'final_state':final_state,'evaluation':evaluation,'performance':performance}
+            self.store.trial(e['id'],record)
+            simulated+=int(result['simulation_steps']>0);feasible+=int(evaluation['success'])
+            steps+=result['simulation_steps'];physics+=result['physics_wall_seconds']
+            branch={'schema_version':'1.0','id':uid(),'experiment_id':e['id'],'parent_state_reference':reference,
+                    'initial_state':deepcopy(e['snapshot']),'action':deepcopy(action)|{'execution_role':'validation','engine':engine.engine},
+                    'trace':result['trace'],'final_state':final_state,'evaluation':evaluation,'performance':performance}
+            if len(best)<3 or objective(branch)<objective(best[-1]):
+                best=sorted(best+[branch],key=objective)[:3]
+                self.store.put('branches',branch)
+                with self.lock,self.store.connect() as db:
+                    w=self.store.get('worlds',e['world_id'],db)
+                    w['branches'].append({'experiment_id':e['id'],'branch_id':branch['id'],'parent_state_reference':reference,'revision':e['revision']})
+                    w['evaluations'].append({'branch_id':branch['id'],'evaluation':evaluation});self.store.put('worlds',w,db)
+            search.update(fully_simulated=simulated,physics_attempts=simulated,physics_target=len(actions),
+                          verified_feasible=feasible,physics_rejected=simulated-feasible,trial_simulation_steps=steps,
+                          engine=engine.engine,retained_full_traces=len(best))
+            e['result']={'search':search,'top_feasible_branch_ids':[b['id'] for b in best if b['evaluation']['success']],
+                         'conclusion':f'{simulated:,} / {len(actions):,} real physics trials evaluated; {feasible:,} feasible.'}
+            self.store.put('experiments',e)
+            if simulated%5==0 or simulated==len(actions):
+                self.store.event(e['id'],'progress',search|{'stage':'physics','message':e['result']['conclusion']})
+            if cancellation.is_set():raise InterruptedError('cancelled during physical trial')
+        return best,{'trial_count':simulated,'trial_simulation_steps':steps,'trial_physics_wall_seconds':physics,
+                     'trial_failure_rate':(simulated-feasible)/max(1,simulated),'trial_engine':engine.engine}
 
     def cancel(self, eid):
         self.get_experiment(eid)

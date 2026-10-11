@@ -13,7 +13,8 @@ import uuid
 
 import numpy as np
 
-from .schemas import CreateWorld, ExperimentRequest
+from .schemas import CreateWorld, ExperimentRequest, SessionRequest
+from .control import PauseControl
 
 
 class Supervisor:
@@ -25,7 +26,7 @@ class Supervisor:
         self.lock = threading.RLock()
         self.executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='vivacity-session')
         self.capacity = threading.BoundedSemaphore(2)
-        self.stops = {}; self.futures = {}; self.closed = False
+        self.stops = {}; self.controls = {}; self.futures = {}; self.closed = False
         with runtime.store.connect() as db:
             import json
             for row in db.execute('SELECT payload FROM sessions').fetchall():
@@ -59,7 +60,8 @@ class Supervisor:
             s = self.authorize(sid,token)
             if heartbeat and time.time()-s['last_heartbeat_unix_s']>5:
                 s['last_heartbeat_unix_s']=time.time();self.runtime.store.put('sessions',s)
-            return self.public(s)
+            control=self.controls.get(sid)
+            return self.public(s) | (control.state() if control else {})
 
     def create(self, request, token):
         from .runtime import Busy, Unavailable, Conflict
@@ -68,9 +70,9 @@ class Supervisor:
                 row=db.execute("SELECT id FROM sessions WHERE json_extract(payload,'$.token_hash')=?",(self.token_hash(token),)).fetchone()
             if row:
                 prior=self.authorize(row[0],token)
-                if prior['request']!=request.model_dump():
+                if SessionRequest.model_validate(prior['request']).model_dump()!=request.model_dump():
                     raise Conflict('session capability already used with different settings')
-                return self.public(prior)
+                return self.get(prior['id'],token)
             if self.closed:
                 raise Unavailable('session supervisor is shutting down')
             if not self.capacity.acquire(blocking=False):
@@ -88,6 +90,7 @@ class Supervisor:
                     self.runtime.store.put('sessions',s,db)
                     db.execute('INSERT INTO session_worlds(world_id,session_id) VALUES(?,?)',(w['id'],sid))
                 self.stops[sid]=threading.Event()
+                self.controls[sid]=PauseControl()
                 future=self.executor.submit(self.run,sid)
                 self.futures[sid]=future
                 return self.public(s)
@@ -104,13 +107,30 @@ class Supervisor:
                     self.runtime.cancel(s['experiment_id'])
             return self.public(s)
 
+    def set_paused(self, sid, token, paused):
+        from .runtime import Conflict
+        with self.lock:
+            s=self.authorize(sid,token);control=self.controls.get(sid)
+            if s['status']!='active' or not control:
+                raise Conflict('only an active session can be paused or resumed')
+            control.pause() if paused else control.resume()
+            if s['experiment_id']:
+                self.runtime.store.event(s['experiment_id'],'progress',{'stage':'pause_requested' if paused else 'resumed',
+                    'message':'Pausing the actual worker at its next safe boundary.' if paused else 'Continuing from preserved simulator state.'})
+            return self.get(sid,token)
+
     def run(self, sid):
-        r=self.runtime; stop=self.stops[sid]
+        r=self.runtime; stop=self.stops[sid];control=self.controls[sid]
+        def alive():
+            s=r.store.get('sessions',sid)
+            bound=max(self.max_wall_seconds,7200) if s['request'].get('physics_trials') else self.max_wall_seconds
+            return time.time()-s['last_heartbeat_unix_s']<=self.lease_seconds and time.time()-s['started_unix_s']<=bound
         try:
             for cycle in range(r.store.get('sessions',sid)['max_cycles']):
+                if not control.checkpoint(stop,alive):break
                 with self.lock:
                     s=r.store.get('sessions',sid)
-                    if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds or time.time()-s['started_unix_s']>self.max_wall_seconds:
+                    if stop.is_set() or not alive():
                         stop.set()
                         break
                     request=s['request'];seed=(request['seed']+cycle)%2**32
@@ -137,10 +157,10 @@ class Supervisor:
                     s['cycle']=cycle+1
                     s['conditions'].append({'cycle':cycle+1,'seed':seed,'world_id':w['id'],
                                             'configuration_sha256':hashlib.sha256(str(w['config']).encode()).hexdigest()})
-                    settings=ExperimentRequest(candidates=3,max_simulation_seconds=40,
+                    settings=ExperimentRequest(candidates=3,max_simulation_seconds=40,physics_trials=request.get('physics_trials',0),
                         execute_selected=s['backend'] in ('mujoco','cloth'),realtime_execution=request['realtime_execution'],
                         search_candidates=request['search_candidates'],physics_budget=request['physics_budget'])
-                    e=r.submit(w['id'],settings,idempotency_key=f'session-{sid}-cycle-{cycle}')
+                    e=r.submit(w['id'],settings,idempotency_key=f'session-{sid}-cycle-{cycle}',control=control)
                     s['experiment_id']=e['id'];s['experiments'].append(e['id']);r.store.put('sessions',s)
                     r.store.event(e['id'],'progress',{'stage':'next_experiment_started','cycle':cycle+1,'seed':seed,
                                                      'message':f'Fresh autonomous experiment {cycle+1}; recorded seed {seed}.'})
@@ -148,7 +168,8 @@ class Supervisor:
                 while True:
                     e=r.get_experiment(e['id'])
                     s=r.store.get('sessions',sid)
-                    if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds or time.time()-s['started_unix_s']>self.max_wall_seconds:
+                    wall_bound=max(self.max_wall_seconds,7200) if s['request'].get('physics_trials') else self.max_wall_seconds
+                    if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds or time.time()-s['started_unix_s']>wall_bound:
                         stop.set();r.cancel(e['id'])
                     if e['status'] not in ('queued','running'):
                         break
@@ -170,7 +191,9 @@ class Supervisor:
                 r.store.put('sessions',s)
         finally:
             with self.lock:
-                self.futures.pop(sid,None);self.stops.pop(sid,None)
+                control.resume()
+                s=r.store.get('sessions',sid);s.update(control.state());r.store.put('sessions',s)
+                self.futures.pop(sid,None);self.stops.pop(sid,None);self.controls.pop(sid,None)
             self.capacity.release()
 
     def close(self):

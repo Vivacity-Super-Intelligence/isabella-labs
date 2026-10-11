@@ -176,6 +176,108 @@
         }
       }
     },
+    "/v1/sessions/{session_id}/pause": {
+      "post": {
+        "summary": "Pause Session",
+        "operationId": "pause_session_v1_sessions__session_id__pause_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "x-session-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Session-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sessions/{session_id}/resume": {
+      "post": {
+        "summary": "Resume Session",
+        "operationId": "resume_session_v1_sessions__session_id__resume_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "x-session-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Session-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/experiments/{experiment_id}/cancel": {
       "post": {
         "summary": "Cancel Experiment",
@@ -198,6 +300,68 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ExperimentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/trials": {
+      "get": {
+        "summary": "Physics Trials",
+        "operationId": "physics_trials_v1_experiments__experiment_id__trials_get",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Experiment Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": -1,
+              "default": -1,
+              "title": "After"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrialsResponse"
                 }
               }
             }
@@ -1317,6 +1481,13 @@
       },
       "ExperimentRequest": {
         "properties": {
+          "physics_trials": {
+            "type": "integer",
+            "maximum": 5000.0,
+            "minimum": 0.0,
+            "title": "Physics Trials",
+            "default": 0
+          },
           "execute_selected": {
             "type": "boolean",
             "title": "Execute Selected",
@@ -1919,6 +2090,13 @@
             ],
             "title": "Config"
           },
+          "physics_trials": {
+            "type": "integer",
+            "maximum": 5000.0,
+            "minimum": 0.0,
+            "title": "Physics Trials",
+            "default": 0
+          },
           "max_cycles": {
             "type": "integer",
             "maximum": 8.0,
@@ -1955,6 +2133,21 @@
       },
       "SessionResponse": {
         "properties": {
+          "pause_requested": {
+            "type": "boolean",
+            "title": "Pause Requested",
+            "default": false
+          },
+          "paused": {
+            "type": "boolean",
+            "title": "Paused",
+            "default": false
+          },
+          "paused_seconds": {
+            "type": "number",
+            "title": "Paused Seconds",
+            "default": 0.0
+          },
           "schema_version": {
             "type": "string",
             "const": "vivacity.session/1.0",
@@ -2092,6 +2285,110 @@
           "observation"
         ],
         "title": "StateResponse"
+      },
+      "TrialResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.trial/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.trial/1.0"
+          },
+          "completion_seq": {
+            "type": "integer",
+            "title": "Completion Seq"
+          },
+          "candidate_index": {
+            "type": "integer",
+            "title": "Candidate Index"
+          },
+          "parent_state_reference": {
+            "type": "string",
+            "title": "Parent State Reference"
+          },
+          "action": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Action"
+          },
+          "engine": {
+            "type": "string",
+            "title": "Engine"
+          },
+          "control_sha256": {
+            "type": "string",
+            "title": "Control Sha256"
+          },
+          "final_state": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Final State"
+          },
+          "evaluation": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Evaluation"
+          },
+          "performance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Performance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "completion_seq",
+          "candidate_index",
+          "parent_state_reference",
+          "action",
+          "engine",
+          "control_sha256",
+          "final_state",
+          "evaluation",
+          "performance"
+        ],
+        "title": "TrialResponse"
+      },
+      "TrialsResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.trials/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.trials/1.0"
+          },
+          "completed": {
+            "type": "integer",
+            "title": "Completed"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TrialResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "completed",
+          "items",
+          "next_after"
+        ],
+        "title": "TrialsResponse"
       },
       "ValidationError": {
         "properties": {

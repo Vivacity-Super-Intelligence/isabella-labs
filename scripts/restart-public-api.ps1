@@ -7,7 +7,7 @@ $record=Join-Path $runRoot 'processes.json'
 $previous=Get-Content -LiteralPath $record -Raw | ConvertFrom-Json
 foreach($item in $previous | Where-Object {$_.commandMarker -eq 'vivacity.api:app'}){
   $p=Get-CimInstance Win32_Process -Filter "ProcessId=$([int]$item.id)"
-  if($p -and $p.CreationDate.ToUniversalTime().Ticks -eq ([datetime]$item.createdAt).ToUniversalTime().Ticks -and $p.ExecutablePath -eq $item.executable -and $p.CommandLine.Contains($item.commandMarker)){Stop-Process -Id $item.id}
+  if($p -and $p.CreationDate.ToUniversalTime().Ticks -eq ([datetime]$item.createdAt).ToUniversalTime().Ticks -and $p.ExecutablePath -eq $item.executable -and $p.CommandLine.Contains($item.commandMarker)){Stop-Process -Id $item.id -ErrorAction SilentlyContinue}
 }
 $port=[int]$endpoint.apiPort
 for($i=0;$i -lt 20;$i++){if(!(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue)){break};Start-Sleep -Milliseconds 250}

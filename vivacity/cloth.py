@@ -133,10 +133,12 @@ class ClothBackend(LegacyClothBackend):
     def simulate(self,world,limits):
         if not isinstance(world,RobotClothWorld):return self.legacy.simulate(world,limits)
         tic=time.perf_counter();m,d,a=world.model,world.data,world.action;start=float(d.time);trace=[self.observe(world)]
+        paused_start=limits.get('pause_seconds',lambda:0.)()
         steps=0;failure=None;violations=[];grasp_error=0.;max_penetration=0.;tracking=0.
         initial_q=d.qpos[:7].copy();duration=a['motion_seconds']+2.
         if not a['planning_feasible'] or not np.all(d.eq_active[world.grasp_ids]):failure='planning_failure'
         while failure is None and d.time-start<duration:
+            if limits.get('checkpoint') and not limits['checkpoint']():failure='cancelled';break
             if limits.get('cancel_event') and limits['cancel_event'].is_set():failure='cancelled';break
             t=float(d.time-start)
             d.ctrl[:7]=[np.interp(t,a['waypoint_times'],np.asarray(a['joint_waypoints'])[:,j]) for j in range(7)]
@@ -163,7 +165,7 @@ class ClothBackend(LegacyClothBackend):
                 frame=self.observe(world);trace.append(frame)
                 if limits.get('on_frame'):
                     limits['on_frame'](frame)
-                    if limits.get('realtime'):time.sleep(max(0.,float(d.time-start)-(time.perf_counter()-tic)))
+                    if limits.get('realtime'):time.sleep(max(0.,float(d.time-start)-(time.perf_counter()-tic)+(limits.get('pause_seconds',lambda:0.)()-paused_start)))
         trace.append(self.observe(world))
         return {'trace':trace,'failure':failure,'grasp_validated':steps>0 and failure!='planning_failure','grasp_constraint_error_m':grasp_error,'maximum_contact_penetration_m':max_penetration,'contact_violations':violations,'simulation_steps':steps,'execution_duration_s':float(d.time-start),'physics_wall_seconds':time.perf_counter()-tic,'robot_joint_displacement_rad':float(np.linalg.norm(d.qpos[:7]-initial_q)),'maximum_joint_tracking_error_rad':tracking,'ik_planning_seconds':a['ik_planning_seconds'],'executed_action':deepcopy(a)}
 

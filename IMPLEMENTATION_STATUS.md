@@ -1,6 +1,8 @@
 # Implementation status — 2026-10-11 master runtime
 
-Current code and UI supersede the historical reach-only/recorded-playback handoffs. Earlier release artifacts remain available as evidence of those revisions, not current feature claims. Current architecture/API handoff: `ARCHITECTURE.md`, `FRONTEND_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
+Current code includes real Pause/Resume and a completed 5,000-trial MuJoCo audit. **119 tests passed on Windows and in the Linux deployment container.** Exact current evidence and limitations appear in the current release section below. Earlier release artifacts remain evidence of those revisions. Architecture/API handoff: `ARCHITECTURE.md`, `FRONTEND_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
+
+**Render hosting is not provisioned:** account sign-in and paid activation are pending. The public tunnel is currently unavailable; local API is healthy. `docs/RENDER_DEPLOYMENT.md` records the prepared configuration and remaining live verification gates.
 
 ## Working and actually tested
 
@@ -63,3 +65,51 @@ Use the commands in `README.md` and `FRONTEND_HANDOFF.md`. The live browser demo
 ## Manual-start release
 
 The page now waits for Start experiments. Lab switches, reloads and Apply settings do not submit experiments; explicitly staged settings survive reload. Existing active sessions are cancelled on reload and completed evidence stays inspectable. Layout/styles and physics are unchanged. Local browser checks passed (14 checks); production checks passed (15 checks), including zero automatic session submissions, real SciPy control fits, 5,000 screened pickup commands / three validations / fresh successful execution, eventual safe cancellation and mobile layout. The first production harness incorrectly expected synchronous cancellation; it was corrected to wait for the actual stopped state. Source TypeScript/production builds passed (latest local Vite 12.57 s, remote 2.56 s). Proof: artifacts/manual-start-public.json and manual-start-deployment.json. Backend tests were not rerun for this frontend-only release.
+
+## Current pause, real 5,000-trial audit and Render preparation — 2026-10-11
+
+The page waits for Start experiments; settings, lab switches and reload do not
+start new work. Pause/Resume controls the actual worker and retains the same
+world/experiment and simulator state; Stop cancels running or paused work.
+Original layout/styles and measured Three.js geometry remain unchanged.
+
+Full stable-source Windows regression: **119 passed, 410.15 s**, zero failed,
+errors or skips. Linux Docker build and the same full suite: **119 passed,
+148.34 s**, zero failures, one upstream Starlette warning. Evidence:
+`artifacts/pause-final-backend.xml`, `artifacts/render-linux/backend-linux.xml`.
+Linux verification used the dedicated private backend repository; no unrelated
+frontend code or data was uploaded.
+
+The exhaustive audit actually completed **5,000 independent distinct MuJoCo
+pickup trials**, **36,520,171 trial physics steps**, and a fresh selected physical
+execution. All 5,000 succeeded in this fixed clear scene; selected placement
+error was 0.00165828179949 m. Exact same-engine repeat and immutable parent
+checks passed. This is not evidence of arbitrary-scene or cloth robustness.
+Proof and performance: `artifacts/physics-5000.json`, `PAUSE_TRIALS_VALIDATION.md`.
+
+Local live UI passed 17 checks, 610 measured frames / 57 progress messages,
+zero page errors and zero axe violations in checked scope. First public pause
+journey passed pickup/cloth controls and measured exports, then timed out waiting
+for an already-completed SciPy fit to pause; it is recorded as failed, not called
+complete. The harness now pauses fast science directly after real REST creation
+before delivering its creation response to the browser. Public verification
+must be rerun after the hosting endpoint is available.
+
+`render.yaml` proposes one paid 1 CPU / 2 GB instance, a persistent 5 GB `/data`
+disk, Singapore, exact CORS/WS origins, health checks and manual deployments.
+**Render is not deployed:** dashboard is signed out and no Render credential is
+configured. Paid activation, Render TLS/WSS, restart/disk persistence and remote
+performance remain unverified. No paid service has been purchased. The current
+temporary tunnel stopped resolving and its renewal failed once; this illustrates
+why it cannot provide independently durable availability. Instructions and exact
+remaining gates: `docs/RENDER_DEPLOYMENT.md`.
+
+Full traces are kept for the best candidates and fresh execution; other trials
+keep actions, complete final integration states, metrics and evaluations in a
+paged catalog. Cloth remains three real validations plus fresh constrained fold;
+science remains two numerical hypotheses. Sessions have one worker/two slots,
+a 180 s heartbeat lease, finite cycles and a two-hour bound for exhaustive pickup.
+Active jobs do not resume after a server restart. Account auth, lifetime disk
+quotas, automated retention/backup restore, load/soak tests and a zero-downtime
+architecture remain incomplete. A paid always-running instance is not a 100%
+uptime guarantee.

@@ -26,12 +26,15 @@ const defaultConfig = (backend: Backend): Dict | undefined => backend==='mujoco'
   ? {task:'pick_place',obstacle_enabled:false,obstacle_position:[.75,-.4,.22]} : undefined;
 export const api = {
   createSession: (backend: Backend, token: string, config?: Dict) => request<components['schemas']['SessionResponse']>('/v1/sessions',json('POST',{
-    backend,seed:7,max_cycles:backend==='cloth'?2:4,realtime_execution:true,
+    backend,seed:7,max_cycles:backend==='mujoco'?1:backend==='cloth'?2:4,realtime_execution:true,
+    physics_trials:backend==='mujoco'?5000:0,
     search_candidates:backend==='scipy'?0:5000,physics_budget:3,
     config:config??defaultConfig(backend)
   },{'X-Session-Token':token})),
   session: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}`),
   stopSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/stop`,json('POST')),
+  pauseSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/pause`,json('POST')),
+  resumeSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/resume`,json('POST')),
   live: (id:string) => request<components['schemas']['LiveState']|null>(`/v1/experiments/${encodeURIComponent(id)}/live`),
   health: () => request<{ status: string; backends: Record<string,string> }>('/health'),
   create: (backend: Backend, config = defaultConfig(backend)) => request<World>('/v1/worlds', json('POST', { backend, seed: 7, config })),

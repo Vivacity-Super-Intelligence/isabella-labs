@@ -36,19 +36,20 @@ try{
   await page.route(`${base}/v1/sessions`,async route=>{
     if(route.request().method()!=='POST')return route.continue();
     const body=route.request().postDataJSON();body.max_cycles=body.backend==='cloth'||conditionCheck?1:2;
+    if(body.backend==='mujoco'&&body.physics_trials){body.physics_trials=8;body.search_candidates=8;}
     await route.continue({postData:JSON.stringify(body)});
   });
   await page.goto(ui,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__vivacityScene?.bodies?.target,{timeout:60000});
   assert.equal(await page.getByRole('slider',{name:/Replay|Playback/}).count(),0);
-  assert.equal(await page.getByRole('button',{name:/Play|Pause|Resume motion/}).count(),0);
+  assert.equal(await page.getByRole('button',{name:/Play video|Pause video|Resume motion/}).count(),0);
   assert.equal(await page.getByRole('log').count(),1);
   await page.getByRole('button',{name:'Start experiments',exact:true}).click();
   const robot=await complete('mujoco');
   assert.equal(robot.length,2);assert.notEqual(robot[0].experiment.world_id,robot[1].experiment.world_id);
   for(const {experiment,branches} of robot){
-    assert.equal(experiment.result.search.distinct_generated,5000);
-    assert.equal(experiment.result.search.fully_simulated,3);
+    assert.equal(experiment.result.search.distinct_generated,8);
+    assert.equal(experiment.result.search.fully_simulated,8);
     assert(experiment.result.execution_evaluation.success);
     assert.equal(branches.length,4);
     const execution=branches.find(b=>b.id===experiment.result.execution_branch_id);
@@ -72,7 +73,7 @@ try{
   const cameraBefore=await page.evaluate(()=>window.__vivacityScene.cameraPosition);
   await page.getByTestId('robot-viewport').focus();await page.keyboard.press('ArrowRight');
   await page.waitForFunction(before=>JSON.stringify(window.__vivacityScene.cameraPosition)!==JSON.stringify(before),cameraBefore);
-  proof.checks.push('two_fresh_pickup_cycles','5000_real_distinct_timed_candidates_per_cycle','three_validation_rollouts_plus_fresh_execution','exact_live_body_poses','selection_does_not_replay','three_parsed_exports','keyboard_camera','no_video_controls','one_inspector');
+  proof.checks.push('two_fresh_pickup_cycles','eight_full_physics_trials_per_smoke_cycle','full_validation_rollouts_plus_fresh_execution','exact_live_body_poses','selection_does_not_replay','three_parsed_exports','keyboard_camera','no_video_controls','one_inspector');
   console.log('Two real pickup cycles, live poses, downloads, camera and no-video UI passed.');
   await page.screenshot({path:`artifacts/${prefix}-robotics.png`,fullPage:true});
   for(const width of [768,375]){await page.setViewportSize({width,height:960});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}

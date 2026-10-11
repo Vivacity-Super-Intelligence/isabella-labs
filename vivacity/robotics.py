@@ -225,6 +225,8 @@ class RoboticsBackend:
 
     def step(self, world, start_time, limits):
         d, m = world.data, world.model
+        if limits.get('checkpoint') and not limits['checkpoint']():
+            return 'cancelled', []
         if limits.get('cancel_event') and limits['cancel_event'].is_set():
             return 'cancelled', []
         mj.mj_step(m, d)

@@ -106,7 +106,7 @@ export function useRuntime(backend:Backend){
 
   useEffect(()=>{
     const id=experiment?.id;if(!id)return;
-    let active=true,terminal=false,refreshing=false,sequence=-1,eventCursor=0;
+    let active=true,terminal=false,refreshing=false,sequence=-1,eventCursor=0,lastBranches=0;
     let eventSocket:WebSocket|null=null,liveSocket:WebSocket|null=null;
     let reconnect:ReturnType<typeof setTimeout>|null=null;
     const append=(incoming:Event[])=>setEvents(old=>[...new Map([...old,...incoming].map(e=>[e.seq,e])).values()].sort((a,b)=>a.seq-b.seq).slice(-160));
@@ -121,6 +121,9 @@ export function useRuntime(backend:Backend){
         if(!active)return;setOnline(true);currentExperiment.current=e;setExperiment(e);
         const batch=await api.events(id,eventCursor);if(active&&batch.length){append(batch);eventCursor=batch.at(-1)!.seq;}
         measured(await api.live(id));
+        if(isBusy(e)&&Date.now()-lastBranches>5000){
+          const b=await api.branches(id);if(active)setBranches(b);lastBranches=Date.now();
+        }
         if(!isBusy(e)){
           const b=await api.branches(id),w=await api.world(e.world_id);
           if(!active)return;setBranches(b);setWorld(w);currentWorld.current=w;
@@ -159,6 +162,11 @@ export function useRuntime(backend:Backend){
   const start=()=>perform(async()=>{
     await stop();inspecting.current=false;const s=await ensureSession(backend,stagedConfig.current??currentWorld.current?.config,true);await adopt(s,generation.current);
   });
+  const togglePause=()=>perform(async()=>{
+    const s=currentSession.current;if(!s||s.status!=='active')return;
+    const next=await(s.pause_requested?api.resumeSession(s.id):api.pauseSession(s.id));
+    currentSession.current=next;setSession(next);
+  });
   const apply=(config:Dict)=>perform(async()=>{
     await stop();inspecting.current=false;const w=currentWorld.current;
     if(!w)return;
@@ -184,5 +192,5 @@ export function useRuntime(backend:Backend){
   });
   return {world,observation,experiment,branches,events,session,liveState,online,loaded,mutating,error,stream,
     busy:mutating||isBusy(experiment),active:session?.status==='active'||session?.status==='stopping',
-    run:start,stop,apply,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
+    run:start,stop,togglePause,apply,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
 }

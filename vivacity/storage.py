@@ -31,6 +31,8 @@ class Store:
                 );
                 CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS session_worlds(world_id TEXT PRIMARY KEY, session_id TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS trials(experiment_id TEXT NOT NULL, candidate_index INTEGER NOT NULL, payload TEXT NOT NULL,
+                    PRIMARY KEY(experiment_id,candidate_index));
             ''')
 
     @contextmanager
@@ -67,6 +69,18 @@ class Store:
     def branches(self, experiment_id):
         with self.connect() as db:
             return [json.loads(r[0]) for r in db.execute('SELECT payload FROM branches WHERE experiment_id=? ORDER BY rowid', (experiment_id,))]
+
+    def trial(self, experiment_id, record):
+        with self.connect() as db:
+            db.execute('INSERT INTO trials VALUES(?,?,?)',(experiment_id,record['candidate_index'],encode(record)))
+
+    def trials(self, experiment_id, after=-1, limit=50):
+        with self.connect() as db:
+            count=db.execute('SELECT COUNT(*) FROM trials WHERE experiment_id=?',(experiment_id,)).fetchone()[0]
+            records=[json.loads(r[1])|{'completion_seq':r[0]} for r in db.execute('SELECT rowid,payload FROM trials WHERE experiment_id=? AND rowid>? ORDER BY rowid LIMIT ?',
+                                                       (experiment_id,after,limit))]
+        return {'schema_version':'vivacity.trials/1.0','completed':count,'items':records,
+                'next_after':records[-1]['completion_seq'] if records else None}
 
     def event(self, experiment_id, kind, details=None, db=None):
         if db is None:

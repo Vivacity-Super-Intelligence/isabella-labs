@@ -20,7 +20,7 @@ class PickPlaceBackend(RoboticsBackend):
     action_schema = {'type': 'pick_place', 'joints': 7, 'gripper_control': '0 closed, 255 open',
                      'milestone': 'physical_pick_and_place', 'planner': 'DLS pose IK; collision-screened joint segments'}
 
-    def create_world(self, config, seed):
+    def create_world(self, config, seed, diagnostics=False):
         root = ET.parse(ASSET_DIR / 'panda.xml').getroot()
         root.find('compiler').set('meshdir', str(ASSET_DIR / 'assets'))
         root.find('option').set('timestep', '.002')
@@ -44,13 +44,23 @@ class PickPlaceBackend(RoboticsBackend):
                       size=' '.join(map(str, config['obstacle_size'])),
                       contype='1' if config['obstacle_enabled'] else '0',
                       conaffinity='1' if config['obstacle_enabled'] else '0')
+        physical_root = deepcopy(root)
+        physical_root.find('compiler').set('meshdir', 'assets')
+        digest = hashlib.sha256((ET.tostring(physical_root, encoding='unicode') + asset_digest() + self.version).encode()).hexdigest()
+        if diagnostics:
+            sensors=ET.SubElement(root,'sensor')
+            for name,attributes in [
+                ('robot_contacts',{'subtree1':'link0'}),('mount_contacts',{'body1':'link0','geom2':'table'}),
+                ('left_grasp',{'body1':'left_finger','geom2':'cube'}),('right_grasp',{'body1':'right_finger','geom2':'cube'}),
+                ('table_support',{'geom1':'cube','geom2':'table'}),('object_obstacle',{'geom1':'cube','geom2':'obstacle_geom'}),
+                ('object_ground',{'geom1':'cube','geom2':'ground'})]:
+                ET.SubElement(sensors,'contact',name=name,data='found force',reduce='maxforce',**attributes)
         model = mj.MjModel.from_xml_string(ET.tostring(root, encoding='unicode'))
         data = mj.MjData(model)
         data.qpos[:9] = [0, 0, 0, -1.57079, 0, 1.57079, -.7853, .04, .04]
         data.ctrl[:7] = data.qpos[:7]; data.ctrl[7] = 255
         mj.mj_forward(model, data)
         root.find('compiler').set('meshdir', 'assets')
-        digest = hashlib.sha256((ET.tostring(root, encoding='unicode') + asset_digest() + self.version).encode()).hexdigest()
         return RobotWorld(model, data, deepcopy(config), seed, digest)
 
     def contact_evidence(self, world):
@@ -182,10 +192,11 @@ class PickPlaceBackend(RoboticsBackend):
         Timing screening cannot prove a frictional grasp: only physics can.
         """
         tic=time.perf_counter();templates,_=self.candidates(world,8,settings['planner_iterations'])
-        rng=np.random.default_rng(world.seed);eligible=[];distinct=set();digest=hashlib.sha256()
+        rng=np.random.default_rng(world.seed);eligible=[];all_actions=[];distinct=set();digest=hashlib.sha256()
         rejected={'kinematic_collision':0,'ik_failure':0,'simulation_horizon':0}
         total=settings['search_candidates']
         for i in range(total):
+            if settings.get('checkpoint') and not settings['checkpoint']():raise InterruptedError('cancelled while generating candidates')
             action=deepcopy(templates[i%len(templates)])
             speed=float(rng.uniform(.27,.36));action['speed_rad_s']=speed;action['candidate_index']=i
             for stage in action['stages']:
@@ -194,6 +205,7 @@ class PickPlaceBackend(RoboticsBackend):
                 if stage['phase']=='close':stage['dwell_s']=float(rng.uniform(.6,.9))
                 if stage['phase']=='release':stage['dwell_s']=float(rng.uniform(.5,.8))
             duration=sum(s['duration_s']+s['dwell_s'] for s in action['stages'])
+            if settings.get('physics_trials'):all_actions.append((duration,i,action))
             signature=hashlib.sha256(str(action['stages']).encode()).digest();distinct.add(signature);digest.update(signature)
             reason=action['screening_rejection']
             if not reason and duration>=settings['max_simulation_seconds']:reason='simulation_horizon'
@@ -204,6 +216,9 @@ class PickPlaceBackend(RoboticsBackend):
                       'screening_passed':len(eligible),'message':f'{i+1:,} distinct timed pickup plans checked; {len(eligible):,} passed screening.'})
         eligible.sort(key=lambda item:(item[0],item[1]))
         actions=[item[2] for item in eligible[:settings['physics_budget']]]
+        if settings.get('physics_trials'):
+            if total!=settings['physics_trials']:raise ValueError('full physics requires one generated command per requested trial')
+            actions=[item[2] for item in sorted(all_actions,key=lambda item:(item[0],item[1]))]
         if not actions:actions=[templates[0]]
         summary={'generated':total,'distinct_generated':len(distinct),'screened':total,'rejected':sum(rejected.values()),
                  'screening_passed':len(eligible),'promoted_to_physics':len(actions),
@@ -217,6 +232,7 @@ class PickPlaceBackend(RoboticsBackend):
 
     def simulate(self, world, limits):
         tic = time.perf_counter(); d, m = world.data, world.model
+        paused_start=limits.get('pause_seconds',lambda:0.)()
         start_time = float(d.time); trace = [self.observe(world) | {'phase': 'initializing'}]
         failure = None; violations = []; steps = 0; milestones = []; retention = True; lifted = False
         max_height = float(d.body('target').xpos[2]); max_tracking = 0.
@@ -227,6 +243,7 @@ class PickPlaceBackend(RoboticsBackend):
                 break
             phase = stage['phase']; duration = stage['duration_s']; total = duration + stage['dwell_s']
             for i in range(int(np.ceil(total / m.opt.timestep))):
+                if limits.get('checkpoint') and not limits['checkpoint']():failure='cancelled';break
                 if limits.get('cancel_event') and limits['cancel_event'].is_set():
                     failure = 'cancelled'; break
                 alpha = min(1., (i+1) * m.opt.timestep / max(duration, m.opt.timestep))
@@ -250,7 +267,8 @@ class PickPlaceBackend(RoboticsBackend):
                     failure = 'controller_failure'
                 if np.any(d.qpos[:7] < m.jnt_range[:7, 0]-.002) or np.any(d.qpos[:7] > m.jnt_range[:7, 1]+.002):
                     failure = 'joint_limit_failure'
-                if d.time-start_time >= limits['max_simulation_seconds'] or time.perf_counter()-tic > limits.get('max_wall_seconds', 120):
+                elapsed=time.perf_counter()-tic-(limits.get('pause_seconds',lambda:0.)()-paused_start)
+                if d.time-start_time >= limits['max_simulation_seconds'] or elapsed > limits.get('max_wall_seconds', 120):
                     failure = 'timeout'
                 if steps % 25 == 0 or failure:
                     frame = self.observe(world) | {'phase': phase}
@@ -258,7 +276,7 @@ class PickPlaceBackend(RoboticsBackend):
                     if limits.get('on_frame'):
                         limits['on_frame'](frame)
                         if limits.get('realtime'):
-                            time.sleep(max(0., float(d.time-start_time)-(time.perf_counter()-tic)))
+                            time.sleep(max(0., float(d.time-start_time)-elapsed))
                 if failure:
                     break
             evidence = self.contact_evidence(world)

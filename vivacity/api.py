@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
 from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport
 from .schemas import ImportResponse,ImportPreview
-from .schemas import SessionRequest,SessionResponse,LiveState
+from .schemas import SessionRequest,SessionResponse,LiveState,TrialsResponse
 from .imports import ImportService,MAX_UPLOAD
 from pathlib import Path
 from starlette.requests import HTTPConnection
@@ -89,9 +89,22 @@ def create_app(database=None):
     def stop_session(session_id:str,x_session_token:SessionToken):
         return app.state.runtime.supervisor.stop(session_id,x_session_token)
 
+    @app.post('/v1/sessions/{session_id}/pause',response_model=SessionResponse)
+    def pause_session(session_id:str,x_session_token:SessionToken):
+        return app.state.runtime.supervisor.set_paused(session_id,x_session_token,True)
+
+    @app.post('/v1/sessions/{session_id}/resume',response_model=SessionResponse)
+    def resume_session(session_id:str,x_session_token:SessionToken):
+        return app.state.runtime.supervisor.set_paused(session_id,x_session_token,False)
+
     @app.post('/v1/experiments/{experiment_id}/cancel',response_model=ExperimentResponse)
     def cancel_experiment(experiment_id:str):
         return app.state.runtime.cancel(experiment_id)
+
+    @app.get('/v1/experiments/{experiment_id}/trials',response_model=TrialsResponse)
+    def physics_trials(experiment_id:str,after:int=Query(-1,ge=-1),limit:int=Query(50,ge=1,le=100)):
+        app.state.runtime.get_experiment(experiment_id)
+        return app.state.runtime.store.trials(experiment_id,after,limit)
 
     @app.get('/v1/experiments/{experiment_id}/live',response_model=LiveState|None)
     def live_state(experiment_id:str):

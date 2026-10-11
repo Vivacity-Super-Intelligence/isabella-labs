@@ -1,8 +1,31 @@
 # Verified deployment — 2026-10-11
 
+## Current hosting status
+
+The frontend's latest pause/resume release is deployment
+`dpl_AprLKpiPQX8ETK3RSmQd1c6u17TQ`, immutable URL
+`https://vivacity-demo-pjihhlimv-tanishs-projects-66633ee2.vercel.app`, with
+both public demo aliases assigned. Its compiled API hostname
+`stayed-oem-founded-son.trycloudflare.com` is **currently unavailable**.
+An owned local API restart passed local readiness, but that hostname stopped
+resolving. Renewal registered a replacement but its QUIC/TCP connectivity checks
+failed and external readiness did not pass. No frontend was rebound to an
+unverified replacement URL.
+
+Render is the requested durable host. `render.yaml`, a dedicated private backend
+repository and executed Linux Docker verification are ready. Account sign-in and
+paid activation are pending, so no Render deployment or cloud persistence is
+claimed. Exact configuration, cost, commands and verification gates:
+`docs/RENDER_DEPLOYMENT.md`.
+
+The remaining sections document earlier successful temporary releases.
+They do not establish current public backend availability.
+
+## Previous temporary deployment evidence
+
 Frontend: **https://demo.tryvivacity.com/**; **https://vivacity-investor-demo.vercel.app/** aliases the same current deployment. Project `vivacity-demo`, scope `tanishs-projects-66633ee2`. Current immutable URL: `https://vivacity-demo-3oxvuhg3m-tanishs-projects-66633ee2.vercel.app`; deployment ID **dpl_yP6WDKC22EMLt2y58rUSHGrdXtBz**. The preceding deployment **dpl_4odWdeqdZ2VGXu7Shcj8uoR7dyWb** ran the complete seven-job journey; the current release adds only the scoped Discovery accessibility-SVG sizing fix, with separate current-alias boundary verification. Physics/runtime revision: `5de72f8`; layout fix: `9788f8e`.
 
-Backend: **https://rid-buffalo-bluetooth-profit.trycloudflare.com**, health `/health`, Swagger `/docs`, OpenAPI `/openapi.json`. Verified versions: MuJoCo 3.15.0, SciPy 1.18.1. A hidden local persistent Python process on port 8001 and SQLite WAL at `data/public/vivacity.sqlite3` supply actual numerical computation and state. Cloudflare forwards HTTPS/WSS to that process. MuJoCo does not execute in Vercel's static frontend.
+Backend: **https://stayed-oem-founded-son.trycloudflare.com**, health `/health`, Swagger `/docs`, OpenAPI `/openapi.json`. Verified versions: MuJoCo 3.15.0, SciPy 1.18.1. A hidden local persistent Python process on port 8001 and SQLite WAL at `data/public/vivacity.sqlite3` supply actual numerical computation and state. Cloudflare forwards HTTPS/WSS to that process. MuJoCo does not execute in Vercel's static frontend.
 
 ## Actual acceptance evidence
 
@@ -21,7 +44,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-public-demo.ps
 # When the tunnel is already running but backend source changed:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restart-public-api.ps1
 vercel link --cwd frontend --yes --project vivacity-demo --scope tanishs-projects-66633ee2
-vercel deploy --cwd frontend --prod --yes --scope tanishs-projects-66633ee2 --build-env VITE_API_BASE_URL=https://rid-buffalo-bluetooth-profit.trycloudflare.com
+vercel deploy --cwd frontend --prod --yes --scope tanishs-projects-66633ee2 --build-env VITE_API_BASE_URL=https://stayed-oem-founded-son.trycloudflare.com
 # Use the newly returned immutable URL, not an old example, for the investor alias:
 vercel alias set NEW_IMMUTABLE_URL vivacity-investor-demo.vercel.app --scope tanishs-projects-66633ee2
 ```
@@ -32,7 +55,7 @@ Current public verification commands:
 
 ```powershell
 $env:UI_URL='https://demo.tryvivacity.com/'
-$env:API_URL='https://rid-buffalo-bluetooth-profit.trycloudflare.com'
+$env:API_URL='https://stayed-oem-founded-son.trycloudflare.com'
 $env:PROOF_PREFIX='release-check'
 $env:CHECK_CONDITIONS='1'
 node scripts/check-master-live.mjs

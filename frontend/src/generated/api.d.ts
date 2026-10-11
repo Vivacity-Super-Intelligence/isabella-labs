@@ -72,6 +72,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/sessions/{session_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pause Session */
+        post: operations["pause_session_v1_sessions__session_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/sessions/{session_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resume Session */
+        post: operations["resume_session_v1_sessions__session_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/experiments/{experiment_id}/cancel": {
         parameters: {
             query?: never;
@@ -83,6 +117,23 @@ export interface paths {
         put?: never;
         /** Cancel Experiment */
         post: operations["cancel_experiment_v1_experiments__experiment_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/experiments/{experiment_id}/trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Physics Trials */
+        get: operations["physics_trials_v1_experiments__experiment_id__trials_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -551,6 +602,11 @@ export interface components {
         /** ExperimentRequest */
         ExperimentRequest: {
             /**
+             * Physics Trials
+             * @default 0
+             */
+            physics_trials: number;
+            /**
              * Execute Selected
              * @default false
              */
@@ -886,6 +942,11 @@ export interface components {
             /** Config */
             config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"] | null;
             /**
+             * Physics Trials
+             * @default 0
+             */
+            physics_trials: number;
+            /**
              * Max Cycles
              * @default 4
              */
@@ -908,6 +969,21 @@ export interface components {
         };
         /** SessionResponse */
         SessionResponse: {
+            /**
+             * Pause Requested
+             * @default false
+             */
+            pause_requested: boolean;
+            /**
+             * Paused
+             * @default false
+             */
+            paused: boolean;
+            /**
+             * Paused Seconds
+             * @default 0
+             */
+            paused_seconds: number;
             /**
              * Schema Version
              * @default vivacity.session/1.0
@@ -962,6 +1038,56 @@ export interface components {
             observation: {
                 [key: string]: unknown;
             };
+        };
+        /** TrialResponse */
+        TrialResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.trial/1.0
+             * @constant
+             */
+            schema_version: "vivacity.trial/1.0";
+            /** Completion Seq */
+            completion_seq: number;
+            /** Candidate Index */
+            candidate_index: number;
+            /** Parent State Reference */
+            parent_state_reference: string;
+            /** Action */
+            action: {
+                [key: string]: unknown;
+            };
+            /** Engine */
+            engine: string;
+            /** Control Sha256 */
+            control_sha256: string;
+            /** Final State */
+            final_state: {
+                [key: string]: unknown;
+            };
+            /** Evaluation */
+            evaluation: {
+                [key: string]: unknown;
+            };
+            /** Performance */
+            performance: {
+                [key: string]: unknown;
+            };
+        };
+        /** TrialsResponse */
+        TrialsResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.trials/1.0
+             * @constant
+             */
+            schema_version: "vivacity.trials/1.0";
+            /** Completed */
+            completed: number;
+            /** Items */
+            items: components["schemas"]["TrialResponse"][];
+            /** Next After */
+            next_after: number | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -1155,6 +1281,72 @@ export interface operations {
             };
         };
     };
+    pause_session_v1_sessions__session_id__pause_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-session-token": string;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resume_session_v1_sessions__session_id__resume_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-session-token": string;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     cancel_experiment_v1_experiments__experiment_id__cancel_post: {
         parameters: {
             query?: never;
@@ -1173,6 +1365,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExperimentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    physics_trials_v1_experiments__experiment_id__trials_get: {
+        parameters: {
+            query?: {
+                after?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                experiment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrialsResponse"];
                 };
             };
             /** @description Validation Error */

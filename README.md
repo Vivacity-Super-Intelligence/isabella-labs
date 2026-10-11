@@ -2,18 +2,18 @@
 
 The investor workspace executes real MuJoCo robot/cloth dynamics and SciPy orbital model comparisons through one persisted simulation runtime. The React frontend runs bounded autonomous sessions, validates independent alternatives, and streams a **fresh selected physical execution**. It does not substitute prerecorded playback, scripted mesh attachment or canned numerical results.
 
-Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. The API currently uses a temporary tunnel to this machine; independent durable hosting is blocked by the expired Railway trial. See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. The API currently uses a temporary tunnel to this machine; Render hosting is prepared but awaits account sign-in and paid-service activation. See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ## Verified scope
 
 - Contact-driven Panda cube grasp, lift, retention, transport, release and table placement; a fixed benchmark completed **20/20 real executions**. Full integration-state branching, measured failures and deterministic re-execution are tested.
-- Genuine 5,000-proposal timing/geometry screening, separately counted physics validation, actual top-three ranking and JSON evidence exports. Screening is not 5,000 physics episodes.
+- Exhaustive Object Pickup mode requests 5,000 independent real MuJoCo trials, measured ranking and compact per-trial evidence, retaining the best full traces and fresh authoritative execution. Legacy/cloth screening and validation remain separately counted. Real worker Pause/Resume preserves simulation state; Stop cancels it. See [PAUSE_TRIALS_VALIDATION.md](PAUSE_TRIALS_VALIDATION.md) for exact semantics and completed verification evidence.
 - Leased autonomous sessions with fresh worlds/seeds/conditions, independent validation and fresh authoritative execution, REST/WSS state streaming, capability isolation, cancellation and bounded workers.
 - Restricted 2D invisible-planet inference: `solve_ivp`, training `least_squares`, chronological holdout, complexity penalty, local uncertainty and hidden truth isolation. Perturbed and no-influence control cases select different models from actual fits.
 - Experimental actuated Panda/flex folding fixture, pre-attached bar and fixed hinge; separate fixed benchmark **5/5**, with actual release and settling. No general cloth grasp acquisition is claimed.
 - Bounded static GLB/glTF/ZIP previews and robot-description inspection. Imported native robot/world execution is unavailable.
 
-Current full regression: **101 passed**, no failures/errors/skips, **290.66 s**, one upstream Starlette TestClient deprecation warning. Details and current public-browser verification: [DEMO_STATUS.md](DEMO_STATUS.md), [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), [ROBOTICS_VALIDATION.md](ROBOTICS_VALIDATION.md), [SCIENTIFIC_VALIDATION.md](SCIENTIFIC_VALIDATION.md), [CLOTH_VALIDATION.md](CLOTH_VALIDATION.md), [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md), [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
+Current full regression: **119 passed**, no failures/errors/skips, **410.15 s**, one upstream Starlette TestClient deprecation warning. Details and public-browser verification: [DEMO_STATUS.md](DEMO_STATUS.md), [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), [ROBOTICS_VALIDATION.md](ROBOTICS_VALIDATION.md), [SCIENTIFIC_VALIDATION.md](SCIENTIFIC_VALIDATION.md), [CLOTH_VALIDATION.md](CLOTH_VALIDATION.md), [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md), [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
 
 ## Setup — Windows PowerShell
 
@@ -29,7 +29,7 @@ npm run build --prefix frontend
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-demo.ps1 -NoBrowser -Dev
 ```
 
-Open **http://127.0.0.1:5173/**. First visit starts fresh bounded computation automatically. Choose Robotics → Object Pickup / Cloth Folding, or Discovery. Stop experiments cancels backend work; camera controls only change the view. Apply conditions stops work safely, changes physical geometry and computes new alternatives. Result-card selection only inspects evidence. Downloads contain real measured traces/states/evaluations. One Technical Inspector retains useful actual messages.
+Open **http://127.0.0.1:5173/**. First visit stays idle until you press Start experiments. Choose Robotics → Object Pickup / Cloth Folding, or Discovery. Pause simulation freezes the actual worker; Resume continues the same state. Stop experiments cancels backend work; camera controls only change the view. Apply conditions stops work safely and stages changed physical geometry; press Start experiments to compute new alternatives. Result-card selection only inspects evidence. Downloads contain real measured traces/states/evaluations. One Technical Inspector retains useful actual messages.
 
 `scripts/stop-demo.ps1` stops only identity-matching owned local processes. Stop an old owned server before starting a changed backend; readiness alone does not reload Python. If Windows holds an old output font open, use a fresh directory: `npm run build --prefix frontend -- --outDir ../data/master-build`.
 

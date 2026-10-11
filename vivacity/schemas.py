@@ -83,6 +83,7 @@ class CreateWorld(Schema):
 
 
 class ExperimentRequest(Schema):
+    physics_trials: int = Field(0, ge=0, le=5000)
     execute_selected: bool = False
     realtime_execution: bool = False
     candidates: int = Field(3, ge=2, le=5)
@@ -91,6 +92,12 @@ class ExperimentRequest(Schema):
     policy: Literal['deterministic', 'llm'] = 'deterministic'
     search_candidates: int = Field(0, ge=0, le=10000)
     physics_budget: int = Field(12, ge=3, le=24)
+
+    @model_validator(mode='after')
+    def trial_count_matches_generation(self):
+        if self.physics_trials and self.physics_trials != self.search_candidates:
+            raise ValueError('full physics trials require matching search_candidates')
+        return self
 
 
 class HostedProposal(Schema):
@@ -175,6 +182,26 @@ class BranchResponse(Schema):
     performance: dict
 
 
+class TrialResponse(Schema):
+    schema_version: Literal['vivacity.trial/1.0'] = 'vivacity.trial/1.0'
+    completion_seq: int
+    candidate_index: int
+    parent_state_reference: str
+    action: dict
+    engine: str
+    control_sha256: str
+    final_state: dict
+    evaluation: dict
+    performance: dict
+
+
+class TrialsResponse(Schema):
+    schema_version: Literal['vivacity.trials/1.0'] = 'vivacity.trials/1.0'
+    completed: int
+    items: list[TrialResponse]
+    next_after: int | None
+
+
 class StateResponse(Schema):
     schema_version: Literal['1.0'] = '1.0'
     world_id: str
@@ -223,13 +250,23 @@ class BranchExport(Schema):
 
 
 class SessionRequest(CreateWorld):
+    physics_trials: int = Field(0, ge=0, le=5000)
     max_cycles: int = Field(4, ge=1, le=8)
     realtime_execution: bool = True
     search_candidates: int = Field(0, ge=0, le=10000)
     physics_budget: int = Field(3, ge=3, le=12)
 
+    @model_validator(mode='after')
+    def trial_backend(self):
+        if self.physics_trials and (self.backend!='mujoco' or self.config.task!='pick_place' or self.physics_trials!=self.search_candidates):
+            raise ValueError('full physics trials require Panda pickup and matching search_candidates')
+        return self
+
 
 class SessionResponse(Schema):
+    pause_requested: bool = False
+    paused: bool = False
+    paused_seconds: float = 0.
     schema_version: Literal['vivacity.session/1.0'] = 'vivacity.session/1.0'
     id: str
     backend: str

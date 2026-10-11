@@ -18,10 +18,12 @@ try{
   page.on('pageerror',e=>proof.errors.push(e.message));
   page.on('request',r=>{if(r.method()==='POST'&&r.url()===`${api}/v1/sessions`)sessionPosts++;
     if(r.method()==='POST'&&/\/worlds\/[^/]+\/experiments$/.test(r.url()))experimentPosts++;});
-  // Bound only cycle count; actual search, simulation and fits are unchanged.
+  // Bound cycle count and the new exhaustive pickup mode for this smoke test.
+  // The dedicated physics-5000 audit executes all 5,000 real trials.
   await page.route(`${api}/v1/sessions`,async route=>{
     if(route.request().method()!=='POST')return route.continue();
     const body=route.request().postDataJSON();body.max_cycles=1;
+    if(body.backend==='mujoco'&&body.physics_trials){body.physics_trials=8;body.search_candidates=8;}
     await route.continue({postData:JSON.stringify(body)});
   });
   const ready=()=>page.getByRole('button',{name:'Start experiments',exact:true}).waitFor({timeout:60000});
@@ -75,8 +77,8 @@ try{
   await page.setViewportSize({width:768,height:960});
   await page.getByRole('button',{name:'Start experiments',exact:true}).click();
   const robot=await complete('mujoco');assert.equal(sessionPosts,2);
-  assert.equal(robot.experiment.result.search.distinct_generated,5000);
-  assert.equal(robot.experiment.result.search.fully_simulated,3);
+  assert.equal(robot.experiment.result.search.distinct_generated,8);
+  assert.equal(robot.experiment.result.search.fully_simulated,8);
   assert(robot.experiment.result.execution_evaluation.success);
   assert.equal(robot.branches.length,4);
   proof.checks.push('explicit_click_computes_real_pickup_and_fresh_execution');

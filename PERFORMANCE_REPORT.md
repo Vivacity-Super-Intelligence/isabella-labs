@@ -35,3 +35,17 @@ The complete actual HTTPS/WSS journey at `https://demo.tryvivacity.com/` passed 
 Public pickup whole-job times were **103.575 / 102.346 s** for the two fresh cycles and **110.882 s** after clearing the obstacle. The blocked job took **3.875 s**, integrated **zero steps**, selected no branch and honestly preserved planning failures. Scientific jobs took **0.953 / 0.514 s** with **30 / 51** actual integrations. The constrained cloth job took **109.183 s**, including **11,032 actual integration steps** across three validations plus fresh selected execution. These measurements include software-rendering contention and tunnel request overhead; they are not a scale or low-latency claim.
 
 The subsequent scoped Discovery accessibility layout fix passed a fresh local production build in **45.41 s** under machine contention and remote Vercel build in **2.54 s**. Both current aliases passed fresh numerical fitting, 375 px layout, reload and offline/reconnect checks with zero unexpected console/page errors. Two deliberate offline console failures are categorized separately (`artifacts/master-public-boundaries.json`). The seven-job physics proof precedes that isolated style fix; no physical code changed afterward.
+
+## Executed exhaustive pickup audit — 2026-10-11
+
+`artifacts/physics-5000.json`: 5,000 unique positive-step trials, 36,520,171
+trial steps; 36,526,335 total including fresh execution. Job elapsed 3,956.263 s,
+trial physics wall 2,853.498 s, process CPU 2,111.328 s, planning 2.633 s.
+Replay payload 1,432,169 bytes; compact trial storage 46,764,032 bytes.
+All 5,000 succeeded in the fixed unobstructed scene; no generalized success-rate
+claim follows. Selected fresh placement error 1.6583 mm. Exact native repeat and
+immutable-parent checks passed. Concurrent browser/API activity affected these
+local timings. No cloud performance or billed LLM cost is inferred.
+
+Linux Docker full suite passed 119 tests / 148.34 s on a GitHub-hosted runner.
+This measures verification, not Render request latency or physics throughput.

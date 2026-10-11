@@ -73,6 +73,7 @@ class ScienceBackend:
 
         def predict(params, ts):
             nonlocal calls
+            if limits.get('checkpoint') and not limits['checkpoint']():raise InterruptedError('cancelled before numerical integration')
             calls += 1
             return orbit(ts, c['initial_state'], c['perturbing_position'], params[0], params[1] if extra else 0)
 

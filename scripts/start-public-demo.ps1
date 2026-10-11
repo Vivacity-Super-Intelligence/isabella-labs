@@ -32,7 +32,18 @@ $tunnelError=Join-Path $runRoot "tunnel-$stamp.error.log"
 $tunnel=Start-Process -FilePath $tunnelExe -ArgumentList @('--no-autoupdate','tunnel','--url',"http://127.0.0.1:$ApiPort") -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runRoot "tunnel-$stamp.log") -RedirectStandardError $tunnelError
 $owned+=Record-Process $tunnel.Id 'cloudflared';Save-Processes
 $apiUrl=$null
-for($i=0;$i -lt 100;$i++){if(Test-Path -LiteralPath $tunnelError){$logText=[string](Get-Content -LiteralPath $tunnelError -Raw);$match=[regex]::Match($logText,'https://[a-z0-9-]+\.trycloudflare\.com');if($match.Success){$apiUrl=$match.Value;break}};Start-Sleep -Milliseconds 500}
+for($i=0;$i -lt 100;$i++){
+  $tunnel.Refresh()
+  if($tunnel.HasExited){throw 'Tunnel registration failed; inspect data/public logs.'}
+  if(Test-Path -LiteralPath $tunnelError){
+    $logText=[string](Get-Content -LiteralPath $tunnelError -Raw)
+    if(![string]::IsNullOrWhiteSpace($logText)){
+      $match=[regex]::Match($logText,'https://(?!api\.)[a-z0-9-]+\.trycloudflare\.com')
+      if($match.Success){$apiUrl=$match.Value;break}
+    }
+  }
+  Start-Sleep -Milliseconds 500
+}
 if(!$apiUrl){throw 'Tunnel URL not obtained. Inspect data/public logs.'}
 $externalReady=$false
 for($i=0;$i -lt 20;$i++){try{$health=Invoke-RestMethod ($apiUrl+'/health') -TimeoutSec 5;if($health.backends.cloth){$externalReady=$true;break}}catch{};Start-Sleep -Milliseconds 500}

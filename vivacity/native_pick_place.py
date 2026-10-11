@@ -1,0 +1,84 @@
+"""Native MuJoCo integration with measured per-step contact sensors.
+
+Only diagnostics are added to the physical model. Each candidate owns an MjData
+and starts from the complete parent integration state. Native chunks retain the
+actual warmstart and user inputs, and cooperate with pause/cancel between chunks.
+"""
+from copy import deepcopy
+import time
+
+import mujoco as mj
+from mujoco.rollout import Rollout
+import numpy as np
+
+from .robotics import RobotWorld
+
+
+class NativePickup:
+    engine = 'mujoco.rollout/contact-sensors-v1'
+
+    def __init__(self, backend, snapshot):
+        self.backend=backend
+        self.snapshot=deepcopy(snapshot)
+        self.template=backend.create_world(snapshot['config'],snapshot['seed'],diagnostics=True)
+        backend.restore(self.template,snapshot)
+
+    def simulate(self, action, limits):
+        b=self.backend;m=self.template.model
+        w=RobotWorld(m,mj.MjData(m),deepcopy(self.template.config),self.template.seed,self.template.model_hash)
+        b.restore(w,self.snapshot);b.apply_action(w,action);d=w.data
+        tic=time.perf_counter();pause_start=limits.get('pause_seconds',lambda:0.)();start=float(d.time)
+        trace=[b.observe(w)|{'phase':'initializing'}];steps=0;failure=None;violations=[];milestones=[]
+        lifted=False;retention=True;max_height=float(d.qpos[11]);tracking=0.
+        state=np.empty(mj.mj_stateSize(m,mj.mjtState.mjSTATE_FULLPHYSICS))
+        user=np.empty(mj.mj_stateSize(m,mj.mjtState.mjSTATE_USER))
+        sensor=lambda name: int(m.sensor_adr[m.sensor(name).id])
+        ids={name:sensor(name) for name in ('robot_contacts','mount_contacts','left_grasp','right_grasp','table_support','object_obstacle','object_ground')}
+        with Rollout() as rollout:
+            for stage in action['stages']:
+                if failure:break
+                phase=stage['phase'];count=int(np.ceil((stage['duration_s']+stage['dwell_s'])/m.opt.timestep))
+                for offset in range(0,count,128):
+                    if limits.get('checkpoint') and not limits['checkpoint']():failure='cancelled';break
+                    if limits.get('cancel_event') and limits['cancel_event'].is_set():failure='cancelled';break
+                    length=min(128,count-offset)
+                    alpha=np.minimum(1.,(np.arange(offset,offset+length)+1)*m.opt.timestep/max(stage['duration_s'],m.opt.timestep))
+                    blend=alpha*alpha*(3-2*alpha)
+                    mj.mj_getState(m,d,state,mj.mjtState.mjSTATE_FULLPHYSICS)
+                    mj.mj_getState(m,d,user,mj.mjtState.mjSTATE_USER)
+                    commands=np.tile(user,(length,1))
+                    commands[:,:7]=np.asarray(stage['start'])*(1-blend[:,None])+np.asarray(stage['goal'])*blend[:,None]
+                    commands[:,7]=stage['gripper']
+                    states,sensors=rollout.rollout(m,d,state[None],commands[None],control_spec=int(mj.mjtState.mjSTATE_USER),initial_warmstart=d.qacc_warmstart.copy()[None])
+                    states,sensors=states[0],sensors[0]
+                    # Rollout fills stalled output after a native numerical warning.
+                    advanced=int(np.count_nonzero(np.diff(np.r_[state[0],states[:,0]])>0));steps+=advanced
+                    q=states[:,1:1+m.nq];height=q[:,11];max_height=max(max_height,float(height.max()))
+                    tracking=max(tracking,float(np.max(np.abs(q[:,:7]-commands[:,:7]))))
+                    left=sensors[:,ids['left_grasp']+1]>.01;right=sensors[:,ids['right_grasp']+1]>.01
+                    if phase in ('lift','transport','lower'):
+                        raised=height>.075;lifted|=bool(raised.any())
+                        if np.any(raised&~(left&right)):retention=False;failure='dropped_object'
+                    if phase=='transport' and np.any(height<.07):retention=False;failure='dropped_object'
+                    prohibited=sensors[:,ids['robot_contacts']]-sensors[:,ids['mount_contacts']]-sensors[:,ids['left_grasp']]-sensors[:,ids['right_grasp']]
+                    collision=(prohibited>0)|(sensors[:,ids['object_obstacle']]>0)|(sensors[:,ids['object_ground']]>0)
+                    if collision.any():
+                        failure='collision_failure';violations.append({'category':'native_contact_sensor_collision',
+                            'bodies':[],'geoms':[],'first_step':steps-length+int(np.flatnonzero(collision)[0])+1,
+                            'scope':'Aggregated prohibited-contact sensors; pair names are not inferred.'})
+                    if np.any(q[:,:7]<m.jnt_range[:7,0]-.002) or np.any(q[:,:7]>m.jnt_range[:7,1]+.002):failure='joint_limit_failure'
+                    if advanced!=length or not np.isfinite(states).all() or tracking>.35:failure='controller_failure'
+                    elapsed=time.perf_counter()-tic-(limits.get('pause_seconds',lambda:0.)()-pause_start)
+                    if d.time-start>=limits['max_simulation_seconds'] or elapsed>limits.get('max_wall_seconds',120):failure='timeout'
+                    frame=b.observe(w)|{'phase':phase};trace.append(frame)
+                    if limits.get('on_frame'):limits['on_frame'](frame)
+                    if failure:break
+                evidence=b.contact_evidence(w)
+                milestones.append({'phase':phase,'time':float(d.time),'cube_position':d.body('target').xpos.tolist(),**evidence})
+                if phase=='close' and not evidence['bilateral_grasp'] and not failure:failure='grasp_failure'
+        trace.append(b.observe(w)|{'phase':'evaluating'})
+        result={'trace':trace,'failure':failure,'contact_violations':violations,'milestones':milestones,'lifted':lifted,
+                'retained_during_transport':retention and lifted,'max_cube_height_m':max_height,'max_tracking_error_rad':tracking,
+                'simulation_steps':steps,'execution_duration_s':float(d.time-start),'physics_wall_seconds':time.perf_counter()-tic,
+                'engine':self.engine,'contact_measurement':'native per-step force sensors; forces precede integration by one timestep'}
+        return result,b.evaluate(w,result),b.snapshot(w)

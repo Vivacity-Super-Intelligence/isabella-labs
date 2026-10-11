@@ -7,7 +7,7 @@ process.env.PLAYWRIGHT_BROWSERS_PATH=path.resolve('data/playwright');
 process.env.TEMP=process.env.TMP=path.resolve('data/browser-temp');
 const {chromium}=await import('../frontend/node_modules/playwright-core/index.mjs');
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
-const api=process.env.API_URL??'https://rid-buffalo-bluetooth-profit.trycloudflare.com';
+const api=process.env.API_URL??JSON.parse(fs.readFileSync('data/public/endpoint.json','utf8').replace(/^\uFEFF/, '')).apiUrl;
 const urls=process.env.UI_URL?[process.env.UI_URL]:['https://demo.tryvivacity.com/','https://vivacity-investor-demo.vercel.app/'];
 const prefix=process.env.BOUNDARY_PROOF_PREFIX??'master-public';
 const proof={checks:[],errors:[],expected_offline_errors:[],started_unix_s:Date.now()/1000};

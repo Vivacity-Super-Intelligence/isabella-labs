@@ -1,5 +1,11 @@
 # Current frontend handoff — master runtime, 2026-10-11
 
+**Hosting update:** Render source/configuration and Linux verification are ready;
+Render sign-in and paid activation are pending. The previous public tunnel is
+currently unavailable. Use the local backend for development until a verified
+Render URL is assigned. Exact deployment and connection commands:
+`docs/RENDER_DEPLOYMENT.md`. Do not compile a guessed backend URL into the UI.
+
 The existing React/TypeScript/Three.js frontend now runs bounded autonomous laboratories. **Do not scaffold over it or reinstate recorded playback.** The main robot/cloth scene consumes fresh authoritative MuJoCo states after independently validating candidates. Scientific paths are executed SciPy predictions. Result selection inspects evidence; it does not replay a branch in the main scene. Historical V2 release documents describe an earlier interface and are not the current contract.
 
 **Manual start:** loading, reloading, switching laboratories and applying settings never create experiment sessions. The existing main button, **Start experiments**, is the only session-creation path. Initial loading creates/restores a stationary world via the existing world API. Applying settings updates geometry/observations and invalidates old results without submitting experiments. Reloading cancels an existing active session instead of silently continuing it. Completed evidence remains inspectable. Layout, styles and simulation algorithms are unchanged.
@@ -22,7 +28,7 @@ The existing React/TypeScript/Three.js frontend now runs bounded autonomous labo
 
 Input-only sample requests: `fixtures/pick_place.json`, `pick_place_blocked.json`, `autonomous_pick_place.json`; these contain configuration and budgets, never prescribed solver outputs or winners.
 
-The old `usePlayback.ts` was deleted intentionally. No Play/Pause/scrub/speed UI belongs in the current product. Camera controls and backend Stop experiments are real controls, with different purposes.
+The old `usePlayback.ts` was deleted intentionally. Pause/Resume now controls the actual simulation worker, preserving its state; Stop cancels it. There is no video playback, timeline, scrubber or playback-speed control. Camera movement remains independent.
 
 ## Setup and exact Claude Code commands
 
@@ -78,12 +84,15 @@ All JSON requests reject unknown fields and non-finite numbers. IDs are always r
 | POST `/v1/sessions` | 201; create leased autonomous session; required capability header |
 | GET `/v1/sessions/{id}` | 200; current world/job/cycle; refreshes browser lease |
 | POST `/v1/sessions/{id}/stop` | 200; request safe cancellation; poll until stopped |
+| POST `/v1/sessions/{id}/pause` | 200; request real worker pause; wait for `paused:true` |
+| POST `/v1/sessions/{id}/resume` | 200; continue from the same preserved simulator state |
 | POST `/v1/worlds` | 201; explicit standalone world creation |
 | GET `/v1/worlds/{id}` | 200; configuration, opaque states, versions, seed, history, evaluations |
 | GET `/v1/worlds/{id}/state` | 200; measured observation wrapped in world ID/revision |
 | POST `/v1/worlds/{id}/experiments` | 202; bounded asynchronous job, optional `Idempotency-Key` |
 | GET `/v1/experiments/{id}` | 200; job/result/search/performance/stale/error |
 | GET `/v1/experiments/{id}/branches` | 200; complete independent candidate evidence |
+| GET `/v1/experiments/{id}/trials?after=-1&limit=50` | 200; paginated measured exhaustive-trial catalog |
 | GET `/v1/experiments/{id}/events?after={seq}` | 200; persisted missed messages |
 | GET `/v1/experiments/{id}/live` | 200; latest live envelope or null while queued |
 | POST `/v1/experiments/{id}/cancel` | 200; cancel flag; termination is asynchronous |
@@ -107,14 +116,14 @@ Client generates a new random capability (32–128 ASCII alphanumeric/underscore
 Exact contact-pickup session request body:
 
 ```json
-{"backend":"mujoco","seed":7,"config":{"task":"pick_place","obstacle_enabled":false},"max_cycles":1,"realtime_execution":true,"search_candidates":5000,"physics_budget":3}
+{"backend":"mujoco","seed":7,"config":{"task":"pick_place","obstacle_enabled":false},"max_cycles":1,"realtime_execution":true,"search_candidates":5000,"physics_trials":5000,"physics_budget":3}
 ```
 
 For cloth use `{"backend":"cloth","seed":7,"max_cycles":1,"search_candidates":5000,"physics_budget":3}`. For science use `{"backend":"scipy","seed":7,"max_cycles":2,"search_candidates":0,"physics_budget":3}`. API robotics default without `task` remains legacy reaching; the current frontend explicitly requests pickup. Omitted config fields receive validated defaults, not frontend guesses.
 
-Session response version is `vivacity.session/1.0`, with `id`, `backend`, `status`, `world_id`, nullable `experiment_id`, `cycle`, `max_cycles`, `experiments`, `world_ids`, `conditions`, `error`, `started_unix_s`, `last_heartbeat_unix_s`. Full real response examples are in `docs/master-frontend-examples.json` and the browser proof's `sessions` array. Each next cycle changes world ID and recorded seed/conditions; reconnect to that experiment's sockets. Sessions run at most eight cycles (cloth at most two), expire after a 180 s heartbeat lapse, and have a 30 min wall bound. GET heartbeat every second while active is the existing client behavior.
+Session response version is `vivacity.session/1.0`, with `id`, `backend`, `status`, `world_id`, nullable `experiment_id`, `cycle`, `max_cycles`, `experiments`, `world_ids`, `conditions`, `error`, `started_unix_s`, `last_heartbeat_unix_s`, plus `pause_requested`, `paused` and `paused_seconds`. Earlier real response examples are in `docs/master-frontend-examples.json`; the additive pause fields and trial records are specified in `PAUSE_TRIALS_VALIDATION.md`. Each next cycle changes world ID and recorded seed/conditions; reconnect to that experiment's sockets. Sessions run at most eight cycles (cloth at most two), expire after a 180 s heartbeat lapse, and have a 30 min wall bound (two hours for exhaustive pickup). GET heartbeat every second, including while paused. The current frontend requests one exhaustive pickup cycle.
 
-Standalone pickup: POST `/v1/worlds` with `{"backend":"mujoco","seed":7,"config":{"task":"pick_place","obstacle_enabled":false}}`. Submit `{"candidates":3,"search_candidates":5000,"physics_budget":3,"max_simulation_seconds":40,"execute_selected":true,"realtime_execution":true,"policy":"deterministic"}` to its experiments endpoint. `execute_selected:false` keeps experiments observational: independent validation without committing a fresh execution. Request keys are scoped to world ID; reuse the same key for network retry, a new key for deliberate recomputation.
+Standalone pickup: POST `/v1/worlds` with `{"backend":"mujoco","seed":7,"config":{"task":"pick_place","obstacle_enabled":false}}`. Submit `{"candidates":3,"search_candidates":5000,"physics_trials":5000,"physics_budget":3,"max_simulation_seconds":40,"execute_selected":true,"realtime_execution":true,"policy":"deterministic"}` to its experiments endpoint. `execute_selected:false` keeps experiments observational: independent validation without committing a fresh execution. Omitting `physics_trials` retains the legacy screening/shortlist mode. Request keys are scoped to world ID; reuse the same key for network retry, a new key for deliberate recomputation.
 
 Environment edits must stop the session first. PATCH body is `{"config":{...full current config...,"obstacle_enabled":true,"obstacle_position":[0.75,-0.4,0.2]}}`; construct actual full JSON from the returned configuration, not literal ellipses. A new configuration increments revision and makes older results/replays stale; create a fresh session with a fresh token for the new conditions. Never change rendering geometry without sending the physics configuration.
 
@@ -156,7 +165,7 @@ During independent validation the main scene remains at its initialized physical
 
 Use `result.top_feasible_branch_ids` for the three measured feasible physical candidates. Fewer than three is valid, zero must be shown honestly. Scientific comparison has two hypotheses, not three fabricated candidates. `result.execution_branch_id` identifies the separate fresh selected execution; it is not a fourth ranked validation candidate. `execution_evaluation` records its measured outcome.
 
-`result.search.generated/distinct_generated/screened/rejected/screening_passed` are genuine proposal counts. `fully_simulated` counts actual integrated validation episodes; `physics_attempts` includes attempts. `performance.candidate_count` and step totals also include fresh authoritative execution. Never call 5,000 screened timing variations 5,000 physics runs. Kinematic checks can be cached for identical geometry; the response labels this screening scope.
+`result.search.generated/distinct_generated/screened/rejected/screening_passed` are genuine proposal counts. In exhaustive pickup mode, `fully_simulated` and `performance.trial_count` count actual integrated, evaluated native MuJoCo trials; `trial_simulation_steps` is their measured step sum. Every trial has its own MjData restored from the same complete integration snapshot. `performance.candidate_count` counts retained ranked branches plus fresh execution, not the entire trial catalog. `performance.simulation_steps` includes all trials and fresh execution. Never label screening counts as physics counts. Cloth retains screening followed by three validation rollouts; SciPy reports actual integration-call counts.
 
 Replay response: `{schema_version:"1.0",experiment_id,backend,config,stale,branches:[{branch_id,source,frames,evaluation}]}`. Sources identify measured MuJoCo, measured robot-cloth, executed SciPy predictions or failed adapter execution. It is available for evidence inspection, not current live execution. Branches additionally retain opaque complete initial/final integration snapshots, parent reference, action, trace, evaluation and performance. Old geometry remains reproducible through its original configuration/hash; stale results cannot be committed.
 
