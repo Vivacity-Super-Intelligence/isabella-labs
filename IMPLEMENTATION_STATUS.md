@@ -16,7 +16,9 @@ backend on a larger runner, not a live per-visitor feature.
   `dep-db60ej0473hc73clmuo0` succeeded. The public OpenAPI exposes
   `cube_half_size` bounded to 0.02–0.03 m; `/health` reports a limit of 8.
 - Frontend: Vercel deployment `dpl_w1tHiBqKWM4bzNmso4iWnjtVXETQ` is ready and
-  aliased to `https://demo.tryvivacity.com/`. Its requested budget is 5,000,
+  aliased to `https://demo.tryvivacity.com/` and
+  `https://vivacity-investor-demo.vercel.app/`; both returned HTTP 200 with the
+  same built JavaScript asset. Its requested budget is 5,000,
   clamped to the live host limit before each session. The production TypeScript
   and Vite build passed (5,125 modules, 6.21 s); the existing large Three.js
   vendor-chunk warning remains.

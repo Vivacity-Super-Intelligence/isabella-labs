@@ -6,7 +6,9 @@ Render deployment `dep-db60ej0473hc73clmuo0` runs backend commit
 `e4d6d2c4f0ad23c4d34c32bd0751a19d3af1c704`. Its Docker CI passed
 **138 tests** (225.85 s) and the constrained-memory lab check **1 test**
 (41.74 s). Vercel `dpl_w1tHiBqKWM4bzNmso4iWnjtVXETQ` built successfully
-and aliases `https://demo.tryvivacity.com/`. Public `/health` reports
+and aliases both `https://demo.tryvivacity.com/` and
+`https://vivacity-investor-demo.vercel.app/` (same built asset, HTTP 200).
+Public `/health` reports
 `max_physics_trials: 8`; public OpenAPI confirms `cube_half_size` 0.02–0.03 m.
 
 An actual public-browser run set a 60 mm cube, applied the physical scene,
