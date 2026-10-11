@@ -43,6 +43,7 @@ try{
   assert.equal(await page.getByRole('slider',{name:/Replay|Playback/}).count(),0);
   assert.equal(await page.getByRole('button',{name:/Play|Pause|Resume motion/}).count(),0);
   assert.equal(await page.getByRole('log').count(),1);
+  await page.getByRole('button',{name:'Start experiments',exact:true}).click();
   const robot=await complete('mujoco');
   assert.equal(robot.length,2);assert.notEqual(robot[0].experiment.world_id,robot[1].experiment.world_id);
   for(const {experiment,branches} of robot){
@@ -83,7 +84,8 @@ try{
     const oldSession=latestSession.id,oldCapability=capability;
     await page.getByRole('button',{name:'Change conditions',exact:true}).click();
     await page.getByRole('button',{name:'Blocked scene',exact:true}).click();
-    await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();
+    await page.getByRole('button',{name:'Apply settings',exact:true}).click();
+    await page.getByRole('button',{name:'Start experiments',exact:true}).click();
     await page.waitForFunction(id=>localStorage.getItem('vivacity:mujoco:session')!==id,oldSession,{timeout:60000});
     const blocked=await complete('mujoco',false);
     assert.equal(blocked.length,1);assert.equal(blocked[0].experiment.selected_branch_id,null);
@@ -97,7 +99,8 @@ try{
     const blockedSession=latestSession.id;
     await page.getByRole('button',{name:'Change conditions',exact:true}).click();
     await page.getByRole('button',{name:'Clear route',exact:true}).click();
-    await page.getByRole('button',{name:'Apply & run new experiment',exact:true}).click();
+    await page.getByRole('button',{name:'Apply settings',exact:true}).click();
+    await page.getByRole('button',{name:'Start experiments',exact:true}).click();
     await page.waitForFunction(id=>localStorage.getItem('vivacity:mujoco:session')!==id,blockedSession,{timeout:60000});
     const cleared=await complete('mujoco');assert(cleared[0].experiment.result.execution_evaluation.success);
     assert.notEqual(cleared[0].branches[0].initial_state.model_hash,blocked[0].branches[0].initial_state.model_hash);
@@ -105,6 +108,7 @@ try{
     conditionCheck=false;console.log('Blocked obstacle, stale records and fresh clear-route execution passed.');
   }
   await page.getByRole('button',{name:'Discovery',exact:true}).click();
+  await page.getByRole('button',{name:'Start experiments',exact:true}).click();
   const science=await complete('scipy');
   const winners=science.map(({experiment,branches})=>branches.find(b=>b.id===experiment.selected_branch_id));
   assert.equal(winners[0].evaluation.hypothesis,'central_plus_fixed_perturber');assert.equal(winners[1].evaluation.hypothesis,'central_only');
@@ -119,6 +123,7 @@ try{
   await page.screenshot({path:`artifacts/${prefix}-science.png`,fullPage:true});
   if(process.env.SKIP_CLOTH!=='1'){
     await page.getByRole('button',{name:'Robotics',exact:true}).click();await page.getByRole('button',{name:'Cloth Folding',exact:true}).click();
+    await page.getByRole('button',{name:'Start experiments',exact:true}).click();
     const cloth=await complete('cloth'),e=cloth[0].experiment,b=cloth[0].branches.find(b=>b.id===e.result.execution_branch_id);
     assert(e.result.execution_evaluation.success);assert(b.evaluation.robot_joint_displacement_rad>.1);
     await page.waitForFunction(last=>window.__vivacityCloth?.vertices&&Math.max(...last.vertices.flat().map((v,i)=>Math.abs(v-window.__vivacityCloth.vertices[i])))<1e-6,b.trace.at(-1),{timeout:60000});

@@ -22,17 +22,19 @@ const json = (method: string, body?: object, headers: Record<string,string> = {}
   method, headers: body ? { 'Content-Type': 'application/json', ...headers } : headers,
   ...(body ? { body: JSON.stringify(body) } : {})
 });
+const defaultConfig = (backend: Backend): Dict | undefined => backend==='mujoco'
+  ? {task:'pick_place',obstacle_enabled:false,obstacle_position:[.75,-.4,.22]} : undefined;
 export const api = {
   createSession: (backend: Backend, token: string, config?: Dict) => request<components['schemas']['SessionResponse']>('/v1/sessions',json('POST',{
     backend,seed:7,max_cycles:backend==='cloth'?2:4,realtime_execution:true,
     search_candidates:backend==='scipy'?0:5000,physics_budget:3,
-    ...(config?{config}:backend==='mujoco'?{config:{task:'pick_place',obstacle_enabled:false,obstacle_position:[.75,-.4,.22]}}:{})
+    config:config??defaultConfig(backend)
   },{'X-Session-Token':token})),
   session: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}`),
   stopSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/stop`,json('POST')),
   live: (id:string) => request<components['schemas']['LiveState']|null>(`/v1/experiments/${encodeURIComponent(id)}/live`),
   health: () => request<{ status: string; backends: Record<string,string> }>('/health'),
-  create: (backend: Backend) => request<World>('/v1/worlds', json('POST', { backend, seed: 7 })),
+  create: (backend: Backend, config = defaultConfig(backend)) => request<World>('/v1/worlds', json('POST', { backend, seed: 7, config })),
   world: (id: string) => request<World>(`/v1/worlds/${encodeURIComponent(id)}`),
   state: (id: string) => request<components['schemas']['StateResponse']>(`/v1/worlds/${encodeURIComponent(id)}/state`),
   submit: (id: string, key: string, settings: Dict) => request<Experiment>(`/v1/worlds/${id}/experiments`, json('POST', settings, { 'Idempotency-Key': key })),

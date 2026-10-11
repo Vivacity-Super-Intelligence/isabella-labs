@@ -36,6 +36,7 @@ export function useRuntime(backend:Backend){
   const currentExperiment=useRef(experiment);currentExperiment.current=experiment;
   const lock=useRef(false),generation=useRef(0);
   const inspecting=useRef(false);
+  const stagedConfig=useRef<Dict|null>(null);
 
   const adopt=useCallback(async(s:Session,version:number)=>{
     if(version!==generation.current)return;
@@ -43,27 +44,59 @@ export function useRuntime(backend:Backend){
     if(currentWorld.current?.id!==s.world_id){
       const w=await api.world(s.world_id),state=await api.state(s.world_id);
       if(version!==generation.current)return;
-      currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);setLiveState(null);setBranches([]);
+      currentWorld.current=w;put(`${backend}:world`,w.id);setWorld(w);setObservation(state.observation as Dict);setLiveState(null);setBranches([]);
     }
     if(!inspecting.current&&s.experiment_id&&currentExperiment.current?.id!==s.experiment_id){
       const e=await api.experiment(s.experiment_id);
       if(version!==generation.current)return;
       currentExperiment.current=e;setExperiment(e);setBranches([]);setLiveState(null);
     }
-  },[]);
+  },[backend]);
 
   useEffect(()=>{
     const version=++generation.current;let active=true,refreshing=false;
     inspecting.current=false;
+    stagedConfig.current=null;
+    try{
+      const saved=JSON.parse(get(`${backend}:settings`)??'null');
+      if(saved&&typeof saved==='object'&&!Array.isArray(saved))stagedConfig.current=saved as Dict;
+    }catch{/* Ignore invalid optional local preferences. */}
     setWorld(null);currentWorld.current=null;setSession(null);currentSession.current=null;
     setExperiment(null);currentExperiment.current=null;setObservation(null);setBranches([]);setEvents([]);setLiveState(null);setLoaded(false);setError(null);
     const refresh=async()=>{
       if(refreshing||!active||lock.current)return;refreshing=true;
       try{
         const source=currentSession.current?.id;
-        const s=source?await api.session(source):await ensureSession(backend);
-        if(!active||lock.current||(source&&source!==currentSession.current?.id))return;
-        await adopt(s,version);setOnline(true);setLoaded(true);
+        if(source){
+          const s=await api.session(source);
+          if(!active||lock.current||source!==currentSession.current?.id)return;
+          await adopt(s,version);
+        }else if(currentWorld.current){
+          await api.health();
+        }else{
+          // Opening a lab initializes or restores its world, never an experiment.
+          const id=get(`${backend}:session`),token=get(`${backend}:token`),worldId=get(`${backend}:world`);
+          let restored:Session|null=null;
+          if(id&&token){
+            setSessionToken(token);
+            try{
+              restored=await api.session(id);
+              // A reload does not renew an old autonomous run without consent.
+              if(['active','stopping'].includes(restored.status))restored=await api.stopSession(id);
+            }catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}
+          }
+          if(!active||lock.current)return;
+          if(restored&&(!worldId||worldId===restored.world_id))await adopt(restored,version);
+          else{
+            let w:World|null=null;
+            if(worldId){try{w=await api.world(worldId);}catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}}
+            w??=await api.create(backend);
+            const state=await api.state(w.id);
+            if(!active||lock.current||version!==generation.current)return;
+            put(`${backend}:world`,w.id);currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);
+          }
+        }
+        if(active&&version===generation.current){setOnline(true);setLoaded(true);}
       }catch(e){if(active){setError(errorMessage(e));setOnline(false);setLoaded(true);}}
       finally{refreshing=false;}
     };
@@ -124,12 +157,18 @@ export function useRuntime(backend:Backend){
     }
   },[]);
   const start=()=>perform(async()=>{
-    await stop();inspecting.current=false;const s=await ensureSession(backend,currentWorld.current?.config,true);await adopt(s,generation.current);
+    await stop();inspecting.current=false;const s=await ensureSession(backend,stagedConfig.current??currentWorld.current?.config,true);await adopt(s,generation.current);
   });
   const apply=(config:Dict)=>perform(async()=>{
     await stop();inspecting.current=false;const w=currentWorld.current;
-    if(w)await api.environment(w.id,config);
-    const s=await ensureSession(backend,config,true);await adopt(s,generation.current);
+    if(!w)return;
+    const changed=await api.environment(w.id,config),state=await api.state(w.id);
+    // Retain user-selected inputs, including the explicit scientific control,
+    // so waiting or reloading between Apply and Start does not change the request.
+    stagedConfig.current=config;put(`${backend}:settings`,JSON.stringify(config));
+    currentWorld.current=changed;setWorld(changed);setObservation(state.observation as Dict);setLiveState(null);
+    currentSession.current=null;setSession(null);
+    if(currentExperiment.current){const e=await api.experiment(currentExperiment.current.id);currentExperiment.current=e;setExperiment(e);}
   });
   const reset=()=>perform(async()=>{
     await stop();const w=currentWorld.current;if(!w)return;

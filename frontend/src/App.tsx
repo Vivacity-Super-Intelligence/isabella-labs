@@ -37,7 +37,7 @@ export default function App(){
     isBusy(rt.experiment)?rt.experiment?.status==='queued'?'Queued':'Evaluating alternatives':
     rt.experiment?.status==='cancelled'?'Cancelled':rt.experiment?.status==='failed'?'Experiment failed':
     rt.experiment?.result.execution_evaluation&&!(rt.experiment.result.execution_evaluation as {success:boolean}).success?'Execution failed':
-    terminal&&rt.experiment?.selected_branch_id?'Task verified':terminal?'No feasible result':'World initialized';
+    terminal&&rt.experiment?.selected_branch_id?'Task verified':terminal?'No feasible result':'Ready to start';
   const counters=Object.assign({},...rt.events.filter(e=>e.kind==='progress').map(e=>e.details),rt.experiment?.result.search??{}) as Record<string,unknown>;
   const disabled=rt.mutating||!compatible||!rt.online;
   const science=useMemo(()=>backend==='scipy'&&compatible?scienceObservation(rt.observation):null,[backend,compatible,rt.observation]);
@@ -67,7 +67,7 @@ export default function App(){
               robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={false} playing={false} renderTime={currentFrame?.time??0}/></Suspense>:
                 <Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={numericalTime} playing={false}/></Suspense>}
             <div className="experiment-actions">
-              <button className="primary run-button" disabled={disabled} onClick={async()=>{try{await(rt.active?rt.stop():rt.run());}catch(e){setDownloadError(errorMessage(e));}}}>{rt.active?'Stop experiments':'Start autonomous lab'}<ArrowRight size={18}/></button>
+              <button className="primary run-button" disabled={disabled} onClick={async()=>{try{await(rt.active?rt.stop():rt.run());}catch(e){setDownloadError(errorMessage(e));}}}>{rt.active?'Stop experiments':'Start experiments'}<ArrowRight size={18}/></button>
               <button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':robotics?'Change conditions':'Observation settings'}</button>
               <button className="secondary" disabled={disabled} onClick={rt.reset}><ArrowsClockwise size={18}/>Reset world</button>
             </div>
@@ -76,7 +76,7 @@ export default function App(){
             <div className="section-heading"><h2>{cloth?'Best verified folds':robotics?'Best verified placements':'Hypotheses'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
             {editing&&rt.world?cloth?<ClothSettings key={rt.world.id} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:
               <Settings key={rt.world.id} backend={backend} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
-              {!ranked.length?<p className="results-empty">{rt.busy?'Computing and validating independent alternatives…':terminal?'No feasible candidate. Measured failures are retained below.':'Initializing an actual physical world…'}</p>:
+              {!ranked.length?<p className="results-empty">{rt.busy?'Computing and validating independent alternatives…':terminal?'No feasible candidate. Measured failures are retained below.':rt.loaded?'Choose Start experiments when you’re ready. You can change the settings first.':'Initializing an actual physical world…'}</p>:
                 ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} robotics={robotics} choose={()=>setBranchId(b.id)} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
               {downloadError&&<p role="alert" className="negative">{downloadError}</p>}
               <p className="decision" data-testid="decision">{compatible?String(rt.experiment?.error??rt.experiment?.result.conclusion??''):''}</p>

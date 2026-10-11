@@ -41,3 +41,7 @@ Railway provisioning was refused: **"Your trial has expired. Please select a pla
 ## Handoff
 
 Read `FRONTEND_HANDOFF.md` for exact endpoints, request/response examples, capability headers, WSS formats, robot coordinates, recorded evidence formats and Claude Code commands. Validation/report files: `ARCHITECTURE.md`, `ROBOTICS_VALIDATION.md`, `SCIENTIFIC_VALIDATION.md`, `CLOTH_VALIDATION.md`, `IMPORT_VALIDATION.md`, `PERFORMANCE_REPORT.md`, `DEPLOYMENT_GUIDE.md`, `IMPLEMENTATION_STATUS.md`. `DEMO_GUIDE.md` is the current fresh-computation presentation script; old V2 playback documents are historical.
+
+## Manual-start release
+
+The page now waits for Start experiments. Lab switches, reloads and Apply settings do not submit experiments; explicitly staged settings survive reload. Existing active sessions are cancelled on reload and completed evidence stays inspectable. Layout/styles and physics are unchanged. Local browser checks passed (14 checks); production checks passed (15 checks), including zero automatic session submissions, real SciPy control fits, 5,000 screened pickup commands / three validations / fresh successful execution, eventual safe cancellation and mobile layout. The first production harness incorrectly expected synchronous cancellation; it was corrected to wait for the actual stopped state. Source TypeScript/production builds passed (latest local Vite 12.57 s, remote 2.56 s). Proof: artifacts/manual-start-public.json and manual-start-deployment.json. Backend tests were not rerun for this frontend-only release.

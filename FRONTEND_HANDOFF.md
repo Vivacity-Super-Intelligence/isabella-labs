@@ -2,6 +2,8 @@
 
 The existing React/TypeScript/Three.js frontend now runs bounded autonomous laboratories. **Do not scaffold over it or reinstate recorded playback.** The main robot/cloth scene consumes fresh authoritative MuJoCo states after independently validating candidates. Scientific paths are executed SciPy predictions. Result selection inspects evidence; it does not replay a branch in the main scene. Historical V2 release documents describe an earlier interface and are not the current contract.
 
+**Manual start:** loading, reloading, switching laboratories and applying settings never create experiment sessions. The existing main button, **Start experiments**, is the only session-creation path. Initial loading creates/restores a stationary world via the existing world API. Applying settings updates geometry/observations and invalidates old results without submitting experiments. Reloading cancels an existing active session instead of silently continuing it. Completed evidence remains inspectable. Layout, styles and simulation algorithms are unchanged.
+
 ## Exact files to read
 
 | File | Purpose |

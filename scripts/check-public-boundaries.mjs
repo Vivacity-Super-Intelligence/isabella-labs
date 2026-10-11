@@ -23,6 +23,7 @@ try{
       const body=route.request().postDataJSON();body.max_cycles=1;await route.continue({postData:JSON.stringify(body)});
     });
     await page.goto(url,{waitUntil:'domcontentloaded'});
+    await page.getByRole('button',{name:'Start experiments',exact:true}).click();
     await page.getByTestId('branch-row').first().waitFor({timeout:90000});
     await page.waitForFunction(()=>window.__vivacityScience?.predictedPosition,{timeout:60000});
     const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,

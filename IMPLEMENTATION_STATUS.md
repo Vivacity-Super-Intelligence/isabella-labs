@@ -59,3 +59,7 @@ The historical "Hook failed: hook exited with code 1" came from a Windows-incomp
 ## Reproduction
 
 Use the commands in `README.md` and `FRONTEND_HANDOFF.md`. The live browser demonstration script creates new real jobs, not expected-winner fixtures. For exact numerical extraction from its persistent DB, use `scripts.export_master_measurements` and `scripts.export_frontend_examples` with their `--database`/`--proof`/`--output` arguments. Exported capabilities and generating truth are forbidden by the example exporter.
+
+## Manual-start release
+
+The page now waits for Start experiments. Lab switches, reloads and Apply settings do not submit experiments; explicitly staged settings survive reload. Existing active sessions are cancelled on reload and completed evidence stays inspectable. Layout/styles and physics are unchanged. Local browser checks passed (14 checks); production checks passed (15 checks), including zero automatic session submissions, real SciPy control fits, 5,000 screened pickup commands / three validations / fresh successful execution, eventual safe cancellation and mobile layout. The first production harness incorrectly expected synchronous cancellation; it was corrected to wait for the actual stopped state. Source TypeScript/production builds passed (latest local Vite 12.57 s, remote 2.56 s). Proof: artifacts/manual-start-public.json and manual-start-deployment.json. Backend tests were not rerun for this frontend-only release.
