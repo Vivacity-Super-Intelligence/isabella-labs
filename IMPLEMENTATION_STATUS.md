@@ -1,4 +1,41 @@
-# Implementation status — current Render handoff, 2026-10-11
+# Implementation status — current Render handoff, 2026-10-12
+
+## Configurable pickup release (2026-10-12)
+
+**Deployed and tested:** the public robotics page lets a visitor set the cube pickup
+position, placement position and side length from 40 to 60 mm. Applying conditions
+rebuilds the actual MuJoCo geometry without starting an experiment; Start submits
+independent physics trials. The frontend asks `/health` for the host capacity and
+displays the actual completed trial count and backend event log. On the current
+Render Free service, that capacity is **8**, not 5,000. The requested 5,000
+visitor-configured trials remain **incomplete** on this 0.1 CPU / 512 MB host.
+The separate completed cloud 5,000-trial audit is reproducible evidence of the
+backend on a larger runner, not a live per-visitor feature.
+
+- Backend source: `e4d6d2c4f0ad23c4d34c32bd0751a19d3af1c704`; Render deploy
+  `dep-db60ej0473hc73clmuo0` succeeded. The public OpenAPI exposes
+  `cube_half_size` bounded to 0.02–0.03 m; `/health` reports a limit of 8.
+- Frontend: Vercel deployment `dpl_w1tHiBqKWM4bzNmso4iWnjtVXETQ` is ready and
+  aliased to `https://demo.tryvivacity.com/`. Its requested budget is 5,000,
+  clamped to the live host limit before each session. The production TypeScript
+  and Vite build passed (5,125 modules, 6.21 s); the existing large Three.js
+  vendor-chunk warning remains.
+- Public browser verification: a visitor set the cube to **60 mm**, applied the
+  new physical scene, then started explicitly. **8/8 real backend physics
+  trials** completed and were feasible. A separate fresh authoritative
+  execution reported **1.7 mm** goal error, **zero prohibited contacts**, and
+  persisted successfully. The result appeared after about **4:03** of event
+  time; reopening Change conditions still showed 60 mm. Captured browser
+  console errors: **zero**. This is one measured scene, not a reliability
+  guarantee across arbitrary positions or object sizes.
+- Local full backend suite: **136 passed, 1 Linux-only skipped**, 439.86 s;
+  the added legacy-snapshot check passed separately. The pushed Docker image
+  passed **138 tests** in 225.85 s plus the 512 MB lab check (**1 passed** in
+  41.74 s). The upstream Starlette deprecation warning remains.
+
+The object is repositioned with the settings sliders; direct pointer dragging
+in the 3D scene is not implemented. The arm performs the physical pickup and
+placement after Start. Render Free still sleeps and uses ephemeral storage.
 
 **Current deployment truth:** the UI uses Render Free at `https://vivacity-runtime.onrender.com`
 and `https://demo.tryvivacity.com`. This free service sleeps after inactivity and

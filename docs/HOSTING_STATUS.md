@@ -1,4 +1,25 @@
-# Render hosting verification — 2026-10-11
+# Render hosting verification — 2026-10-12
+
+## Current configurable pickup release
+
+Render deployment `dep-db60ej0473hc73clmuo0` runs backend commit
+`e4d6d2c4f0ad23c4d34c32bd0751a19d3af1c704`. Its Docker CI passed
+**138 tests** (225.85 s) and the constrained-memory lab check **1 test**
+(41.74 s). Vercel `dpl_w1tHiBqKWM4bzNmso4iWnjtVXETQ` built successfully
+and aliases `https://demo.tryvivacity.com/`. Public `/health` reports
+`max_physics_trials: 8`; public OpenAPI confirms `cube_half_size` 0.02–0.03 m.
+
+An actual public-browser run set a 60 mm cube, applied the physical scene,
+submitted eight backend trials, observed **8/8 feasible**, and watched the
+independent authoritative execution finish with **1.7 mm** placement error,
+**zero prohibited contacts**, and a persisted result. The page showed backend
+trial events and no captured console errors. The frontend requests up to 5,000
+trials in its build, then limits each session to `/health` capacity. Thus the
+current public host runs eight, not 5,000, per visitor. The prior hosted 5,000
+audit was a separate backend Docker run with 2 GB of memory. Free hosting
+remains non-durable and can sleep; no paid plan was activated.
+
+The rest of this document records earlier deployments and historical evidence.
 
 ## Current verified native-import release
 
