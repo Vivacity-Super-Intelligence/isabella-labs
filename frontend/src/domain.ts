@@ -9,6 +9,7 @@ export type Dict = Record<string, unknown>;
 export interface BodyPose { name: string; position: Vec3; quaternion_wxyz: Quat }
 export interface Contact { bodies: string[]; geoms: string[]; penetration_m: number; category: string }
 export interface RobotFrame {
+  environment_geometries?: {name:string;type:string;position:Vec3;quaternion_wxyz:number[];size:Vec3;rgba:number[]}[];
   time: number; qpos: number[]; qvel: number[]; ctrl: number[];
   end_effector: Vec3; body_transforms: BodyPose[];
   target_pose: { position: Vec3; rotation_matrix: number[][] }; contacts: Contact[];

@@ -1,0 +1,12 @@
+{
+  "url": "http://127.0.0.1:5174/",
+  "api": "http://127.0.0.1:8002",
+  "checks": [],
+  "errors": [],
+  "frames": 0,
+  "events": 0,
+  "started_unix_s": 1791738174.052,
+  "status": "failed",
+  "failure": "response.json: Protocol error (Network.getResponseBody): Request content was evicted from inspector cache\nResponse body is not available for a response that was navigated away from. Read response.body() before triggering any navigation.\n    at P:\\VIVACITY\\DEMO-\\scripts\\check-orbital-live.mjs:24:104",
+  "finished_unix_s": 1791738207.733
+}

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ArrowsClockwise, Pause, Play, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
+import { ArrowRight, ArrowsClockwise, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
 import { useRuntime, isBusy } from './useRuntime';
 import { API, api, errorMessage } from './api';
 import { format, robotFrame, clothFrame, scienceObservation, type Backend, type Branch, type RobotFrame, type ClothFrame } from './domain';
@@ -69,7 +69,7 @@ export default function App(){
               robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={false} playing={false} renderTime={currentFrame?.time??0}/></Suspense>:
                 <Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={numericalTime} playing={false}/></Suspense>}
             <div className="experiment-actions">
-              <button className="primary run-button" disabled={disabled||rt.session?.status==='stopping'} onClick={rt.active?rt.togglePause:rt.run}>{rt.active?rt.session?.pause_requested?'Resume simulation':'Pause simulation':'Start experiments'}{rt.active?rt.session?.pause_requested?<Play size={18}/>:<Pause size={18}/>:<ArrowRight size={18}/>}</button>
+              <button className="primary run-button" disabled={disabled||rt.active} onClick={rt.run}>Start experiments<ArrowRight size={18}/></button>
               {rt.active&&<button className="secondary" disabled={disabled||rt.session?.status==='stopping'} onClick={async()=>{try{await rt.stop();}catch(e){setDownloadError(errorMessage(e));}}}>Stop experiments</button>}
               <button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':robotics?'Change conditions':'Observation settings'}</button>
               <button className="secondary" disabled={disabled} onClick={rt.reset}><ArrowsClockwise size={18}/>Reset world</button>

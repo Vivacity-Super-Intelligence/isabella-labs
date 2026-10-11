@@ -208,6 +208,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/imports/{import_id}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify Import */
+        post: operations["verify_import_v1_imports__import_id__verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{import_id}/configure-task": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Configure Import Task */
+        post: operations["configure_import_task_v1_imports__import_id__configure_task_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/worlds": {
         parameters: {
             query?: never;
@@ -733,13 +767,12 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "visual_only" | "configuration_required";
+            status: "visual_only" | "configuration_required" | "physics_verifying" | "physics_valid" | "actuation_verified" | "physics_failed" | "manipulation_configured";
             /**
              * Physics Ready
              * @default false
-             * @constant
              */
-            physics_ready: false;
+            physics_ready: boolean;
             /** Preview Available */
             preview_available: boolean;
             /** Sha256 */
@@ -754,6 +787,17 @@ export interface components {
             };
             /** Diagnostics */
             diagnostics: string[];
+            /**
+             * Readiness
+             * @default []
+             */
+            readiness: string[];
+            /** Capabilities */
+            capabilities?: {
+                [key: string]: unknown;
+            } | null;
+            /** Configured World Id */
+            configured_world_id?: string | null;
         };
         /** LiveState */
         LiveState: {
@@ -809,6 +853,14 @@ export interface components {
              * @enum {string}
              */
             task: "reach" | "pick_place";
+            /**
+             * Scene Profile
+             * @default workcell
+             * @enum {string}
+             */
+            scene_profile: "workcell" | "orbital_salvage";
+            /** Source Import Id */
+            source_import_id?: string | null;
             /**
              * Obstacle Enabled
              * @default true
@@ -1523,6 +1575,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_import_v1_imports__import_id__verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    configure_import_task_v1_imports__import_id__configure_task_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
                 };
             };
             /** @description Validation Error */

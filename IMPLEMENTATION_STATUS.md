@@ -6,10 +6,11 @@ loses SQLite data on restart. Its true pickup limit is eight physics trials. Lat
 release and actual test results: `docs/HOSTING_STATUS.md`. The 5000-trial audit
 and preceding test/browser tables below are historical local/prior-release results,
 not proof of the current free Render service. A measured slow-CPU pickup execution
-timeout is addressed with a tested 300-second host wall deadline; do not call the
-current public pickup journey successful until its verified redeploy is live.
+timeout is addressed with a tested 300-second host wall deadline. The public
+pickup journey was verified on release 2f61389; current Orbital verification
+and release evidence is recorded in docs/FINAL_VERIFICATION.md.
 
-Current code includes real Pause/Resume and a completed local 5,000-trial MuJoCo audit. The latest Render deployment image passed **125 tests**, plus a separate 512 MB container test executing repeated pickup, cloth and SciPy. Actual current release evidence, public checks and failed Windows deadline checks are recorded in `docs/HOSTING_STATUS.md`. Earlier release artifacts remain evidence of those revisions. Architecture/API handoff: `ARCHITECTURE.md`, `FRONTEND_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
+The latest Render deployment image passed **135 tests**, plus a separate 512 MB lab test. Windows with bounded numerical threads passed **134 tests with one Linux-only skip**; unrestricted Windows deadline failures remain preserved. Fixed pickup benchmark: **20/20**. Final public adapted Orbital journey passed **12 checks**, including blocked-reactor invalidation and real failed alternatives, with **30,757 actual physics steps** and **1.717717 mm** measured successful placement error. Both public aliases passed real SciPy fits, reload, mobile layout and offline recovery. Current UI uses Start/Stop without video controls; native Pause/Resume remains a tested API capability. The 5,000-trial audit is local historical evidence. Exact current evidence, limitations and reproduce commands: `docs/FINAL_VERIFICATION.md`, `docs/HOSTING_STATUS.md`. API/frontend contracts: `FRONTEND_HANDOFF.md`, `docs/ORBITAL_HANDOFF.md`, `openapi.json` and `docs/openapi.json`.
 
 **Render Free is provisioned:** `https://vivacity-runtime.onrender.com`, with both public frontend aliases connected. Paid activation remains blocked by the payment method requirement despite the existing credits. Free hosting sleeps after 15 idle minutes; SQLite data is ephemeral. Public pickup uses eight real physics trials and rejects oversized jobs. Always-on availability, durable cloud persistence and a completed 5,000-trial cloud run are **not** implemented by this free fallback. `docs/HOSTING_STATUS.md` records the current configuration and executed evidence.
 

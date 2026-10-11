@@ -1,5 +1,19 @@
 # Scientific validation
 
+Current public numerical verification: central-only held-out RMSE
+**0.3075120601**, additional-influence RMSE **0.00102038844**, recovered synthetic
+perturbing mass **0.1198718478** and central parameter **0.9999784517**. Actual
+integration calls, predictions, residuals and local uncertainty are retained in
+`artifacts/render-final-labs-long.json`. The public API control independently
+rejected unnecessary mass (`artifacts/render-live-demo.json`). Both public
+aliases passed real new fits, reload and offline recovery. The current Linux
+image reran all parameter recovery/hidden-truth/holdout tests successfully.
+See `docs/FINAL_VERIFICATION.md` for release scope and failure evidence.
+
+The mathematical model remains planar, synthetic and simplified; known initial
+conditions and known fixed perturber location constrain inference. It does not
+discover a new physical law or a real astronomical object.
+
 Existing restricted 2D test-particle gravity uses `solve_ivp`, training `least_squares`, held-out trajectories, training BIC and local linearized uncertainty. A fixed external perturber and known initial conditions are explicit model assumptions. Hidden generating mass is removed from the fitting world. Either hypothesis can win. It is model comparison, not discovery of a new physical law.
 
 The compatibility baseline executed scientific tests within 86/86 passes (`artifacts/master-baseline.xml`). The new five-test supervisor run passed, including two fresh science cycles with different observations, settings, seeds and selected hypotheses. The complete local browser journey additionally verified actual solver predictions, positive integration calls, no generating parameters in fitting observations, and exact `[x,y,0]` geometry (`artifacts/master-live-verification.json`).

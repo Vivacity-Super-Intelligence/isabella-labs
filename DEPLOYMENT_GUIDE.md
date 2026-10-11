@@ -1,5 +1,17 @@
 # Current deployment — 2026-10-11
 
+Latest native-import backend: `69013a8f6b538398a042a4f862638aac50865f20`, live
+Render deployment `dep-db5s8hks728c738sccf0`, verified 2026-10-11 22:46 IST.
+Exact source passed **135 Linux tests** and a separate **512 MB test**.
+Frontend `dpl_9kYzmrxJgMi2mLFmB8fAX8a1bBEX`, immutable
+`https://vivacity-demo-qey7nhf4o-tanishs-projects-66633ee2.vercel.app/`, both public
+aliases assigned. Public Orbital upload/native probe/configuration/three trials/
+fresh delivery/exports/geometry correspondence/mobile/reload and blocked-reactor
+replanning passed **12 checks**. Current proof: `docs/FINAL_VERIFICATION.md`,
+`artifacts/orbital-public-final.json`. The Orbital-only camera correction leaves
+workcell physics and styling unchanged.
+The following older release detail is historical where it differs.
+
 ## Current hosting status
 
 The frontend at **https://demo.tryvivacity.com/** connects to the live Render API
@@ -12,7 +24,7 @@ idle and has ephemeral SQLite storage. Public pickup runs eight real physics tri
 These limits cannot deliver always-on hosting or durable history. The paid upgrade
 was blocked by Render's card requirement after the debit card was declined; no
 payment action was made. The constrained-host 300-second execution deadline passed
-125 Linux tests plus the 512 MB smoke and is deployed. For the final public run, use
+135 Linux tests plus the 512 MB smoke and is deployed. For the final public run, use
 `docs/HOSTING_STATUS.md` as the current behavior.
 
 The rest of this file records the earlier temporary-tunnel deployment and is

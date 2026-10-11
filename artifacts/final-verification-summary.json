@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-11",
+  "frontend_url": "https://demo.tryvivacity.com/",
+  "backend_url": "https://vivacity-runtime.onrender.com",
+  "backend_source": "69013a8f6b538398a042a4f862638aac50865f20",
+  "render_deployment": "dep-db5s8hks728c738sccf0",
+  "vercel_deployment": "dpl_9kYzmrxJgMi2mLFmB8fAX8a1bBEX",
+  "linux_tests": {"passed": 135, "failed": 0, "skipped": 0, "seconds": 351.494},
+  "container_512_mb_test": {"passed": 1, "seconds": 56.313},
+  "windows_bounded_threads": {"passed": 134, "failed": 0, "skipped": 1, "seconds": 408.16},
+  "windows_unrestricted_failure_preserved": {"passed": 132, "failed": 2, "skipped": 1, "seconds": 729.45},
+  "fixed_scene_pickup_benchmark": {"successful": 20, "failed": 0, "seconds": 127.969784498, "randomized_geometry": false},
+  "public_orbital": {
+    "report": "artifacts/orbital-public-final.json",
+    "checks_passed": 12,
+    "state_frames": 428,
+    "events": 17,
+    "independent_native_trials": 3,
+    "fresh_selected_execution": true,
+    "total_physics_steps": 30757,
+    "placement_error_m": 0.0017177174115445286,
+    "wall_seconds": 179.38016405596863,
+    "cpu_seconds": 26.848431473,
+    "replay_payload_bytes": 2790796,
+    "changed_reactor_invalidated_results": true,
+    "blocked_scene_failed_branches": 3,
+    "blocked_scene_total_physics_steps": 384,
+    "blocked_scene_selected_branch": null
+  },
+  "live_http_wss_science_replan_report": "artifacts/orbital-release-live-demo.json",
+  "final_both_aliases_boundary_report": "artifacts/orbital-final-aliases-boundaries.json",
+  "openapi_matches_live": true,
+  "rest_path_count": 26,
+  "limitations": [
+    "Render Free sleeps after idle time; always-on and persistent disk blocked by payment-method requirement.",
+    "SQLite and import records are ephemeral on the deployed free instance.",
+    "Original Orbital robot is not grasp-ready; explicit checksum-matched Panda adaptation is disclosed.",
+    "Cloth folding uses a pre-attached folding bar and remains experimental.",
+    "Generic imports do not automatically acquire manipulation controllers.",
+    "5000-trial evidence is historical local execution, not a cloud run or randomized reliability study."
+  ]
+}

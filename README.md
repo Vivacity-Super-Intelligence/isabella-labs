@@ -1,5 +1,10 @@
 # Vivacity — Viva Physics
 
+Latest verified release: [docs/FINAL_VERIFICATION.md](docs/FINAL_VERIFICATION.md).
+Linux deployment-image suite: **135 passed**; Windows with numerical thread
+limits: **134 passed, one Linux-only skip**. Orbital import workflow and precise
+geometry/API contract: [docs/ORBITAL_HANDOFF.md](docs/ORBITAL_HANDOFF.md).
+
 The investor workspace executes real MuJoCo robot/cloth dynamics and SciPy orbital model comparisons through one persisted simulation runtime. The React frontend runs bounded autonomous sessions, validates independent alternatives, and streams a **fresh selected physical execution**. It does not substitute prerecorded playback, scripted mesh attachment or canned numerical results.
 
 Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). [vivacity-investor-demo.vercel.app](https://vivacity-investor-demo.vercel.app/) aliases the same release. Backend: [vivacity-runtime.onrender.com](https://vivacity-runtime.onrender.com/docs). Render Free is the fallback after the required card was declined; it sleeps after 15 idle minutes and its SQLite storage is ephemeral. The public pickup budget is eight real physics trials; local/default paid configuration retains 5,000. Current release, executed verification and hosting limits: [docs/HOSTING_STATUS.md](docs/HOSTING_STATUS.md).
@@ -7,11 +12,11 @@ Current public frontend: [demo.tryvivacity.com](https://demo.tryvivacity.com/). 
 ## Verified scope
 
 - Contact-driven Panda cube grasp, lift, retention, transport, release and table placement; a fixed benchmark completed **20/20 real executions**. Full integration-state branching, measured failures and deterministic re-execution are tested.
-- Exhaustive Object Pickup mode requests 5,000 independent real MuJoCo trials, measured ranking and compact per-trial evidence, retaining the best full traces and fresh authoritative execution. Legacy/cloth screening and validation remain separately counted. Real worker Pause/Resume preserves simulation state; Stop cancels it. See [PAUSE_TRIALS_VALIDATION.md](PAUSE_TRIALS_VALIDATION.md) for exact semantics and completed verification evidence.
+- Local Object Pickup can request 5,000 independent real MuJoCo trials; the free public host supports eight. Measured ranking retains the best full traces and fresh authoritative execution. Screening and physics counts are separate. UI uses explicit Start/Stop, without video controls. Tested native Pause/Resume remains an API capability; its earlier UI proof is historical.
 - Leased autonomous sessions with fresh worlds/seeds/conditions, independent validation and fresh authoritative execution, REST/WSS state streaming, capability isolation, cancellation and bounded workers.
 - Restricted 2D invisible-planet inference: `solve_ivp`, training `least_squares`, chronological holdout, complexity penalty, local uncertainty and hidden truth isolation. Perturbed and no-influence control cases select different models from actual fits.
 - Experimental actuated Panda/flex folding fixture, pre-attached bar and fixed hinge; separate fixed benchmark **5/5**, with actual release and settling. No general cloth grasp acquisition is claimed.
-- Bounded static GLB/glTF/ZIP previews and robot-description inspection. Imported native robot/world execution is unavailable.
+- Bounded visual GLB/glTF imports, explicitly requested isolated native MJCF/URDF capability probes, and executable adapted Orbital Salvage task. Generic imported manipulation is not automatic. Orbital replaces the original inadequate robot and preserves source/adaptation provenance.
 
 Earlier full regression: **119 passed**, **410.15 s** on Windows. Latest deployment-image results and failed Windows deadline checks are recorded in [docs/HOSTING_STATUS.md](docs/HOSTING_STATUS.md). Historical feature verification: [DEMO_STATUS.md](DEMO_STATUS.md), [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md), [ROBOTICS_VALIDATION.md](ROBOTICS_VALIDATION.md), [SCIENTIFIC_VALIDATION.md](SCIENTIFIC_VALIDATION.md), [CLOTH_VALIDATION.md](CLOTH_VALIDATION.md), [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md), [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
 
@@ -29,7 +34,7 @@ npm run build --prefix frontend
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-demo.ps1 -NoBrowser -Dev
 ```
 
-Open **http://127.0.0.1:5173/**. First visit stays idle until you press Start experiments. Choose Robotics → Object Pickup / Cloth Folding, or Discovery. Pause simulation freezes the actual worker; Resume continues the same state. Stop experiments cancels backend work; camera controls only change the view. Apply conditions stops work safely and stages changed physical geometry; press Start experiments to compute new alternatives. Result-card selection only inspects evidence. Downloads contain real measured traces/states/evaluations. One Technical Inspector retains useful actual messages.
+Open **http://127.0.0.1:5173/**. First visit stays idle until you press Start experiments. Choose Robotics → Object Pickup / Cloth Folding, Discovery, or Import World. Start/Stop controls real computation; camera controls only change the view. Apply conditions stops work safely and stages changed physical geometry; press Start experiments to compute new alternatives. Result-card selection only inspects evidence. Downloads contain real measured traces/states/evaluations. One Technical Inspector retains useful actual messages. Native Pause/Resume is available through the API, without player controls in the UI.
 
 `scripts/stop-demo.ps1` stops only identity-matching owned local processes. Stop an old owned server before starting a changed backend; readiness alone does not reload Python. If Windows holds an old output font open, use a fresh directory: `npm run build --prefix frontend -- --outDir ../data/master-build`.
 

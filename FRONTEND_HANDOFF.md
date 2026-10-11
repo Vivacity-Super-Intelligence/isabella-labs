@@ -1,5 +1,21 @@
 # Current frontend handoff — master runtime, 2026-10-11
 
+Final release proof: `docs/FINAL_VERIFICATION.md`. **135 Linux tests passed**;
+Windows with bounded numerical threads: **134 passed, one Linux-only skip**.
+Orbital API/geometry/readiness/export contract: `docs/ORBITAL_HANDOFF.md`.
+New endpoints are `POST /v1/imports/{id}/verify` (202 background capability probe)
+and `POST /v1/imports/{id}/configure-task` (200 explicit trusted adaptation).
+OpenAPI exports are current and match the live server's 26 REST paths exactly.
+
+React integration files: `frontend/src/ImportWorld.tsx` handles explicit probe
+and configured readiness; `OrbitalTask.tsx` streams measured states, manages
+bounded native trials/Stop/settings/downloads; `RobotView.tsx` renders actual
+world-space imported primitives beside Panda meshes. `domain.ts` adds the
+measured geometry format; generated REST types are `src/generated/api.d.ts`.
+Existing styles/assets are retained. No new frontend scaffold is necessary.
+Main controls now use Start/Stop without pause/play/timeline/speed controls.
+Backend native Pause/Resume remains available for API users.
+
 **Hosting update:** the frontend uses `https://vivacity-runtime.onrender.com`.
 Render Free is the fallback after the required payment method was declined.
 The public pickup budget is eight real physics trials (`VITE_PHYSICS_TRIALS=8`);
@@ -37,7 +53,7 @@ The existing React/TypeScript/Three.js frontend now runs bounded autonomous labo
 
 Input-only sample requests: `fixtures/pick_place.json`, `pick_place_blocked.json`, `autonomous_pick_place.json`; these contain configuration and budgets, never prescribed solver outputs or winners.
 
-The old `usePlayback.ts` was deleted intentionally. Pause/Resume now controls the actual simulation worker, preserving its state; Stop cancels it. There is no video playback, timeline, scrubber or playback-speed control. Camera movement remains independent.
+The old `usePlayback.ts` was deleted intentionally. Start/Stop controls actual simulation work; camera movement remains independent. Native Pause/Resume preserves worker state through the API, but those buttons are removed from the current UI. There is no video playback, timeline, scrubber or playback-speed control.
 
 ## Setup and exact Claude Code commands
 

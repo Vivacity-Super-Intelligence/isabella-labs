@@ -1,8 +1,9 @@
-"""Bounded, data-only imports. Uploaded descriptions never reach a simulator.
+"""Bounded imports. Native compilation requires an explicit isolated probe.
 
 Static glTF triangles are decoded into a trusted preview representation. XML
 and bundles are inspected without extracting files, resolving entities, loading
-native plugins, compiling MJCF, or accessing their resource paths on disk.
+native plugins or accessing their resource paths on disk. A separate disposable
+worker compiles scoped in-memory data only after an explicit verification request.
 """
 import base64
 import hashlib
@@ -21,7 +22,7 @@ import numpy as np
 MAX_UPLOAD=16*1024*1024
 MAX_EXPANDED=32*1024*1024
 MAX_VERTICES=100000
-EXTENSIONS={'.glb','.gltf','.bin','.xml','.mjcf','.urdf','.png','.jpg','.jpeg','.json'}
+EXTENSIONS={'.glb','.gltf','.bin','.xml','.mjcf','.urdf','.png','.jpg','.jpeg','.json','.obj','.stl'}
 
 
 def safe_name(name):
@@ -208,7 +209,60 @@ def inspect_xml(data,extension,files):
 
 
 class ImportService:
-    def __init__(self,root):self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True);self.lock=threading.Lock()
+    def __init__(self,root):
+        self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True);self.lock=threading.Lock()
+        self.verifying=None
+        for path in self.root.glob('*.json'):
+            payload=json.loads(path.read_bytes())
+            if payload['record']['status']=='physics_verifying':
+                payload['record']['status']='physics_failed'
+                payload['record']['diagnostics'].append('Native verification was interrupted by server restart; retry explicitly.')
+                self._save(payload)
+
+    def _load(self,identifier):
+        try:identifier=str(uuid.UUID(identifier))
+        except ValueError:raise KeyError('import missing')
+        path=self.root/f'{identifier}.json'
+        if not path.exists():raise KeyError('import missing')
+        return json.loads(path.read_bytes())
+
+    def _save(self,payload):
+        target=self.root/f'{payload["record"]["id"]}.json'
+        encoded=json.dumps(payload,allow_nan=False).encode()
+        existing_bytes=sum(p.stat().st_size for p in self.root.glob('*.json') if p!=target)
+        if existing_bytes+len(encoded)>128*1024*1024:raise ValueError('import storage quota reached; administrator cleanup required')
+        temp=target.with_suffix('.tmp');temp.write_bytes(encoded);temp.replace(target)
+
+    def verify(self,identifier,executor):
+        with self.lock:
+            payload=self._load(identifier);record=payload['record']
+            if record['status']=='physics_verifying':return record
+            if self.verifying is not None:raise ValueError('another native probe is queued or running; retry after it completes')
+            if not payload.get('source'):raise ValueError('visual-only imports have no native physics description')
+            record['status']='physics_verifying';self.verifying=identifier;self._save(payload)
+            try:executor.submit(self._verify,identifier)
+            except Exception:
+                self.verifying=None;record['status']='physics_failed'
+                record['diagnostics'].append('Native probe could not be queued.');self._save(payload)
+                raise ValueError('native probe could not be queued') from None
+            return record
+
+    def _verify(self,identifier):
+        from .import_physics import native_probe
+        payload=self._load(identifier);record=payload['record']
+        try:
+            result=native_probe(payload['source'],record['sha256'])
+            record['capabilities']=result
+            record['status']='actuation_verified' if result['robot_actuation_verified'] else 'physics_valid'
+            record['readiness']=['physics_model_valid']+(['robot_actuation_verified'] if result['robot_actuation_verified'] else [])
+            record['diagnostics']=['MuJoCo compiled the model and integrated a bounded actual actuator probe.',
+                                   'No manipulation task is configured. Actuation alone does not verify a grasp or delivery.']
+        except Exception as error:
+            record['status']='physics_failed';record['readiness']=[]
+            record['diagnostics']=['Native physics verification failed: '+str(error)[:700]]
+        finally:
+            with self.lock:
+                self.verifying=None;self._save(payload)
 
     def create(self,filename,data):
         name=safe_name(filename)
@@ -224,7 +278,11 @@ class ImportService:
             else:raise ValueError('unsupported entrypoint format')
         except (KeyError,TypeError,IndexError,OverflowError,RecursionError,struct.error) as exc:raise ValueError('malformed or unsupported scene content') from exc
         record={'schema_version':'vivacity.import/1.0','id':str(uuid.uuid4()),'filename':filename,'entrypoint':name,'format':ext[1:],'status':status,'physics_ready':False,'preview_available':preview is not None,'sha256':hashlib.sha256(data).hexdigest(),'uploaded_bytes':len(data),'created_unix_s':time.time(),'summary':summary|bundle,'diagnostics':diagnostics}
-        payload=json.dumps({'record':record,'preview':preview},allow_nan=False).encode()
+        source=None
+        if ext in ('.xml','.mjcf','.urdf'):
+            source={'entrypoint':name,'content':base64.b64encode(content).decode(),
+                    'assets':{k:base64.b64encode(v).decode() for k,v in files.items() if k!=name and k!='manifest.json'}}
+        payload=json.dumps({'record':record,'preview':preview,'source':source},allow_nan=False).encode()
         with self.lock:
             existing=list(self.root.glob('*.json'))
             if len(existing)>=100 or sum(p.stat().st_size for p in existing)+len(payload)>128*1024*1024:raise ValueError('import storage quota reached; administrator cleanup required')
@@ -232,10 +290,31 @@ class ImportService:
         return record
 
     def get(self,identifier,preview=False):
-        try:identifier=str(uuid.UUID(identifier))
-        except ValueError:raise KeyError('import missing')
-        path=self.root/f'{identifier}.json'
-        if not path.exists():raise KeyError('import missing')
-        result=json.loads(path.read_bytes());value=result['preview' if preview else 'record']
+        result=self._load(identifier);value=result['preview' if preview else 'record']
         if value is None:raise ValueError('this description has no supported triangle preview')
         return value
+
+    def configure_orbital(self, identifier, runtime):
+        from .orbital import SOURCE_SHA256
+        from .schemas import CreateWorld, RoboticsConfig
+        with self.lock:
+            payload = self._load(identifier)
+            record = payload['record']
+            if record['sha256'] != SOURCE_SHA256 or not (record.get('capabilities') or {}).get('robot_actuation_verified'):
+                raise ValueError('only the supplied, successfully verified Orbital fixture has a configured manipulation adapter')
+            existing = record.get('configured_world_id')
+            if existing:
+                try:
+                    runtime.get_world(existing)
+                    return record
+                except KeyError:
+                    pass
+            config = RoboticsConfig(task='pick_place', scene_profile='orbital_salvage',
+                                    source_import_id=identifier, obstacle_enabled=True,
+                                    obstacle_position=[.75, -.4, .33], obstacle_size=[.18, .18, .33])
+            world = runtime.create_world(CreateWorld(backend='mujoco', config=config))
+            record.update(status='manipulation_configured', physics_ready=True, configured_world_id=world['id'])
+            record['readiness'] = ['physics_model_valid', 'robot_actuation_verified', 'manipulation_configured']
+            record['diagnostics'].append('Configured an adapted Panda salvage task. The original robot is replaced; cargo resized and endpoints relocated. Execution success still requires measured validation.')
+            self._save(payload)
+            return record

@@ -1,5 +1,29 @@
 # Executed performance
 
+## Current measured release
+
+| Executed workload | Wall time | Actual physics work | Outcome |
+| --- | ---: | ---: | --- |
+| Fixed local pickup benchmark | 127.969785 s total | 20 complete executions | 20/20 success |
+| Native local Orbital | 9.569583 s | 3 independent trials + fresh execution, 30,757 steps | 1.721393 mm placement |
+| Public Render Orbital | 169.474161 s | 3 independent trials + fresh execution, 30,757 steps | 1.717717 mm placement |
+| Final public Orbital camera/replan check | 179.380164 s | 3 independent trials + fresh execution, 30,757 steps | Same 1.717717 mm placement |
+| Final public blocked reactor | 5.440279 s | 3 collision failures, 384 actual steps | No feasible result |
+| Linux deployment-image regression | 351.494 s | 135 executed tests | 135 passed |
+| Separate 512 MB lab smoke | 56.313 s | repeated real pickup/cloth/SciPy | 1 passed |
+| Bounded-thread Windows regression | 408.16 s | 135 tests collected | 134 passed, 1 Linux-only skip |
+
+Public Orbital CPU **25.381585 s**, planning **6.175765 s**, trial physics
+**18.554261 s**, total physics **159.320562 s**, replay **2,790,796 bytes**, branch
+failure rate **0**. These measurements include HTTP activity under process CPU
+accounting. There are no deterministic-policy model calls or fabricated billed
+cost estimates. Source evidence: `artifacts/orbital-public.json`,
+`orbital-local-native-api.json` and `docs/FINAL_VERIFICATION.md`.
+
+Render has 0.1 CPU / 512 MB and eight full trials maximum. Orbital uses three;
+it does not claim 5,000 cloud trials. Historical 5,000-trial local measurements
+below remain valid for that fixed-scene execution, not arbitrary robustness.
+
 2026-10-11 fixed physical pickup benchmark: 20 executions, 20 successes, total 86.5164 s; physics per execution 3.50–5.45 s; seed planning 0.028825 s. Conditions, per-run durations and step counts are in `artifacts/pick-place-benchmark.json`. No playback is substituted for integration.
 
 Existing backend compatibility baseline: 86 tests, 352.52 s. New pickup/search checks: 10 tests, 47.95 s. Concurrent verification workloads affected wall time; these are observations, not service-level guarantees.

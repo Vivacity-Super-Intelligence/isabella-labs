@@ -1,5 +1,22 @@
 # Robotics validation — 2026-10-11
 
+Current checkpoint reran the fixed workcell **20 times: 20 successes, zero
+failures, 127.9697845 s locally**. Evidence: `artifacts/master-final-pickup-20.json`.
+This is fixed-scene repeatability, not randomized robustness.
+
+The supplied Orbital original was physically probed but cannot grasp its cargo.
+The explicit Panda adaptation passed three real native trials plus fresh
+execution on Render: **30,757 steps, 1.717717 mm final goal error, zero prohibited
+contacts**, verified bilateral grasp, lifting, retention, release and deck
+support. Wall **169.474161 s**, process CPU **25.381585 s**; no recording substitutes
+for that fresh execution. Browser compared live cargo transforms against the
+rendered scene and parsed the downloaded evidence. Detailed limitations/source
+changes: `docs/ORBITAL_HANDOFF.md`. Actual results: `artifacts/orbital-public.json`.
+All **135 Linux deployment-image tests** passed; full evidence and preserved
+Windows failures are in `docs/FINAL_VERIFICATION.md`.
+
+Earlier benchmark sections below retain their own release scope.
+
 Phase 1 is verified at the adapter and persistent-runtime boundaries. `task: pick_place` is additive; absent/`reach` preserves old Menagerie scene hashes and reaching behavior.
 
 The cube has a free joint, 60 g mass and finite friction. The Panda's existing tendon actuator closes its actual collision pads. No cube weld, mocap, mesh parenting, object pose assignment during execution or artificial lift is used. Arm gravity compensation is a documented simulated controller aid. Approach, descent, close, lift, transport, lower, release and retract are actual actuator commands integrated at 2 ms.

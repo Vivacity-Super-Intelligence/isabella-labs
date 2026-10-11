@@ -1,6 +1,37 @@
 # Master demo status — 2026-10-11
 
-Public frontend: **https://demo.tryvivacity.com/**. Backend: **https://vivacity-runtime.onrender.com**. Latest deployment-image evidence: **125 Linux tests passed**, plus a repeated all-lab test under a 512 MB container limit. The previous **5,000 actual independent pickup trials** were executed locally. Real Pause/Resume and manual start are implemented. Current cloud evidence and failed Windows deadline checks are recorded in `docs/HOSTING_STATUS.md`; older sections below describe their respective revisions.
+## Current release disposition
+
+Authoritative final evidence: [docs/FINAL_VERIFICATION.md](docs/FINAL_VERIFICATION.md).
+Linux Docker: **135 passed, zero failed/skipped**; separate 512 MB lab smoke:
+**one passed**. Windows with numerical threads pinned: **134 passed, one
+Linux-only skip, 408.16 s**. Unrestricted Windows failures are preserved.
+
+- **Verified working:** contact-driven Panda pickup, full-state branches,
+  measured collision/drop/grasp/timeout failures, atomic commit/reset, stale
+  geometry rejection, REST/WSS, exports, deterministic reaching re-execution,
+  bounded fresh supervisor cycles, real SciPy fitting/holdout/control, and
+  explicit native Orbital capability verification plus adapted physical delivery.
+  Fixed workcell benchmark: **20/20** actual repetitions.
+- **Implemented but not broadly verified:** general MJCF/URDF compatibility;
+  supported restricted probes are tested, arbitrary robot/model compatibility
+  is not. No claim of arbitrary imported task execution.
+- **Experimental:** Panda/flex cloth fixture with pre-attached folding bar;
+  actual public fold measured, but no autonomous loose-fabric grasp acquisition.
+- **Blocked:** paid always-on Render compute and persistent disk require an
+  accepted payment method. Free service sleeps; SQLite history is ephemeral.
+- **Not implemented:** generic robot-task configuration, spacecraft dynamics,
+  general pickup obstacle routing, unbounded Orbital autonomous sessions,
+  hardware control, distributed workers, account identity and billing.
+
+The UI starts no experiments on load. Current controls are Start/Stop and
+condition changes, without pause/play/timeline/speed buttons. Native Pause/Resume
+is retained as a tested backend API. The supplied Orbital task has explicit
+robot/cargo/endpoint changes; it is not the unchanged original robot succeeding.
+
+The following sections are historical release evidence, not current acceptance.
+
+Public frontend: **https://demo.tryvivacity.com/**. Backend: **https://vivacity-runtime.onrender.com**. The previous **5,000 actual independent pickup trials** were executed locally. Current cloud evidence is in `docs/FINAL_VERIFICATION.md` and `docs/HOSTING_STATUS.md`; older sections below describe their respective revisions.
 
 **Hosting limit:** Render Free is the fallback after the required card was declined. It sleeps after 15 idle minutes and loses local SQLite data on restart, redeploy or sleep. Public pickup is bounded to eight real trials; cloth still screens 5,000 proposals and validates three in physics. This release cannot provide always-on availability or persistent cloud history. No paid service/disk upgrade was activated. See `docs/HOSTING_STATUS.md`.
 

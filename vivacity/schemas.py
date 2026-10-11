@@ -11,6 +11,8 @@ Vec3 = Annotated[list[float], Field(min_length=3, max_length=3)]
 
 class RoboticsConfig(Schema):
     task: Literal['reach', 'pick_place'] = 'reach'
+    scene_profile: Literal['workcell', 'orbital_salvage'] = 'workcell'
+    source_import_id: str | None = None
     obstacle_enabled: bool = True
     cube_position: Vec3 = [0.5, -0.15, 0.026]
     placement_position: Vec3 = [0.5, 0.18, 0.026]
@@ -22,6 +24,11 @@ class RoboticsConfig(Schema):
 
     @model_validator(mode='after')
     def bounds(self):
+        if self.scene_profile == 'orbital_salvage':
+            if self.task != 'pick_place' or not self.source_import_id:
+                raise ValueError('Orbital task requires pickup and a verified source import')
+            if abs(self.obstacle_size[0]-self.obstacle_size[1]) > 1e-8:
+                raise ValueError('reactor radial half-sizes must match')
         for point in (self.cube_position, self.placement_position):
             if not (.35 <= point[0] <= .65 and abs(point[1]) <= .3 and .025 <= point[2] <= .03):
                 raise ValueError('pickup and placement centers must be on the supported table workspace')
@@ -120,14 +127,17 @@ class ImportResponse(Schema):
     filename: str
     entrypoint: str
     format: str
-    status: Literal['visual_only','configuration_required']
-    physics_ready: Literal[False]=False
+    status: Literal['visual_only','configuration_required','physics_verifying','physics_valid','actuation_verified','physics_failed','manipulation_configured']
+    physics_ready: bool=False
     preview_available: bool
     sha256: str
     uploaded_bytes: int
     created_unix_s: float
     summary: dict
     diagnostics: list[str]
+    readiness: list[str]=[]
+    capabilities: dict | None=None
+    configured_world_id: str | None=None
 
 
 class ImportPreview(Schema):

@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="56.313" timestamp="2026-10-11T17:13:47.048799+00:00" hostname="b6c47bab6ae4"><testcase classname="tests.test_host_capacity" name="test_all_labs_execute_sequentially_in_host_container" time="56.070" /></testsuite></testsuites>

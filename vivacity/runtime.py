@@ -42,6 +42,9 @@ class Runtime:
         if not 60 <= self.max_pickup_wall_seconds <= 1800:
             raise ValueError('VIVACITY_MAX_PICKUP_WALL_SECONDS must be 60..1800')
         self.store = Store(database)
+        from pathlib import Path
+        from .imports import ImportService
+        self.imports = ImportService(Path(database).parent / 'imports')
         self.backends = {'mujoco': RobotAdapter(), 'scipy': ScienceBackend(), 'cloth':ClothBackend()}
         self.lock = threading.RLock()
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='vivacity-simulation')
@@ -71,8 +74,16 @@ class Runtime:
         if requested > self.max_physics_trials:
             raise ValueError(f'this host supports at most {self.max_physics_trials} full physics trials per experiment')
 
+    def validate_import_config(self, config):
+        if getattr(config, 'scene_profile', None) == 'orbital_salvage':
+            from .orbital import SOURCE_SHA256
+            imported = self.imports.get(config.source_import_id)
+            if imported['sha256'] != SOURCE_SHA256 or not (imported.get('capabilities') or {}).get('robot_actuation_verified'):
+                raise ValueError('Orbital adaptation requires verified supplied source')
+
     def create_world(self, request):
         tic = time.perf_counter()
+        self.validate_import_config(request.config)
         backend = self.backends[request.backend]
         instance = backend.create_world(request.config.model_dump(), request.seed)
         state = backend.snapshot(instance)
@@ -462,6 +473,7 @@ class Runtime:
             expected = {'mujoco':RoboticsConfig,'scipy':ScienceConfig,'cloth':ClothConfig}[w['backend']]
             if not isinstance(config, expected):
                 raise ValueError('config does not match world backend')
+            self.validate_import_config(config)
             instance = self.backends[w['backend']].create_world(config.model_dump(), w['seed'])
             state = self.backends[w['backend']].snapshot(instance)
             w.update(state=state, initial_state=deepcopy(state), config=state['config'], revision=w['revision']+1)

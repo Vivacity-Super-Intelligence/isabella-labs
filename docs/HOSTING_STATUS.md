@@ -1,5 +1,31 @@
 # Render hosting verification — 2026-10-11
 
+## Current verified native-import release
+
+Backend source `69013a8f6b538398a042a4f862638aac50865f20`, Render deployment
+`dep-db5s8hks728c738sccf0`, live 22:46 IST. Linux Docker **135 passed**, zero
+failed/skipped, **351.494 s**; 512 MB smoke **one passed, 56.313 s**. Vercel
+`dpl_9kYzmrxJgMi2mLFmB8fAX8a1bBEX` serves both public aliases with explicit
+Render API and eight-trial build settings. No paid service or disk was activated.
+
+Public Orbital import/probe/configure/native-three-trials/fresh-execution/export/
+geometry/mobile/reload journey passed ten checks: 426 actual live frames, ten
+events, no page errors or axe violations in the tested scope. Cargo delivery
+error **1.717717 mm**, **30,757 steps**, wall **169.474161 s**, CPU **25.381585 s**.
+Record: `artifacts/orbital-public.json`. Fixed local workcell benchmark **20/20**.
+Windows bounded-thread suite: **134 passed, one Linux-only skip, 408.16 s**;
+unrestricted Windows deadline failures remain recorded. Full current handoff:
+`docs/FINAL_VERIFICATION.md`, `docs/ORBITAL_HANDOFF.md`.
+
+Final camera-only frontend follow-up passed **12 public checks**, including
+native blocked-reactor recomputation and invalidation without auto-start.
+`artifacts/orbital-public-final.json`: 428 frames, 17 events, successful job wall
+179.380164 s, CPU 26.848431 s, unchanged 1.717717 mm delivery error. The blocked
+job produced **three actual collision failures, 128 steps each**, no selected
+branch, 5.440279 s wall. No successful result was fabricated.
+
+The remaining sections retain prior-release detail where their source differs.
+
 Public UI: https://demo.tryvivacity.com/ and https://vivacity-investor-demo.vercel.app/.
 Backend: https://vivacity-runtime.onrender.com/. API: https://vivacity-runtime.onrender.com/docs.
 
@@ -115,8 +141,11 @@ The interrupted first 2f61389 browser run did not persist its final report and
 is not counted as a pass. The repeated run passed nine checks including successful fresh pickup, exports
 and settings remaining idle, with 851 live frames and 22 events; the composite
 run then failed its 30-second click timeout during cloth world initialization.
-That report remains **failed**, not a full-suite pass. Cloth/science verification is running
-separately with a 120-second initialization allowance in `render-final-labs.json`.
+That report remains **failed**, not a full-suite pass. The separate cloth/science
+partition passed eight checks in `render-final-labs-long.json`, with 113 measured
+frames, 27 events, zero page errors and zero axe violations in the checked scope.
+The earlier six-minute cloth report remains failed. Its successful rerun used
+a 15-minute overall client allowance and actual bounded simulator execution.
 
 ## Reproduce
 

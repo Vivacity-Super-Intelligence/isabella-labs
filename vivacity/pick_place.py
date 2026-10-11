@@ -46,6 +46,9 @@ class PickPlaceBackend(RoboticsBackend):
                       size=' '.join(map(str, config['obstacle_size'])),
                       contype='1' if config['obstacle_enabled'] else '0',
                       conaffinity='1' if config['obstacle_enabled'] else '0')
+        if config.get('scene_profile') == 'orbital_salvage':
+            from .orbital import adapt_scene
+            adapt_scene(root, config)
         physical_root = deepcopy(root)
         physical_root.find('compiler').set('meshdir', 'assets')
         digest = hashlib.sha256((ET.tostring(physical_root, encoding='unicode') + asset_digest() + self.version).encode()).hexdigest()
@@ -113,6 +116,10 @@ class PickPlaceBackend(RoboticsBackend):
                            cube_quaternion_wxyz=world.data.body('target').xquat.tolist(),
                            placement_position=world.config['placement_position'],
                            grasp=self.contact_evidence(world), source='live_mujoco_state')
+        if world.config.get('scene_profile') == 'orbital_salvage':
+            from .orbital import SOURCE_SHA256, UPGRADES, scene_geometry
+            observation.update(environment_geometries=scene_geometry(world),
+                               import_provenance={'source_sha256': SOURCE_SHA256, 'adaptation': UPGRADES})
         return observation
 
     def pose_ik(self, world, goal, start):

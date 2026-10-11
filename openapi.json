@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Vivacity Execution Runtime",
-    "description": "Measured contact-driven Panda pickup, legacy reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded leased autonomous sessions; data-only imports. Single-process demo.",
+    "description": "Measured Panda manipulation, reaching, experimental flex folding and SciPy model comparison. Explicit bounded native import probes and a documented trusted Orbital adaptation. Single-process demo.",
     "version": "1.0.0"
   },
   "paths": {
@@ -528,6 +528,84 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ImportPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}/verify": {
+      "post": {
+        "summary": "Verify Import",
+        "operationId": "verify_import_v1_imports__import_id__verify_post",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}/configure-task": {
+      "post": {
+        "summary": "Configure Import Task",
+        "operationId": "configure_import_task_v1_imports__import_id__configure_task_post",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
                 }
               }
             }
@@ -1720,13 +1798,17 @@
             "type": "string",
             "enum": [
               "visual_only",
-              "configuration_required"
+              "configuration_required",
+              "physics_verifying",
+              "physics_valid",
+              "actuation_verified",
+              "physics_failed",
+              "manipulation_configured"
             ],
             "title": "Status"
           },
           "physics_ready": {
             "type": "boolean",
-            "const": false,
             "title": "Physics Ready",
             "default": false
           },
@@ -1757,6 +1839,37 @@
             },
             "type": "array",
             "title": "Diagnostics"
+          },
+          "readiness": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Readiness",
+            "default": []
+          },
+          "capabilities": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capabilities"
+          },
+          "configured_world_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configured World Id"
           }
         },
         "additionalProperties": false,
@@ -1877,6 +1990,26 @@
             ],
             "title": "Task",
             "default": "reach"
+          },
+          "scene_profile": {
+            "type": "string",
+            "enum": [
+              "workcell",
+              "orbital_salvage"
+            ],
+            "title": "Scene Profile",
+            "default": "workcell"
+          },
+          "source_import_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Import Id"
           },
           "obstacle_enabled": {
             "type": "boolean",

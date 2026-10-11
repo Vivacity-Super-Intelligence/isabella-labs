@@ -18,7 +18,7 @@ def create_app(database=None):
     async def lifespan(app):
         path=database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3')
         app.state.runtime = Runtime(path)
-        app.state.imports = ImportService(Path(path).parent/'imports')
+        app.state.imports = app.state.runtime.imports
         yield
         await asyncio.to_thread(app.state.runtime.close)
 
@@ -37,7 +37,7 @@ def create_app(database=None):
 
     app = FastAPI(title='Vivacity Execution Runtime', version='1.0.0', lifespan=lifespan,
                   dependencies=[Depends(authorize_request)],
-                  description='Measured contact-driven Panda pickup, legacy reaching, constrained flex folding and restricted 2D orbital hypothesis comparison. Bounded leased autonomous sessions; data-only imports. Single-process demo.')
+                  description='Measured Panda manipulation, reaching, experimental flex folding and SciPy model comparison. Explicit bounded native import probes and a documented trusted Orbital adaptation. Single-process demo.')
     origins = [o.strip() for o in os.getenv('VIVACITY_CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if o.strip()]
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token'])
 
@@ -158,6 +158,14 @@ def create_app(database=None):
 
     @app.get('/v1/imports/{import_id}/preview',response_model=ImportPreview)
     def import_preview(import_id:str):return app.state.imports.get(import_id,preview=True)
+
+    @app.post('/v1/imports/{import_id}/verify',response_model=ImportResponse,status_code=202)
+    def verify_import(import_id:str):
+        return app.state.imports.verify(import_id,app.state.runtime.executor)
+
+    @app.post('/v1/imports/{import_id}/configure-task',response_model=ImportResponse)
+    def configure_import_task(import_id:str):
+        return app.state.imports.configure_orbital(import_id, app.state.runtime)
 
     @app.post('/v1/worlds', response_model=WorldResponse, status_code=201)
     def create_world(request: CreateWorld):

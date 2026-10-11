@@ -6,6 +6,7 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
   const [size,setSize] = useState<number[]>(config.obstacle_size as number[] ?? [.055,.13,.22]);
   const [target,setTarget] = useState<number[]>(config.target_position as number[] ?? [.55,.28,.22]);
   const pickup=config.task==='pick_place';
+  const orbital=config.scene_profile==='orbital_salvage';
   const [cube,setCube]=useState<number[]>(config.cube_position as number[]??[.5,-.15,.026]);
   const [placement,setPlacement]=useState<number[]>(config.placement_position as number[]??[.5,.18,.026]);
   const [obstacleEnabled,setObstacleEnabled]=useState(config.obstacle_enabled!==false);
@@ -23,7 +24,7 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
     {backend==='mujoco' ? <>
       <p>Apply to update the world. Then choose Start experiments when you’re ready.</p>
       <label className="select-field"><input type="checkbox" checked={obstacleEnabled} onChange={e=>setObstacleEnabled(e.target.checked)}/> Obstacle enabled</label>
-      <div className="presets"><button onClick={()=>{setObstacleEnabled(true);setPosition([.45,.04,.22]);setSize([.055,.13,.22]);}}>Original</button><button onClick={()=>{setObstacleEnabled(true);setPosition([.75,-.4,.2]);setSize([.055,.13,.22]);}}>Clear route</button><button onClick={()=>{setObstacleEnabled(true);setPosition([.5,.1,.3]);setSize([.35,.35,.3]);}}>Blocked scene</button></div>
+      <div className="presets"><button onClick={()=>{setObstacleEnabled(true);setPosition(orbital?[.75,-.4,.33]:[.45,.04,.22]);setSize(orbital?[.18,.18,.33]:[.055,.13,.22]);}}>Original</button><button onClick={()=>{setObstacleEnabled(true);setPosition([.75,-.4,.2]);setSize(orbital?[.18,.18,.2]:[.055,.13,.22]);}}>Clear route</button><button onClick={()=>{setObstacleEnabled(true);setPosition([.5,.1,.3]);setSize([.35,.35,.3]);}}>Blocked scene</button></div>
       {['X','Y','Z'].map((axis,i)=><label className="range-field" key={axis}><span>{axis} position <output>{format(position[i],2)} m</output></span><input aria-label={`${axis} obstacle position`} type="range" min={[.15,-.5,.05][i]} max={[.8,.5,.6][i]} step=".01" value={position[i]} onChange={e=>setPosition(p=>p.map((v,j)=>j===i?Number(e.target.value):v))} /></label>)}
       {['X','Y'].map((axis,i)=><label className="range-field" key={`target-${axis}`}><span>{axis} {pickup?'pickup':'target'} position <output>{format(pickup?cube[i]:target[i],2)} m</output></span><input aria-label={`${axis} target position`} type="range" min={pickup?(i?-.3:.35):(i?-.5:.15)} max={pickup?(i?.3:.65):(i?.5:.8)} step=".01" value={pickup?cube[i]:target[i]} onChange={e=>(pickup?setCube:setTarget)(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
       {pickup&&['X','Y'].map((axis,i)=><label className="range-field" key={`placement-${axis}`}><span>{axis} placement position <output>{format(placement[i],2)} m</output></span><input aria-label={`${axis} placement position`} type="range" min={i?-.3:.35} max={i?.3:.65} step=".01" value={placement[i]} onChange={e=>setPlacement(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}

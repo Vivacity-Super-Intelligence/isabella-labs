@@ -10,6 +10,7 @@ root = Path(__file__).resolve().parents[1]
 target = root / 'data' / ('render-source-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))
 target.mkdir(parents=True, exist_ok=False)
 files = [p for directory in ('vivacity', 'tests') for p in (root / directory).rglob('*.py')]
+files += [root / 'fixtures/imports/orbital_salvage_lab.zip', root / 'fixtures/imports/ORBITAL_SOURCE.md']
 files += [root / name for name in ('Dockerfile', '.dockerignore', 'requirements-lock.txt', 'render.yaml', '.github/workflows/backend-linux.yml')]
 files += [root / name for name in subprocess.check_output(
     ['git', 'ls-files', 'assets/menagerie/franka_emika_panda'], cwd=root, text=True).splitlines()]

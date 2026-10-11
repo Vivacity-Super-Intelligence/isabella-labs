@@ -1,5 +1,27 @@
 # Vivacity master implementation
 
+## Native import boundary and Orbital adapter
+
+Current implementation/evidence: `docs/FINAL_VERIFICATION.md`. The runtime now
+owns `ImportService` beside experiment persistence. Uploads remain data-only
+until an explicit verification request queues one disposable native probe on
+the bounded shared executor. Scoped VFS assets, process resource limits and
+Linux syscall denial precede compilation; no service secrets are inherited.
+Windows restricts native probes to the exact trusted supplied fixture.
+
+`vivacity/orbital.py` is a trusted, checksum-checked scene adaptation inside
+the existing `PickPlaceBackend`. It preserves the shared snapshot/fork/action/
+simulation/evaluation lifecycle; it does not execute arbitrary XML in the web
+process. Configured worlds and exports retain `scene_profile`, source import
+reference/hash, mechanical changes and actual geometry. The original robot's
+motion probe never proves grasp capability. Only measured full task execution
+can verify delivery. Generic robot task discovery remains incomplete.
+
+The Orbital UI submits three actual native trials and fresh selected execution,
+streams real `/live` and `/events` states, supports explicit cancellation and
+geometry changes, and stops polling after completion. It starts no job on load.
+Main UI controls are Start/Stop; native Pause/Resume remains in the API.
+
 Existing FastAPI/SQLite adapters and React/Three.js client are retained. MuJoCo 3.15.0 supplies dynamics; SciPy 1.18.1 supplies numerical integration/fitting. Pinned dependencies remain in `requirements.txt` and frontend lockfile.
 
 Runtime operations remain create/observe/snapshot/fork/apply/simulate/evaluate/commit/replay. `RobotAdapter` dispatches persisted robotics configurations between legacy reaching and new contact-driven pickup. Both use full `mjSTATE_INTEGRATION`, independent `MjData` and reconstructed scene/version/mesh hashes. SQLite preserves branch lineage, actions, measured traces, evaluations and idempotent jobs. A bounded one-worker executor runs simulations outside HTTP handlers.

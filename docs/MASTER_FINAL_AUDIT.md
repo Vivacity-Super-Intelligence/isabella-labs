@@ -1,5 +1,14 @@
 # Final master audit — 2026-10-11
 
+Follow-through completed: isolated native capability probe, explicitly adapted
+Panda salvage task, real physics trials/fresh execution, live rendering and
+exports were implemented, tested and deployed. Linux image **135 passed**;
+Windows bounded threads **134 passed, one Linux-only skip**; fixed pickup
+**20/20**. Public Orbital journey **ten checks passed**, 426 actual frames, ten
+events, 1.717717 mm fresh delivery error. Precise evidence and remaining gaps:
+`FINAL_VERIFICATION.md`. Free-host always-on/durability and generic manipulation
+remain incomplete; no payment prerequisite was bypassed.
+
 Outcome: preserve the working investor URL and extend supported imported physics, especially the actual Orbital Salvage fixture, without inventing manipulation capability.
 
 ## Verified baseline

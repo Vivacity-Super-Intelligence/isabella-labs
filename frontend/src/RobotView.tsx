@@ -48,11 +48,14 @@ function CameraInteraction({command}:{command:{key:string;seq:number}}){
 
 export function GeomMesh({ geom, assets, config }: { geom: Geom; assets: Assets; config: Dict }) {
   const q = quaternion(geom.quaternion_wxyz);
-  const size = (geom.name === 'obstacle_geom' ? config.obstacle_size : geom.size) as Vec3;
+  if(geom.type==='cylinder'||geom.type==='capsule')q.multiply(new Quaternion().setFromAxisAngle(new Vector3(1,0,0),Math.PI/2));
+  const size = (geom.name === 'obstacle_geom' ? config.obstacle_size ?? geom.size : geom.size) as Vec3;
   const color = useMemo(() => new Color().setRGB(geom.rgba[0],geom.rgba[1],geom.rgba[2],SRGBColorSpace),[geom]);
   return <mesh position={geom.position} quaternion={q} geometry={geom.mesh_id !== null ? assets.geometry.get(geom.mesh_id) : undefined} castShadow={geom.type !== 'plane'} receiveShadow>
     {geom.type === 'box' && <boxGeometry args={[size[0]*2,size[1]*2,size[2]*2]} />}
     {geom.type === 'plane' && <planeGeometry args={[6,6]} />}
+    {geom.type === 'cylinder' && <cylinderGeometry args={[size[0],size[0],size[1]*2,36]} />}
+    {geom.type === 'capsule' && <capsuleGeometry args={[size[0],size[1]*2,8,20]} />}
     <meshStandardMaterial color={color} roughness={geom.name === 'table' ? .78 : .38} metalness={geom.group === 2 ? .18 : .05} />
   </mesh>;
 }
@@ -102,8 +105,9 @@ function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime }: 
   const last = frames.at(-1);
   return <group dispose={null}>
     {assets.manifest.bodies.map(body => <group key={body.id} ref={g=>{ if (g) groups.current.set(body.name,g); else groups.current.delete(body.name); }}>
-      {assets.manifest.geoms.filter(g=>g.body_id === body.id && (g.group === 0 || g.group === 2) && !(g.name==='obstacle_geom'&&config.obstacle_enabled===false)).map(geom=><GeomMesh key={geom.id} geom={geom} assets={assets} config={config} />)}
+      {assets.manifest.geoms.filter(g=>g.body_id === body.id && (g.group === 0 || g.group === 2) && !(g.name==='obstacle_geom'&&config.obstacle_enabled===false) && !(last?.environment_geometries && ['table','ground','cube','obstacle_geom'].includes(g.name))).map(geom=><GeomMesh key={geom.id} geom={geom} assets={assets} config={config} />)}
     </group>)}
+    {last?.environment_geometries?.map((geom,i)=><GeomMesh key={geom.name} geom={{...geom,id:i,body_id:0,group:0,mesh_id:null}} assets={assets} config={{}} />)}
     <gridHelper args={[5,40,'#777970','#aaa99e']} rotation={[Math.PI/2,0,0]} position={[0,0,-.798]} />
     {path.length > 1 && <Line points={path} color={contacts.length ? '#d23a21' : '#2455ff'} lineWidth={2.3} />}
     <group position={target}>
@@ -132,7 +136,7 @@ function RobotView({ frames, cursor, config, playing, renderTime }: { frames: Ro
   return <div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label="Franka Panda workcell. Arrow keys orbit, plus and minus zoom, R resets camera. Actual MuJoCo geometry and measured transforms." onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
     <div className="viewport-label"><span className="mono">ROBOTICS WORKCELL</span><span>Measured simulator state</span></div>
     {error ? <div className="scene-unavailable" role="alert">{error}</div> : !assets || !frames.length ? <div className="scene-unavailable"><Cube size={24} />{!assets ? 'Loading Panda geometry…' : 'Waiting for a measured world state…'}</div> : <SceneBoundary>
-      <Canvas key={cameraKey} frameloop="demand" shadows dpr={[1,1.25]} camera={{ position: [1.5,-1.6,1.25], fov: 38, near: .01, far: 15 }} gl={{ antialias: true, preserveDrawingBuffer: true }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#deddd4'); performance.mark('vivacity:robot-scene-ready'); }}>
+      <Canvas key={cameraKey} frameloop="demand" shadows dpr={[1,1.25]} camera={{ position: config.scene_profile==='orbital_salvage'?[1.4,1.5,1.3]:[1.5,-1.6,1.25], fov: 38, near: .01, far: 15 }} gl={{ antialias: true, preserveDrawingBuffer: true }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#deddd4'); performance.mark('vivacity:robot-scene-ready'); }}>
         <ambientLight intensity={.72} /><hemisphereLight args={['#ffffff','#6f706a',1.8]} />
         <directionalLight position={[1,-1.5,3]} intensity={3.2} castShadow shadow-mapSize={[1024,1024]} shadow-bias={-.00005} shadow-normalBias={.008} shadow-camera-left={-1.5} shadow-camera-right={1.5} shadow-camera-top={1.5} shadow-camera-bottom={-1.5} />
         <directionalLight position={[-2,1,1.5]} intensity={1.3} />

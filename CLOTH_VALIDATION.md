@@ -1,5 +1,19 @@
 # Cloth validation
 
+Current public verification (2f61389) actually executed three constrained flex
+validations and a fresh fold. Alignment **0.923365 mm**, coverage **100%**, clamp
+error **0.673552 mm**, quality **0.969221**, maximum penetration **1.981481 mm**.
+It received actual vertices and Panda transforms over WSS. Evidence:
+`artifacts/render-final-labs-long.json`; eight checked browser behaviors passed,
+with 113 live frames and 27 events across cloth/science, no page errors or axe
+violations in the checked scope. Current deployment-image tests rerun cloth
+under the unchanged simulator and pass. See `docs/FINAL_VERIFICATION.md`.
+
+This remains **experimental**: the arm carries a pre-attached bar with seven
+cloth constraints and a fixed hinge. It does not acquire a loose fabric grasp
+with ordinary fingers. No calibrated textile/contact model or general folding
+capability is claimed. Earlier failed timeout reports remain preserved.
+
 Existing experimental benchmark: actuated Panda carries a pre-attached folding bar through a 7 × 7 MuJoCo flex sheet, releases its seven ideal edge constraints and allows settling. Actual integrated vertex/body states supply alignment RMSE, vertex coverage, constraint error and contact/limit/controller failure checks. The fixed hinge, pre-attached fixture and disabled bar collision mask are explicit limitations. There is no autonomous frictional cloth-grasp acquisition or general garment folding.
 
 The original-code baseline executed cloth checks within 86/86 passes. The final full backend regression passed **101/101** in 290.66 s (`artifacts/master-release-backend.xml`). Prior release evidence remains historical in `ROBOT_CLOTH_RELEASE.md`.
