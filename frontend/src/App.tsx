@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowsClockwise, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
 import { useRuntime, isBusy } from './useRuntime';
-import { API, api, errorMessage, requestedPickupTrials } from './api';
+import { API, api, errorMessage } from './api';
 import { format, robotFrame, clothFrame, scienceObservation, type Backend, type Branch, type RobotFrame, type ClothFrame, type Vec3 } from './domain';
+import { objectHalfSizes, placementAwayFrom } from './pickupWorkspace';
 import Settings from './Settings';
 import ClothSettings from './ClothSettings';
 import TechnicalInspector from './TechnicalInspector';
@@ -44,7 +45,8 @@ export default function App(){
   const counters=Object.assign({},...rt.events.filter(e=>e.kind==='progress').map(e=>e.details),rt.experiment?.result.search??{}) as Record<string,unknown>;
   const disabled=rt.mutating||!compatible||!rt.online;
   const canMoveCube=backend==='mujoco'&&!disabled&&!rt.active&&!isBusy(rt.experiment)&&config.scene_profile!=='orbital_salvage';
-  const moveCube=async(point:Vec3)=>rt.apply({...config,cube_position:point});
+  const moveCube=async(point:Vec3)=>rt.apply({...config,cube_position:point,
+    placement_position:placementAwayFrom(point,config.placement_position as Vec3,objectHalfSizes(config))});
   const science=useMemo(()=>backend==='scipy'&&compatible?scienceObservation(rt.observation):null,[backend,compatible,rt.observation]);
   const numericalTime=branches.find(b=>b.id===selected?.id)?.trace.at(-1)?.time??0;
   useEffect(()=>{setBranchId(null);setEditing(false);},[backend,rt.experiment?.id]);
@@ -69,7 +71,7 @@ export default function App(){
         <div className="workbench">
           <section className="visual-area" aria-label="Live simulation">
             {cloth?<Suspense fallback={<div className="viewport-loading">Loading cloth…</div>}><ClothView frames={frames as ClothFrame[]} cursor={cursor} time={currentFrame?.time??0} playing={false} config={config}/></Suspense>:
-              robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={false} playing={false} renderTime={currentFrame?.time??0} perception={!rt.active&&!rt.mutating?rt.perception:null} sensorPaused={rt.active} canMoveCube={canMoveCube} onMoveCube={moveCube}/></Suspense>:
+              robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={false} playing={false} renderTime={currentFrame?.time??0} canMoveCube={canMoveCube} onMoveCube={moveCube}/></Suspense>:
                 <Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={numericalTime} playing={false}/></Suspense>}
             <div className="experiment-actions">
               <button className="primary run-button" disabled={disabled||rt.active} onClick={rt.run}>Start experiments<ArrowRight size={18}/></button>
@@ -77,10 +79,11 @@ export default function App(){
               <button className="secondary" disabled={disabled} onClick={()=>setEditing(e=>!e)}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':robotics?'Change conditions':'Observation settings'}</button>
               <button className="secondary" disabled={disabled} onClick={rt.reset}><ArrowsClockwise size={18}/>Reset world</button>
             </div>
-            {backend==='mujoco'&&rt.hostPhysicsLimit!==null&&<p className="small" role="status">This host can run {Math.min(rt.hostPhysicsLimit,requestedPickupTrials).toLocaleString()} measured physics trials per pickup. Progress below counts completed backend simulations.</p>}
+            {backend==='mujoco'&&<p className="small" role="status">The search tests physical alternatives until measured improvement levels off or this host reaches its compute budget. Progress below counts completed backend simulations.</p>}
           </section>
           <aside className="results" aria-label="Verified results">
             <div className="section-heading"><h2>{cloth?'Best verified folds':robotics?'Best verified placements':'Hypotheses'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
+            {backend==='mujoco'&&config.task==='pick_place'&&config.scene_profile!=='orbital_salvage'&&<p className="sensor-summary" data-testid="object-perception" role="status">{rt.active?'Object localization pauses during physical execution.':rt.perception?.detected&&rt.perception.estimated_xy_m?`Simulated depth sensing: object at X ${format(rt.perception.estimated_xy_m[0])} m, Y ${format(rt.perception.estimated_xy_m[1])} m from ${rt.perception.visible_cube_rays} MuJoCo rays.`:rt.perception?'Object is not visible to the simulated overhead sensor.':'Locating the object…'} <span>Simulator labels, not a real camera.</span></p>}
             {editing&&rt.world?cloth?<ClothSettings key={rt.world.id} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:
               <Settings key={rt.world.id} backend={backend} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
               {!ranked.length?<p className="results-empty">{rt.busy?'Computing and validating independent alternatives…':terminal&&rt.experiment?.selected_branch_id?'Loading measured results…':terminal?'No feasible candidate. Measured failures are retained below.':rt.loaded?'Choose Start experiments when you’re ready. You can change the settings first.':'Initializing an actual physical world…'}</p>:
@@ -92,7 +95,7 @@ export default function App(){
             </>}
           </aside>
         </div>
-        {robotics&&counters.generated!==undefined&&<dl className="search-counts" aria-label="Actual search work">{[['Generated','generated'],['Screened','screened'],['Passed screening','screening_passed'],[cloth?'Validation rollouts':'Physics trials','fully_simulated'],['Verified feasible','verified_feasible']].map(([name,key])=><div key={key}><dt>{name}</dt><dd data-testid={`count-${key}`}>{Number(counters[key]??0).toLocaleString()}{!cloth&&key==='fully_simulated'&&Number(counters.physics_target)>0?` / ${Number(counters.physics_target).toLocaleString()}`:''}</dd></div>)}</dl>}
+        {robotics&&counters.generated!==undefined&&<dl className="search-counts" aria-label="Actual search work">{[['Generated','generated'],['Screened','screened'],['Passed screening','screening_passed'],[cloth?'Validation rollouts':'Physics trials','fully_simulated'],['Verified feasible','verified_feasible']].map(([name,key])=><div key={key}><dt>{name}</dt><dd data-testid={`count-${key}`}>{Number(counters[key]??0).toLocaleString()}{!cloth&&!counters.adaptive_stopping&&key==='fully_simulated'&&Number(counters.physics_target)>0?` / ${Number(counters.physics_target).toLocaleString()}`:''}</dd></div>)}</dl>}
         <TechnicalInspector events={rt.events} initialized={compatible} playing={false} branches={branches} select={setBranchId} history={{ids:rt.session?.experiments??[],open:rt.history,disabled:rt.mutating}}/>
       </>}
     </main>

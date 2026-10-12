@@ -1566,6 +1566,11 @@
             "title": "Physics Trials",
             "default": 0
           },
+          "adaptive_trials": {
+            "type": "boolean",
+            "title": "Adaptive Trials",
+            "default": false
+          },
           "execute_selected": {
             "type": "boolean",
             "title": "Execute Selected",
@@ -2051,6 +2056,22 @@
             "title": "Cube Half Size",
             "default": 0.025
           },
+          "cube_half_sizes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array",
+                "maxItems": 3,
+                "minItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cube Half Sizes"
+          },
           "cube_mass": {
             "type": "number",
             "maximum": 0.15,
@@ -2236,6 +2257,11 @@
             "minimum": 0.0,
             "title": "Physics Trials",
             "default": 0
+          },
+          "adaptive_trials": {
+            "type": "boolean",
+            "title": "Adaptive Trials",
+            "default": false
           },
           "max_cycles": {
             "type": "integer",

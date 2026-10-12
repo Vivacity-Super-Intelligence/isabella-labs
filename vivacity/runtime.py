@@ -122,6 +122,8 @@ class Runtime:
 
     def submit(self, world_id, request, idempotency_key=None, control=None):
         self.validate_trial_budget(request.physics_trials)
+        if request.adaptive_trials:
+            self.validate_trial_budget(request.physics_budget)
         if idempotency_key is not None:
             import re
             if not re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', idempotency_key):
@@ -281,9 +283,9 @@ class Runtime:
                     self.store.event(eid,'progress',{'stage':'physics','fully_simulated':integrated,'physics_attempts':len(branches),'physics_target':len(actions),'verified_feasible':sum(b['evaluation']['success'] for b in branches),'elapsed_seconds':time.perf_counter()-wall,'message':f"Validation {len(branches)} / {len(actions)}; {integrated} integrated rollouts; {sum(b['evaluation']['success'] for b in branches)} verified feasible."})
                 return branch
             trial_metrics=None
-            if settings.get('physics_trials'):
+            if settings.get('physics_trials') or settings.get('adaptive_trials'):
                 if e['backend']!='mujoco' or instance.config.get('task')!='pick_place':
-                    raise ValueError('full physics trials currently require the Panda pick-and-place world')
+                    raise ValueError('physics trials currently require the Panda pick-and-place world')
                 branches,trial_metrics=self._bulk_trials(e,actions,settings,search,reference,cancellation)
             else:
                 for action in actions:
@@ -308,6 +310,8 @@ class Runtime:
                 pickup = instance.config.get('task') == 'pick_place'
                 milestone = 'physical_pick_and_place' if pickup else 'reach_only'
                 conclusion = {'conclusion': ('Measured physical pickup and placement found.' if selected else 'No candidate completed physical pickup and placement.') if pickup else ('Measured collision-free reach found.' if selected else 'No candidate executed a collision-free reach.'), 'milestone': milestone, 'ranked_branch_ids': [b['id'] for b in ranked], 'top_feasible_branch_ids':[b['id'] for b in successful[:3]]}
+                if settings.get('adaptive_trials') and search:
+                    conclusion['conclusion'] += ' Search stopped: '+search['stopping_reason'].replace('_',' ')+'. Best measured feasible result; global optimality is not established.'
             else:
                 selected, conclusion = backend.choose(branches)
             public_settings={k:v for k,v in settings.items() if k not in ('checkpoint','pause_seconds')}
@@ -376,7 +380,8 @@ class Runtime:
     def _bulk_trials(self, e, actions, settings, search, reference, cancellation):
         from .native_pick_place import NativePickup
         engine=NativePickup(self.backends['mujoco'].pick_place,e['snapshot'])
-        best=[];simulated=0;feasible=0;steps=0;physics=0.;last_frame=[0.]
+        best=[];simulated=0;attempts=0;feasible=0;steps=0;physics=0.;last_frame=[0.]
+        best_duration=float('inf');no_improvement=0;stopping_reason='candidate_exhausted'
         objective=lambda b:(not b['evaluation']['success'],b['evaluation'].get('execution_duration_s',float('inf')),
                             b['evaluation'].get('goal_error_m',float('inf')),b['action']['candidate_index'])
         def live(frame):
@@ -395,7 +400,16 @@ class Runtime:
                     'control_sha256':hashlib.sha256(encode(action['stages']).encode()).hexdigest(),
                     'final_state':final_state,'evaluation':evaluation,'performance':performance}
             self.store.trial(e['id'],record)
+            attempts+=1
             simulated+=int(result['simulation_steps']>0);feasible+=int(evaluation['success'])
+            if settings.get('adaptive_trials') and evaluation['success']:
+                duration=evaluation.get('execution_duration_s',float('inf'))
+                if duration < best_duration-max(.05,.01*best_duration) or best_duration==float('inf'):
+                    best_duration=duration;no_improvement=0
+                else:
+                    no_improvement+=1
+            elif settings.get('adaptive_trials') and best_duration<float('inf'):
+                no_improvement+=1
             steps+=result['simulation_steps'];physics+=result['physics_wall_seconds']
             branch={'schema_version':'1.0','id':uid(),'experiment_id':e['id'],'parent_state_reference':reference,
                     'initial_state':deepcopy(e['snapshot']),'action':deepcopy(action)|{'execution_role':'validation','engine':engine.engine},
@@ -407,17 +421,28 @@ class Runtime:
                     w=self.store.get('worlds',e['world_id'],db)
                     w['branches'].append({'experiment_id':e['id'],'branch_id':branch['id'],'parent_state_reference':reference,'revision':e['revision']})
                     w['evaluations'].append({'branch_id':branch['id'],'evaluation':evaluation});self.store.put('worlds',w,db)
-            search.update(fully_simulated=simulated,physics_attempts=simulated,physics_target=len(actions),
+            search.update(fully_simulated=simulated,physics_attempts=attempts,physics_target=len(actions),
                           verified_feasible=feasible,physics_rejected=simulated-feasible,trial_simulation_steps=steps,
                           engine=engine.engine,retained_full_traces=len(best))
             e['result']={'search':search,'top_feasible_branch_ids':[b['id'] for b in best if b['evaluation']['success']],
-                         'conclusion':f'{simulated:,} / {len(actions):,} real physics trials evaluated; {feasible:,} feasible.'}
+                         'conclusion':f'{simulated:,} integrated physics trials evaluated; {feasible:,} feasible.'}
             self.store.put('experiments',e)
-            if simulated%5==0 or simulated==len(actions):
+            if settings.get('adaptive_trials') or attempts%5==0 or attempts==len(actions):
                 self.store.event(e['id'],'progress',search|{'stage':'physics','message':e['result']['conclusion']})
             if cancellation.is_set():raise InterruptedError('cancelled during physical trial')
-        return best,{'trial_count':simulated,'trial_simulation_steps':steps,'trial_physics_wall_seconds':physics,
-                     'trial_failure_rate':(simulated-feasible)/max(1,simulated),'trial_engine':engine.engine}
+            if settings.get('adaptive_trials') and attempts>=min(5,len(actions)) and best_duration<float('inf') and no_improvement>=3:
+                stopping_reason='measured_improvement_plateau'
+                break
+        if stopping_reason!='measured_improvement_plateau' and attempts==len(actions):
+            stopping_reason='host_compute_budget' if settings.get('adaptive_trials') and len(actions)>=settings['physics_budget'] else 'candidate_exhausted'
+        search.update(stopping_reason=stopping_reason,physics_attempts=attempts,fully_simulated=simulated)
+        e['result']={'search':search,'top_feasible_branch_ids':[b['id'] for b in best if b['evaluation']['success']],
+                     'conclusion':f'{simulated:,} integrated physics trials evaluated; {feasible:,} feasible. Search stopped: {stopping_reason.replace("_"," ")}.'}
+        self.store.put('experiments',e)
+        self.store.event(e['id'],'progress',search|{'stage':'physics','message':e['result']['conclusion']})
+        return best,{'trial_count':attempts,'integrated_trial_count':simulated,'trial_simulation_steps':steps,
+                     'trial_physics_wall_seconds':physics,'trial_failure_rate':(attempts-feasible)/max(1,attempts),
+                     'trial_engine':engine.engine,'stopping_reason':stopping_reason}
 
     def cancel(self, eid):
         self.get_experiment(eid)

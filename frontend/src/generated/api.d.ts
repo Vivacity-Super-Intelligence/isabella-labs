@@ -641,6 +641,11 @@ export interface components {
              */
             physics_trials: number;
             /**
+             * Adaptive Trials
+             * @default false
+             */
+            adaptive_trials: boolean;
+            /**
              * Execute Selected
              * @default false
              */
@@ -889,6 +894,8 @@ export interface components {
              * @default 0.025
              */
             cube_half_size: number;
+            /** Cube Half Sizes */
+            cube_half_sizes?: number[] | null;
             /**
              * Cube Mass
              * @default 0.06
@@ -1003,6 +1010,11 @@ export interface components {
              * @default 0
              */
             physics_trials: number;
+            /**
+             * Adaptive Trials
+             * @default false
+             */
+            adaptive_trials: boolean;
             /**
              * Max Cycles
              * @default 4

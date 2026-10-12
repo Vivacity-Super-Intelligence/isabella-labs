@@ -63,6 +63,21 @@ def test_older_pickup_snapshot_without_size_retains_default_geometry():
     assert backend.snapshot(restored) == snapshot
 
 
+def test_independent_dimensions_mass_and_friction_change_mujoco_model():
+    config=RoboticsConfig(task='pick_place',obstacle_enabled=False,
+        cube_half_sizes=[.02,.03,.025],cube_mass=.1,cube_friction=.55)
+    world=PickPlaceBackend().create_world(config.model_dump(),7)
+    cube=world.model.geom('cube').id
+    assert world.model.geom_size[cube].tolist()==pytest.approx([.02,.03,.025])
+    assert world.model.body_mass[world.model.body('target').id]==pytest.approx(.1)
+    assert world.model.geom_friction[cube,0]==pytest.approx(.55)
+    for _ in range(50):
+        mj.mj_step(world.model,world.data)
+    cube_contacts=[c for c in world.data.contact[:world.data.ncon] if cube in (c.geom1,c.geom2)]
+    assert cube_contacts
+    assert all(c.friction[0]==pytest.approx(.55) for c in cube_contacts)
+
+
 @pytest.fixture(scope='module')
 def pickup():
     backend = PickPlaceBackend()

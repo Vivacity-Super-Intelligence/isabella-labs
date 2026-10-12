@@ -12,6 +12,7 @@ from mujoco.rollout import Rollout
 import numpy as np
 
 from .robotics import RobotWorld
+from .pickup_planning import stage_commands
 
 
 class NativePickup:
@@ -45,11 +46,10 @@ class NativePickup:
                     if limits.get('cancel_event') and limits['cancel_event'].is_set():failure='cancelled';break
                     length=min(128,count-offset)
                     alpha=np.minimum(1.,(np.arange(offset,offset+length)+1)*m.opt.timestep/max(stage['duration_s'],m.opt.timestep))
-                    blend=alpha*alpha*(3-2*alpha)
                     mj.mj_getState(m,d,state,mj.mjtState.mjSTATE_FULLPHYSICS)
                     mj.mj_getState(m,d,user,mj.mjtState.mjSTATE_USER)
                     commands=np.tile(user,(length,1))
-                    commands[:,:7]=np.asarray(stage['start'])*(1-blend[:,None])+np.asarray(stage['goal'])*blend[:,None]
+                    commands[:,:7]=stage_commands(stage,alpha)
                     commands[:,7]=stage['gripper']
                     states,sensors=rollout.rollout(m,d,state[None],commands[None],control_spec=int(mj.mjtState.mjSTATE_USER),initial_warmstart=d.qacc_warmstart.copy()[None])
                     states,sensors=states[0],sensors[0]

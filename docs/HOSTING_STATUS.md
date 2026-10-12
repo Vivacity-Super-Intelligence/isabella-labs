@@ -1,5 +1,29 @@
 # Render hosting verification — 2026-10-13
 
+## Adaptive tabletop release awaiting production activation
+
+Private backend source `03532631c58a2fadaebe17f3e862298b15184dfc`
+passed the [Docker workflow](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38311644414):
+**155 passed, one warning in 353.54 s**. The separate 512 MB host check
+passed **one test, one warning in 53.25 s**, including an adaptive pickup
+and fresh authoritative physical execution. Local TypeScript/Vite build
+passed; the Three.js vendor chunk still produces a size warning.
+
+This release removes scene overlays, expands dragging to the physical table,
+adds independent object dimensions/mass/friction and adaptive physical
+search with grasp yaw, seeded IK retries and joint-space RRT. The earlier
+local bounded-drag checks and measured model-property checks are described
+in `docs/ADAPTIVE_PICKUP.md`. OpenAPI and client declarations are regenerated.
+
+Production activation and its end-to-end verification are **pending**.
+Render requires a manual deployment. The browser connection stalled while
+opening its deployment controls; repeated browser reconnection, direct
+deployment-list navigation and a fresh tab did not recover interaction.
+The previous verified public release remains in place. Do not interpret
+the successful Docker tests or pushed source commit as proof this adaptive
+release is live. Activate the latest commit on the existing Render service,
+then deploy the frontend and run the public journey before updating this status.
+
 ## Tabletop localization release
 
 The [backend release](https://github.com/Tanish-Anand1/vivacity-runtime/commit/43d43f846ada0bbdf85b8e6bd1ab996c3913e380)

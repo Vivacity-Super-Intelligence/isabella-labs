@@ -9,9 +9,9 @@ import mujoco as mj
 import numpy as np
 
 
-SCAN_X = (0.10, 0.85)
-SCAN_Y = (-0.50, 0.50)
-SCAN_SHAPE = (81, 101)
+SCAN_X = (-0.30, 1.10)
+SCAN_Y = (-0.65, 0.65)
+SCAN_SHAPE = (161, 141)
 CAMERA_HEIGHT_M = 1.0
 
 
@@ -42,7 +42,7 @@ def scan_cube(world):
         'schema_version': 'vivacity.perception/1.0',
         'method': 'mujoco_overhead_semantic_depth_rays',
         'scope': 'synthetic_simulator_semantic_labels_not_real_camera_vision',
-        'camera_origin_m': [0.475, 0.0, CAMERA_HEIGHT_M],
+        'camera_origin_m': [0.4, 0.0, CAMERA_HEIGHT_M],
         'camera_direction': [0.0, 0.0, -1.0],
         'coverage_x_m': list(SCAN_X), 'coverage_y_m': list(SCAN_Y),
         'resolution': list(SCAN_SHAPE),

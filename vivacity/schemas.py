@@ -17,6 +17,7 @@ class RoboticsConfig(Schema):
     cube_position: Vec3 = [0.5, -0.15, 0.026]
     placement_position: Vec3 = [0.5, 0.18, 0.026]
     cube_half_size: float = Field(0.025, ge=0.02, le=0.03)
+    cube_half_sizes: Vec3 | None = None
     cube_mass: float = Field(0.06, ge=0.02, le=0.15)
     cube_friction: float = Field(1.0, ge=0.05, le=1.5)
     obstacle_position: Vec3 = [0.45, 0.04, 0.22]
@@ -25,6 +26,9 @@ class RoboticsConfig(Schema):
 
     @model_validator(mode='after')
     def bounds(self):
+        half_sizes = self.cube_half_sizes or [self.cube_half_size] * 3
+        if any(not 0.02 <= half <= 0.03 for half in half_sizes):
+            raise ValueError('object half-dimensions must be 0.02..0.03 m')
         if self.scene_profile == 'orbital_salvage':
             if self.task != 'pick_place' or not self.source_import_id:
                 raise ValueError('Orbital task requires pickup and a verified source import')
@@ -32,10 +36,17 @@ class RoboticsConfig(Schema):
                 raise ValueError('reactor radial half-sizes must match')
             if abs(self.cube_half_size - .025) > 1e-9:
                 raise ValueError('Orbital cargo geometry is fixed by its adapted source fixture')
+            if self.cube_half_sizes is not None:
+                raise ValueError('Orbital cargo dimensions are fixed by its adapted source fixture')
         for point in (self.cube_position, self.placement_position):
-            if not (.15 <= point[0] <= .8 and abs(point[1]) <= .45 and .02 <= point[2] <= .032):
+            if self.task == 'pick_place' and self.scene_profile == 'workcell':
+                inside = (-.3 + half_sizes[0] + .001 <= point[0] <= 1.1 - half_sizes[0] - .001
+                          and -.65 + half_sizes[1] + .001 <= point[1] <= .65 - half_sizes[1] - .001)
+            else:
+                inside = .15 <= point[0] <= .8 and abs(point[1]) <= .45
+            if not (inside and .02 <= point[2] <= .032):
                 raise ValueError('pickup and placement centers must be on the supported table workspace')
-        if self.task == 'pick_place' and any(abs(point[2] - (self.cube_half_size + .001)) > .002 for point in (self.cube_position, self.placement_position)):
+        if self.task == 'pick_place' and any(abs(point[2] - (half_sizes[2] + .001)) > .002 for point in (self.cube_position, self.placement_position)):
             raise ValueError('pickup and placement center heights must match the cube size')
         # Coordinates supplied by range controls are binary floats. Accept the
         # exact 10 cm boundary despite harmless representation error.
@@ -98,6 +109,7 @@ class CreateWorld(Schema):
 
 class ExperimentRequest(Schema):
     physics_trials: int = Field(0, ge=0, le=5000)
+    adaptive_trials: bool = False
     execute_selected: bool = False
     realtime_execution: bool = False
     candidates: int = Field(3, ge=2, le=5)
@@ -111,6 +123,8 @@ class ExperimentRequest(Schema):
     def trial_count_matches_generation(self):
         if self.physics_trials and self.physics_trials != self.search_candidates:
             raise ValueError('full physics trials require matching search_candidates')
+        if self.adaptive_trials and (self.physics_trials or not self.search_candidates):
+            raise ValueError('adaptive trials require search candidates and no fixed trial count')
         return self
 
 
@@ -268,6 +282,7 @@ class BranchExport(Schema):
 
 class SessionRequest(CreateWorld):
     physics_trials: int = Field(0, ge=0, le=5000)
+    adaptive_trials: bool = False
     max_cycles: int = Field(4, ge=1, le=8)
     realtime_execution: bool = True
     search_candidates: int = Field(0, ge=0, le=10000)
@@ -277,6 +292,8 @@ class SessionRequest(CreateWorld):
     def trial_backend(self):
         if self.physics_trials and (self.backend!='mujoco' or self.config.task!='pick_place' or self.physics_trials!=self.search_candidates):
             raise ValueError('full physics trials require Panda pickup and matching search_candidates')
+        if self.adaptive_trials and (self.backend!='mujoco' or self.config.task!='pick_place' or self.physics_trials or not self.search_candidates):
+            raise ValueError('adaptive trials require Panda pickup, search candidates and no fixed trial count')
         return self
 
 

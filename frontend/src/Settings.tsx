@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, X } from '@phosphor-icons/react';
 import { format, type Backend, type Dict } from './domain';
-import { pickupSeparationValid, PICKUP_X, PICKUP_Y } from './pickupWorkspace';
+import { clampPickupPosition, objectHalfSizes, pickupBounds, pickupSeparationValid } from './pickupWorkspace';
 export default function Settings({ backend, config, disabled, apply, close }: { backend: Backend; config: Dict; disabled: boolean; apply:(d:Dict)=>Promise<boolean|void>; close:()=>void }) {
   const [position,setPosition] = useState<number[]>(config.obstacle_position as number[] ?? [.45,.04,.22]);
   const [size,setSize] = useState<number[]>(config.obstacle_size as number[] ?? [.055,.13,.22]);
@@ -10,16 +10,22 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
   const orbital=config.scene_profile==='orbital_salvage';
   const [cube,setCube]=useState<number[]>(config.cube_position as number[]??[.5,-.15,.026]);
   const [placement,setPlacement]=useState<number[]>(config.placement_position as number[]??[.5,.18,.026]);
-  const [cubeHalfSize,setCubeHalfSize]=useState(Number(config.cube_half_size??.025));
+  const [cubeHalfSizes,setCubeHalfSizes]=useState(objectHalfSizes(config));
+  const [cubeMass,setCubeMass]=useState(Number(config.cube_mass??.06));
+  const [cubeFriction,setCubeFriction]=useState(Number(config.cube_friction??1));
   const [obstacleEnabled,setObstacleEnabled]=useState(config.obstacle_enabled!==false);
   const [noise,setNoise] = useState(Number(config.noise_std ?? .001));
   const [samples,setSamples] = useState(Number(config.samples ?? 70));
   const [horizon,setHorizon] = useState(Number(config.horizon ?? 5));
   const [scenario,setScenario] = useState('perturbed');
+  const bounds=pickupBounds(cubeHalfSizes);
   const separationValid=!pickup||pickupSeparationValid(cube,placement);
   const submit = async () => {
-    const centerHeight=cubeHalfSize+.001;
-    const applied=await apply(backend === 'mujoco' ? {...config, obstacle_enabled:obstacleEnabled,obstacle_position:position, obstacle_size:size,target_position:target,cube_half_size:cubeHalfSize,cube_position:[cube[0],cube[1],centerHeight],placement_position:[placement[0],placement[1],centerHeight]} : {
+    const nextCube=clampPickupPosition(cube[0],cube[1],cubeHalfSizes);
+    const nextPlacement=clampPickupPosition(placement[0],placement[1],cubeHalfSizes);
+    const applied=await apply(backend === 'mujoco' ? {...config, obstacle_enabled:obstacleEnabled,obstacle_position:position, obstacle_size:size,target_position:target,
+      cube_half_size:cubeHalfSizes[2],cube_half_sizes:pickup&&!orbital?cubeHalfSizes:null,cube_mass:cubeMass,cube_friction:cubeFriction,
+      cube_position:pickup?nextCube:cube,placement_position:pickup?nextPlacement:placement} : {
       ...config, central_mu:1, hidden_mass:scenario==='perturbed'?.12:0, noise_std:noise, samples, horizon
     }); if(applied!==false)close();
   };
@@ -30,10 +36,14 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
       <label className="select-field"><input type="checkbox" checked={obstacleEnabled} onChange={e=>setObstacleEnabled(e.target.checked)}/> Obstacle enabled</label>
       <div className="presets"><button onClick={()=>{setObstacleEnabled(true);setPosition(orbital?[.75,-.4,.33]:[.45,.04,.22]);setSize(orbital?[.18,.18,.33]:[.055,.13,.22]);}}>Original</button><button onClick={()=>{setObstacleEnabled(true);setPosition([.75,-.4,.2]);setSize(orbital?[.18,.18,.2]:[.055,.13,.22]);}}>Clear route</button><button onClick={()=>{setObstacleEnabled(true);setPosition([.5,.1,.3]);setSize([.35,.35,.3]);}}>Blocked scene</button></div>
       {['X','Y','Z'].map((axis,i)=><label className="range-field" key={axis}><span>{axis} position <output>{format(position[i],2)} m</output></span><input aria-label={`${axis} obstacle position`} type="range" min={[.15,-.5,.05][i]} max={[.8,.5,.6][i]} step=".01" value={position[i]} onChange={e=>setPosition(p=>p.map((v,j)=>j===i?Number(e.target.value):v))} /></label>)}
-      {['X','Y'].map((axis,i)=><label className="range-field" key={`target-${axis}`}><span>{axis} {pickup?'pickup':'target'} position <output>{format(pickup?cube[i]:target[i],2)} m</output></span><input aria-label={`${axis} target position`} type="range" min={pickup?(i?PICKUP_Y[0]:PICKUP_X[0]):(i?-.5:.15)} max={pickup?(i?PICKUP_Y[1]:PICKUP_X[1]):(i?.5:.8)} step=".01" value={pickup?cube[i]:target[i]} onChange={e=>(pickup?setCube:setTarget)(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
-      {pickup&&['X','Y'].map((axis,i)=><label className="range-field" key={`placement-${axis}`}><span>{axis} placement position <output>{format(placement[i],2)} m</output></span><input aria-label={`${axis} placement position`} type="range" min={i?PICKUP_Y[0]:PICKUP_X[0]} max={i?PICKUP_Y[1]:PICKUP_X[1]} step=".01" value={placement[i]} onChange={e=>setPlacement(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
+      {['X','Y'].map((axis,i)=><label className="range-field" key={`target-${axis}`}><span>{axis} {pickup?'pickup':'target'} position <output>{format(pickup?cube[i]:target[i],2)} m</output></span><input aria-label={`${axis} target position`} type="range" min={pickup?(i?bounds.y[0]:bounds.x[0]):(i?-.5:.15)} max={pickup?(i?bounds.y[1]:bounds.x[1]):(i?.5:.8)} step=".001" value={pickup?cube[i]:target[i]} onChange={e=>(pickup?setCube:setTarget)(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
+      {pickup&&['X','Y'].map((axis,i)=><label className="range-field" key={`placement-${axis}`}><span>{axis} placement position <output>{format(placement[i],2)} m</output></span><input aria-label={`${axis} placement position`} type="range" min={i?bounds.y[0]:bounds.x[0]} max={i?bounds.y[1]:bounds.x[1]} step=".001" value={placement[i]} onChange={e=>setPlacement(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
       {pickup&&!separationValid&&<p className="setting-error" role="alert">Move the pickup or placement point so they are at least 10 cm apart.</p>}
-      {pickup&&!orbital&&<label className="range-field"><span>Object side length <output>{Math.round(cubeHalfSize*2000)} mm</output></span><input aria-label="Object side length" type="range" min=".02" max=".03" step=".001" value={cubeHalfSize} onChange={e=>setCubeHalfSize(Number(e.target.value))}/></label>}
+      {pickup&&!orbital&&<>
+        {['Width','Depth','Height'].map((name,i)=><label className="range-field" key={name}><span>Object {name.toLowerCase()} <output>{Math.round(cubeHalfSizes[i]*2000)} mm</output></span><input aria-label={`Object ${name.toLowerCase()}`} type="range" min=".02" max=".03" step=".001" value={cubeHalfSizes[i]} onChange={e=>setCubeHalfSizes(s=>s.map((v,j)=>j===i?Number(e.target.value):v) as typeof s)}/></label>)}
+        <label className="range-field"><span>Object mass / weight <output>{Math.round(cubeMass*1000)} g · {format(cubeMass*9.81,2)} N</output></span><input aria-label="Object mass" type="range" min=".02" max=".15" step=".005" value={cubeMass} onChange={e=>setCubeMass(Number(e.target.value))}/></label>
+        <label className="range-field"><span>Object friction coefficient <output>{format(cubeFriction,2)}</output></span><input aria-label="Object friction" type="range" min=".05" max="1.5" step=".05" value={cubeFriction} onChange={e=>setCubeFriction(Number(e.target.value))}/></label>
+      </>}
       <p className="small">Obstacle half-sizes: {size.map(v=>format(v,3)).join(' × ')} m. Applying a change first stops the worker safely, then initializes new physical conditions. {pickup?'The cube is a dynamic free body held by finger friction.':'This legacy world verifies reaching only.'}</p>
     </> : <>
       <p>Apply your observation settings, then choose Start experiments to fit both hypotheses.</p>
