@@ -4,6 +4,7 @@ import pytest
 
 from vivacity.perception import scan_cube
 from vivacity.pick_place import PickPlaceBackend
+from vivacity.native_pick_place import NativePickup
 from vivacity.schemas import RoboticsConfig, CreateWorld
 from vivacity.runtime import Runtime
 
@@ -39,6 +40,10 @@ def test_real_occlusion_is_reported_as_not_visible():
     result = PickPlaceBackend().simulate(branch, {'max_simulation_seconds': 1})
     assert result['failure'] == 'planning_failure'
     assert result['simulation_steps'] == 0
+    native_result, native_evaluation, _ = NativePickup(PickPlaceBackend(), PickPlaceBackend().snapshot(world)).simulate(
+        actions[0], {'max_simulation_seconds': 1})
+    assert native_result['simulation_steps'] == 0
+    assert native_evaluation['status'] == 'planning_failure'
 
 
 def test_planner_uses_ray_estimate_instead_of_true_cube_xy():
