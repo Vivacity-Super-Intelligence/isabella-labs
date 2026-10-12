@@ -9,7 +9,7 @@ from vivacity.schemas import RoboticsConfig, CreateWorld
 from vivacity.runtime import Runtime
 
 
-@pytest.mark.parametrize('x,y', [(0.5, -0.15), (0.2, 0.4), (0.74, -0.4)])
+@pytest.mark.parametrize('x,y', [(0.5, -0.15), (0.2, 0.4), (0.74, -0.4), (-.27, .5), (1.07, -.5)])
 def test_overhead_rays_localize_moved_cube(x, y):
     config = RoboticsConfig(task='pick_place', obstacle_enabled=False,
                             cube_position=[x, y, 0.026], placement_position=[0.5, 0.18, 0.026])
@@ -94,7 +94,19 @@ def test_moving_object_recomputes_sensor_result_and_world_revision(tmp_path):
 
 
 def test_supported_table_bounds_reject_outside_points():
-    RoboticsConfig(task='pick_place', cube_position=[0.15, 0.45, 0.026])
-    RoboticsConfig(task='pick_place', cube_position=[0.8, -0.45, 0.026])
+    RoboticsConfig(task='pick_place', cube_position=[-0.27, 0.62, 0.026])
+    RoboticsConfig(task='pick_place', cube_position=[1.07, -0.62, 0.026])
     with pytest.raises(ValueError, match='supported table workspace'):
-        RoboticsConfig(task='pick_place', cube_position=[0.81, 0, 0.026])
+        RoboticsConfig(task='pick_place', cube_position=[1.08, 0, 0.026])
+    with pytest.raises(ValueError, match='supported table workspace'):
+        RoboticsConfig(task='pick_place', cube_position=[-.28, 0, 0.026])
+
+
+def test_mount_overlap_reports_occlusion_without_inventing_a_pick():
+    backend=PickPlaceBackend()
+    world=backend.create_world(RoboticsConfig(task='pick_place',obstacle_enabled=False,
+        cube_position=[0,0,.026]).model_dump(),7)
+    scan=scan_cube(world)
+    assert not scan['detected']
+    actions,_=backend.candidates(world,2,100)
+    assert all(action['screening_rejection']=='object_not_visible' for action in actions)

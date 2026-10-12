@@ -65,6 +65,8 @@ class Supervisor:
 
     def create(self, request, token):
         self.runtime.validate_trial_budget(request.physics_trials)
+        if request.adaptive_trials:
+            self.runtime.validate_trial_budget(request.physics_budget)
         from .runtime import Busy, Unavailable, Conflict
         with self.lock:
             with self.runtime.store.connect() as db:
@@ -124,7 +126,7 @@ class Supervisor:
         r=self.runtime; stop=self.stops[sid];control=self.controls[sid]
         def alive():
             s=r.store.get('sessions',sid)
-            bound=max(self.max_wall_seconds,7200) if s['request'].get('physics_trials') else self.max_wall_seconds
+            bound=max(self.max_wall_seconds,7200) if s['request'].get('physics_trials') or s['request'].get('adaptive_trials') else self.max_wall_seconds
             return time.time()-s['last_heartbeat_unix_s']<=self.lease_seconds and time.time()-s['started_unix_s']<=bound
         try:
             for cycle in range(r.store.get('sessions',sid)['max_cycles']):
@@ -160,6 +162,7 @@ class Supervisor:
                     s['conditions'].append({'cycle':cycle+1,'seed':seed,'world_id':w['id'],
                                             'configuration_sha256':hashlib.sha256(str(w['config']).encode()).hexdigest()})
                     settings=ExperimentRequest(candidates=3,max_simulation_seconds=40,physics_trials=request.get('physics_trials',0),
+                        adaptive_trials=request.get('adaptive_trials',False),
                         execute_selected=s['backend'] in ('mujoco','cloth'),realtime_execution=request['realtime_execution'],
                         search_candidates=request['search_candidates'],physics_budget=request['physics_budget'])
                     e=r.submit(w['id'],settings,idempotency_key=f'session-{sid}-cycle-{cycle}',control=control)
@@ -170,7 +173,7 @@ class Supervisor:
                 while True:
                     e=r.get_experiment(e['id'])
                     s=r.store.get('sessions',sid)
-                    wall_bound=max(self.max_wall_seconds,7200) if s['request'].get('physics_trials') else self.max_wall_seconds
+                    wall_bound=max(self.max_wall_seconds,7200) if s['request'].get('physics_trials') or s['request'].get('adaptive_trials') else self.max_wall_seconds
                     if stop.is_set() or time.time()-s['last_heartbeat_unix_s']>self.lease_seconds or time.time()-s['started_unix_s']>wall_bound:
                         stop.set();r.cancel(e['id'])
                     if e['status'] not in ('queued','running'):

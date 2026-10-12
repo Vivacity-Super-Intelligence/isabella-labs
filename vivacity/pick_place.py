@@ -15,6 +15,7 @@ from scipy.spatial.transform import Rotation
 
 from .robotics import ASSET_DIR, DOWN, RobotWorld, RoboticsBackend, asset_digest
 from .compiled import remember, reuse_world
+from .pickup_planning import joint_route, stage_commands, stage_distance
 
 
 class PickPlaceBackend(RoboticsBackend):
@@ -39,10 +40,11 @@ class PickPlaceBackend(RoboticsBackend):
         target = ET.SubElement(wb, 'body', name='target', pos=' '.join(map(str, config['cube_position'])))
         ET.SubElement(target, 'freejoint', name='cube_free')
         half_size = config.get('cube_half_size', .025)
-        cube_geometry = '.025 .025 .025' if half_size == .025 else ' '.join([str(half_size)] * 3)
+        half_sizes = config.get('cube_half_sizes') or [half_size] * 3
+        cube_geometry = '.025 .025 .025' if config.get('cube_half_sizes') is None and half_size == .025 else ' '.join(map(str, half_sizes))
         ET.SubElement(target, 'geom', name='cube', type='box', size=cube_geometry,
                       mass=str(config['cube_mass']), friction=f"{config['cube_friction']} .005 .0001",
-                      condim='4', solref='.004 1', rgba='.05 .35 .9 1')
+                      condim='4', priority='1', solref='.004 1', rgba='.05 .35 .9 1')
         obstacle = ET.SubElement(wb, 'body', name='obstacle', pos=' '.join(map(str, config['obstacle_position'])))
         ET.SubElement(obstacle, 'geom', name='obstacle_geom', type='box',
                       size=' '.join(map(str, config['obstacle_size'])),
@@ -124,14 +126,14 @@ class PickPlaceBackend(RoboticsBackend):
                                import_provenance={'source_sha256': SOURCE_SHA256, 'adaptation': UPGRADES})
         return observation
 
-    def pose_ik(self, world, goal, start):
+    def pose_ik(self, world, goal, start, orientation=None):
         m = world.model; d = mj.MjData(m); d.qpos[:] = world.data.qpos; d.qpos[:7] = start
         sid = m.site('pregrasp').id
         jp, jr = np.zeros((3, m.nv)), np.zeros((3, m.nv))
         for _ in range(250):
             mj.mj_kinematics(m, d); mj.mj_comPos(m, d)
             dp = np.asarray(goal) - d.site_xpos[sid]
-            dr = Rotation.from_matrix(DOWN @ d.site_xmat[sid].reshape(3, 3).T).as_rotvec()
+            dr = Rotation.from_matrix((DOWN if orientation is None else orientation) @ d.site_xmat[sid].reshape(3, 3).T).as_rotvec()
             if np.linalg.norm(dp) < .0002 and np.linalg.norm(dr) < .003:
                 return d.qpos[:7].copy(), True
             mj.mj_jacSite(m, d, jp, jr, sid)
@@ -164,7 +166,10 @@ class PickPlaceBackend(RoboticsBackend):
         for index in range(count):
             height = .19 if index == 0 else float(rng.uniform(.17, .25))
             speed = .32 if index == 0 else float(rng.uniform(.27, .36))
-            grasp_z = .038 + (world.config.get('cube_half_size', .025) - .025)
+            yaw = (index % 8) * np.pi / 4
+            orientation = Rotation.from_euler('z', yaw).as_matrix() @ DOWN
+            half_sizes = world.config.get('cube_half_sizes') or [world.config.get('cube_half_size', .025)] * 3
+            grasp_z = .038 + (half_sizes[2] - .025)
             specs = [('approach', [cube[0], cube[1], height], 255, .3),
                      ('descend', [cube[0], cube[1], grasp_z], 255, .3),
                      ('close', [cube[0], cube[1], grasp_z], 0, .7),
@@ -175,7 +180,15 @@ class PickPlaceBackend(RoboticsBackend):
                      ('retract', [dest[0], dest[1], height], 255, .7)]
             q = world.data.qpos[:7].copy(); stages = []; converged = True
             for phase, pose, gripper, dwell in specs:
-                goal, ok = self.pose_ik(world, pose, q); converged &= ok
+                goal, ok = self.pose_ik(world, pose, q, orientation)
+                if not ok:
+                    # DLS is local: try independently seeded configurations
+                    # before concluding the requested tool pose is unreachable.
+                    for retry in range(3):
+                        seed_q = np.clip(q+rng.normal(0, .45, 7), world.model.jnt_range[:7,0]+.01, world.model.jnt_range[:7,1]-.01)
+                        retry_goal, retry_ok = self.pose_ik(world, pose, seed_q, orientation)
+                        if retry_ok: goal, ok = retry_goal, True; break
+                converged &= ok
                 duration = 0. if phase in ('close', 'release') else max(.6, float(np.max(np.abs(goal-q))) / speed)
                 stages.append({'phase': phase, 'start': q.tolist(), 'goal': goal.tolist(),
                                'duration_s': duration, 'dwell_s': dwell, 'gripper': gripper, 'tool_position': pose})
@@ -186,14 +199,24 @@ class PickPlaceBackend(RoboticsBackend):
             rejected = None
             for stage in stages:
                 scratch.data.qpos[7:9] = .04 if stage['gripper'] else .023
-                for t in np.linspace(0, 1, 12):
-                    scratch.data.qpos[:7] = np.asarray(stage['start']) * (1-t) + np.asarray(stage['goal']) * t
+                def valid(q):
+                    scratch.data.qpos[:7] = q
                     mj.mj_forward(scratch.model, scratch.data)
-                    if self.contacts(scratch):
-                        rejected = 'kinematic_collision'; break
+                    return not self.contacts(scratch)
+                start_q, goal_q = np.asarray(stage['start']), np.asarray(stage['goal'])
+                direct_ok = all(valid(start_q+(goal_q-start_q)*t) for t in np.linspace(0,1,max(12,int(np.linalg.norm(goal_q-start_q)/.05)+1)))
+                if not direct_ok:
+                    route = joint_route(start_q, goal_q, world.model.jnt_range[:7], valid,
+                                        np.random.default_rng(world.seed+index+101), min(iterations,500)) if converged else None
+                    if route is None:
+                        rejected = 'kinematic_collision'
+                    else:
+                        stage['waypoints'] = [p.tolist() for p in route]
+                        stage['duration_s'] = max(.6,stage_distance(stage)/speed)
                 if rejected:
                     break
-            actions.append({'kind': 'pick_place', 'planner': 'staged_dls_contact_pick_place', 'candidate_index': index,
+            actions.append({'kind': 'pick_place', 'planner': 'multi_yaw_dls_joint_rrt_contact_pick_place', 'candidate_index': index,
+                            'grasp_yaw_rad':float(yaw),
                             'seed': world.seed, 'stages': stages, 'lift_height_m': height, 'speed_rad_s': speed,
                             'planning_feasible': converged and not rejected,
                             'screening_rejection': rejected or (None if converged else 'ik_failure'),
@@ -215,6 +238,10 @@ class PickPlaceBackend(RoboticsBackend):
                     raise ValueError('finite seven-joint targets required')
             if not (0 <= stage['duration_s'] <= 20 and 0 <= stage['dwell_s'] <= 2 and 0 <= stage['gripper'] <= 255):
                 raise ValueError('stage command outside resource limits')
+            if stage.get('waypoints'):
+                path = np.asarray(stage['waypoints'])
+                if path.ndim!=2 or path.shape[1]!=7 or len(path)>512 or not np.isfinite(path).all() or not np.allclose(path[0],stage['start']) or not np.allclose(path[-1],stage['goal']):
+                    raise ValueError('invalid routed pickup stage')
         world.action = deepcopy(action)
 
     def search(self, world, settings, emit):
@@ -232,9 +259,10 @@ class PickPlaceBackend(RoboticsBackend):
             if settings.get('checkpoint') and not settings['checkpoint']():raise InterruptedError('cancelled while generating candidates')
             action=deepcopy(templates[i%len(templates)])
             speed=float(rng.uniform(.27,.36));action['speed_rad_s']=speed;action['candidate_index']=i
+            action['lift_template_index']=i%len(templates)
             for stage in action['stages']:
                 if stage['duration_s']:
-                    stage['duration_s']=max(.6,float(np.max(np.abs(np.asarray(stage['goal'])-stage['start'])))/speed)
+                    stage['duration_s']=max(.6,stage_distance(stage)/speed)
                 if stage['phase']=='close':stage['dwell_s']=float(rng.uniform(.6,.9))
                 if stage['phase']=='release':stage['dwell_s']=float(rng.uniform(.5,.8))
             duration=sum(s['duration_s']+s['dwell_s'] for s in action['stages'])
@@ -249,6 +277,17 @@ class PickPlaceBackend(RoboticsBackend):
                       'screening_passed':len(eligible),'message':f'{i+1:,} distinct timed pickup plans checked; {len(eligible):,} passed screening.'})
         eligible.sort(key=lambda item:(item[0],item[1]))
         actions=[item[2] for item in eligible[:settings['physics_budget']]]
+        if settings.get('adaptive_trials'):
+            # Cover distinct geometric lift paths before spending the remaining
+            # physics budget on the shortest predicted timings.
+            diverse=[];seen=set()
+            for item in eligible:
+                template=item[2]['lift_template_index']
+                if template not in seen:
+                    diverse.append(item);seen.add(template)
+                if len(diverse)>=min(len(templates),settings['physics_budget']):break
+            chosen={item[1] for item in diverse}
+            actions=[item[2] for item in (diverse+[item for item in eligible if item[1] not in chosen])[:settings['physics_budget']]]
         if settings.get('physics_trials'):
             if total!=settings['physics_trials']:raise ValueError('full physics requires one generated command per requested trial')
             actions=[item[2] for item in sorted(all_actions,key=lambda item:(item[0],item[1]))]
@@ -258,6 +297,7 @@ class PickPlaceBackend(RoboticsBackend):
                  'candidate_catalog_sha256':digest.hexdigest(),'rejection_reasons':rejected,
                  'kinematic_templates_checked':len(templates),'diagnostic_rollouts':int(not eligible),
                  'sampling':'seeded lift-height templates and distinct speed/close-dwell/release-dwell commands',
+                 'adaptive_stopping':bool(settings.get('adaptive_trials')),
                  'screening_scope':'actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim',
                  'ranking_objective':'successful execution, measured duration, placement error, candidate index'}
         emit(summary|{'stage':'screening_complete','message':f'{len(eligible):,} screened plans eligible; {len(actions)} promoted to actual physics.'})
@@ -280,8 +320,7 @@ class PickPlaceBackend(RoboticsBackend):
                 if limits.get('cancel_event') and limits['cancel_event'].is_set():
                     failure = 'cancelled'; break
                 alpha = min(1., (i+1) * m.opt.timestep / max(duration, m.opt.timestep))
-                blend = alpha * alpha * (3-2*alpha)
-                d.ctrl[:7] = np.asarray(stage['start']) * (1-blend) + np.asarray(stage['goal']) * blend
+                d.ctrl[:7] = stage_commands(stage,[alpha])[0]
                 d.ctrl[7] = stage['gripper']
                 mj.mj_step(m, d); mj.mj_forward(m, d); steps += 1
                 max_tracking = max(max_tracking, float(np.max(np.abs(d.qpos[:7]-d.ctrl[:7]))))

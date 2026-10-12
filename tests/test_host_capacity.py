@@ -13,7 +13,7 @@ def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
              {'physics_trials': 8, 'search_candidates': 8, 'execute_selected': True,
               'realtime_execution': True}),
             ('mujoco', {'task': 'pick_place', 'obstacle_enabled': False},
-             {'physics_trials': 8, 'search_candidates': 8, 'execute_selected': True}),
+             {'adaptive_trials': True, 'search_candidates': 256, 'physics_budget': 8, 'execute_selected': True}),
             ('cloth', None, {'search_candidates': 50, 'physics_budget': 3,
                              'execute_selected': True}),
             ('scipy', None, {}),
