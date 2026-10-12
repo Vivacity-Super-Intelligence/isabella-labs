@@ -1,5 +1,16 @@
 # Render hosting verification — 2026-10-12
 
+## Uptime monitoring release
+
+Render deployed backend source `a133a56ea7d51f48303e8690633b08af2b4a98b1`
+as `dep-db6hm2c9v7es73ffs8vg`. Docker CI passed **139 tests** and the separate
+512 MB lab check passed **one test**. Public `HEAD /health`, `GET /health`, and
+frontend HEAD returned HTTP 200. [UptimeRobot](UPTIME_MONITORING.md) now checks
+the frontend and backend every five minutes with the existing email alert
+contact. Both monitors reported **Up** after their first checks. This
+mitigates idle sleep; Render Free still offers no continuous
+uptime guarantee or durable SQLite storage.
+
 ## Current bounded-drag and validation release
 
 Backend `8cfa7fcd60e5acd01f1075d59eec5de2e2a03212` is live as Render
