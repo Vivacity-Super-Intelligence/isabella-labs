@@ -14,8 +14,9 @@ const proof={url:ui,api:base,started_unix_s:Date.now()/1000,checks:[],errors:[],
 let page,capability,latestSession,conditionCheck=false;const liveFrames=[];
 async function request(route){const response=await fetch(base+route,{headers:{'X-Session-Token':capability}});assert.equal(response.status,200,route);return response.json();}
 async function complete(backend,expectRows=true){
-  await page.waitForFunction(backend=>localStorage.getItem(`vivacity:${backend}:session`),backend,{timeout:60000});
-  const stored=await page.evaluate(backend=>({id:localStorage.getItem(`vivacity:${backend}:session`),token:localStorage.getItem(`vivacity:${backend}:token`)}),backend);
+  const key=`robotics-v2:${backend}:panda:${backend==='cloth'?'textile:cloth_fold':'manufacturing:pick_place'}`;
+  await page.waitForFunction(key=>localStorage.getItem(`vivacity:${key}:session`),key,{timeout:60000});
+  const stored=await page.evaluate(key=>({id:localStorage.getItem(`vivacity:${key}:session`),token:localStorage.getItem(`vivacity:${key}:token`)}),key);
   capability=stored.token;
   const deadline=Date.now()+600000;
   while(Date.now()<deadline){latestSession=await request(`/v1/sessions/${stored.id}`);if(!['active','stopping'].includes(latestSession.status))break;await new Promise(resolve=>setTimeout(resolve,1000));}
@@ -44,12 +45,18 @@ try{
   assert.equal(await page.getByRole('slider',{name:/Replay|Playback/}).count(),0);
   assert.equal(await page.getByRole('button',{name:/Play video|Pause video|Resume motion/}).count(),0);
   assert.equal(await page.getByRole('log').count(),1);
+  assert.equal(await page.getByRole('radio').count(),15);
+  assert.equal(await page.getByRole('button',{name:'Discovery',exact:true}).count(),0);
+  await page.getByRole('radio',{name:/UR5e collaborative arm/}).check();
+  assert(await page.getByRole('button',{name:'Adapter required',exact:true}).isDisabled());
+  await page.getByRole('radio',{name:/Franka Panda 7 joint/}).check();
+  proof.checks.push('five_choices_in_each_category','unsupported_arm_cannot_launch','discovery_removed');
   await page.getByRole('button',{name:'Start experiments',exact:true}).click();
   const robot=await complete('mujoco');
   assert.equal(robot.length,2);assert.notEqual(robot[0].experiment.world_id,robot[1].experiment.world_id);
   for(const {experiment,branches} of robot){
-    assert.equal(experiment.result.search.distinct_generated,8);
-    assert.equal(experiment.result.search.fully_simulated,8);
+    assert.equal(experiment.result.search.distinct_generated,256);
+    assert(experiment.result.search.fully_simulated>0&&experiment.result.search.fully_simulated<=8);
     assert(experiment.result.execution_evaluation.success);
     assert.equal(branches.length,4);
     const execution=branches.find(b=>b.id===experiment.result.execution_branch_id);
@@ -73,7 +80,7 @@ try{
   const cameraBefore=await page.evaluate(()=>window.__vivacityScene.cameraPosition);
   await page.getByTestId('robot-viewport').focus();await page.keyboard.press('ArrowRight');
   await page.waitForFunction(before=>JSON.stringify(window.__vivacityScene.cameraPosition)!==JSON.stringify(before),cameraBefore);
-  proof.checks.push('two_fresh_pickup_cycles','eight_full_physics_trials_per_smoke_cycle','full_validation_rollouts_plus_fresh_execution','exact_live_body_poses','selection_does_not_replay','three_parsed_exports','keyboard_camera','no_video_controls','one_inspector');
+  proof.checks.push('two_fresh_pickup_cycles','actual_adaptive_physics_trials_per_cycle','full_validation_rollouts_plus_fresh_execution','exact_live_body_poses','selection_does_not_replay','three_parsed_exports','keyboard_camera','no_video_controls','one_inspector');
   console.log('Two real pickup cycles, live poses, downloads, camera and no-video UI passed.');
   await page.screenshot({path:`artifacts/${prefix}-robotics.png`,fullPage:true});
   for(const width of [768,375]){await page.setViewportSize({width,height:960});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
@@ -87,7 +94,7 @@ try{
     await page.getByRole('button',{name:'Blocked scene',exact:true}).click();
     await page.getByRole('button',{name:'Apply settings',exact:true}).click();
     await page.getByRole('button',{name:'Start experiments',exact:true}).click();
-    await page.waitForFunction(id=>localStorage.getItem('vivacity:mujoco:session')!==id,oldSession,{timeout:60000});
+    await page.waitForFunction(id=>localStorage.getItem('vivacity:robotics-v2:mujoco:panda:manufacturing:pick_place:session')!==id,oldSession,{timeout:60000});
     const blocked=await complete('mujoco',false);
     assert.equal(blocked.length,1);assert.equal(blocked[0].experiment.selected_branch_id,null);
     assert(!blocked[0].branches.some(b=>b.evaluation.success));
@@ -102,28 +109,19 @@ try{
     await page.getByRole('button',{name:'Clear route',exact:true}).click();
     await page.getByRole('button',{name:'Apply settings',exact:true}).click();
     await page.getByRole('button',{name:'Start experiments',exact:true}).click();
-    await page.waitForFunction(id=>localStorage.getItem('vivacity:mujoco:session')!==id,blockedSession,{timeout:60000});
+    await page.waitForFunction(id=>localStorage.getItem('vivacity:robotics-v2:mujoco:panda:manufacturing:pick_place:session')!==id,blockedSession,{timeout:60000});
     const cleared=await complete('mujoco');assert(cleared[0].experiment.result.execution_evaluation.success);
     assert.notEqual(cleared[0].branches[0].initial_state.model_hash,blocked[0].branches[0].initial_state.model_hash);
     proof.checks.push('obstacle_change_invalidates_results_and_replay','honest_all_paths_fail_ui','clear_route_computes_new_success');
     conditionCheck=false;console.log('Blocked obstacle, stale records and fresh clear-route execution passed.');
   }
-  await page.getByRole('button',{name:'Discovery',exact:true}).click();
-  await page.getByRole('button',{name:'Start experiments',exact:true}).click();
-  const science=await complete('scipy');
-  const winners=science.map(({experiment,branches})=>branches.find(b=>b.id===experiment.selected_branch_id));
-  assert.equal(winners[0].evaluation.hypothesis,'central_plus_fixed_perturber');assert.equal(winners[1].evaluation.hypothesis,'central_only');
-  assert(science.every(e=>e.branches.every(b=>b.performance.integration_calls>0)));
-  const observation=await request(`/v1/worlds/${science.at(-1).experiment.world_id}/state`);assert(!JSON.stringify(observation).includes('hidden_mass'));
-  await page.waitForFunction(()=>window.__vivacityScience?.predictedPosition,{timeout:60000});
-  const numerical=await page.evaluate(()=>window.__vivacityScience);
-  assert.equal(numerical.predictedPosition[2],0);
-  assert(science.at(-1).branches.some(b=>b.trace.some(f=>Math.hypot(...f.predicted_position.map((v,i)=>v-numerical.predictedPosition[i]))<1e-8)));
-  proof.checks.push('fresh_scipy_fits_and_heldout_metrics','unseen_mass_and_control_select_different_models','no_hidden_truth','computed_planar_science_geometry');
-  console.log('Two actual SciPy experiments and planar geometry passed.');
-  await page.screenshot({path:`artifacts/${prefix}-science.png`,fullPage:true});
   if(process.env.SKIP_CLOTH!=='1'){
-    await page.getByRole('button',{name:'Robotics',exact:true}).click();await page.getByRole('button',{name:'Cloth Folding',exact:true}).click();
+    await page.getByRole('button',{name:'Robotics',exact:true}).click();
+    if(await page.getByRole('button',{name:'Choose templates',exact:true}).isVisible())await page.getByRole('button',{name:'Choose templates',exact:true}).click();
+    await page.getByRole('radio',{name:/Textile folding station/}).check();
+    await page.getByRole('radio',{name:/Cloth folding Joint-actuated/}).check();
+    await page.getByRole('button',{name:'Load this template',exact:true}).click();
+    await page.getByRole('button',{name:'Start experiments',exact:true}).waitFor();
     await page.getByRole('button',{name:'Start experiments',exact:true}).click();
     const cloth=await complete('cloth'),e=cloth[0].experiment,b=cloth[0].branches.find(b=>b.id===e.result.execution_branch_id);
     assert(e.result.execution_evaluation.success);assert(b.evaluation.robot_joint_displacement_rad>.1);
@@ -137,7 +135,7 @@ try{
   await page.getByRole('heading',{name:'Visual scene',exact:true}).waitFor();await page.waitForFunction(()=>window.__vivacityImport?.vertices===3);
   assert.equal(await page.getByRole('log').count(),1);proof.checks.push('bounded_real_visual_import');
   assert(proof.state_messages>100&&proof.event_messages>10);assert(liveFrames.some(f=>f.stage==='executing'&&f.frame.phase==='lift'));
-  assert.deepEqual(proof.errors,[]);proof.status='passed';console.log('Fresh autonomous pickup, numerical discovery, live transforms, exports and UI checks passed.');
+  assert.deepEqual(proof.errors,[]);proof.status='passed';console.log('Robotics templates, fresh pickup/cloth physics, live transforms, exports and UI checks passed.');
 }catch(e){proof.status='failed';proof.failure=e.message;throw e;}
 finally{
   proof.finished_unix_s=Date.now()/1000;fs.writeFileSync(`artifacts/${prefix}-verification.json`,JSON.stringify(proof,null,2));

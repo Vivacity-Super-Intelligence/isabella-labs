@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Vivacity Execution Runtime",
-    "description": "Measured Panda manipulation, reaching, experimental flex folding and SciPy model comparison. Explicit bounded native import probes and a documented trusted Orbital adaptation. Single-process demo.",
+    "description": "Robotics-only runtime: measured Panda manipulation, reaching and experimental fixture-assisted flex folding. Public scenario templates declare readiness and reject unsupported combinations. Single-process demo.",
     "version": "1.0.0"
   },
   "paths": {
@@ -16,6 +16,62 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/templates": {
+      "get": {
+        "summary": "Templates",
+        "operationId": "templates_v1_templates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateCatalog"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/templates/resolve": {
+      "post": {
+        "summary": "Resolve Template",
+        "operationId": "resolve_template_v1_templates_resolve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateSelection"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWorld"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -1455,7 +1511,6 @@
             "type": "string",
             "enum": [
               "mujoco",
-              "scipy",
               "cloth"
             ],
             "title": "Backend"
@@ -1471,9 +1526,6 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/RoboticsConfig"
-              },
-              {
-                "$ref": "#/components/schemas/ScienceConfig"
               },
               {
                 "$ref": "#/components/schemas/ClothConfig"
@@ -1498,9 +1550,6 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/RoboticsConfig"
-              },
-              {
-                "$ref": "#/components/schemas/ScienceConfig"
               },
               {
                 "$ref": "#/components/schemas/ClothConfig"
@@ -2133,83 +2182,6 @@
         "type": "object",
         "title": "RoboticsConfig"
       },
-      "ScienceConfig": {
-        "properties": {
-          "central_mu": {
-            "type": "number",
-            "maximum": 1.3,
-            "minimum": 0.7,
-            "title": "Central Mu",
-            "default": 1
-          },
-          "hidden_mass": {
-            "type": "number",
-            "maximum": 0.3,
-            "minimum": 0.0,
-            "title": "Hidden Mass",
-            "default": 0.12
-          },
-          "perturbing_position": {
-            "items": {
-              "type": "number"
-            },
-            "type": "array",
-            "maxItems": 2,
-            "minItems": 2,
-            "title": "Perturbing Position",
-            "default": [
-              2.5,
-              0.4
-            ]
-          },
-          "initial_state": {
-            "items": {
-              "type": "number"
-            },
-            "type": "array",
-            "maxItems": 4,
-            "minItems": 4,
-            "title": "Initial State",
-            "default": [
-              1.0,
-              0.0,
-              0.0,
-              1.0
-            ]
-          },
-          "noise_std": {
-            "type": "number",
-            "maximum": 0.05,
-            "minimum": 1e-05,
-            "title": "Noise Std",
-            "default": 0.001
-          },
-          "samples": {
-            "type": "integer",
-            "maximum": 200.0,
-            "minimum": 30.0,
-            "title": "Samples",
-            "default": 70
-          },
-          "horizon": {
-            "type": "number",
-            "maximum": 8.0,
-            "minimum": 2.0,
-            "title": "Horizon",
-            "default": 5
-          },
-          "train_fraction": {
-            "type": "number",
-            "maximum": 0.85,
-            "minimum": 0.5,
-            "title": "Train Fraction",
-            "default": 0.7
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "ScienceConfig"
-      },
       "SessionRequest": {
         "properties": {
           "schema_version": {
@@ -2222,7 +2194,6 @@
             "type": "string",
             "enum": [
               "mujoco",
-              "scipy",
               "cloth"
             ],
             "title": "Backend"
@@ -2238,9 +2209,6 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/RoboticsConfig"
-              },
-              {
-                "$ref": "#/components/schemas/ScienceConfig"
               },
               {
                 "$ref": "#/components/schemas/ClothConfig"
@@ -2451,6 +2419,147 @@
           "observation"
         ],
         "title": "StateResponse"
+      },
+      "TemplateCatalog": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.templates/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.templates/1.0"
+          },
+          "arms": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateOption"
+            },
+            "type": "array",
+            "title": "Arms"
+          },
+          "worlds": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateOption"
+            },
+            "type": "array",
+            "title": "Worlds"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateOption"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
+          "contract": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Contract"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "arms",
+          "worlds",
+          "tasks",
+          "contract"
+        ],
+        "title": "TemplateCatalog"
+      },
+      "TemplateOption": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "experimental",
+              "reference"
+            ],
+            "title": "Status"
+          },
+          "technical": {
+            "type": "string",
+            "title": "Technical"
+          },
+          "business": {
+            "type": "string",
+            "title": "Business"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status",
+          "technical",
+          "business",
+          "scope"
+        ],
+        "title": "TemplateOption"
+      },
+      "TemplateSelection": {
+        "properties": {
+          "arm": {
+            "type": "string",
+            "enum": [
+              "panda",
+              "ur5e",
+              "iiwa",
+              "scara",
+              "dual_arm"
+            ],
+            "title": "Arm",
+            "default": "panda"
+          },
+          "world": {
+            "type": "string",
+            "enum": [
+              "manufacturing",
+              "warehouse",
+              "inspection",
+              "cluttered",
+              "textile"
+            ],
+            "title": "World",
+            "default": "manufacturing"
+          },
+          "task": {
+            "type": "string",
+            "enum": [
+              "pick_place",
+              "obstacle_transfer",
+              "cloth_fold",
+              "machine_tending",
+              "assembly"
+            ],
+            "title": "Task",
+            "default": "pick_place"
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 4294967295.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 7
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TemplateSelection"
       },
       "TrialResponse": {
         "properties": {

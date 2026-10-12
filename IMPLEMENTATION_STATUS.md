@@ -1,3 +1,34 @@
+# Robotics template release verification (2026-10-13)
+
+This release retires Scientific Discovery from the public UI, schemas and runtime.
+The implemented catalog has five arm references, five physical workcell presets
+and five task choices. Panda is the actuated arm. Eight rigid handling combinations
+and one fixture-assisted textile fold run through existing MuJoCo adapters.
+UR5e, KUKA iiwa, SCARA, dual-arm control, machine tending and assembly are gated
+reference templates, not implemented controllers. See docs/ROBOTICS_TEMPLATES.md.
+
+Executed locally: all 11 template tests passed in 169.57 s (one dependency warning).
+The migrated runtime boundary run passed 61 tests and failed three in 606.67 s;
+cloth failed-adapter replay labeling, an observation-envelope assertion and a
+wait deadline were corrected. All three repaired checks passed in 98.60 s.
+The current full Linux image run is 38318104071 on source 2bf89e7; its final
+result and deployment/public-browser evidence will be recorded below at release.
+
+TypeScript/Vite build passed, with the existing large Three.js chunk warning.
+The live local HTTP/WebSocket demo passed repeated deterministic reaching,
+measured collisions, obstacle change/staleness, all-path failure and real cloth
+folding. A UI warehouse run completed five real feasible trials and a fresh
+pickup execution; a downloaded measured branch has 6,055 integration steps,
+53 frames and 1.0705 mm placement error. Actual worker pause/resume was exercised.
+
+Known limits: simplified workcells rather than complete facility twins; Panda
+only; pre-attached cloth fixture without autonomous grasp; synthetic semantic
+ray sensing rather than real camera perception; bounded host compute, ephemeral
+Free-host SQLite, no hardware actuation or production account/billing system.
+No ROI, traction, global optimality or universal physical feasibility is claimed.
+
+The following records are historical releases, not the current template scope.
+
 # Implementation status — current Render handoff, 2026-10-13
 
 ## Current clean tabletop and adaptive pickup release

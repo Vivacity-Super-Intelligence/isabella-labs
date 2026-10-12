@@ -16,7 +16,6 @@ def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
              {'adaptive_trials': True, 'search_candidates': 256, 'physics_budget': 8, 'execute_selected': True}),
             ('cloth', None, {'search_candidates': 50, 'physics_budget': 3,
                              'execute_selected': True}),
-            ('scipy', None, {}),
         ]:
             body = {'backend': backend, 'seed': 7}
             if config is not None:
@@ -40,8 +39,4 @@ def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
                 assert experiment['result']['executed_settings']['max_wall_seconds'] == 300
             replay = client.get(f'/v1/experiments/{eid}/replay').json()
             assert all(branch['frames'] for branch in replay['branches'])
-            if backend != 'scipy':
-                assert experiment['result']['execution_evaluation']['success']
-            else:
-                fits = client.get(f'/v1/experiments/{eid}/branches').json()
-                assert all(b['performance']['integration_calls'] > 0 for b in fits)
+            assert experiment['result']['execution_evaluation']['success']

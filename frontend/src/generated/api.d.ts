@@ -21,6 +21,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Templates */
+        get: operations["templates_v1_templates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/templates/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve Template */
+        post: operations["resolve_template_v1_templates_resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/sessions": {
         parameters: {
             query?: never;
@@ -599,19 +633,19 @@ export interface components {
              * Backend
              * @enum {string}
              */
-            backend: "mujoco" | "scipy" | "cloth";
+            backend: "mujoco" | "cloth";
             /**
              * Seed
              * @default 7
              */
             seed: number;
             /** Config */
-            config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"] | null;
+            config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ClothConfig"] | null;
         };
         /** EnvironmentPatch */
         EnvironmentPatch: {
             /** Config */
-            config: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"];
+            config: components["schemas"]["RoboticsConfig"] | components["schemas"]["ClothConfig"];
         };
         /** EventResponse */
         EventResponse: {
@@ -934,57 +968,6 @@ export interface components {
              */
             target_position: number[];
         };
-        /** ScienceConfig */
-        ScienceConfig: {
-            /**
-             * Central Mu
-             * @default 1
-             */
-            central_mu: number;
-            /**
-             * Hidden Mass
-             * @default 0.12
-             */
-            hidden_mass: number;
-            /**
-             * Perturbing Position
-             * @default [
-             *       2.5,
-             *       0.4
-             *     ]
-             */
-            perturbing_position: number[];
-            /**
-             * Initial State
-             * @default [
-             *       1,
-             *       0,
-             *       0,
-             *       1
-             *     ]
-             */
-            initial_state: number[];
-            /**
-             * Noise Std
-             * @default 0.001
-             */
-            noise_std: number;
-            /**
-             * Samples
-             * @default 70
-             */
-            samples: number;
-            /**
-             * Horizon
-             * @default 5
-             */
-            horizon: number;
-            /**
-             * Train Fraction
-             * @default 0.7
-             */
-            train_fraction: number;
-        };
         /** SessionRequest */
         SessionRequest: {
             /**
@@ -997,14 +980,14 @@ export interface components {
              * Backend
              * @enum {string}
              */
-            backend: "mujoco" | "scipy" | "cloth";
+            backend: "mujoco" | "cloth";
             /**
              * Seed
              * @default 7
              */
             seed: number;
             /** Config */
-            config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"] | null;
+            config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ClothConfig"] | null;
             /**
              * Physics Trials
              * @default 0
@@ -1107,6 +1090,67 @@ export interface components {
             observation: {
                 [key: string]: unknown;
             };
+        };
+        /** TemplateCatalog */
+        TemplateCatalog: {
+            /**
+             * Schema Version
+             * @default vivacity.templates/1.0
+             * @constant
+             */
+            schema_version: "vivacity.templates/1.0";
+            /** Arms */
+            arms: components["schemas"]["TemplateOption"][];
+            /** Worlds */
+            worlds: components["schemas"]["TemplateOption"][];
+            /** Tasks */
+            tasks: components["schemas"]["TemplateOption"][];
+            /** Contract */
+            contract: string[];
+        };
+        /** TemplateOption */
+        TemplateOption: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "available" | "experimental" | "reference";
+            /** Technical */
+            technical: string;
+            /** Business */
+            business: string;
+            /** Scope */
+            scope: string;
+        };
+        /** TemplateSelection */
+        TemplateSelection: {
+            /**
+             * Arm
+             * @default panda
+             * @enum {string}
+             */
+            arm: "panda" | "ur5e" | "iiwa" | "scara" | "dual_arm";
+            /**
+             * World
+             * @default manufacturing
+             * @enum {string}
+             */
+            world: "manufacturing" | "warehouse" | "inspection" | "cluttered" | "textile";
+            /**
+             * Task
+             * @default pick_place
+             * @enum {string}
+             */
+            task: "pick_place" | "obstacle_transfer" | "cloth_fold" | "machine_tending" | "assembly";
+            /**
+             * Seed
+             * @default 7
+             */
+            seed: number;
         };
         /** TrialResponse */
         TrialResponse: {
@@ -1245,6 +1289,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    templates_v1_templates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateCatalog"];
+                };
+            };
+        };
+    };
+    resolve_template_v1_templates_resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemplateSelection"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

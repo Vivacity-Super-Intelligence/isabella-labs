@@ -74,16 +74,13 @@ def run(base, output, timeout_seconds=120):
             blocked.raise_for_status()
             failed, _ = experiment(robot, {'planner_iterations': 100})
             assert failed['selected_branch_id'] is None, 'blocked fixture must remain an honest failure'
-            science = post('/v1/worlds', {'backend': 'scipy', 'seed': 7})
-            evidence['science_initialization'] = science['performance']
-            sci, fits = experiment(science)
-            assert sci['selected_branch_id'] == fits[1]['id']
-            assert 'hidden_mass' not in json.dumps(client.get(f"/v1/worlds/{science['id']}").json())
-            changed = client.patch(f"/v1/worlds/{science['id']}/environment", json={'config': {'hidden_mass': 0, 'noise_std': 0.002, 'samples': 60}})
-            changed.raise_for_status()
-            null, fits = experiment(science)
-            assert null['selected_branch_id'] == fits[0]['id']
-            evidence['checks'] = {'live_http': True, 'live_websocket': True, 'deterministic_physics_reexecution': True, 'failed_and_successful_reach': True, 'geometry_replan': True, 'stale_commit_rejection': True, 'all_paths_fail': True, 'competing_scipy_models': True, 'unnecessary_mass_rejected': True}
+            selection=post('/v1/templates/resolve', {'arm':'panda','world':'textile','task':'cloth_fold'})
+            cloth = post('/v1/worlds', selection)
+            folded, folds = experiment(cloth, {'search_candidates':50,'physics_budget':3,'execute_selected':True,'max_simulation_seconds':40})
+            assert folded['result']['execution_evaluation']['success']
+            assert any(b['performance']['simulation_steps']>0 for b in folds)
+            assert client.post('/v1/worlds',json={'backend':'scipy'}).status_code==422
+            evidence['checks'] = {'live_http':True,'live_websocket':True,'deterministic_physics_reexecution':True,'failed_and_successful_reach':True,'geometry_replan':True,'stale_commit_rejection':True,'all_paths_fail':True,'real_fixture_fold':True,'scientific_backend_retired':True}
             evidence['status'] = 'passed'
             print('Live demonstration checks passed.')
         finally:

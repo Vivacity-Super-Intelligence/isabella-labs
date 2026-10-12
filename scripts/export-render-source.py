@@ -27,8 +27,7 @@ for source in sorted(set(files)):
 (target / '.gitignore').write_text('__pycache__/\n*.pyc\nartifacts/\ndata/\n.env*\n', encoding='utf-8')
 (target / '.gitattributes').write_text('* -text\n', encoding='utf-8')
 (target / 'README.md').write_text('''# Vivacity simulation backend
-
-Private deployment snapshot of the real FastAPI, MuJoCo and SciPy runtime.
+Private deployment snapshot of the real FastAPI and MuJoCo robotics runtime.
 SOURCE_MANIFEST.json identifies the exact source content exported from the
 development workspace. Credentials, frontend work and experiment databases
 are excluded.

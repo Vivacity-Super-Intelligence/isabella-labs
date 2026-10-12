@@ -7,23 +7,23 @@ type Session = components['schemas']['SessionResponse'];
 type Live = components['schemas']['LiveState'];
 const get=(key:string)=>{try{return localStorage.getItem(`vivacity:${key}`);}catch{return null;}};
 const put=(key:string,value:string)=>{try{localStorage.setItem(`vivacity:${key}`,value);}catch{/* Optional persistence. */}};
-const pending=new Map<Backend,Promise<Session>>();
+const pending=new Map<string,Promise<Session>>();
 function freshToken(){return crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','');}
-async function ensureSession(backend:Backend,config?:Dict,fresh=false){
-  if(!pending.has(backend)){
+async function ensureSession(backend:Backend,storageKey:string,config?:Dict,fresh=false){
+  if(!pending.has(storageKey)){
     const work=(async()=>{
-      const id=get(`${backend}:session`),token=get(`${backend}:token`);
+      const id=get(`${storageKey}:session`),token=get(`${storageKey}:token`);
       if(!fresh&&id&&token){setSessionToken(token);try{return await api.session(id);}catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}}
       const capability=freshToken();setSessionToken(capability);
       const session=await api.createSession(backend,capability,config);
-      put(`${backend}:token`,capability);put(`${backend}:session`,session.id);return session;
-    })().finally(()=>pending.delete(backend));pending.set(backend,work);
+      put(`${storageKey}:token`,capability);put(`${storageKey}:session`,session.id);return session;
+    })().finally(()=>pending.delete(storageKey));pending.set(storageKey,work);
   }
-  return pending.get(backend)!;
+  return pending.get(storageKey)!;
 }
 export const isBusy=(e:Experiment|null)=>e?.status==='queued'||e?.status==='running';
-
-export function useRuntime(backend:Backend){
+export function useRuntime(backend:Backend,templateKey="default",initialConfig?:Dict){
+  const storageKey=`robotics-v2:${backend}:${templateKey}`;
   const [session,setSession]=useState<Session|null>(null),[world,setWorld]=useState<World|null>(null);
   const [observation,setObservation]=useState<Dict|null>(null),[experiment,setExperiment]=useState<Experiment|null>(null);
   const [perception,setPerception]=useState<SimulatedPerception|null>(null);
@@ -55,7 +55,7 @@ export function useRuntime(backend:Backend){
     if(currentWorld.current?.id!==s.world_id){
       const w=await api.world(s.world_id),state=await api.state(s.world_id);
       if(version!==generation.current)return;
-      currentWorld.current=w;put(`${backend}:world`,w.id);setWorld(w);setObservation(state.observation as Dict);
+      currentWorld.current=w;put(`${storageKey}:world`,w.id);setWorld(w);setObservation(state.observation as Dict);
       setPerception(simulatedPerception((state.observation as Dict).perception));setLiveState(null);setBranches([]);
     }
     if(!inspecting.current&&s.experiment_id&&currentExperiment.current?.id!==s.experiment_id){
@@ -63,14 +63,14 @@ export function useRuntime(backend:Backend){
       if(version!==generation.current)return;
       currentExperiment.current=e;setExperiment(e);setBranches([]);setLiveState(null);
     }
-  },[backend]);
+  },[backend,storageKey]);
 
   useEffect(()=>{
     const version=++generation.current;let active=true,refreshing=false;
     inspecting.current=false;
-    stagedConfig.current=null;
+    stagedConfig.current=initialConfig??null;
     try{
-      const saved=JSON.parse(get(`${backend}:settings`)??'null');
+      const saved=JSON.parse(get(`${storageKey}:settings`)??'null');
       if(saved&&typeof saved==='object'&&!Array.isArray(saved))stagedConfig.current=saved as Dict;
     }catch{/* Ignore invalid optional local preferences. */}
     setWorld(null);currentWorld.current=null;setSession(null);currentSession.current=null;
@@ -87,7 +87,7 @@ export function useRuntime(backend:Backend){
           await api.health();
         }else{
           // Opening a lab initializes or restores its world, never an experiment.
-          const id=get(`${backend}:session`),token=get(`${backend}:token`),worldId=get(`${backend}:world`);
+          const id=get(`${storageKey}:session`),token=get(`${storageKey}:token`),worldId=get(`${storageKey}:world`);
           let restored:Session|null=null;
           if(id&&token){
             setSessionToken(token);
@@ -102,10 +102,10 @@ export function useRuntime(backend:Backend){
           else{
             let w:World|null=null;
             if(worldId){try{w=await api.world(worldId);}catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}}
-            w??=await api.create(backend);
+            w??=await api.create(backend,initialConfig);
             const state=await api.state(w.id);
             if(!active||lock.current||version!==generation.current)return;
-            put(`${backend}:world`,w.id);currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);
+            put(`${storageKey}:world`,w.id);currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);
             setPerception(simulatedPerception((state.observation as Dict).perception));
           }
         }
@@ -115,7 +115,7 @@ export function useRuntime(backend:Backend){
     };
     refresh();const interval=setInterval(refresh,1000);
     return()=>{active=false;clearInterval(interval);};
-  },[backend,epoch,adopt]);
+  },[backend,storageKey,initialConfig,epoch,adopt]);
 
   useEffect(()=>{
     const id=experiment?.id;if(!id)return;
@@ -177,7 +177,7 @@ export function useRuntime(backend:Backend){
     }
   },[]);
   const start=()=>perform(async()=>{
-    await stop();inspecting.current=false;const s=await ensureSession(backend,stagedConfig.current??currentWorld.current?.config,true);await adopt(s,generation.current);
+    await stop();inspecting.current=false;const s=await ensureSession(backend,storageKey,stagedConfig.current??currentWorld.current?.config,true);await adopt(s,generation.current);
   });
   const togglePause=()=>perform(async()=>{
     const s=currentSession.current;if(!s||s.status!=='active')return;
@@ -188,9 +188,9 @@ export function useRuntime(backend:Backend){
     await stop();inspecting.current=false;const w=currentWorld.current;
     if(!w)return;
     const changed=await api.environment(w.id,config),state=await api.state(w.id);
-    // Retain user-selected inputs, including the explicit scientific control,
+    // Retain user-selected physical conditions,
     // so waiting or reloading between Apply and Start does not change the request.
-    stagedConfig.current=config;put(`${backend}:settings`,JSON.stringify(config));
+    stagedConfig.current=config;put(`${storageKey}:settings`,JSON.stringify(config));
     currentWorld.current=changed;setWorld(changed);setObservation(state.observation as Dict);
     setPerception(simulatedPerception((state.observation as Dict).perception));setLiveState(null);
     currentSession.current=null;setSession(null);

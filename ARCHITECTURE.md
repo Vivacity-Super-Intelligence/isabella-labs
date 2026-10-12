@@ -1,3 +1,7 @@
+# Current scope: robotics-only templates
+
+Scientific Discovery is retired. `templates.py` publishes capability readiness and resolves supported selections into existing MuJoCo robot/cloth adapters. No alternative arm controller is implied by a reference catalog entry. The template picker creates idle worlds; actual execution still requires Start. See `docs/ROBOTICS_TEMPLATES.md` and `IMPLEMENTATION_STATUS.md` for current acceptance evidence. The following records earlier architecture milestones; old Discovery verification is historical.
+
 # Vivacity master implementation
 
 ## Native import boundary and Orbital adapter
@@ -22,15 +26,15 @@ streams real `/live` and `/events` states, supports explicit cancellation and
 geometry changes, and stops polling after completion. It starts no job on load.
 Main UI controls are Start/Stop; native Pause/Resume remains in the API.
 
-Existing FastAPI/SQLite adapters and React/Three.js client are retained. MuJoCo 3.15.0 supplies dynamics; SciPy 1.18.1 supplies numerical integration/fitting. Pinned dependencies remain in `requirements.txt` and frontend lockfile.
+Existing FastAPI/SQLite adapters and React/Three.js client are retained. MuJoCo 3.15.0 supplies dynamics; SciPy supplies robotics rotation mathematics. Pinned dependencies remain in `requirements.txt` and frontend lockfile.
 
 Runtime operations remain create/observe/snapshot/fork/apply/simulate/evaluate/commit/replay. `RobotAdapter` dispatches persisted robotics configurations between legacy reaching and new contact-driven pickup. Both use full `mjSTATE_INTEGRATION`, independent `MjData` and reconstructed scene/version/mesh hashes. SQLite preserves branch lineage, actions, measured traces, evaluations and idempotent jobs. A bounded one-worker executor runs simulations outside HTTP handlers.
 
-Source audit: `vivacity/{runtime,robotics,pick_place,cloth,science,search,storage,schemas,api,agent,imports}.py`; frontend runtime, scenes, playback and result/inspector/import components; existing API/physics/science/search/reliability tests; architecture/API/handoff/status/release documentation. Git checkpoint: `codex/master-build-checkpoint` at `4a1d405`. Unrelated untracked partial verification artifacts were preserved.
+Source audit: `vivacity/{runtime,robotics,pick_place,cloth,templates,search,storage,schemas,api,agent,imports}.py`; frontend runtime, scenes, playback and result/inspector/import components; existing API/physics/templates/search/reliability tests; architecture/API/handoff/status/release documentation. Git checkpoint: `codex/master-build-checkpoint` at `4a1d405`. Unrelated untracked partial verification artifacts were preserved.
 
 New phase-1 code is isolated in `vivacity/pick_place.py`; old scene reconstruction is preserved. See `ROBOTICS_VALIDATION.md` for executed evidence.
 
-Phase 2: `Supervisor` owns at most two leased sessions and one pending experiment per session. The shared one-worker simulation executor remains bounded to eight reservations. A session runs at most eight cycles (cloth capped at two), uses new world IDs/seeds and records conditions. A 180-second browser heartbeat lease and 30-minute session wall bound stop unattended work. Stop/cancel interrupts robotics/cloth at physics-step boundaries; a SciPy fit finishes its current bounded numerical operation before cancellation is recorded. Restart marks interrupted jobs/sessions honestly failed. Successful selected physical plans execute again in an independent simulator and persist their actual live outcome; no recorded trace drives execution.
+Phase 2: `Supervisor` owns at most two leased sessions and one pending experiment per session. The shared one-worker simulation executor remains bounded to eight reservations. A session runs at most eight cycles (cloth capped at two), uses new world IDs/seeds and records conditions. A 180-second browser heartbeat lease and 30-minute session wall bound stop unattended work. Stop/cancel interrupts robotics/cloth at physics-step boundaries. Restart marks interrupted jobs/sessions honestly failed. Successful selected physical plans execute again in an independent simulator and persist their actual live outcome; no recorded trace drives execution.
 
 Session capabilities are client-generated random tokens; only SHA-256 digests are stored. All REST and both WebSocket routes for session-owned worlds check that capability. HTTP uses `X-Session-Token`; WebSockets offer `vivacity.live` and `vivacity.token.<token>` subprotocols. No token appears in URLs, branch exports or result records. Legacy explicitly public demo worlds remain public; this is capability isolation, not account authentication, billing or comprehensive abuse protection.
 

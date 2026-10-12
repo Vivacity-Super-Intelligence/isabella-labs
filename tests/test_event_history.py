@@ -18,8 +18,8 @@ def test_events_have_real_timestamps_and_paginated_sequence(tmp_path):
 def test_rest_history_requires_real_experiment(tmp_path):
     with TestClient(create_app(tmp_path/'api.sqlite')) as client:
         assert client.get('/v1/experiments/missing/events').status_code==404
-        w=client.post('/v1/worlds',json={'backend':'scipy'}).json()
-        e=client.post(f"/v1/worlds/{w['id']}/experiments",json={}).json()
+        w=client.post('/v1/worlds',json={'backend':'cloth'}).json()
+        e=client.post(f"/v1/worlds/{w['id']}/experiments",json={"search_candidates":50,"physics_budget":3}).json()
         client.app.state.runtime.wait(e['id'])
         events=client.get(f"/v1/experiments/{e['id']}/events").json()
         assert events[0]['kind']=='queued'

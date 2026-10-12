@@ -1,12 +1,23 @@
-# Current frontend handoff — adaptive tabletop runtime, 2026-10-13
+# Robotics template frontend handoff
 
-The verified custom domain is `https://demo.tryvivacity.com/`; backend is
-`https://vivacity-runtime.onrender.com`. Render deploy
-`dep-db6lh3ff3r2c73crqm4g` runs source `0353263`, and final Vercel deployment
-is `dpl_EHwp139FoB9QFLYqEi9p5J6DpaaR`. The backend Docker suite passed 155
-tests and the separate 512 MB lab test. The public adaptive pickup journey,
-edited object properties, full-table drag, stale results and clean reload
-were exercised. See `docs/HOSTING_STATUS.md` for actual measured results.
+The public workspace now has five arm, five world and five task choices.
+Scientific Discovery is removed from the active UI and API. Read
+`docs/ROBOTICS_TEMPLATES.md` for exact availability and compatibility.
+`vivacity/templates.py` owns presets; regenerate
+`frontend/src/generated/templates.json` with
+`python scripts/update-robotics-catalog.py`. GET `/v1/templates` returns the
+versioned catalog; POST `/v1/templates/resolve` returns a validated CreateWorld
+request without starting an experiment.
+
+Example selection: `{"arm":"panda","world":"warehouse","task":"pick_place","seed":7}`.
+Pass the response to POST `/v1/worlds`, or its backend/config to POST
+`/v1/sessions` on explicit Start. Unsupported adapters/tasks return 422.
+Do not silently substitute Panda for another robot. Reference templates
+explain intended business use and missing physical capabilities.
+
+Frontend: `https://demo.tryvivacity.com/`; backend:
+`https://vivacity-runtime.onrender.com`. Release proof and hosting limitations
+are in `IMPLEMENTATION_STATUS.md` and `docs/HOSTING_STATUS.md`.
 
 Use the regenerated `openapi.json` and `frontend/src/generated/api.d.ts`.
 The additive request flag `adaptive_trials: true` replaces the UI's exact
@@ -97,7 +108,7 @@ The server allows exactly the two public demo origins. Never put keys in `VITE_`
 variables. Session HTTP requests require `X-Session-Token`; session WebSockets use
 the existing capability protocol documented below. HTTPS uses WSS automatically.
 
-The existing React/TypeScript/Three.js frontend now runs bounded autonomous laboratories. **Do not scaffold over it or reinstate recorded playback.** The main robot/cloth scene consumes fresh authoritative MuJoCo states after independently validating candidates. Scientific paths are executed SciPy predictions. Result selection inspects evidence; it does not replay a branch in the main scene. Historical V2 release documents describe an earlier interface and are not the current contract.
+The existing React/TypeScript/Three.js frontend now runs bounded autonomous laboratories. **Do not scaffold over it or reinstate recorded playback.** The main robot/cloth scene consumes fresh authoritative MuJoCo states after independently validating candidates. Result selection inspects evidence; it does not replay a branch in the main scene. Historical V2 release documents describe an earlier interface and are not the current contract.
 
 **Manual start:** loading, reloading, switching laboratories and applying settings never create experiment sessions. The existing main button, **Start experiments**, is the only session-creation path. Initial loading creates/restores a stationary world via the existing world API. Applying settings updates geometry/observations and invalidates old results without submitting experiments. Reloading cancels an existing active session instead of silently continuing it. Completed evidence remains inspectable. Layout, styles and simulation algorithms are unchanged.
 
@@ -111,7 +122,7 @@ The existing React/TypeScript/Three.js frontend now runs bounded autonomous labo
 | `vivacity/runtime.py`, `supervisor.py`, `pick_place.py` | Branch evaluation, fresh selected execution, bounded sessions and contact pickup |
 | `frontend/src/api.ts`, `useRuntime.ts`, `domain.ts` | Existing transport, session lifecycle, cancellation, recovery and measured frame types |
 | `frontend/src/App.tsx`, `ResultCard.tsx`, `TechnicalInspector.tsx` | Clean lab navigation, actual top-three exports and one inspector |
-| `frontend/src/RobotView.tsx`, `ClothView.tsx`, `ScienceView.tsx`, `ScienceScene.tsx` | Actual geometry, body/vertex states and numerical paths |
+| `frontend/src/RobotView.tsx`, `ClothView.tsx` | Actual geometry, body/vertex states |
 | `frontend/src/Settings.tsx`, `ClothSettings.tsx`, `ImportWorld.tsx`, `ImportScene.tsx` | Bounded condition edits and data-only previews |
 | `frontend/src/generated/api.d.ts` | Generated REST types; regenerate from OpenAPI |
 | `frontend/public/vivacity/robot-geometry.json`, `robot-meshes.bin` | Compiled Panda visual geometry and little-endian vertex/index buffer |
@@ -163,7 +174,7 @@ $env:CHECK_CONDITIONS='1'
 npm run test:e2e --prefix frontend
 ```
 
-The current `test:e2e` runs `scripts/check-master-live.mjs`: real fresh two-cycle pickup/science jobs, one constrained cloth cycle, rendering checks, downloads, mobile layouts, camera, axe and imports. `CHECK_CONDITIONS=1` also exercises blocked-scene failure, stale results/replay and fresh clear-route execution. It can take several minutes on software graphics. `test:e2e:legacy` retains the preceding V2 harness for historical reference; its playback expectations are incompatible with the current UI. Fresh browser installation: `PLAYWRIGHT_BROWSERS_PATH=<repo>/data/playwright`, then `npx playwright install chromium` from `frontend`.
+The current `test:e2e` runs `scripts/check-master-live.mjs`: real fresh two-cycle pickup jobs, one constrained cloth cycle, rendering checks, downloads, mobile layouts, camera, axe and imports. `CHECK_CONDITIONS=1` also exercises blocked-scene failure, stale results/replay and fresh clear-route execution. It can take several minutes on software graphics. `test:e2e:legacy` retains the preceding V2 harness for historical reference; its playback expectations are incompatible with the current UI. Fresh browser installation: `PLAYWRIGHT_BROWSERS_PATH=<repo>/data/playwright`, then `npx playwright install chromium` from `frontend`.
 
 ## Exact endpoints
 
@@ -228,7 +239,7 @@ the positions. Applying a size or position change recompiles actual MuJoCo
 geometry and invalidates older results. The adapted Orbital cargo fixture keeps
 its original 50 mm cube; arbitrary cargo resizing is unsupported there.
 
-For cloth use `{"backend":"cloth","seed":7,"max_cycles":1,"search_candidates":5000,"physics_budget":3}`. For science use `{"backend":"scipy","seed":7,"max_cycles":2,"search_candidates":0,"physics_budget":3}`. API robotics default without `task` remains legacy reaching; the current frontend explicitly requests pickup. Omitted config fields receive validated defaults, not frontend guesses.
+For cloth use `{"backend":"cloth","seed":7,"max_cycles":1,"search_candidates":5000,"physics_budget":3}`. API robotics default without `task` remains legacy reaching; the current frontend explicitly requests pickup. Omitted config fields receive validated defaults, not frontend guesses.
 
 Session response version is `vivacity.session/1.0`, with `id`, `backend`, `status`, `world_id`, nullable `experiment_id`, `cycle`, `max_cycles`, `experiments`, `world_ids`, `conditions`, `error`, `started_unix_s`, `last_heartbeat_unix_s`, plus `pause_requested`, `paused` and `paused_seconds`. Earlier real response examples are in `docs/master-frontend-examples.json`; the additive pause fields and trial records are specified in `PAUSE_TRIALS_VALIDATION.md`. Each next cycle changes world ID and recorded seed/conditions; reconnect to that experiment's sockets. Sessions run at most eight cycles (cloth at most two), expire after a 180 s heartbeat lapse, and have a 30 min wall bound (two hours for exhaustive pickup). GET heartbeat every second, including while paused. The current frontend requests one exhaustive pickup cycle.
 
@@ -267,16 +278,15 @@ During independent validation the main scene remains at its initialized physical
 - Table center `[0.4,0,-0.04]`, half-size `[0.7,0.65,0.04]`; tabletop Z=0, ground Z=-0.8. Obstacle configuration uses **half-sizes**, so render dimensions are twice those values. If obstacle disabled, collision masks are also disabled and renderer hides it. The default opening pickup explicitly has it disabled; controls can enable/reposition it.
 - Robot frames include `time`, `qpos`, `qvel`, `ctrl`, `body_transforms`, `end_effector`, `contacts`, `cube_position`, `cube_quaternion_wxyz`, `placement_position`, `grasp`, and physical `phase` during execution. `grasp` includes bilateral finger contacts, summed actual normal force and table support. Contacts/limits are checked every 2 ms, streamed frames approximately every 50 ms. Sampling is not a collision-proof interpolation guarantee.
 - Cloth frames add 49 actual world-space `vertices`, compiled `triangles`, folding-bar pose and `grasp_active`. Robot body poses come from the same physics engine. Its pre-attached edge constraints/fixed hinge are explicit experimental limitations; disable them only through a tested backend model change.
-- Science positions/predictions are nondimensional **`[x,y,0]`**, with genuine observed points, residuals, train/heldout tags and fitted paths. No frontend orbit animation substitutes for numerical integration. The extra body is a stationary known-location perturber in a simplified 2D model.
 - Uploaded glTF preview is **Y-up**; preserve its documented coordinate convention. Camera/grid/light controls never mutate simulator state.
 
 ## Ranking, replay and export formats
 
-Use `result.top_feasible_branch_ids` for the three measured feasible physical candidates. Fewer than three is valid, zero must be shown honestly. Scientific comparison has two hypotheses, not three fabricated candidates. `result.execution_branch_id` identifies the separate fresh selected execution; it is not a fourth ranked validation candidate. `execution_evaluation` records its measured outcome.
+Use `result.top_feasible_branch_ids` for the three measured feasible physical candidates. Fewer than three is valid, zero must be shown honestly. `result.execution_branch_id` identifies the separate fresh selected execution; it is not a fourth ranked validation candidate. `execution_evaluation` records its measured outcome.
 
-`result.search.generated/distinct_generated/screened/rejected/screening_passed` are genuine proposal counts. In exhaustive pickup mode, `fully_simulated` and `performance.trial_count` count actual integrated, evaluated native MuJoCo trials; `trial_simulation_steps` is their measured step sum. Every trial has its own MjData restored from the same complete integration snapshot. `performance.candidate_count` counts retained ranked branches plus fresh execution, not the entire trial catalog. `performance.simulation_steps` includes all trials and fresh execution. Never label screening counts as physics counts. Cloth retains screening followed by three validation rollouts; SciPy reports actual integration-call counts.
+`result.search.generated/distinct_generated/screened/rejected/screening_passed` are genuine proposal counts. In exhaustive pickup mode, `fully_simulated` and `performance.trial_count` count actual integrated, evaluated native MuJoCo trials; `trial_simulation_steps` is their measured step sum. Every trial has its own MjData restored from the same complete integration snapshot. `performance.candidate_count` counts retained ranked branches plus fresh execution, not the entire trial catalog. `performance.simulation_steps` includes all trials and fresh execution. Never label screening counts as physics counts. Cloth retains geometric screening followed by actual validation rollouts.
 
-Replay response: `{schema_version:"1.0",experiment_id,backend,config,stale,branches:[{branch_id,source,frames,evaluation}]}`. Sources identify measured MuJoCo, measured robot-cloth, executed SciPy predictions or failed adapter execution. It is available for evidence inspection, not current live execution. Branches additionally retain opaque complete initial/final integration snapshots, parent reference, action, trace, evaluation and performance. Old geometry remains reproducible through its original configuration/hash; stale results cannot be committed.
+Replay response: `{schema_version:"1.0",experiment_id,backend,config,stale,branches:[{branch_id,source,frames,evaluation}]}`. Sources identify measured MuJoCo, measured robot-cloth or failed adapter execution. It is available for evidence inspection, not current live execution. Branches additionally retain opaque complete initial/final integration snapshots, parent reference, action, trace, evaluation and performance. Old geometry remains reproducible through its original configuration/hash; stale results cannot be committed.
 
 Download version `vivacity.branch/1.0` includes experiment/branch IDs, world type, actual backend/version, initial configuration, parent reference, state encoding, initial/final snapshots, command, **recorded_frames**, evaluation/violations/success, seed, configuration SHA-256, model hash, timestamps and performance. `Content-Disposition` suggests a JSON filename. The existing client verifies schema and matching branch ID before downloading. Real examples: `artifacts/master-live-pickup-1.json` through `-3.json`, and equivalent public release exports. IDs in evidence belong to verification databases; always use fresh returned IDs.
 

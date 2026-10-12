@@ -11,7 +11,7 @@ function describe(event:Event){
     case 'branch_completed':{
       const e=d.evaluation as Branch['evaluation'];
       if(e.milestone==='constrained_single_fold')return `Flex validation: ${e.status.replaceAll('_',' ')}; alignment ${format((e.alignment_error_m??0)*1000,2)} mm; vertex coverage ${format((e.vertex_coverage??0)*100,1)}%; clamp constraints ${e.grasp_valid?'valid':'failed'}.`;
-      return e.hypothesis?`Hypothesis ${e.hypothesis}: ${e.status}; held-out RMSE ${format(e.heldout_rmse,5)}.`:`Physics validation: ${e.status.replaceAll('_',' ')}; goal ${format(typeof e.goal_error_m==='number'?e.goal_error_m*1000:undefined,1)} mm; ${e.contact_violations?.length??0} prohibited contacts.`;
+      return `Physics validation: ${e.status.replaceAll('_',' ')}; goal ${format(typeof e.goal_error_m==='number'?e.goal_error_m*1000:undefined,1)} mm; ${e.contact_violations?.length??0} prohibited contacts.`;
     }
     case 'completed':return d.selected_branch_id?'Ranking completed. Best measured candidate selected.':'Evaluation completed. No supported candidate; failures retained.';
     case 'failed':return `Experiment error: ${String(d.error??'See recorded evaluation')}.`;

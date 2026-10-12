@@ -31,9 +31,9 @@ export const api = {
     const health=await request<{limits?:{max_physics_trials:number}}>('/health');
     const computeBudget=Math.min(health.limits?.max_physics_trials??12,12);
     return request<components['schemas']['SessionResponse']>('/v1/sessions',json('POST',{
-      backend,seed:7,max_cycles:backend==='mujoco'?1:backend==='cloth'?2:4,realtime_execution:true,
+      backend,seed:7,max_cycles:backend==='mujoco'?1:2,realtime_execution:true,
       adaptive_trials:backend==='mujoco',physics_trials:0,
-      search_candidates:backend==='scipy'?0:backend==='mujoco'?256:5000,
+      search_candidates:backend==='mujoco'?256:5000,
       physics_budget:backend==='mujoco'?computeBudget:3,
       config:config??defaultConfig(backend)
     },{'X-Session-Token':token}));
@@ -43,6 +43,7 @@ export const api = {
   pauseSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/pause`,json('POST')),
   resumeSession: (id:string) => request<components['schemas']['SessionResponse']>(`/v1/sessions/${encodeURIComponent(id)}/resume`,json('POST')),
   live: (id:string) => request<components['schemas']['LiveState']|null>(`/v1/experiments/${encodeURIComponent(id)}/live`),
+  resolveTemplate: (selection:{arm:string;world:string;task:string}) => request<components['schemas']['CreateWorld']>('/v1/templates/resolve',json('POST',selection)),
   health: () => request<{ status: string; backends: Record<string,string>; limits?: {max_physics_trials:number} }>('/health'),
   create: (backend: Backend, config = defaultConfig(backend)) => request<World>('/v1/worlds', json('POST', { backend, seed: 7, config })),
   world: (id: string) => request<World>(`/v1/worlds/${encodeURIComponent(id)}`),

@@ -1,6 +1,5 @@
 import type { components } from './generated/api';
-
-export type Backend = 'mujoco' | 'scipy' | 'cloth';
+export type Backend = 'mujoco' | 'cloth';
 export type World = components['schemas']['WorldResponse'];
 export type Experiment = components['schemas']['ExperimentResponse'];
 export type Vec3 = [number, number, number];
@@ -25,23 +24,16 @@ export interface RobotFrame {
   end_effector: Vec3; body_transforms: BodyPose[];
   target_pose: { position: Vec3; rotation_matrix: number[][] }; contacts: Contact[];
 }
-export interface ScienceFrame {
-  time: number; observed_position: number[]; predicted_position: number[];
-  predicted_velocity: number[]; split: 'train' | 'heldout';
-}
 export interface ClothFrame { time:number; vertices:Vec3[]; triangles:number[][]; clamp_position:Vec3; clamp_quaternion_wxyz?:Quat; body_transforms?:BodyPose[]; qpos?:number[]; qvel?:number[]; ctrl?:number[]; grasp_active:boolean[]; scope:string }
-export type Frame = RobotFrame | ScienceFrame | ClothFrame;
+export type Frame = RobotFrame | ClothFrame;
 export interface Evaluation {
   grasp_established?:boolean; lifted?:boolean; retained_during_transport?:boolean; released?:boolean; table_supported?:boolean; max_cube_height_m?:number;
   status: string; success: boolean; planning_feasible?: boolean;
   goal_error_m?: number; orientation_error_rad?: number; execution_duration_s?: number;
   joint_path_length_rad?: number;
   milestone?:string; alignment_error_m?:number; vertex_coverage?:number; grasp_valid?:boolean; grasp_constraint_error_m?:number; fold_quality?:number;
-  contact_violations?: Contact[]; hypothesis?: string; failure?: string | null;
-  parameters?: Record<string, number>; train_rmse?: number; heldout_rmse?: number;
-  training_bic?: number; train_count?: number; heldout_count?: number; residuals?: number[][];
+  contact_violations?: Contact[]; failure?: string | null;
   fit_message?: string; phase?: string; error_type?: string;
-  uncertainty?: { standard_errors: Record<string, number>; method: string; caveat: string; active_bounds: number[] };
 }
 export type Branch = Omit<components['schemas']['BranchResponse'], 'evaluation' | 'trace'> & {
   evaluation: Evaluation; trace: Frame[];
@@ -51,7 +43,6 @@ export type Replay = Omit<components['schemas']['ReplayResponse'], 'branches'> &
 // WebSocket envelopes are not part of REST OpenAPI. Matches EventResponse in
 // vivacity/schemas.py and the versioned WebSocket contract in docs/API.md.
 export interface Event { schema_version:'1.0'; seq:number; kind:'queued'|'running'|'planned'|'progress'|'branch_completed'|'completed'|'failed'|'cancelled'; details:Dict }
-export interface ScienceObservation { times: number[]; observations: number[][]; config: Dict; selected_model: unknown }
 export const format = (n: unknown, digits = 3) => typeof n === 'number' && Number.isFinite(n) ? n.toFixed(digits) : '—';
 export const number = (d: Dict | undefined, key: string) => typeof d?.[key] === 'number' ? d[key] as number : undefined;
 export function robotFrame(value: unknown): RobotFrame | null {
@@ -61,10 +52,6 @@ export function robotFrame(value: unknown): RobotFrame | null {
 export function simulatedPerception(value: unknown): SimulatedPerception | null {
   const v = value as SimulatedPerception | null;
   return v?.schema_version === 'vivacity.perception/1.0' && Array.isArray(v.visible_samples_xy_m) ? v : null;
-}
-export function scienceObservation(value: unknown): ScienceObservation | null {
-  const v = value as ScienceObservation | null;
-  return v && Array.isArray(v.times) && Array.isArray(v.observations) ? v : null;
 }
 export function clothFrame(value:unknown):ClothFrame|null {
   const v=value as ClothFrame|null;
