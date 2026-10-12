@@ -1,5 +1,13 @@
 # Robotics template frontend handoff
 
+Verified release: backend source `2bf89e7`, Render deploy
+`dep-db6me8e7bikc73ai2g50`, Vercel production
+`dpl_7xYiCA4UA2ntSQvLXqBdXAU7kRQs` (frontend source `0bb0b9a`).
+All 156 Linux tests passed in 930.151 s; the 512 MB check passed in 52.580 s.
+Each UI Start uses one cycle and retains the chosen conditions. Public pickup,
+pause/resume, capability gating, idle loading, REST/WSS and OpenAPI matching were
+exercised; final cloth and responsive results are in IMPLEMENTATION_STATUS.md.
+
 The public workspace now has five arm, five world and five task choices.
 Scientific Discovery is removed from the active UI and API. Read
 `docs/ROBOTICS_TEMPLATES.md` for exact availability and compatibility.
@@ -292,4 +300,4 @@ Download version `vivacity.branch/1.0` includes experiment/branch IDs, world typ
 
 ## Remaining limitations
 
-Current pickup proves a fixed unobstructed contact benchmark; generalized obstacle-detour pickup planning/randomized robustness remain incomplete. Existing reaching has RRT; new staged pickup has DLS and actual kinematic screening. All-paths-fail is honest. Cloth is constrained experimental manipulation. Science is synthetic restricted model comparison. Imports are data-only; isolated native execution is unavailable. Legacy public worlds/imports have no account auth or storage-retention quota. Both public frontend aliases connect to `https://vivacity-runtime.onrender.com`; the Render Free limits and actual evidence are in `docs/HOSTING_STATUS.md`. Public pickup is capped at eight actual physics trials, and the free service loses SQLite state on sleep/restart.
+Pickup uses pose DLS and joint-space RRT with measured contact validation in the supported workcells; general robot robustness is not established. All-paths-fail remains honest. Cloth uses a fixed hinge and pre-attached folding fixture without autonomous grasp acquisition. Scientific Discovery is retired. Imports support visual inspection, explicitly requested bounded native probes and the trusted Orbital adaptation; generic imported task control is incomplete. Public standalone worlds/imports have no account authentication or retention quota. Render Free limits and measured evidence are in `docs/HOSTING_STATUS.md`: eight pickup trials maximum, constrained CPU, ephemeral SQLite and possible cold starts.

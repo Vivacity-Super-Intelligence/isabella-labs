@@ -11,8 +11,10 @@ Executed locally: all 11 template tests passed in 169.57 s (one dependency warni
 The migrated runtime boundary run passed 61 tests and failed three in 606.67 s;
 cloth failed-adapter replay labeling, an observation-envelope assertion and a
 wait deadline were corrected. All three repaired checks passed in 98.60 s.
-The current full Linux image run is 38318104071 on source 2bf89e7; its final
-result and deployment/public-browser evidence will be recorded below at release.
+The full Linux deployment-image run 38318104071 on source 2bf89e7 passed
+156 tests, zero failures/errors/skips, in 930.151 s. The separate 512 MB check
+passed one test in 52.580 s. Both had the existing dependency warning. Evidence:
+artifacts/templates-linux-tests/.
 
 TypeScript/Vite build passed, with the existing large Three.js chunk warning.
 The live local HTTP/WebSocket demo passed repeated deterministic reaching,
@@ -26,6 +28,33 @@ only; pre-attached cloth fixture without autonomous grasp; synthetic semantic
 ray sensing rather than real camera perception; bounded host compute, ephemeral
 Free-host SQLite, no hardware actuation or production account/billing system.
 No ROI, traction, global optimality or universal physical feasibility is claimed.
+
+Public release: backend source `2bf89e7`, Render
+`dep-db6me8e7bikc73ai2g50`, frontend source `0bb0b9a`, Vercel
+`dpl_7xYiCA4UA2ntSQvLXqBdXAU7kRQs`, https://demo.tryvivacity.com/.
+Public template/API/OpenAPI/CORS checks passed; retired science and reference
+hardware return 422. A real WSS diagnostic delivered eight sequenced messages,
+50 integrated steps and replay identical to its trace; the intentional 100 ms
+timeout failed honestly. A later geometry patch invalidated that experiment
+and replay and incremented its world revision. This is not a pickup success.
+
+Public warehouse: five measured feasible trials and a fresh successful execution.
+Pause/resume controlled the backend. Downloaded validation: 6,055 steps,
+53 frames, 12.11 simulated seconds, 1.0712 mm placement error. Displayed completion
+was 231.38 wall seconds, including a pause from 134.98 to 208.65 s.
+Public cloth: three genuine validation rollouts plus a fresh successful execution;
+selected validation has 2,758 steps, 112 frames, 0.9234 mm alignment error and
+100% vertex coverage. Displayed completion was 475.60 wall seconds. The Free
+host's CPU makes cloth slow; faster or uninterrupted service is not established.
+
+Desktop and 390 px mobile layout, native radio keyboard navigation, reference
+gating, template load focus, idle opening and empty viewport text were checked.
+The final public browser had zero captured errors. Screenshots:
+`artifacts/templates-public-fold.jpg`, `artifacts/templates-public-mobile.jpg`.
+Numerical exports and API proof: `artifacts/templates-public-*-branch.json`,
+`templates-public-api.json`, `templates-public-boundary.json` and
+`templates-public-invalidation.json`. Screen-reader testing and a new automated
+axe run were not performed; older browser harness results are historical.
 
 The following records are historical releases, not the current template scope.
 

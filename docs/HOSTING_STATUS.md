@@ -1,5 +1,42 @@
 # Render hosting verification — 2026-10-13
 
+## Current robotics templates release
+
+Backend source `2bf89e761a9023c6df655e805c4424d581faf8c6` passed
+[Linux verification](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38318104071):
+156 passed, zero errors/failures/skips, 930.151 s. The separate 512 MB container
+check passed one test in 52.580 s. Both retain the dependency warning.
+Render deployed this source as `dep-db6me8e7bikc73ai2g50`. Public `/health`
+advertises only MuJoCo robot/cloth adapters; the catalog has five entries per
+category; retired science and unsupported hardware requests return 422.
+The public OpenAPI matches both exported files. Real WSS delivered eight events
+for a deliberate 100 ms timeout diagnostic with 50 integrated steps and matching
+replay. This diagnostic is not a successful pickup claim.
+
+Vercel production `dpl_7xYiCA4UA2ntSQvLXqBdXAU7kRQs` serves
+https://demo.tryvivacity.com/ from frontend source `0bb0b9a`. Its actual
+TypeScript/Vite build passed. Public warehouse loading stayed idle; its five
+validation trials succeeded, followed by a freshly measured physical execution.
+Backend pause/resume and JSON download were tested, with no captured public
+browser errors. Selected validation: 6,055 steps, 12.11 simulated seconds,
+1.0712 mm placement error. Displayed job completion was 231.38 wall seconds,
+including a pause between 134.98 and 208.65 s. Free CPU makes physical execution
+substantially slower than simulated time.
+
+The service remains Render Free: ephemeral storage, limited shared CPU and
+possible cold starts. Uptime polling does not establish uninterrupted
+availability. Paid durable hosting is not activated. Final cloth/mobile evidence
+and limitations are in IMPLEMENTATION_STATUS.md. Earlier releases below are
+historical.
+
+The final public cloth run also completed: three actual validation rollouts and
+fresh selected execution, 0.9234 mm alignment error, 100% vertex coverage,
+2,758 steps and 112 frames in the selected validation export. The displayed
+job wall time was 475.60 s. Public mobile at 390 px had 375 px content width,
+no horizontal overflow, one actual canvas and no scene text. Public browser
+errors remained empty. Numerical and screen evidence is summarized in
+`artifacts/templates-public-summary.json`.
+
 ## Adaptive tabletop release
 
 Private backend source `03532631c58a2fadaebe17f3e862298b15184dfc`

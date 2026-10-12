@@ -1,0 +1,224 @@
+{
+  "url": "https://demo.tryvivacity.com/",
+  "backend_source": "2bf89e761a9023c6df655e805c4424d581faf8c6",
+  "frontend_source": "0bb0b9a",
+  "render_deploy": "dep-db6me8e7bikc73ai2g50",
+  "vercel_deploy": "dpl_7xYiCA4UA2ntSQvLXqBdXAU7kRQs",
+  "linux_suite": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "156",
+    "time": "930.151",
+    "timestamp": "2026-10-12T22:42:16.987797+00:00",
+    "hostname": "fcc0bb18a8b3"
+  },
+  "memory_suite": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "1",
+    "time": "52.580",
+    "timestamp": "2026-10-12T22:57:50.300842+00:00",
+    "hostname": "f9ac94d566a8"
+  },
+  "warehouse": {
+    "evaluation": {
+      "success": true,
+      "status": "execution_success",
+      "milestone": "physical_pick_and_place",
+      "planning_feasible": true,
+      "goal_error_m": 0.0010711890745258679,
+      "final_cube_position": [
+        0.49975949745769205,
+        0.17971567372944924,
+        0.024995627991030365
+      ],
+      "grasp_established": true,
+      "lifted": true,
+      "retained_during_transport": true,
+      "released": true,
+      "table_supported": true,
+      "max_cube_height_m": 0.20678324794278405,
+      "max_tracking_error_rad": 0.05272370795300163,
+      "contact_violations": [],
+      "phase_evidence": [
+        {
+          "phase": "approach",
+          "time": 2.4779999999999487,
+          "cube_position": [
+            0.5,
+            -0.15,
+            0.0249956279910336
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.39240000027759797,
+          "table_support": true
+        },
+        {
+          "phase": "descend",
+          "time": 3.9299999999997888,
+          "cube_position": [
+            0.5,
+            -0.15,
+            0.024995627990970378
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.39239999924512753,
+          "table_support": true
+        },
+        {
+          "phase": "close",
+          "time": 4.6359999999997115,
+          "cube_position": [
+            0.5000283407509161,
+            -0.14909967924517004,
+            0.02499768605114343
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 3.5930928703976615,
+          "table_support": true
+        },
+        {
+          "phase": "lift",
+          "time": 6.0879999999995515,
+          "cube_position": [
+            0.5002693042940816,
+            -0.14896204964838328,
+            0.20662015826368882
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 3.3775252457006175,
+          "table_support": false
+        },
+        {
+          "phase": "transport",
+          "time": 8.221999999999415,
+          "cube_position": [
+            0.4997142293612955,
+            0.1795004880140304,
+            0.20657305990154168
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 3.3813191868760013,
+          "table_support": false
+        },
+        {
+          "phase": "lower",
+          "time": 9.647999999999891,
+          "cube_position": [
+            0.49976940964903555,
+            0.17972478765613423,
+            0.024963048618889944
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 6.696508127318922,
+          "table_support": true
+        },
+        {
+          "phase": "release",
+          "time": 10.284000000000104,
+          "cube_position": [
+            0.4997594974571252,
+            0.1797156737289654,
+            0.024995627991030278
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.39239999999999997,
+          "table_support": true
+        },
+        {
+          "phase": "retract",
+          "time": 12.110000000000714,
+          "cube_position": [
+            0.49975949745769205,
+            0.17971567372944924,
+            0.024995627991030365
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.3923999999992533,
+          "table_support": true
+        }
+      ],
+      "execution_duration_s": 12.110000000000714
+    },
+    "performance": {
+      "wall_seconds": 4.099658080027439,
+      "physics_wall_seconds": 4.099658080027439,
+      "simulation_steps": 6055,
+      "integration_calls": 0,
+      "measurement_complete": true
+    },
+    "export_bytes": 366775,
+    "frames": 53,
+    "observed_ui_job_wall_seconds": 231.38,
+    "pause_requested_at_s": 134.98,
+    "resumed_at_s": 208.65
+  },
+  "cloth": {
+    "evaluation": {
+      "success": true,
+      "status": "fold_success",
+      "alignment_error_m": 0.0009233650520341581,
+      "vertex_coverage": 1,
+      "grasp_valid": true,
+      "grasp_constraint_error_m": 0.0006735515760698378,
+      "maximum_contact_penetration_m": 0.001981480860452401,
+      "contact_violations": [],
+      "execution_duration_s": 5.5159999999996145,
+      "fold_quality": 0.9692211649321947,
+      "milestone": "constrained_single_fold",
+      "scope": "Actuated Franka Panda carries a folding bar with seven pre-attached constraints; 7x7 MuJoCo flex, fixed hinge/opposite edge, release and settling; no autonomous grasp acquisition.",
+      "robot_joint_displacement_rad": 2.024585749773633,
+      "maximum_joint_tracking_error_rad": 0.08619985526401663,
+      "manipulator": "Franka Panda joint actuators"
+    },
+    "performance": {
+      "wall_seconds": 111.78546888194978,
+      "physics_wall_seconds": 110.59399253700394,
+      "ik_planning_seconds": 0.8923369289841503,
+      "simulation_steps": 2758,
+      "integration_calls": 0,
+      "measurement_complete": true
+    },
+    "export_bytes": 1741588,
+    "frames": 112,
+    "observed_ui_job_wall_seconds": 475.6
+  },
+  "browser_checks": {
+    "categories": 3,
+    "options_each": 5,
+    "discovery_visible": false,
+    "mobile_width": 390,
+    "mobile_scroll_width": 375,
+    "viewport_text": "",
+    "captured_errors": 0,
+    "keyboard_radio_navigation": true,
+    "unsupported_load_disabled": true,
+    "load_focus_preserved": true,
+    "start_on_load": false
+  },
+  "known_limit": "Only Panda is actuated; other arms and two tasks are reference templates. Free CPU is slow; storage is ephemeral."
+}

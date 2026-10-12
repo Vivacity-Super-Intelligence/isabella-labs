@@ -1,0 +1,101 @@
+{
+  "before_revision": 0,
+  "after_revision": 1,
+  "experiment": {
+    "schema_version": "1.0",
+    "id": "0c1dba38-a973-4167-9489-b93b9c5919e1",
+    "world_id": "a7d905c9-8a0d-4e1c-b7db-487394d8a5c6",
+    "revision": 0,
+    "status": "completed",
+    "request": {
+      "physics_trials": 0,
+      "adaptive_trials": false,
+      "execute_selected": false,
+      "realtime_execution": false,
+      "candidates": 3,
+      "planner_iterations": 1500,
+      "max_simulation_seconds": 0.1,
+      "policy": "deterministic",
+      "search_candidates": 8,
+      "physics_budget": 3
+    },
+    "selected_branch_id": null,
+    "result": {
+      "conclusion": "No candidate completed physical pickup and placement.",
+      "milestone": "physical_pick_and_place",
+      "ranked_branch_ids": [
+        "4f1b4775-4c1f-4e43-8bc4-a020975e15ce"
+      ],
+      "top_feasible_branch_ids": [],
+      "policy": {
+        "policy": "deterministic_planning_policy",
+        "llm_used": false,
+        "steps": [
+          "Inspect structured observation and valid action schema.",
+          "Generate candidate interventions through backend tools.",
+          "Fork the same persisted state for each candidate.",
+          "Rank measured outcomes; retain failures."
+        ]
+      },
+      "executed_settings": {
+        "physics_trials": 0,
+        "adaptive_trials": false,
+        "execute_selected": false,
+        "realtime_execution": false,
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 0.1,
+        "policy": "deterministic",
+        "search_candidates": 8,
+        "physics_budget": 3,
+        "max_wall_seconds": 300
+      },
+      "followup_settings": null,
+      "search": {
+        "generated": 8,
+        "distinct_generated": 8,
+        "screened": 8,
+        "rejected": 8,
+        "screening_passed": 0,
+        "promoted_to_physics": 1,
+        "candidate_catalog_sha256": "cc26dd2e32c46e998ad15aa647f3bf3b39d49e997bdac82a3f565d765a90ca2a",
+        "rejection_reasons": {
+          "kinematic_collision": 0,
+          "ik_failure": 0,
+          "simulation_horizon": 8,
+          "object_not_visible": 0
+        },
+        "kinematic_templates_checked": 8,
+        "diagnostic_rollouts": 1,
+        "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+        "adaptive_stopping": false,
+        "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+        "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+        "fully_simulated": 1,
+        "physics_attempts": 1,
+        "planning_failed": 0,
+        "verified_feasible": 0,
+        "physics_rejected": 1
+      }
+    },
+    "performance": {
+      "job_wall_seconds": 8.422925908002071,
+      "process_cpu_seconds": 1.2729566940000003,
+      "queue_wait_seconds": 0.017240682151168585,
+      "planning_wall_seconds": 7.842499702004716,
+      "physics_wall_seconds": 0.46365408098790795,
+      "candidate_count": 1,
+      "simulation_steps": 50,
+      "integration_calls": 0,
+      "replay_payload_bytes": 13686,
+      "branch_failure_rate": 1.0,
+      "adapter_error_count": 0,
+      "measurement_complete": true,
+      "job_error_rate": 0.0,
+      "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy"
+    },
+    "error": null,
+    "stale": true
+  },
+  "replay_stale": true
+}

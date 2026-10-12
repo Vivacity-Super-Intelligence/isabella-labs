@@ -1,0 +1,1113 @@
+{
+  "health": {
+    "status": "ok",
+    "schema_version": "1.0",
+    "backends": {
+      "mujoco": "3.15.0",
+      "cloth": "3.15.0"
+    },
+    "limits": {
+      "max_physics_trials": 8
+    }
+  },
+  "catalog": {
+    "schema_version": "vivacity.templates/1.0",
+    "arms": [
+      {
+        "id": "panda",
+        "name": "Franka Panda",
+        "status": "available",
+        "technical": "7 joint actuators + parallel fingers",
+        "business": "Flexible manipulation for automation integrators.",
+        "scope": "Menagerie MJCF; MuJoCo joint dynamics and contact."
+      },
+      {
+        "id": "ur5e",
+        "name": "UR5e collaborative arm",
+        "status": "reference",
+        "technical": "6-axis arm",
+        "business": "Shared workstations and machine loading.",
+        "scope": "Requires a robot model, gripper and tested controller adapter."
+      },
+      {
+        "id": "iiwa",
+        "name": "KUKA iiwa",
+        "status": "reference",
+        "technical": "7-axis industrial arm",
+        "business": "Flexible industrial cells and assembly research.",
+        "scope": "Requires a robot model, gripper and tested controller adapter."
+      },
+      {
+        "id": "scara",
+        "name": "SCARA arm",
+        "status": "reference",
+        "technical": "Planar assembly arm",
+        "business": "Repeated handling on electronics production lines.",
+        "scope": "Requires a SCARA dynamics model and task controller."
+      },
+      {
+        "id": "dual_arm",
+        "name": "Dual-arm system",
+        "status": "reference",
+        "technical": "Two coordinated manipulators",
+        "business": "Two-handed handling and garment automation.",
+        "scope": "Requires two-arm collision planning and coordinated control."
+      }
+    ],
+    "worlds": [
+      {
+        "id": "manufacturing",
+        "name": "Industrial workstation",
+        "status": "available",
+        "technical": "Rigid table, dynamic part, gravity and friction",
+        "business": "Evaluate part transfer before a physical cell trial.",
+        "scope": "Simplified workbench, not a complete factory digital twin."
+      },
+      {
+        "id": "warehouse",
+        "name": "Warehouse packing station",
+        "status": "available",
+        "technical": "Light parcel surrogate on a fixed packing bench",
+        "business": "Compare handling alternatives for fulfillment automation.",
+        "scope": "Fixed bench; no moving conveyor, bins or warehouse traffic."
+      },
+      {
+        "id": "inspection",
+        "name": "Inspection bench",
+        "status": "available",
+        "technical": "Small, light component with measured final placement",
+        "business": "Test part presentation for inspection integrators.",
+        "scope": "Physical handling only; no camera inspection or defect detection."
+      },
+      {
+        "id": "cluttered",
+        "name": "Constrained industrial cell",
+        "status": "available",
+        "technical": "Fixed collision fixture beside the handling area",
+        "business": "Test path feasibility around existing equipment.",
+        "scope": "A rectangular equipment surrogate; real collision geometry."
+      },
+      {
+        "id": "textile",
+        "name": "Textile folding station",
+        "status": "experimental",
+        "technical": "Panda folding fixture, 7\u00d77 MuJoCo flex sheet",
+        "business": "Explore fixture-based folding for textile automation.",
+        "scope": "Pre-attached bar and fixed hinge; no autonomous garment grasp."
+      }
+    ],
+    "tasks": [
+      {
+        "id": "pick_place",
+        "name": "Pick & place",
+        "status": "available",
+        "technical": "Grasp \u2192 lift \u2192 transport \u2192 release \u2192 settle",
+        "business": "Measure placement feasibility and execution duration.",
+        "scope": "Success requires actual finger contacts, retention and supported placement."
+      },
+      {
+        "id": "obstacle_transfer",
+        "name": "Obstacle-aware transfer",
+        "status": "available",
+        "technical": "Pose IK, joint-space RRT and contact validation",
+        "business": "Compare routes around equipment before moving hardware.",
+        "scope": "Uses the same physical pickup controller with an enabled collision fixture."
+      },
+      {
+        "id": "cloth_fold",
+        "name": "Cloth folding",
+        "status": "experimental",
+        "technical": "Joint-actuated fixture motion, flex contact and release",
+        "business": "Evaluate folding-fixture alternatives.",
+        "scope": "Constrained single fold; autonomous cloth pickup is not implemented."
+      },
+      {
+        "id": "machine_tending",
+        "name": "Machine tending",
+        "status": "reference",
+        "technical": "Load, unload and synchronize with a machine",
+        "business": "Potential application for production automation.",
+        "scope": "Needs a machine model, interlocks and a task controller."
+      },
+      {
+        "id": "assembly",
+        "name": "Precision assembly",
+        "status": "reference",
+        "technical": "Contact-guided alignment and insertion",
+        "business": "Potential application for assembly integrators.",
+        "scope": "Needs insertion geometry, force control and assembly validation."
+      }
+    ],
+    "contract": [
+      "Observe",
+      "Snapshot",
+      "Fork",
+      "Apply action",
+      "Simulate",
+      "Evaluate",
+      "Commit",
+      "Replay"
+    ]
+  },
+  "resolved": {
+    "schema_version": "1.0",
+    "backend": "mujoco",
+    "seed": 7,
+    "config": {
+      "task": "pick_place",
+      "scene_profile": "workcell",
+      "source_import_id": null,
+      "obstacle_enabled": false,
+      "cube_position": [
+        0.5,
+        -0.15,
+        0.026
+      ],
+      "placement_position": [
+        0.5,
+        0.18,
+        0.026
+      ],
+      "cube_half_size": 0.025,
+      "cube_half_sizes": null,
+      "cube_mass": 0.04,
+      "cube_friction": 0.9,
+      "obstacle_position": [
+        0.75,
+        -0.4,
+        0.22
+      ],
+      "obstacle_size": [
+        0.055,
+        0.13,
+        0.22
+      ],
+      "target_position": [
+        0.55,
+        0.28,
+        0.22
+      ]
+    }
+  },
+  "world": {
+    "schema_version": "1.0",
+    "id": "9b203106-72e9-4dca-bac1-308d6a96c225",
+    "backend": "mujoco",
+    "config": {
+      "task": "pick_place",
+      "scene_profile": "workcell",
+      "source_import_id": null,
+      "obstacle_enabled": false,
+      "cube_position": [
+        0.5,
+        -0.15,
+        0.026
+      ],
+      "placement_position": [
+        0.5,
+        0.18,
+        0.026
+      ],
+      "cube_half_size": 0.025,
+      "cube_half_sizes": null,
+      "cube_mass": 0.04,
+      "cube_friction": 0.9,
+      "obstacle_position": [
+        0.75,
+        -0.4,
+        0.22
+      ],
+      "obstacle_size": [
+        0.055,
+        0.13,
+        0.22
+      ],
+      "target_position": [
+        0.55,
+        0.28,
+        0.22
+      ]
+    },
+    "state": {
+      "backend": "mujoco",
+      "version": "3.15.0",
+      "model_hash": "fd5022242fed318a03fb00d07a4c44f54bb38ced8e06c1632204229fab4ac621",
+      "config": {
+        "task": "pick_place",
+        "scene_profile": "workcell",
+        "source_import_id": null,
+        "obstacle_enabled": false,
+        "cube_position": [
+          0.5,
+          -0.15,
+          0.026
+        ],
+        "placement_position": [
+          0.5,
+          0.18,
+          0.026
+        ],
+        "cube_half_size": 0.025,
+        "cube_half_sizes": null,
+        "cube_mass": 0.04,
+        "cube_friction": 0.9,
+        "obstacle_position": [
+          0.75,
+          -0.4,
+          0.22
+        ],
+        "obstacle_size": [
+          0.055,
+          0.13,
+          0.22
+        ],
+        "target_position": [
+          0.55,
+          0.28,
+          0.22
+        ]
+      },
+      "seed": 7,
+      "state_spec": 16383,
+      "integration_state": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.57079,
+        0.0,
+        1.57079,
+        -0.7853,
+        0.04,
+        0.04,
+        0.5,
+        -0.15,
+        0.026,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.57079,
+        0.0,
+        1.57079,
+        -0.7853,
+        255.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "initial_state": {
+      "backend": "mujoco",
+      "version": "3.15.0",
+      "model_hash": "fd5022242fed318a03fb00d07a4c44f54bb38ced8e06c1632204229fab4ac621",
+      "config": {
+        "task": "pick_place",
+        "scene_profile": "workcell",
+        "source_import_id": null,
+        "obstacle_enabled": false,
+        "cube_position": [
+          0.5,
+          -0.15,
+          0.026
+        ],
+        "placement_position": [
+          0.5,
+          0.18,
+          0.026
+        ],
+        "cube_half_size": 0.025,
+        "cube_half_sizes": null,
+        "cube_mass": 0.04,
+        "cube_friction": 0.9,
+        "obstacle_position": [
+          0.75,
+          -0.4,
+          0.22
+        ],
+        "obstacle_size": [
+          0.055,
+          0.13,
+          0.22
+        ],
+        "target_position": [
+          0.55,
+          0.28,
+          0.22
+        ]
+      },
+      "seed": 7,
+      "state_spec": 16383,
+      "integration_state": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.57079,
+        0.0,
+        1.57079,
+        -0.7853,
+        0.04,
+        0.04,
+        0.5,
+        -0.15,
+        0.026,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.57079,
+        0.0,
+        1.57079,
+        -0.7853,
+        255.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "action_schema": {
+      "type": "pick_place",
+      "joints": 7,
+      "gripper_control": "0 closed, 255 open",
+      "milestone": "physical_pick_and_place",
+      "planner": "DLS pose IK; collision-screened joint segments"
+    },
+    "simulator_version": "3.15.0",
+    "seed": 7,
+    "revision": 0,
+    "history": [],
+    "branches": [],
+    "evaluations": [],
+    "performance": {
+      "initialization_wall_seconds": 6.129573577083647
+    }
+  },
+  "state": {
+    "schema_version": "1.0",
+    "world_id": "9b203106-72e9-4dca-bac1-308d6a96c225",
+    "revision": 0,
+    "observation": {
+      "time": 0.0,
+      "qpos": [
+        0.0,
+        0.0,
+        0.0,
+        -1.57079,
+        0.0,
+        1.57079,
+        -0.7853,
+        0.04,
+        0.04,
+        0.5,
+        -0.15,
+        0.026,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "qvel": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ctrl": [
+        0.0,
+        0.0,
+        0.0,
+        -1.57079,
+        0.0,
+        1.57079,
+        -0.7853,
+        255.0
+      ],
+      "end_effector": [
+        0.5544994780317353,
+        -3.1985844516383214e-33,
+        0.5215024294875895
+      ],
+      "body_transforms": [
+        {
+          "name": "link0",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quaternion_wxyz": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "link1",
+          "position": [
+            0.0,
+            0.0,
+            0.333
+          ],
+          "quaternion_wxyz": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "link2",
+          "position": [
+            0.0,
+            0.0,
+            0.333
+          ],
+          "quaternion_wxyz": [
+            0.7071067811865475,
+            -0.7071067811865475,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "link3",
+          "position": [
+            0.0,
+            0.0,
+            0.649
+          ],
+          "quaternion_wxyz": [
+            0.9999999999999998,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "link4",
+          "position": [
+            0.08249999999999996,
+            0.0,
+            0.649
+          ],
+          "quaternion_wxyz": [
+            0.5000015816962223,
+            0.5000015816962223,
+            0.4999984182987739,
+            -0.4999984182987739
+          ]
+        },
+        {
+          "name": "link5",
+          "position": [
+            0.46649947803173536,
+            0.0,
+            0.7315024294875893
+          ],
+          "quaternion_wxyz": [
+            0.7071090180427967,
+            0.0,
+            0.7071045443232219,
+            0.0
+          ]
+        },
+        {
+          "name": "link6",
+          "position": [
+            0.46649947803173536,
+            0.0,
+            0.7315024294875893
+          ],
+          "quaternion_wxyz": [
+            0.7071067811865472,
+            0.7071067811865472,
+            -5.551115123125783e-17,
+            5.551115123125783e-17
+          ]
+        },
+        {
+          "name": "link7",
+          "position": [
+            0.5544994780317353,
+            0.0,
+            0.7315024294875893
+          ],
+          "quaternion_wxyz": [
+            3.0038858687383555e-17,
+            0.9238983141513939,
+            0.38263808632729096,
+            7.253028878198787e-17
+          ]
+        },
+        {
+          "name": "hand",
+          "position": [
+            0.5544994780317353,
+            -6.5943841295818954e-34,
+            0.6245024294875894
+          ],
+          "quaternion_wxyz": [
+            5.5508425613527314e-17,
+            0.707141498682236,
+            0.7070720619862167,
+            5.551387671516609e-17
+          ]
+        },
+        {
+          "name": "left_finger",
+          "position": [
+            0.594499477838877,
+            -3.927932684701929e-06,
+            0.5661024294875894
+          ],
+          "quaternion_wxyz": [
+            5.5508425613527314e-17,
+            0.707141498682236,
+            0.7070720619862167,
+            5.551387671516609e-17
+          ]
+        },
+        {
+          "name": "right_finger",
+          "position": [
+            0.5144994782245935,
+            3.927932684772983e-06,
+            0.5661024294875894
+          ],
+          "quaternion_wxyz": [
+            -5.551387671516609e-17,
+            0.7070720619862167,
+            -0.707141498682236,
+            5.5508425613527314e-17
+          ]
+        },
+        {
+          "name": "target",
+          "position": [
+            0.5,
+            -0.15,
+            0.026
+          ],
+          "quaternion_wxyz": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "obstacle",
+          "position": [
+            0.75,
+            -0.4,
+            0.22
+          ],
+          "quaternion_wxyz": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "target_pose": {
+        "position": [
+          0.55,
+          0.28,
+          0.22
+        ],
+        "rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ]
+      },
+      "contacts": [],
+      "cube_position": [
+        0.5,
+        -0.15,
+        0.026
+      ],
+      "cube_quaternion_wxyz": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "placement_position": [
+        0.5,
+        0.18,
+        0.026
+      ],
+      "grasp": {
+        "finger_contacts": [],
+        "bilateral_grasp": false,
+        "cube_contact_normal_force_n": 0.0,
+        "table_support": false
+      },
+      "source": "live_mujoco_state",
+      "perception": {
+        "schema_version": "vivacity.perception/1.0",
+        "method": "mujoco_overhead_semantic_depth_rays",
+        "scope": "synthetic_simulator_semantic_labels_not_real_camera_vision",
+        "camera_origin_m": [
+          0.4,
+          0.0,
+          1.0
+        ],
+        "camera_direction": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "coverage_x_m": [
+          -0.3,
+          1.1
+        ],
+        "coverage_y_m": [
+          -0.65,
+          0.65
+        ],
+        "resolution": [
+          161,
+          141
+        ],
+        "ray_count": 22701,
+        "visible_cube_rays": 30,
+        "detected": true,
+        "estimated_xy_m": [
+          0.5006250000000002,
+          -0.14857142857142858
+        ],
+        "localization_error_m": 0.0015593079639798044,
+        "visible_samples_xy_m": [
+          [
+            0.47875000000000006,
+            -0.16714285714285715
+          ],
+          [
+            0.47875000000000006,
+            -0.15785714285714286
+          ],
+          [
+            0.47875000000000006,
+            -0.14857142857142858
+          ],
+          [
+            0.47875000000000006,
+            -0.13928571428571435
+          ],
+          [
+            0.47875000000000006,
+            -0.13
+          ],
+          [
+            0.4875000000000001,
+            -0.16714285714285715
+          ],
+          [
+            0.4875000000000001,
+            -0.15785714285714286
+          ],
+          [
+            0.4875000000000001,
+            -0.14857142857142858
+          ],
+          [
+            0.4875000000000001,
+            -0.13928571428571435
+          ],
+          [
+            0.4875000000000001,
+            -0.13
+          ],
+          [
+            0.49625000000000014,
+            -0.16714285714285715
+          ],
+          [
+            0.49625000000000014,
+            -0.15785714285714286
+          ],
+          [
+            0.49625000000000014,
+            -0.14857142857142858
+          ],
+          [
+            0.49625000000000014,
+            -0.13928571428571435
+          ],
+          [
+            0.49625000000000014,
+            -0.13
+          ],
+          [
+            0.5050000000000001,
+            -0.16714285714285715
+          ],
+          [
+            0.5050000000000001,
+            -0.15785714285714286
+          ],
+          [
+            0.5050000000000001,
+            -0.14857142857142858
+          ],
+          [
+            0.5050000000000001,
+            -0.13928571428571435
+          ],
+          [
+            0.5050000000000001,
+            -0.13
+          ],
+          [
+            0.5137500000000002,
+            -0.16714285714285715
+          ],
+          [
+            0.5137500000000002,
+            -0.15785714285714286
+          ],
+          [
+            0.5137500000000002,
+            -0.14857142857142858
+          ],
+          [
+            0.5137500000000002,
+            -0.13928571428571435
+          ],
+          [
+            0.5137500000000002,
+            -0.13
+          ],
+          [
+            0.5225000000000002,
+            -0.16714285714285715
+          ],
+          [
+            0.5225000000000002,
+            -0.15785714285714286
+          ],
+          [
+            0.5225000000000002,
+            -0.14857142857142858
+          ],
+          [
+            0.5225000000000002,
+            -0.13928571428571435
+          ],
+          [
+            0.5225000000000002,
+            -0.13
+          ]
+        ]
+      }
+    }
+  },
+  "retired_status": 422,
+  "unsupported_status": 422,
+  "openapi_matches": true,
+  "cors": {
+    "date": "Mon, 12 Oct 2026 23:05:08 GMT",
+    "content-type": "text/plain; charset=utf-8",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "access-control-allow-headers": "Accept, Accept-Language, Content-Language, Content-Type, Idempotency-Key, X-Session-Token",
+    "access-control-allow-methods": "GET, POST, PATCH",
+    "access-control-allow-origin": "https://demo.tryvivacity.com",
+    "access-control-max-age": "600",
+    "rndr-id": "2926cf9e-0db5-44c0",
+    "server": "cloudflare",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Access-Control-Request-Private-Network, Accept-Encoding",
+    "x-render-origin-server": "uvicorn",
+    "cf-cache-status": "DYNAMIC",
+    "cf-ray": "a499bf5fa9c91796-MAA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  }
+}
