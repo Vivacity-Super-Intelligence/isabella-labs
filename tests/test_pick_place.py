@@ -10,6 +10,15 @@ from vivacity.native_pick_place import NativePickup
 from vivacity.schemas import RoboticsConfig, CreateWorld, ExperimentRequest
 
 
+def test_pickup_placement_minimum_distance_accepts_exact_boundary():
+    config = RoboticsConfig(task='pick_place', cube_position=[.5, -.15, .026],
+                            placement_position=[.5, -.05, .026])
+    assert config.placement_position[1] == -.05
+    with pytest.raises(ValueError, match='at least 0.1 m apart'):
+        RoboticsConfig(task='pick_place', cube_position=[.5, -.15, .026],
+                       placement_position=[.5, -.051, .026])
+
+
 def test_cube_obstacle_contact_is_prohibited_even_without_robot_contact():
     backend = PickPlaceBackend()
     world = backend.create_world(RoboticsConfig(task='pick_place', obstacle_enabled=True,

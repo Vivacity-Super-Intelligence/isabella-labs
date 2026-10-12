@@ -37,7 +37,9 @@ class RoboticsConfig(Schema):
                 raise ValueError('pickup and placement centers must be on the supported table workspace')
         if self.task == 'pick_place' and any(abs(point[2] - (self.cube_half_size + .001)) > .002 for point in (self.cube_position, self.placement_position)):
             raise ValueError('pickup and placement center heights must match the cube size')
-        if self.task == 'pick_place' and sum((a-b)**2 for a,b in zip(self.cube_position[:2], self.placement_position[:2])) < .01:
+        # Coordinates supplied by range controls are binary floats. Accept the
+        # exact 10 cm boundary despite harmless representation error.
+        if self.task == 'pick_place' and sum((a-b)**2 for a,b in zip(self.cube_position[:2], self.placement_position[:2])) < (.1 - 1e-9)**2:
             raise ValueError('pickup and placement must be at least 0.1 m apart')
         x, y, z = self.obstacle_position
         if not (0.15 <= x <= 0.8 and -0.5 <= y <= 0.5 and 0.05 <= z <= 0.6):
