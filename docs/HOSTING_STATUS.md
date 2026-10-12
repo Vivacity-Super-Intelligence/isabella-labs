@@ -1,5 +1,43 @@
 # Render hosting verification — 2026-10-12
 
+## Current bounded-drag and validation release
+
+Backend `8cfa7fcd60e5acd01f1075d59eec5de2e2a03212` is live as Render
+`dep-db6fie2jnfac73djg6ag`. The deployment-image workflow completed **139
+passed, one warning in 352.77 s**; the 512 MB lab check completed **1 passed
+in 55.83 s**. Vercel `dpl_E7CdpcAXC29sJyiMBNAg5E5wdnzD` is ready on
+both public aliases; both served HTTP 200 and `/assets/index-CykectX7.js`.
+The production build passed TypeScript and Vite checks. `/health` returned
+MuJoCo 3.15.0, SciPy 1.18.1 and an eight-trial pickup limit.
+
+On the public backend, the exact formerly rejected 60 mm scene with pickup
+`[0.5,-0.15,0.031]` and placement `[0.5,-0.05,0.031]` returned HTTP 200
+and world revision 1. In the public browser, dragging the cube changed the
+pickup center to approximately `[0.64,0.09]`; applying the exact 60 mm scene
+also succeeded. Setting placement on top of pickup displayed a short 10 cm
+message and disabled Apply. The initial page remained idle until Start.
+Desktop and mobile pointer drags, boundary clamping, invalid-drop reversal,
+and stale-result indication also passed against the local runtime. The public
+browser emitted no captured errors; existing Three.js deprecation warnings
+remain. The public browser then submitted an explicit experiment after
+restoring the standard 50 mm cube scene: **8/8 measured physics trials were
+feasible**, followed by a separate authoritative physical pickup and placement
+with **1.7 mm** goal error and **zero prohibited contacts**. The result was
+persisted at event time **4:08.25**; the page showed Task verified. A subsequent
+public cube drag rebuilt the world and changed the result status to **World
+changed · run again**, retaining the old cards only as stale history. The
+browser still had zero captured console errors. The following section
+describes the preceding release.
+
+The same public site also completed its four-cycle SciPy Discovery lab after
+this release. The final cycle compared actual central-only and additional-mass
+fits: both held-out RMSE values displayed about **0.00168**, while the
+complexity-penalized training BIC favored central-only (**72.2 vs 76.8**).
+The page reported that extra mass was not sufficiently supported and showed
+the computed predictions and residual panel. Earlier cycles in the same
+live event log favored the perturbed model when its held-out error was lower;
+the final result was not hardcoded to always select one hypothesis.
+
 ## Current configurable pickup release
 
 Render deployment `dep-db60ej0473hc73clmuo0` runs backend commit

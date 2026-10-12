@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowsClockwise, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
 import { useRuntime, isBusy } from './useRuntime';
 import { API, api, errorMessage, requestedPickupTrials } from './api';
-import { format, robotFrame, clothFrame, scienceObservation, type Backend, type Branch, type RobotFrame, type ClothFrame } from './domain';
+import { format, robotFrame, clothFrame, scienceObservation, type Backend, type Branch, type RobotFrame, type ClothFrame, type Vec3 } from './domain';
 import Settings from './Settings';
 import ClothSettings from './ClothSettings';
 import TechnicalInspector from './TechnicalInspector';
@@ -37,11 +37,14 @@ export default function App(){
     rt.session?.pause_requested?'Pausing safely':isBusy(rt.experiment)&&rt.liveState?.stage==='testing_candidates'?'Testing real physics':
     isBusy(rt.experiment)&&rt.liveState?.stage==='executing'?'Live physics execution':
     isBusy(rt.experiment)?rt.experiment?.status==='queued'?'Queued':'Evaluating alternatives':
+    rt.experiment?.stale?'World changed · run again':
     rt.experiment?.status==='cancelled'?'Cancelled':rt.experiment?.status==='failed'?'Experiment failed':
     rt.experiment?.result.execution_evaluation&&!(rt.experiment.result.execution_evaluation as {success:boolean}).success?'Execution failed':
     terminal&&rt.experiment?.selected_branch_id?'Task verified':terminal?'No feasible result':'Ready to start';
   const counters=Object.assign({},...rt.events.filter(e=>e.kind==='progress').map(e=>e.details),rt.experiment?.result.search??{}) as Record<string,unknown>;
   const disabled=rt.mutating||!compatible||!rt.online;
+  const canMoveCube=backend==='mujoco'&&!disabled&&!rt.active&&!isBusy(rt.experiment)&&config.scene_profile!=='orbital_salvage';
+  const moveCube=async(point:Vec3)=>rt.apply({...config,cube_position:point});
   const science=useMemo(()=>backend==='scipy'&&compatible?scienceObservation(rt.observation):null,[backend,compatible,rt.observation]);
   const numericalTime=branches.find(b=>b.id===selected?.id)?.trace.at(-1)?.time??0;
   useEffect(()=>{setBranchId(null);setEditing(false);},[backend,rt.experiment?.id]);
@@ -62,11 +65,11 @@ export default function App(){
           <p>{cloth?'An actuated Panda carries a pre-attached folding bar through a physical flex sheet.':robotics?'Contact-driven pickup. Independent alternatives, fresh execution, measured placement.':'Can an unseen gravitational influence explain the observed orbit?'}</p>
         </div><span className="connection" role="status">{rt.online?'Viva Physics connected':'Runtime offline'}</span></div>
         {!rt.online&&rt.loaded&&<div className="offline-notice" role="status"><Warning size={18}/><span>Simulation runtime unavailable.</span><button onClick={rt.reconnect}>Reconnect</button></div>}
-        {rt.error&&<div className="error-notice" role="alert"><Warning size={18}/><span>{rt.error}</span><button onClick={rt.reconnect}>Reconnect</button><button className="icon-button" aria-label="Dismiss error" onClick={rt.clearError}><X size={17}/></button></div>}
+        {rt.error&&<div className="error-notice" role="alert"><Warning size={18}/><span>{rt.error}</span>{!rt.online&&<button onClick={rt.reconnect}>Reconnect</button>}<button className="icon-button" aria-label="Dismiss error" onClick={rt.clearError}><X size={17}/></button></div>}
         <div className="workbench">
           <section className="visual-area" aria-label="Live simulation">
             {cloth?<Suspense fallback={<div className="viewport-loading">Loading cloth…</div>}><ClothView frames={frames as ClothFrame[]} cursor={cursor} time={currentFrame?.time??0} playing={false} config={config}/></Suspense>:
-              robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={false} playing={false} renderTime={currentFrame?.time??0}/></Suspense>:
+              robotics?<Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={false} playing={false} renderTime={currentFrame?.time??0} canMoveCube={canMoveCube} onMoveCube={moveCube}/></Suspense>:
                 <Suspense fallback={<div className="viewport-loading">Loading discovery…</div>}><ScienceView observation={science} branches={branches} selected={selected?.id??null} time={numericalTime} playing={false}/></Suspense>}
             <div className="experiment-actions">
               <button className="primary run-button" disabled={disabled||rt.active} onClick={rt.run}>Start experiments<ArrowRight size={18}/></button>

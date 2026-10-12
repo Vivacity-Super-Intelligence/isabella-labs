@@ -13,11 +13,13 @@ export class APIError extends Error {
     super(typeof detail === 'string' ? detail : JSON.stringify(detail));
   }
 }
+type ValidationIssue = { msg?: unknown; loc?: unknown; type?: unknown };
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (sessionToken && !headers.has('X-Session-Token')) headers.set('X-Session-Token',sessionToken);
   const response = await fetch(API + path, {...init,headers});
-  const data = await response.json();
+  const data = await response.json().catch(() => null);
+  if (!data) throw new APIError(response.status || 503, response.ok ? 'The simulation service returned an unreadable response.' : 'The simulation service is temporarily unavailable. Try again.');
   if (!response.ok) throw new APIError(response.status, data.detail ?? data);
   return data;
 }
@@ -73,6 +75,16 @@ export function liveWebsocketURL(id:string) {
   u.protocol=u.protocol==='https:'?'wss:':'ws:';return u.href;
 }
 export function errorMessage(error: unknown) {
-  if (error instanceof APIError) return `${error.status}: ${error.message}`;
+  if (error instanceof APIError) {
+    if (Array.isArray(error.detail)) {
+      const issues=error.detail as ValidationIssue[];
+      const relevant=issues.find(issue=>Array.isArray(issue.loc)&&issue.loc.includes('RoboticsConfig')&&issue.type==='value_error')
+        ??issues.find(issue=>issue.type==='value_error')??issues[0];
+      const message=typeof relevant?.msg==='string'?relevant.msg.replace(/^Value error,\s*/,''):'Check the scene settings and try again.';
+      return `${error.status}: ${message}`;
+    }
+    if(typeof error.detail==='string')return `${error.status}: ${error.detail}`;
+    return `${error.status}: The simulation request was rejected. Check the scene settings and try again.`;
+  }
   return error instanceof Error ? error.message : String(error);
 }

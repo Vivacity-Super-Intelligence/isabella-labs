@@ -1,5 +1,37 @@
 # Implementation status — current Render handoff, 2026-10-12
 
+## Bounded 3D pickup drag and 422 repair (2026-10-12)
+
+**Deployed and verified:** the blue cube can be dragged on the rendered table
+within X 0.35–0.65 m and Y -0.30–0.30 m. Release rebuilds the MuJoCo world
+through the existing environment API and invalidates earlier results. The
+preview is labelled as uncommitted; keyboard users can change the same
+coordinates through the existing sliders. Exact 0.10 m pickup/placement
+separation is accepted by the backend, while closer points are blocked in the
+editor with a short alert. A rejected server edit keeps the editor open and
+shows a concise error. The drag moves the object between experiments; it is
+not itself a robot manipulation simulation.
+
+Backend commit `8cfa7fcd60e5acd01f1075d59eec5de2e2a03212`, Render deploy
+`dep-db6fie2jnfac73djg6ag`: Docker CI **139 passed, one warning in 352.77 s**;
+the separate 512 MB lab check **1 passed in 55.83 s**. Vercel deployment
+`dpl_E7CdpcAXC29sJyiMBNAg5E5wdnzD` serves both public aliases with the same
+built JavaScript asset. The production TypeScript/Vite build passed. Local
+desktop and mobile browser drags, bounded clamping, invalid-drop feedback,
+and stale-result indication were exercised. The public browser accepted a
+drag and the screenshot's previously failing 60 mm scene; live `/health`
+reported eight physics trials. The subsequent public experiment ran **8/8
+actual physics trials**, then a fresh authoritative execution succeeded with
+**1.7 mm** placement error and **zero prohibited contacts**. Dragging again
+visibly marked those results stale. Exact run outcomes: `docs/HOSTING_STATUS.md`.
+The same deployed site completed four SciPy Discovery cycles and displayed
+computed model predictions, held-out errors and a complexity-aware final
+central-only selection; the measured values are in the hosting report.
+
+Remaining limitation: Render Free can sleep and uses ephemeral SQLite; the
+interactive host remains capped at eight physics trials. A separate hosted
+5,000-trial audit exists, but visitors cannot request 5,000 on this host.
+
 ## Configurable pickup release (2026-10-12)
 
 **Deployed and tested:** the public robotics page lets a visitor set the cube pickup
@@ -35,9 +67,10 @@ backend on a larger runner, not a live per-visitor feature.
   passed **138 tests** in 225.85 s plus the 512 MB lab check (**1 passed** in
   41.74 s). The upstream Starlette deprecation warning remains.
 
-The object is repositioned with the settings sliders; direct pointer dragging
-in the 3D scene is not implemented. The arm performs the physical pickup and
-placement after Start. Render Free still sleeps and uses ephemeral storage.
+In the earlier configurable-pickup release, repositioning used settings
+sliders only. The current release adds direct pointer dragging as described
+above. The arm performs physical pickup and placement after Start. Render Free
+still sleeps and uses ephemeral storage.
 
 **Current deployment truth:** the UI uses Render Free at `https://vivacity-runtime.onrender.com`
 and `https://demo.tryvivacity.com`. This free service sleeps after inactivity and

@@ -158,8 +158,8 @@ export function useRuntime(backend:Backend){
   },[experiment?.id]);
 
   const perform=useCallback(async(operation:()=>Promise<void>)=>{
-    if(lock.current)return;lock.current=true;setMutating(true);setError(null);
-    try{await operation();}catch(e){setError(errorMessage(e));}finally{lock.current=false;setMutating(false);}
+    if(lock.current)return false;lock.current=true;setMutating(true);setError(null);
+    try{await operation();return true;}catch(e){setError(errorMessage(e));return false;}finally{lock.current=false;setMutating(false);}
   },[]);
   const stop=useCallback(async()=>{
     const s=currentSession.current;if(!s||!['active','stopping'].includes(s.status))return;

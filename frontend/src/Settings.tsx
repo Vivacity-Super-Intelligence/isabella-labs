@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ArrowRight, X } from '@phosphor-icons/react';
 import { format, type Backend, type Dict } from './domain';
-export default function Settings({ backend, config, disabled, apply, close }: { backend: Backend; config: Dict; disabled: boolean; apply:(d:Dict)=>Promise<void>; close:()=>void }) {
+import { pickupSeparationValid } from './pickupWorkspace';
+export default function Settings({ backend, config, disabled, apply, close }: { backend: Backend; config: Dict; disabled: boolean; apply:(d:Dict)=>Promise<boolean|void>; close:()=>void }) {
   const [position,setPosition] = useState<number[]>(config.obstacle_position as number[] ?? [.45,.04,.22]);
   const [size,setSize] = useState<number[]>(config.obstacle_size as number[] ?? [.055,.13,.22]);
   const [target,setTarget] = useState<number[]>(config.target_position as number[] ?? [.55,.28,.22]);
@@ -15,11 +16,12 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
   const [samples,setSamples] = useState(Number(config.samples ?? 70));
   const [horizon,setHorizon] = useState(Number(config.horizon ?? 5));
   const [scenario,setScenario] = useState('perturbed');
+  const separationValid=!pickup||pickupSeparationValid(cube,placement);
   const submit = async () => {
     const centerHeight=cubeHalfSize+.001;
-    await apply(backend === 'mujoco' ? {...config, obstacle_enabled:obstacleEnabled,obstacle_position:position, obstacle_size:size,target_position:target,cube_half_size:cubeHalfSize,cube_position:[cube[0],cube[1],centerHeight],placement_position:[placement[0],placement[1],centerHeight]} : {
+    const applied=await apply(backend === 'mujoco' ? {...config, obstacle_enabled:obstacleEnabled,obstacle_position:position, obstacle_size:size,target_position:target,cube_half_size:cubeHalfSize,cube_position:[cube[0],cube[1],centerHeight],placement_position:[placement[0],placement[1],centerHeight]} : {
       ...config, central_mu:1, hidden_mass:scenario==='perturbed'?.12:0, noise_std:noise, samples, horizon
-    }); close();
+    }); if(applied!==false)close();
   };
   return <section className="environment-editor" aria-labelledby="environment-heading">
     <div className="section-heading"><h2 id="environment-heading">{backend==='mujoco'?'Change the scene':'Observation settings'}</h2><button className="icon-button" onClick={close} aria-label="Close settings"><X size={18} /></button></div>
@@ -30,6 +32,7 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
       {['X','Y','Z'].map((axis,i)=><label className="range-field" key={axis}><span>{axis} position <output>{format(position[i],2)} m</output></span><input aria-label={`${axis} obstacle position`} type="range" min={[.15,-.5,.05][i]} max={[.8,.5,.6][i]} step=".01" value={position[i]} onChange={e=>setPosition(p=>p.map((v,j)=>j===i?Number(e.target.value):v))} /></label>)}
       {['X','Y'].map((axis,i)=><label className="range-field" key={`target-${axis}`}><span>{axis} {pickup?'pickup':'target'} position <output>{format(pickup?cube[i]:target[i],2)} m</output></span><input aria-label={`${axis} target position`} type="range" min={pickup?(i?-.3:.35):(i?-.5:.15)} max={pickup?(i?.3:.65):(i?.5:.8)} step=".01" value={pickup?cube[i]:target[i]} onChange={e=>(pickup?setCube:setTarget)(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
       {pickup&&['X','Y'].map((axis,i)=><label className="range-field" key={`placement-${axis}`}><span>{axis} placement position <output>{format(placement[i],2)} m</output></span><input aria-label={`${axis} placement position`} type="range" min={i?-.3:.35} max={i?.3:.65} step=".01" value={placement[i]} onChange={e=>setPlacement(p=>p.map((v,j)=>j===i?Number(e.target.value):v))}/></label>)}
+      {pickup&&!separationValid&&<p className="setting-error" role="alert">Move the pickup or placement point so they are at least 10 cm apart.</p>}
       {pickup&&!orbital&&<label className="range-field"><span>Object side length <output>{Math.round(cubeHalfSize*2000)} mm</output></span><input aria-label="Object side length" type="range" min=".02" max=".03" step=".001" value={cubeHalfSize} onChange={e=>setCubeHalfSize(Number(e.target.value))}/></label>}
       <p className="small">Obstacle half-sizes: {size.map(v=>format(v,3)).join(' × ')} m. Applying a change first stops the worker safely, then initializes new physical conditions. {pickup?'The cube is a dynamic free body held by finger friction.':'This legacy world verifies reaching only.'}</p>
     </> : <>
@@ -40,7 +43,7 @@ export default function Settings({ backend, config, disabled, apply, close }: { 
       <label className="range-field"><span>Time horizon <output>{horizon}</output></span><input aria-label="Time horizon" type="range" min="2" max="8" step=".5" value={horizon} onChange={e=>setHorizon(Number(e.target.value))} /></label>
       <p className="small">Known initial orbit and fixed perturber location. Nondimensional units; synthetic observations.</p>
     </>}
-    <button className="primary full" disabled={disabled} onClick={submit}>Apply settings <ArrowRight size={17} /></button>
+    <button className="primary full" disabled={disabled||!separationValid} onClick={submit}>Apply settings <ArrowRight size={17} /></button>
   </section>;
 }
 

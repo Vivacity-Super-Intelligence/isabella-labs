@@ -1,6 +1,38 @@
-# Current frontend handoff — master runtime, 2026-10-11
+# Current frontend handoff — master runtime, 2026-10-12
 
-Final release proof: `docs/FINAL_VERIFICATION.md`. **135 Linux tests passed**;
+The bounded cube-drag release is deployed at `https://demo.tryvivacity.com/`
+and `https://vivacity-investor-demo.vercel.app/` (Vercel
+`dpl_E7CdpcAXC29sJyiMBNAg5E5wdnzD`). Its backend is Render deployment
+`dep-db6fie2jnfac73djg6ag`, commit `8cfa7fcd60e5acd01f1075d59eec5de2e2a03212`.
+The backend Docker suite passed **139 tests**; the 512 MB lab check passed.
+The public site accepted the exact 10 cm pickup/placement configuration from
+the reported 422, accepted a pointer drag, and showed a short inline validation
+message when the two points were too close. The current live experiment result
+and release caveats are recorded in `docs/HOSTING_STATUS.md`.
+
+## Bounded workcell interaction
+
+The normal Object Pickup workcell supports pointer dragging of the rendered
+blue cube. During a drag, Three.js intersects the pointer ray with the table
+plane and previews the cube within **X 0.35–0.65 m, Y -0.30–0.30 m**. This
+preview is explicitly uncommitted. On release, the frontend calls the existing
+`PATCH /v1/worlds/{id}/environment` path with the new cube center and current
+full configuration; MuJoCo then builds the revised world. Applying a position
+never starts an experiment. The old experiment becomes stale, and the status
+prompts the user to run again. The same pickup coordinates remain available
+through keyboard-accessible sliders in Change conditions. The imported Orbital
+scene retains its fixed cargo geometry and does not offer this drag control.
+
+Pickup and placement must remain at least 0.10 m apart. Both sliders and the
+drag control enforce that rule before sending a request; an invalid drag
+reverts with a short message. The backend accepts the exact 0.10 m boundary
+with a numerical tolerance and continues to reject smaller distances. The
+scene editor stays open if the server rejects an edit, and HTTP validation
+errors are summarized rather than displaying the entire union-schema payload.
+The object is repositioned between simulations; a user drag is not presented
+as simulated robot motion.
+
+Earlier native-import release proof: `docs/FINAL_VERIFICATION.md`. **135 Linux tests passed**;
 Windows with bounded numerical threads: **134 passed, one Linux-only skip**.
 Orbital API/geometry/readiness/export contract: `docs/ORBITAL_HANDOFF.md`.
 New endpoints are `POST /v1/imports/{id}/verify` (202 background capability probe)
@@ -18,7 +50,7 @@ Backend native Pause/Resume remains available for API users.
 
 **Hosting update:** the frontend uses `https://vivacity-runtime.onrender.com`.
 Render Free is the fallback after the required payment method was declined.
-The public pickup budget is eight real physics trials (`VITE_PHYSICS_TRIALS=8`);
+The public pickup budget is eight real physics trials (`/health` host limit);
 the server rejects larger requests before allocating a job. Local/default paid
 configuration retains 5,000. No UI layout was changed. Free hosting sleeps after
 15 idle minutes and loses local SQLite data on restart, redeploy or sleep.
@@ -26,7 +58,9 @@ Download evidence while the instance is running. Exact current release and
 executed checks: `docs/HOSTING_STATUS.md`.
 
 For a public frontend build, set `VITE_API_BASE_URL=https://vivacity-runtime.onrender.com`
-and `VITE_PHYSICS_TRIALS=8` before `npm run build --prefix frontend`.
+and `VITE_PHYSICS_TRIALS=5000` before `npm run build --prefix frontend`. The
+frontend clamps that requested ceiling to the actual `/health` host limit
+before each session; Render Free currently allows eight.
 The server allows exactly the two public demo origins. Never put keys in `VITE_`
 variables. Session HTTP requests require `X-Session-Token`; session WebSockets use
 the existing capability protocol documented below. HTTPS uses WSS automatically.
