@@ -143,7 +143,22 @@ class PickPlaceBackend(RoboticsBackend):
 
     def candidates(self, world, count, iterations):
         tic = time.perf_counter(); actions = []
-        cube = np.asarray(world.data.body('target').xpos)
+        if world.config.get('scene_profile') == 'workcell':
+            from .perception import scan_cube
+            sensing = scan_cube(world)
+            if not sensing['detected']:
+                return ([{'kind': 'pick_place', 'planner': 'staged_dls_contact_pick_place',
+                          'candidate_index': index, 'seed': world.seed, 'stages': [],
+                          'lift_height_m': None, 'speed_rad_s': None,
+                          'planning_feasible': False, 'screening_rejection': 'object_not_visible',
+                          'ik': {'converged': False}, 'object_localization': sensing}
+                         for index in range(count)], time.perf_counter()-tic)
+            cube = np.array([*sensing['estimated_xy_m'], float(world.data.body('target').xpos[2])])
+        else:
+            sensing = None
+            cube = np.asarray(world.data.body('target').xpos)
+        action_sensing = {key: value for key, value in sensing.items()
+                          if key != 'visible_samples_xy_m'} if sensing else None
         dest = np.asarray(world.config['placement_position'])
         rng = np.random.default_rng(world.seed)
         for index in range(count):
@@ -182,10 +197,13 @@ class PickPlaceBackend(RoboticsBackend):
                             'seed': world.seed, 'stages': stages, 'lift_height_m': height, 'speed_rad_s': speed,
                             'planning_feasible': converged and not rejected,
                             'screening_rejection': rejected or (None if converged else 'ik_failure'),
-                            'ik': {'converged': bool(converged)}})
+                            'ik': {'converged': bool(converged)}, 'object_localization': action_sensing})
         return actions, time.perf_counter()-tic
 
     def apply_action(self, world, action):
+        if action.get('screening_rejection') == 'object_not_visible' and action.get('stages') == []:
+            world.action = deepcopy(action)
+            return
         if action.get('kind') != 'pick_place' or len(action.get('stages', [])) != 8:
             raise ValueError('expected eight-stage contact pick-and-place action')
         if not np.allclose(action['stages'][0]['start'], world.data.qpos[:7], atol=1e-6, rtol=0):
@@ -208,7 +226,7 @@ class PickPlaceBackend(RoboticsBackend):
         """
         tic=time.perf_counter();templates,_=self.candidates(world,8,settings['planner_iterations'])
         rng=np.random.default_rng(world.seed);eligible=[];all_actions=[];distinct=set();digest=hashlib.sha256()
-        rejected={'kinematic_collision':0,'ik_failure':0,'simulation_horizon':0}
+        rejected={'kinematic_collision':0,'ik_failure':0,'simulation_horizon':0,'object_not_visible':0}
         total=settings['search_candidates']
         for i in range(total):
             if settings.get('checkpoint') and not settings['checkpoint']():raise InterruptedError('cancelled while generating candidates')

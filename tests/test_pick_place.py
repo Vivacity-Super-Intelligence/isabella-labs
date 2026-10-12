@@ -122,7 +122,9 @@ def test_collision_screen_and_action_parent_validation(pickup):
     blocked = b.create_world(RoboticsConfig(task='pick_place', obstacle_position=[.5,0,.2],
                                           obstacle_size=[.3,.3,.2]).model_dump(), 7)
     candidates, _ = b.candidates(blocked, 3, 100)
-    assert all(not a['planning_feasible'] and a['screening_rejection'] == 'kinematic_collision' for a in candidates)
+    # The overhead sensor rejects this fully occluded cube before collision
+    # screening can propose a route through the blocker.
+    assert all(not a['planning_feasible'] and a['screening_rejection'] == 'object_not_visible' for a in candidates)
     with pytest.raises(ValueError, match='parent'):
         action = deepcopy(actions[0]); action['stages'][0]['start'][0] += .1
         b.apply_action(blocked, action)
