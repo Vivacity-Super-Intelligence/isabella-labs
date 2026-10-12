@@ -117,16 +117,16 @@ def test_native_timeout_and_joint_limits_are_measured(pickup):
     assert not evaluation['success'] and evaluation['status'] in ('joint_limit_failure','controller_failure')
 
 
-def test_paused_science_resumes_real_fits(runtime):
+def test_paused_cloth_resumes_real_integration(runtime):
     control=PauseControl();control.pause()
-    w=runtime.create_world(CreateWorld(backend='scipy'))
-    e=runtime.submit(w['id'],ExperimentRequest(),control=control)
+    w=runtime.create_world(CreateWorld(backend='cloth'))
+    e=runtime.submit(w['id'],ExperimentRequest(search_candidates=50, physics_budget=3),control=control)
     until(lambda:control.state()['paused'])
     before=runtime.get_experiment(e['id']);time.sleep(.1)
     assert runtime.get_experiment(e['id'])==before
     control.resume();done=runtime.wait(e['id'])
     assert done['status']=='completed' and done['selected_branch_id']
-    assert all(b['performance']['integration_calls']>0 for b in runtime.store.branches(e['id']))
+    assert all(b['performance']['simulation_steps']>0 for b in runtime.store.branches(e['id']))
 
 
 def test_trial_cursor_does_not_skip_late_low_candidate_indices(tmp_path):
@@ -214,15 +214,15 @@ def test_invalid_trial_counts_rejected(settings):
 
 
 def test_unsupported_full_physics_worlds_rejected_before_queue(runtime):
-    for backend in ('scipy','cloth','mujoco'):
+    for backend in ('cloth','mujoco'):
         w=runtime.create_world(CreateWorld(backend=backend))
         with pytest.raises(ValueError):runtime.submit(w['id'],ExperimentRequest(physics_trials=4,search_candidates=4))
     assert not runtime.futures
 
 
 def test_pre_upgrade_experiment_retry_keeps_original_job(runtime):
-    w=runtime.create_world(CreateWorld(backend='scipy'))
-    request=ExperimentRequest();e=runtime.submit(w['id'],request,'legacy-key')
+    w=runtime.create_world(CreateWorld(backend='cloth'))
+    request=ExperimentRequest(search_candidates=50, physics_budget=3);e=runtime.submit(w['id'],request,'legacy-key')
     runtime.wait(e['id'])
     stored=runtime.store.get('experiments',e['id']);stored['request'].pop('physics_trials')
     runtime.store.put('experiments',stored)
@@ -232,7 +232,7 @@ def test_pre_upgrade_experiment_retry_keeps_original_job(runtime):
 
 
 def test_pre_upgrade_session_retry_keeps_original_session(runtime):
-    request=SessionRequest(backend='scipy',max_cycles=1)
+    request=SessionRequest(backend='cloth',max_cycles=1)
     s=runtime.supervisor.create(request,TOKEN)
     runtime.supervisor.stop(s['id'],TOKEN)
     until(lambda:runtime.supervisor.get(s['id'],TOKEN)['status']=='stopped')

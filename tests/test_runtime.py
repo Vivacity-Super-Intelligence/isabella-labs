@@ -3,7 +3,7 @@ import threading
 import httpx
 import pytest
 from vivacity.runtime import Runtime, Conflict, Busy
-from vivacity.schemas import CreateWorld, ExperimentRequest, ScienceConfig
+from vivacity.schemas import CreateWorld, ExperimentRequest, ClothConfig
 from vivacity.agent import HostedPolicy
 from vivacity.agent import DeterministicPolicy
 
@@ -11,8 +11,8 @@ from vivacity.agent import DeterministicPolicy
 def test_persistence_and_interrupted_job(tmp_path):
     path = tmp_path / 'persistent.sqlite3'
     r = Runtime(path)
-    w = r.create_world(CreateWorld(backend='scipy'))
-    e = r.wait(r.submit(w['id'], ExperimentRequest())['id'])
+    w = r.create_world(CreateWorld(backend='cloth'))
+    e = r.wait(r.submit(w['id'], ExperimentRequest(search_candidates=50, physics_budget=3))['id'])
     branches = r.store.branches(e['id']); events = r.store.events(e['id'])
     interrupted = r.store.get('experiments', e['id']) | {'id': 'interrupted', 'status': 'running'}
     r.store.put('experiments', interrupted)
@@ -31,18 +31,18 @@ def test_persistence_and_interrupted_job(tmp_path):
 
 def test_geometry_change_while_running_preserves_new_world(runtime, monkeypatch):
     started, release = threading.Event(), threading.Event()
-    backend = runtime.backends['scipy']; simulate = backend.simulate
+    backend = runtime.backends['cloth']; simulate = backend.simulate
 
     def delayed(w, limits):
         started.set(); assert release.wait(timeout=10)
         return simulate(w, limits)
 
     monkeypatch.setattr(backend, 'simulate', delayed)
-    w = runtime.create_world(CreateWorld(backend='scipy'))
-    e = runtime.submit(w['id'], ExperimentRequest())
+    w = runtime.create_world(CreateWorld(backend='cloth'))
+    e = runtime.submit(w['id'], ExperimentRequest(search_candidates=50, physics_budget=3))
     assert started.wait(timeout=10)
     try:
-        changed = runtime.environment(w['id'], ScienceConfig(samples=40))
+        changed = runtime.environment(w['id'], ClothConfig(friction=.5))
     finally:
         release.set()
     completed = runtime.wait(e['id'])
@@ -55,22 +55,22 @@ def test_geometry_change_while_running_preserves_new_world(runtime, monkeypatch)
 def test_worker_failure_is_persisted(runtime, monkeypatch):
     def failure(*args):
         raise RuntimeError('injected integration boundary failure')
-    monkeypatch.setattr(runtime.backends['scipy'], 'simulate', failure)
-    w = runtime.create_world(CreateWorld(backend='scipy'))
-    e = runtime.wait(runtime.submit(w['id'], ExperimentRequest())['id'])
+    monkeypatch.setattr(runtime.backends['cloth'], 'simulate', failure)
+    w = runtime.create_world(CreateWorld(backend='cloth'))
+    e = runtime.wait(runtime.submit(w['id'], ExperimentRequest(search_candidates=50, physics_budget=3))['id'])
     assert e['status'] == 'failed' and e['selected_branch_id'] is None
     assert e['error'] == 'all_branches_failed:adapter_failure'
     branches = runtime.store.branches(e['id'])
-    assert len(branches) == 2
+    assert len(branches) == 3
     assert all(b['evaluation']['status'] == 'adapter_failure' for b in branches)
     assert all(b['performance']['simulation_steps'] is None for b in branches)
     assert runtime.store.events(e['id'])[-1]['kind'] == 'failed'
 
 
 def test_cross_world_commit_is_rejected(runtime):
-    a = runtime.create_world(CreateWorld(backend='scipy'))
-    b = runtime.create_world(CreateWorld(backend='scipy'))
-    e = runtime.wait(runtime.submit(a['id'], ExperimentRequest())['id'])
+    a = runtime.create_world(CreateWorld(backend='cloth'))
+    b = runtime.create_world(CreateWorld(backend='cloth'))
+    e = runtime.wait(runtime.submit(a['id'], ExperimentRequest(search_candidates=50, physics_budget=3))['id'])
     with pytest.raises(Conflict, match='belong'):
         runtime.commit(b['id'], e['id'], e['selected_branch_id'])
 
@@ -80,7 +80,7 @@ def test_bounded_queue(runtime):
         assert runtime.capacity.acquire(blocking=False)
     try:
         with pytest.raises(Busy):
-            runtime.submit('unused', ExperimentRequest())
+            runtime.submit('unused', ExperimentRequest(search_candidates=50, physics_budget=3))
     finally:
         for _ in range(8):
             runtime.capacity.release()
@@ -91,8 +91,8 @@ def test_no_key_mode_is_explicit(runtime, monkeypatch):
     monkeypatch.delenv('OPENAI_MODEL', raising=False)
     with pytest.raises(ValueError, match='requires'):
         HostedPolicy().propose({}, {}, ExperimentRequest(policy='llm').model_dump())
-    w = runtime.create_world(CreateWorld(backend='scipy'))
-    e = runtime.wait(runtime.submit(w['id'], ExperimentRequest())['id'])
+    w = runtime.create_world(CreateWorld(backend='cloth'))
+    e = runtime.wait(runtime.submit(w['id'], ExperimentRequest(search_candidates=50, physics_budget=3))['id'])
     assert not e['result']['policy']['llm_used']
 
 
@@ -130,7 +130,7 @@ def test_policy_chooses_bounded_followup():
     settings = ExperimentRequest(planner_iterations=100).model_dump()
     assert policy.next_experiment('mujoco', {'contacts': []}, branches, settings)['planner_iterations'] == 200
     assert policy.next_experiment('mujoco', {'contacts': [{'category': 'environment_collision'}]}, branches, settings) is None
-    assert policy.next_experiment('scipy', {}, branches, settings) is None
+    assert policy.next_experiment('cloth', {}, branches, settings) is None
 
 
 def test_followup_runs_real_physics_and_preserves_failed_round(runtime):
@@ -144,16 +144,3 @@ def test_followup_runs_real_physics_and_preserves_failed_round(runtime):
     assert branches[2]['action']['followup']
     assert branches[3]['action']['followup']
     assert any(ev['kind'] == 'planned' and ev['details'].get('followup') for ev in runtime.store.events(e['id']))
-
-
-def test_policy_input_contains_no_generation_truth(runtime, monkeypatch):
-    received = []
-    original = DeterministicPolicy.propose
-    def inspect(self, observation, action_schema, request):
-        received.append(json.dumps(observation))
-        return original(self, observation, action_schema, request)
-    monkeypatch.setattr(DeterministicPolicy, 'propose', inspect)
-    w = runtime.create_world(CreateWorld(backend='scipy', config=ScienceConfig(hidden_mass=0.123456789)))
-    e = runtime.wait(runtime.submit(w['id'], ExperimentRequest())['id'])
-    assert e['status'] == 'completed'
-    assert all('hidden_mass' not in item and '0.123456789' not in item and 'central_mu' not in item for item in received)

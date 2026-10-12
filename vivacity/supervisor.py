@@ -144,12 +144,6 @@ class Supervisor:
                             center_z=config.get('cube_half_size',.025)+.001
                             config['cube_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(-.2,-.1)),center_z]
                             config['placement_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(.12,.23)),center_z]
-                        elif s['backend']=='scipy':
-                            config['noise_std']=float(rng.uniform(.0006,.0015))
-                            config['horizon']=float(rng.uniform(4,6))
-                            # The generator may produce a no-influence control. The
-                            # fitting policy only receives sanitized noisy observations.
-                            config['hidden_mass']=0. if cycle%2 else request['config']['hidden_mass']
                         elif s['backend']=='cloth':
                             config['friction']=float(rng.uniform(.5,.9))
                         w=r.create_world(CreateWorld(backend=s['backend'],seed=seed,config=config))

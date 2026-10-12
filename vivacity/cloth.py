@@ -181,6 +181,8 @@ class ClothBackend(LegacyClothBackend):
         return {'success':bool(success),'status':result['failure'] or ('fold_success' if success else 'fold_quality_failure'),'alignment_error_m':alignment,'vertex_coverage':coverage,'grasp_valid':bool(grasp),'grasp_constraint_error_m':result['grasp_constraint_error_m'],'maximum_contact_penetration_m':result['maximum_contact_penetration_m'],'contact_violations':result['contact_violations'],'execution_duration_s':result['execution_duration_s'],'fold_quality':max(0.,coverage*(1-alignment/.03)),'milestone':'constrained_single_fold','scope':self.action_schema['scope'],'robot_joint_displacement_rad':result['robot_joint_displacement_rad'],'maximum_joint_tracking_error_rad':result['maximum_joint_tracking_error_rad'],'manipulator':'Franka Panda joint actuators'}
 
     def replay(self,branch):
+        if branch['evaluation']['status']=='adapter_failure':
+            return {'branch_id':branch['id'],'source':'failed_adapter_execution','frames':branch['trace'],'evaluation':branch['evaluation']}
         replay=super().replay(branch)
         if branch['trace'] and 'body_transforms' in branch['trace'][0]:
             replay['source']='measured_mujoco_robot_cloth_trace'

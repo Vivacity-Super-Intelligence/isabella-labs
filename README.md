@@ -1,6 +1,6 @@
 # Vivacity simulation backend
 
-Private deployment snapshot of the real FastAPI, MuJoCo and SciPy runtime.
+Private deployment snapshot of the real FastAPI and MuJoCo robotics runtime.
 SOURCE_MANIFEST.json identifies the exact source content exported from the
 development workspace. Credentials, frontend work and experiment databases
 are excluded.

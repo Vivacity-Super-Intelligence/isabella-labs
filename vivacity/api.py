@@ -11,6 +11,7 @@ from .schemas import SessionRequest,SessionResponse,LiveState,TrialsResponse
 from .imports import ImportService,MAX_UPLOAD
 from pathlib import Path
 from starlette.requests import HTTPConnection
+from .templates import TemplateSelection, TemplateCatalog, catalog, resolve
 
 
 def create_app(database=None):
@@ -37,7 +38,7 @@ def create_app(database=None):
 
     app = FastAPI(title='Vivacity Execution Runtime', version='1.0.0', lifespan=lifespan,
                   dependencies=[Depends(authorize_request)],
-                  description='Measured Panda manipulation, reaching, experimental flex folding and SciPy model comparison. Explicit bounded native import probes and a documented trusted Orbital adaptation. Single-process demo.')
+                  description='Robotics-only runtime: measured Panda manipulation, reaching and experimental fixture-assisted flex folding. Public scenario templates declare readiness and reject unsupported combinations. Single-process demo.')
     origins = [o.strip() for o in os.getenv('VIVACITY_CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if o.strip()]
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token'])
 
@@ -78,6 +79,12 @@ def create_app(database=None):
     @app.head('/health', include_in_schema=False)
     def health_head():
         return Response(status_code=200)
+    @app.get('/v1/templates', response_model=TemplateCatalog)
+    def templates():
+        return catalog()
+    @app.post('/v1/templates/resolve', response_model=CreateWorld)
+    def resolve_template(selection: TemplateSelection):
+        return resolve(selection)
 
     SessionToken=Annotated[str,Header(min_length=32,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
 
