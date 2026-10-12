@@ -31,7 +31,9 @@ measure localization error, not to set the planner's target.
 
 The backend tries eight yaw/lift templates, damped least-squares pose IK
 with seeded retry configurations, and joint-space RRT for blocked segments.
-Every accepted RRT edge is checked against MuJoCo collision geometry.
+Every accepted RRT edge is checked against MuJoCo robot collision geometry.
+Carried-object collisions are measured in physics execution; geometric
+screening does not certify their absence over every routed transport path.
 Native physics trials and fresh authoritative execution share the same
 routed stage-command interpolation. Physics contacts, bilateral finger
 forces, lift/retention, release, table support and final placement error
@@ -80,4 +82,9 @@ dragged estimate at `[1.017,0.381]` m and the opposite edge at
 viewport was inspected in the browser. The focused perception/pickup tests
 passed 26 checks; later routing, actual contact-friction and adaptive checks
 passed five checks. Full Docker and public release results are recorded in
-`docs/HOSTING_STATUS.md` after completion.
+`docs/HOSTING_STATUS.md`. The public run stopped at five integrated trials,
+retained two feasible outcomes and genuine failures, then completed a separate
+authoritative pickup at 8.5 mm error with zero prohibited contacts. All 155
+Docker tests and the separate 512 MB host test passed. The final release also
+keeps loading/error messages outside the viewport. Public proof artifacts are
+listed in the hosting status.

@@ -1,4 +1,36 @@
-# Current frontend handoff — master runtime, 2026-10-12
+# Current frontend handoff — adaptive tabletop runtime, 2026-10-13
+
+The verified custom domain is `https://demo.tryvivacity.com/`; backend is
+`https://vivacity-runtime.onrender.com`. Render deploy
+`dep-db6lh3ff3r2c73crqm4g` runs source `0353263`, and final Vercel deployment
+is `dpl_EHwp139FoB9QFLYqEi9p5J6DpaaR`. The backend Docker suite passed 155
+tests and the separate 512 MB lab test. The public adaptive pickup journey,
+edited object properties, full-table drag, stale results and clean reload
+were exercised. See `docs/HOSTING_STATUS.md` for actual measured results.
+
+Use the regenerated `openapi.json` and `frontend/src/generated/api.d.ts`.
+The additive request flag `adaptive_trials: true` replaces the UI's exact
+trial count; send `physics_trials: 0`, `search_candidates: 256` and a
+`physics_budget` within the host's advertised limit. Inspect
+`result.search.stopping_reason`, `fully_simulated`, `physics_attempts` and
+`verified_feasible`. Fixed-count audit requests remain supported.
+
+Robot config accepts optional independent `cube_half_sizes: [x,y,z]`
+(0.02..0.03 m each), `cube_mass` (0.02..0.15 kg), and `cube_friction`
+(0.05..1.5). Null dimensions use legacy `cube_half_size`. Cube/placement Z
+must match half-height plus 1 mm. The actual table spans X -0.30..1.10 m,
+Y -0.65..0.65 m; centers are inset by half-width/depth plus 1 mm. Drag uses
+those dimensions and adjusts an overlapping placement destination. World
+edits still use the existing PATCH endpoint and invalidate earlier results.
+
+Keep all visible labels, loading/errors, sensor readings and controls outside
+the robotics viewport. Its canvas renders measured physical geometry;
+keyboard orbit/zoom/reset remains available through the region. Depth sensing
+uses simulator geom labels, not real camera vision. Details and a runnable
+REST request: `docs/ADAPTIVE_PICKUP.md`. The earlier examples below remain
+historical reference and do not define the current drag bounds or trial policy.
+
+## Earlier master runtime handoff — 2026-10-12
 
 The bounded cube-drag release is deployed at `https://demo.tryvivacity.com/`
 and `https://vivacity-investor-demo.vercel.app/` (Vercel

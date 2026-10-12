@@ -1,6 +1,6 @@
 # Render hosting verification — 2026-10-13
 
-## Adaptive tabletop release awaiting production activation
+## Adaptive tabletop release
 
 Private backend source `03532631c58a2fadaebe17f3e862298b15184dfc`
 passed the [Docker workflow](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38311644414):
@@ -15,14 +15,49 @@ search with grasp yaw, seeded IK retries and joint-space RRT. The earlier
 local bounded-drag checks and measured model-property checks are described
 in `docs/ADAPTIVE_PICKUP.md`. OpenAPI and client declarations are regenerated.
 
-Production activation and its end-to-end verification are **pending**.
-Render requires a manual deployment. The browser connection stalled while
-opening its deployment controls; repeated browser reconnection, direct
-deployment-list navigation and a fresh tab did not recover interaction.
-The previous verified public release remains in place. Do not interpret
-the successful Docker tests or pushed source commit as proof this adaptive
-release is live. Activate the latest commit on the existing Render service,
-then deploy the frontend and run the public journey before updating this status.
+Render activated this source as `dep-db6lh3ff3r2c73crqm4g` and reported
+**Deploy succeeded | Live**. Vercel production deployment
+`dpl_FEym83gapwyL5EeSyPTnfoqY2kuY` was followed by the final loading/error
+placement correction, `dpl_EHwp139FoB9QFLYqEi9p5J6DpaaR`. Its TypeScript
+and Vite build passed and it is aliased to `https://demo.tryvivacity.com/`.
+A temporary stalled browser connection was
+recovered before activation.
+
+Public OpenAPI includes the adaptive request contract. An actual public API
+world accepted independent half-dimensions `[0.022,0.028,0.026]` m, mass
+`0.1` kg, friction `0.65` and position `[1.015,0.378,0.027]` m near the far
+table edge. Its actual ray scan returned `[1.0125,0.376071]` m from 22,701
+rays. Evidence: `artifacts/adaptive-public-api.json`. In the deployed browser,
+the ready viewport has one canvas and **empty visible text**. Dimensions,
+mass and friction edits applied successfully, and the world remained idle
+until Start was clicked. An explicit adaptive run screened 256 distinct
+commands, selected a host-bounded set for physical testing and streamed its
+measured progress. The public run (`9f0ca9d8-48a1-4d66-828c-bdf1bd725ff8`)
+stopped after **five integrated physics trials** at a measured improvement
+plateau, with **two feasible results** and recorded dropped-object/grasp
+failures. The selected candidate used **180° grasp yaw**, integrated **7,398
+steps**, and completed a real grasp, lift, retention, release and placement
+with **8.5498 mm** error in **14.796 simulation seconds**. Its export contains
+**64 recorded frames**; native trial wall time was **8.5974 s**.
+Evidence: `artifacts/adaptive-public-selected-branch.json`.
+
+A separate authoritative execution then succeeded with **8.5 mm** error and
+**zero prohibited contacts**. The page recorded Task verified and persisted
+the result at **4:07.21** elapsed job wall time. Final production reload
+restored that measured result. During loading the viewport had empty visible
+text and no canvas; after initialization it had empty visible text and one
+canvas. A 390 px mobile check reported no horizontal overflow and empty scene
+text. No captured browser console errors occurred. A public drag to the far
+table edge produced a new ray estimate `[1.065,0.385]` m and correctly marked
+the previous result **World changed · run again**. The tested reachable
+`[0.30,0.00]` m setup was restored without starting another job.
+
+Screenshots: `artifacts/adaptive-public-success.png`,
+`artifacts/adaptive-public-far-table.png`, and
+`artifacts/adaptive-public-mobile.png`. The runtime and frontend disclose
+compute-budget stops; this is best measured feasibility, not global optimality
+or guaranteed reach over the entire table. Render Free remains subject to its
+previous uptime and persistence limitations.
 
 ## Tabletop localization release
 

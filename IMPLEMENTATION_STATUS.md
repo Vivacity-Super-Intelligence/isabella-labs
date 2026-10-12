@@ -1,4 +1,42 @@
-# Implementation status — current Render handoff, 2026-10-12
+# Implementation status — current Render handoff, 2026-10-13
+
+## Current clean tabletop and adaptive pickup release
+
+**Live and verified at https://demo.tryvivacity.com/**. The robotics viewport
+has no visible text, target markers, paths, grid or sensor overlays; loading
+and errors also appear outside it. Object dragging covers the whole physical
+table, inset by object dimensions to keep it supported. Width/depth/height,
+mass/weight and friction controls rebuild the actual MuJoCo geometry and
+contacts. Search varies grasp yaw, seeded DLS IK retries and joint-space RRT
+routes. Physical trial count is adaptive, with measured plateau and host
+compute-budget stops disclosed.
+
+Docker CI: **155 passed, zero failures/errors/skips**, one upstream warning,
+353.54 s. The separate 512 MB check: **one passed**, 53.25 s. Reports:
+`artifacts/adaptive-linux-tests/backend-linux.xml`, `host-memory.xml`.
+Final Vercel TypeScript/Vite build passed; the large Three.js chunk warning
+remains. Backend source `0353263` is live as Render `dep-db6lh3ff3r2c73crqm4g`;
+frontend `dpl_EHwp139FoB9QFLYqEi9p5J6DpaaR` is ready on the custom domain.
+
+The public run screened 256 commands and stopped at five integrated MuJoCo
+trials, retaining two feasible outcomes and genuine failed grasps/drops.
+Its fastest measured feasible candidate used 180° grasp yaw, 7,398 steps,
+14.796 simulation seconds and 8.5498 mm placement error. A separate live
+authoritative execution succeeded at 8.5 mm error and zero prohibited
+contacts; total public wall time was 4:07.21. The object measured
+44 × 56 × 52 mm, 100 g and friction 0.65. Public dragging reached the far
+edge (ray estimate `[1.065,0.385]` m), invalidated the result, and did not
+start a new job. Desktop and mobile were checked with empty viewport text,
+no captured console errors, and no mobile horizontal overflow.
+
+Limits: placement on the table does not guarantee that a fixed Panda can
+reach or grasp that point. The planner currently searches top-down yaw
+grasps; no base repositioning or arbitrary shape support exists. Carried
+object collisions are validated by physical trials. This is best measured
+feasibility under a budget, not a global optimum. Perception uses synthetic
+MuJoCo semantic depth labels. Free hosting retains its earlier uptime and
+ephemeral-persistence limitations. Details: `docs/ADAPTIVE_PICKUP.md` and
+`docs/HOSTING_STATUS.md`. Sections below describe earlier releases.
 
 ## Bounded 3D pickup drag and 422 repair (2026-10-12)
 

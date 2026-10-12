@@ -2,7 +2,6 @@ import { Component, memo, useEffect, useMemo, useRef, useState, type ReactNode, 
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { BufferAttribute, BufferGeometry, Color, Group, Plane, Quaternion, Vector3, SRGBColorSpace } from 'three';
-import { Cube } from '@phosphor-icons/react';
 import { type Dict, type RobotFrame, type Vec3 } from './domain';
 import { clampPickupPosition, objectHalfSizes } from './pickupWorkspace';
 
@@ -151,10 +150,11 @@ function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime, ca
   </group>;
 }
 
-class SceneBoundary extends Component<{children: ReactNode}, { error: boolean }> {
+class SceneBoundary extends Component<{children: ReactNode;onError:()=>void}, { error: boolean }> {
   state = { error: false };
   static getDerivedStateFromError() { return { error: true }; }
-  render() { return this.state.error ? <div className="scene-unavailable">3D rendering is unavailable. Your experiment data remains accessible in the inspector. Try a WebGL2-capable browser.</div> : this.props.children; }
+  componentDidCatch() { this.props.onError(); }
+  render() { return this.state.error ? null : this.props.children; }
 }
 
 function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=false, onMoveCube=async()=>false }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean> }) {
@@ -163,8 +163,8 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
   const [cameraCommand,setCameraCommand]=useState({key:'',seq:0});
   const resetCamera=()=>{setCameraCommand(c=>({key:'',seq:c.seq+1}));setCameraKey(k=>k+1);};
   useEffect(() => { let active = true; loadAssets().then(a=>active&&setAssets(a)).catch(e=>active&&setError(String(e))); return ()=>{ active=false; }; },[]);
-  return <div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label="Franka Panda workcell. Drag the blue object anywhere on the beige table. Change conditions provides keyboard-accessible position controls. Arrow keys orbit, plus and minus zoom, R resets camera." onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
-    {error ? <div className="scene-unavailable" role="alert">{error}</div> : !assets || !frames.length ? <div className="scene-unavailable"><Cube size={24} />{!assets ? 'Loading Panda geometry…' : 'Waiting for a measured world state…'}</div> : <SceneBoundary>
+  return <><div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label="Franka Panda workcell. Drag the blue object anywhere on the beige table. Change conditions provides keyboard-accessible position controls. Arrow keys orbit, plus and minus zoom, R resets camera." onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
+    {!error&&assets&&frames.length>0&&<SceneBoundary onError={()=>setError('3D rendering is unavailable. Your experiment data remains accessible in the inspector. Try a WebGL2-capable browser.')}>
       <Canvas key={cameraKey} frameloop="demand" shadows dpr={[1,1.25]} style={{cursor:canMoveCube?(dragging?'grabbing':hovering?'grab':'auto'):'auto',touchAction:'none'}} camera={{ position: config.scene_profile==='orbital_salvage'?[1.4,1.5,1.3]:[1.5,-1.6,1.25], fov: 38, near: .01, far: 15 }} gl={{ antialias: true, preserveDrawingBuffer: true }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#deddd4'); performance.mark('vivacity:robot-scene-ready'); }}>
         <ambientLight intensity={.72} /><hemisphereLight args={['#ffffff','#6f706a',1.8]} />
         <directionalLight position={[1,-1.5,3]} intensity={3.2} castShadow shadow-mapSize={[1024,1024]} shadow-bias={-.00005} shadow-normalBias={.008} shadow-camera-left={-1.5} shadow-camera-right={1.5} shadow-camera-top={1.5} shadow-camera-bottom={-1.5} />
@@ -173,7 +173,9 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
         <CameraInteraction command={cameraCommand} enabled={!dragging} />
       </Canvas>
     </SceneBoundary>}
-    {dragError&&<span className="sr-only" role="alert">{dragError}</span>}
-  </div>;
+  </div>
+    {(error||dragError)&&<p className="negative" role="alert">{error??dragError}</p>}
+    {!error&&(!assets||!frames.length)&&<p className="small" role="status">{!assets?'Loading Panda geometry…':'Waiting for a measured world state…'}</p>}
+  </>;
 }
 export default memo(RobotView);
