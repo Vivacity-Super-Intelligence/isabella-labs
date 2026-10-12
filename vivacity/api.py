@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 import asyncio
 import os
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
 from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport
@@ -74,6 +74,10 @@ def create_app(database=None):
     @app.get('/health')
     def health():
         return {'status': 'ok', 'schema_version': '1.0', 'backends': {k: b.version for k, b in app.state.runtime.backends.items()}, 'limits': {'max_physics_trials': app.state.runtime.max_physics_trials}}
+
+    @app.head('/health', include_in_schema=False)
+    def health_head():
+        return Response(status_code=200)
 
     SessionToken=Annotated[str,Header(min_length=32,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
 

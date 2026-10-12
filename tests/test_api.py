@@ -42,6 +42,7 @@ def test_request_validation(client, body):
 
 def test_api_science_journey_events_commit_reset(client):
     assert client.get('/health').status_code == 200
+    assert client.head('/health').status_code == 200
     response = client.post('/v1/worlds', json={'backend': 'scipy'})
     assert response.status_code == 201
     w = response.json()
