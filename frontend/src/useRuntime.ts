@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, APIError, errorMessage, liveProtocols, liveWebsocketURL, setSessionToken, websocketURL } from './api';
-import type { Backend, World, Experiment, Branch, Event, Dict } from './domain';
+import { simulatedPerception, type Backend, type World, type Experiment, type Branch, type Event, type Dict, type SimulatedPerception } from './domain';
 import type { components } from './generated/api';
 
 type Session = components['schemas']['SessionResponse'];
@@ -26,6 +26,7 @@ export const isBusy=(e:Experiment|null)=>e?.status==='queued'||e?.status==='runn
 export function useRuntime(backend:Backend){
   const [session,setSession]=useState<Session|null>(null),[world,setWorld]=useState<World|null>(null);
   const [observation,setObservation]=useState<Dict|null>(null),[experiment,setExperiment]=useState<Experiment|null>(null);
+  const [perception,setPerception]=useState<SimulatedPerception|null>(null);
   const [branches,setBranches]=useState<Branch[]>([]),[events,setEvents]=useState<Event[]>([]);
   const [online,setOnline]=useState(false),[loaded,setLoaded]=useState(false),[mutating,setMutating]=useState(false);
   const [error,setError]=useState<string|null>(null),[epoch,setEpoch]=useState(0);
@@ -54,7 +55,8 @@ export function useRuntime(backend:Backend){
     if(currentWorld.current?.id!==s.world_id){
       const w=await api.world(s.world_id),state=await api.state(s.world_id);
       if(version!==generation.current)return;
-      currentWorld.current=w;put(`${backend}:world`,w.id);setWorld(w);setObservation(state.observation as Dict);setLiveState(null);setBranches([]);
+      currentWorld.current=w;put(`${backend}:world`,w.id);setWorld(w);setObservation(state.observation as Dict);
+      setPerception(simulatedPerception((state.observation as Dict).perception));setLiveState(null);setBranches([]);
     }
     if(!inspecting.current&&s.experiment_id&&currentExperiment.current?.id!==s.experiment_id){
       const e=await api.experiment(s.experiment_id);
@@ -72,7 +74,7 @@ export function useRuntime(backend:Backend){
       if(saved&&typeof saved==='object'&&!Array.isArray(saved))stagedConfig.current=saved as Dict;
     }catch{/* Ignore invalid optional local preferences. */}
     setWorld(null);currentWorld.current=null;setSession(null);currentSession.current=null;
-    setExperiment(null);currentExperiment.current=null;setObservation(null);setBranches([]);setEvents([]);setLiveState(null);setLoaded(false);setError(null);
+    setExperiment(null);currentExperiment.current=null;setObservation(null);setPerception(null);setBranches([]);setEvents([]);setLiveState(null);setLoaded(false);setError(null);
     const refresh=async()=>{
       if(refreshing||!active||lock.current)return;refreshing=true;
       try{
@@ -104,6 +106,7 @@ export function useRuntime(backend:Backend){
             const state=await api.state(w.id);
             if(!active||lock.current||version!==generation.current)return;
             put(`${backend}:world`,w.id);currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);
+            setPerception(simulatedPerception((state.observation as Dict).perception));
           }
         }
         if(active&&version===generation.current){setOnline(true);setLoaded(true);setError(previous=>previous==='Failed to fetch'?null:previous);}
@@ -137,7 +140,11 @@ export function useRuntime(backend:Backend){
         if(!isBusy(e)){
           const b=await api.branches(id),w=await api.world(e.world_id);
           if(!active)return;setBranches(b);setWorld(w);currentWorld.current=w;
-          if(sequence<0){const state=await api.state(w.id);if(active)setObservation(state.observation as Dict);}
+          const state=await api.state(w.id);
+          if(active){
+            setPerception(simulatedPerception((state.observation as Dict).perception));
+            if(sequence<0)setObservation(state.observation as Dict);
+          }
           terminal=true;setStream('idle');eventSocket?.close();liveSocket?.close();
         }
       }catch(e){if(active){setError(errorMessage(e));setStream('reconnecting');}}
@@ -184,14 +191,16 @@ export function useRuntime(backend:Backend){
     // Retain user-selected inputs, including the explicit scientific control,
     // so waiting or reloading between Apply and Start does not change the request.
     stagedConfig.current=config;put(`${backend}:settings`,JSON.stringify(config));
-    currentWorld.current=changed;setWorld(changed);setObservation(state.observation as Dict);setLiveState(null);
+    currentWorld.current=changed;setWorld(changed);setObservation(state.observation as Dict);
+    setPerception(simulatedPerception((state.observation as Dict).perception));setLiveState(null);
     currentSession.current=null;setSession(null);
     if(currentExperiment.current){const e=await api.experiment(currentExperiment.current.id);currentExperiment.current=e;setExperiment(e);}
   });
   const reset=()=>perform(async()=>{
     await stop();const w=currentWorld.current;if(!w)return;
     const resetWorld=await api.reset(w.id),state=await api.state(w.id);
-    currentWorld.current=resetWorld;setWorld(resetWorld);setObservation(state.observation as Dict);setLiveState(null);
+    currentWorld.current=resetWorld;setWorld(resetWorld);setObservation(state.observation as Dict);
+    setPerception(simulatedPerception((state.observation as Dict).perception));setLiveState(null);
     if(currentExperiment.current)setExperiment(await api.experiment(currentExperiment.current.id));
   });
   const history=(id:string)=>perform(async()=>{
@@ -200,7 +209,7 @@ export function useRuntime(backend:Backend){
     const batch=await api.events(id);setEvents(batch.slice(-160));
     // Evidence inspection never substitutes a recorded trajectory into the main scene.
   });
-  return {world,observation,experiment,branches,events,session,liveState,hostPhysicsLimit,online,loaded,mutating,error,stream,
+  return {world,observation,perception,experiment,branches,events,session,liveState,hostPhysicsLimit,online,loaded,mutating,error,stream,
     busy:mutating||isBusy(experiment),active:session?.status==='active'||session?.status==='stopping',
     run:start,stop,togglePause,apply,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
 }

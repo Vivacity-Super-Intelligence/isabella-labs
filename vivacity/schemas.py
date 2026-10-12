@@ -33,7 +33,7 @@ class RoboticsConfig(Schema):
             if abs(self.cube_half_size - .025) > 1e-9:
                 raise ValueError('Orbital cargo geometry is fixed by its adapted source fixture')
         for point in (self.cube_position, self.placement_position):
-            if not (.35 <= point[0] <= .65 and abs(point[1]) <= .3 and .02 <= point[2] <= .032):
+            if not (.15 <= point[0] <= .8 and abs(point[1]) <= .45 and .02 <= point[2] <= .032):
                 raise ValueError('pickup and placement centers must be on the supported table workspace')
         if self.task == 'pick_place' and any(abs(point[2] - (self.cube_half_size + .001)) > .002 for point in (self.cube_position, self.placement_position)):
             raise ValueError('pickup and placement center heights must match the cube size')

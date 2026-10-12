@@ -6,6 +6,17 @@ export type Experiment = components['schemas']['ExperimentResponse'];
 export type Vec3 = [number, number, number];
 export type Quat = [number, number, number, number];
 export type Dict = Record<string, unknown>;
+export interface SimulatedPerception {
+  schema_version: 'vivacity.perception/1.0';
+  method: 'mujoco_overhead_semantic_depth_rays';
+  scope: string;
+  ray_count: number;
+  visible_cube_rays: number;
+  detected: boolean;
+  estimated_xy_m: number[] | null;
+  localization_error_m: number | null;
+  visible_samples_xy_m: number[][];
+}
 export interface BodyPose { name: string; position: Vec3; quaternion_wxyz: Quat }
 export interface Contact { bodies: string[]; geoms: string[]; penetration_m: number; category: string }
 export interface RobotFrame {
@@ -46,6 +57,10 @@ export const number = (d: Dict | undefined, key: string) => typeof d?.[key] === 
 export function robotFrame(value: unknown): RobotFrame | null {
   const v = value as RobotFrame | null;
   return v && Array.isArray(v.body_transforms) && Array.isArray(v.end_effector) ? v : null;
+}
+export function simulatedPerception(value: unknown): SimulatedPerception | null {
+  const v = value as SimulatedPerception | null;
+  return v?.schema_version === 'vivacity.perception/1.0' && Array.isArray(v.visible_samples_xy_m) ? v : null;
 }
 export function scienceObservation(value: unknown): ScienceObservation | null {
   const v = value as ScienceObservation | null;

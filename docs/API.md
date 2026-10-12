@@ -58,6 +58,30 @@ Branch rows, evaluation records, lineage and progress events are persisted toget
 
 ## Robotics rendering
 
+### Simulated object localization
+
+For `task:pick_place` in the standard workcell, `GET /v1/worlds/{id}/state`
+adds `observation.perception` with schema version `vivacity.perception/1.0`.
+An orthographic overhead sensor casts **8,181 actual MuJoCo rays** into the
+current scene. A hit is labelled `cube` using MuJoCo's semantic geom ID;
+`estimated_xy_m` is the mean of visible cube-hit positions and is never copied
+from the configured or true body position. `localization_error_m` compares
+that estimate with MuJoCo's true body position for demo evaluation only.
+`visible_samples_xy_m` supplies the supporting hit coordinates. If fewer than
+four rays see the cube, `detected` is false, estimate/error are null, and the
+pickup planner reports `object_not_visible` with zero physics steps. When
+detected, the planner targets the ray-derived XY estimate. The camera covers
+X `0.10..0.85` m and Y `-0.50..0.50` m. Valid tabletop pickup/placement centers
+are X `0.15..0.80` m and Y `-0.45..0.45` m, with at least `0.10` m between
+pickup and placement. An allowed position can still be unreachable or fail
+physical grasp; those cases retain genuine failure results.
+
+This is **synthetic simulator semantic-depth sensing**, not RGB vision, a
+trained detector, a real camera, or a claim of solved real-world perception.
+The sensor runs for state reads and planning, not on every streamed physics
+frame. Enabled static obstacles can occlude it; disabled obstacles are ignored.
+No ray-scan result is substituted into a recorded physics trace.
+
 Positions are meters in MuJoCo's right-handed Z-up frame. Joint values are radians, velocities radians/second, time seconds. Body quaternions are **w,x,y,z**; Three.js constructors ordinarily require **x,y,z,w**, so reorder them. `body_transforms` are world transforms, not parent-relative transforms. Replay frames contain actual measured `qpos`, `qvel`, `ctrl`, simulation time, end-effector coordinates and body transforms sampled every 25 integration steps (50 ms) plus initial/final/failure frames. Contacts are checked every 2 ms even though replay is decimated. UI interpolation between sampled frames is visualization only.
 
 The pre-grasp site is 0.103 m along the hand's local Z axis. Desired rotation matrix is diag(1,-1,-1). In legacy reaching, `target_position` is the pre-grasp goal and the cube has the same XY/Z=0.026 m. In `task:pick_place`, a free dynamic cube starts at `cube_position` and must be grasped/transported/released at `placement_position`; its actual `target` body transform is authoritative. Its half-size is 0.025 m. Table center `[0.4,0,-0.04]`, half-size `[0.7,0.65,0.04]`; ground Z=-0.8. Obstacle size is **half-size**, not full dimensions. Disabling the obstacle changes actual collision masks as well as rendering. The implemented React client serves compiled Panda visual bindings/buffer in `frontend/public/vivacity`; apply compiled local geom poses with actual world body poses, without double-applying raw XML mesh transforms. Never parent the cube to the hand.

@@ -97,7 +97,12 @@ class Runtime:
 
     def observe(self, identifier):
         w = self.get_world(identifier)
-        return {'schema_version': '1.0', 'world_id': identifier, 'revision': w['revision'], 'observation': self.backends[w['backend']].observe(self.backends[w['backend']].fork(w['state']))}
+        instance = self.backends[w['backend']].fork(w['state'])
+        observation = self.backends[w['backend']].observe(instance)
+        if w['backend'] == 'mujoco' and w['config'].get('task') == 'pick_place' and w['config'].get('scene_profile') == 'workcell':
+            from .perception import scan_cube
+            observation['perception'] = scan_cube(instance)
+        return {'schema_version': '1.0', 'world_id': identifier, 'revision': w['revision'], 'observation': observation}
 
     def snapshot(self, identifier):
         return deepcopy(self.get_world(identifier)['state'])

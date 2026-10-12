@@ -1,7 +1,7 @@
 import type { Vec3 } from './domain';
 
-export const PICKUP_X: readonly [number, number] = [.35, .65];
-export const PICKUP_Y: readonly [number, number] = [-.3, .3];
+export const PICKUP_X: readonly [number, number] = [.15, .8];
+export const PICKUP_Y: readonly [number, number] = [-.45, .45];
 export const MIN_PICKUP_SEPARATION_M = .1;
 
 const clamp = (value: number, [min,max]: readonly [number,number]) => Math.max(min,Math.min(max,value));
