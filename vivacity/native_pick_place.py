@@ -28,7 +28,9 @@ class NativePickup:
         w=RobotWorld(m,mj.MjData(m),deepcopy(self.template.config),self.template.seed,self.template.model_hash)
         b.restore(w,self.snapshot);b.apply_action(w,action);d=w.data
         tic=time.perf_counter();pause_start=limits.get('pause_seconds',lambda:0.)();start=float(d.time)
-        trace=[b.observe(w)|{'phase':'initializing'}];steps=0;failure=None;violations=[];milestones=[]
+        trace=[b.observe(w)|{'phase':'initializing'}];steps=0
+        failure='planning_failure' if not action['stages'] and not action['planning_feasible'] else None
+        violations=[];milestones=[]
         lifted=False;retention=True;max_height=float(d.qpos[11]);tracking=0.
         state=np.empty(mj.mj_stateSize(m,mj.mjtState.mjSTATE_FULLPHYSICS))
         user=np.empty(mj.mj_stateSize(m,mj.mjtState.mjSTATE_USER))

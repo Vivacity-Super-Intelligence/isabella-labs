@@ -63,7 +63,7 @@ def test_native_repeat_exact_full_state_and_independent_trials(pickup):
 def test_native_collision_is_measured_even_for_screening_rejected_action(pickup):
     b,_,_=pickup
     w=b.create_world(RoboticsConfig(task='pick_place',obstacle_enabled=True,
-        obstacle_position=[.5,-.15,.12],obstacle_size=[.1,.1,.12]).model_dump(),7)
+        obstacle_position=[.5,0,.12],obstacle_size=[.1,.08,.12]).model_dump(),7)
     actions,_=b.candidates(w,2,1500)
     result,evaluation,_=NativePickup(b,b.snapshot(w)).simulate(actions[0],{'max_simulation_seconds':40})
     assert not evaluation['success'] and evaluation['status']=='collision_failure'
@@ -158,7 +158,7 @@ def test_every_requested_trial_is_simulated_and_persisted(runtime):
 
 def test_full_trial_all_paths_fail_honestly(runtime):
     w=runtime.create_world(CreateWorld(backend='mujoco',config={'task':'pick_place','obstacle_enabled':True,
-        'obstacle_position':[.5,-.15,.12],'obstacle_size':[.1,.1,.12]}))
+        'obstacle_position':[.5,0,.12],'obstacle_size':[.1,.08,.12]}))
     e=runtime.submit(w['id'],ExperimentRequest(physics_trials=4,search_candidates=4,max_simulation_seconds=40,execute_selected=True))
     done=runtime.wait(e['id'])
     assert done['status']=='completed' and done['selected_branch_id'] is None,done
