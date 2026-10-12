@@ -125,7 +125,7 @@
   "vivacity/perception.py": "d14945a879a7bdc859ed51066191ce4ddcaf0fcd08d385d375ebc162b6580136",
   "vivacity/pick_place.py": "69da7b52eed001dade8d63069394aad62073ebc9756d8441fe88573a860f7242",
   "vivacity/robotics.py": "53ab9915f954c1d42142df071d39cc0d6bc4f409d02ff1747d1d872bbdcbc2c5",
-  "vivacity/runtime.py": "78559018c27054bee3f5d16e14b286c9d629766d528ed4554c82960250d2ab86",
+  "vivacity/runtime.py": "40ec98db01c7840fdffc20ba6c7cafac28736d3f7355fbdf7f75c690559918f8",
   "vivacity/schemas.py": "39789aad3b3e7870ce7c46ecef2cef6e6d52c0f868961798770516b56a8431bd",
   "vivacity/science.py": "dc3bf2d3a304d6fceb51d48285aa9515770ec5c665c7b100e6ad5a3cddaf20ee",
   "vivacity/search.py": "0c3bdbecc8c0d71787ffe861d17cdedb1cc131868b02465dc84cfd3056ca58ef",
