@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import catalog from './generated/templates.json';
 
 export type Selection = { arm: string; world: string; task: string };
@@ -11,15 +11,16 @@ export function selectionNames(s:Selection) {
 
 export default function TemplatePicker({loaded,busy,load}:{loaded:Selection;busy:boolean;load:(s:Selection)=>Promise<boolean>}) {
   const [draft,setDraft]=useState(loaded),[open,setOpen]=useState(true),[loading,setLoading]=useState(false);
+  const toggle=useRef<HTMLButtonElement>(null);
   const arm=catalog.arms.find(o=>o.id===draft.arm)!,world=catalog.worlds.find(o=>o.id===draft.world)!,task=catalog.tasks.find(o=>o.id===draft.task)!;
   const incompatible=(draft.task==='cloth_fold')!==(draft.world==='textile');
   const reference=arm.status==='reference'||task.status==='reference';
   const ready=!reference&&!incompatible;
   const unchanged=selectionKey(loaded)===selectionKey(draft);
   const reason=arm.status==='reference'?arm.scope:task.status==='reference'?task.scope:incompatible?'Pair cloth folding with the textile station. Other stations support object handling.':'';
-  const apply=async()=>{setLoading(true);try{if(await load(draft))setOpen(false);}finally{setLoading(false);}};
+  const apply=async()=>{setLoading(true);try{if(await load(draft)){setOpen(false);toggle.current?.focus();}}finally{setLoading(false);}};
   return <section className="template-area" aria-labelledby="templates-heading">
-    <div className="template-heading"><div><span className="eyebrow">Robotics templates</span><h1 id="templates-heading">Choose an arm. A world. A task.</h1><p>Test alternatives in physics before committing a robot action.</p></div><button className="secondary" aria-expanded={open} aria-controls="template-choices" onClick={()=>setOpen(v=>!v)}>{open?'Hide templates':'Choose templates'}</button></div>
+    <div className="template-heading"><div><span className="eyebrow">Robotics templates</span><h1 id="templates-heading">Choose an arm. A world. A task.</h1><p>Test alternatives in physics before committing a robot action.</p></div><button ref={toggle} className="secondary" aria-expanded={open} aria-controls="template-choices" onClick={()=>setOpen(v=>!v)}>{open?'Hide templates':'Choose templates'}</button></div>
     <div id="template-choices" hidden={!open}>
       <div className="template-columns">
         {([{key:'arm',number:'01',name:'Robot arm',options:catalog.arms},{key:'world',number:'02',name:'Operating world',options:catalog.worlds},{key:'task',number:'03',name:'Task',options:catalog.tasks}] as const).map(group=><fieldset key={group.key} disabled={busy||loading}><legend><span>{group.number}</span>{group.name}</legend>{group.options.map(option=><label className="template-option" key={option.id} data-selected={draft[group.key]===option.id}><input type="radio" name={`template-${group.key}`} value={option.id} checked={draft[group.key]===option.id} onChange={()=>setDraft(s=>({...s,[group.key]:option.id}))}/><span><strong>{option.name}</strong><small>{option.technical}</small></span><em>{option.status==='reference'?'Planned':option.status==='experimental'?'Experimental':'Runnable'}</em></label>)}</fieldset>)}
