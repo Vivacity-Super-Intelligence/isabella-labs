@@ -31,7 +31,7 @@ export const api = {
     const health=await request<{limits?:{max_physics_trials:number}}>('/health');
     const computeBudget=Math.min(health.limits?.max_physics_trials??12,12);
     return request<components['schemas']['SessionResponse']>('/v1/sessions',json('POST',{
-      backend,seed:7,max_cycles:backend==='mujoco'?1:2,realtime_execution:true,
+      backend,seed:7,max_cycles:1,realtime_execution:true,
       adaptive_trials:backend==='mujoco',physics_trials:0,
       search_candidates:backend==='mujoco'?256:5000,
       physics_budget:backend==='mujoco'?computeBudget:3,
