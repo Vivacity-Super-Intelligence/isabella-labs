@@ -182,7 +182,7 @@ class SceneBoundary extends Component<{children: ReactNode}, { error: boolean }>
   render() { return this.state.error ? <div className="scene-unavailable">3D rendering is unavailable. Your experiment data remains accessible in the inspector. Try a WebGL2-capable browser.</div> : this.props.children; }
 }
 
-function RobotView({ frames, cursor, config, playing, renderTime, perception=null, canMoveCube=false, onMoveCube=async()=>false }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; perception?:SimulatedPerception|null; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean> }) {
+function RobotView({ frames, cursor, config, playing, renderTime, perception=null, sensorPaused=false, canMoveCube=false, onMoveCube=async()=>false }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; perception?:SimulatedPerception|null; sensorPaused?:boolean; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean> }) {
   const [assets,setAssets] = useState<Assets | null>(null), [error,setError] = useState<string | null>(null), [cameraKey,setCameraKey] = useState(0);
   const [dragging,setDragging]=useState(false),[hovering,setHovering]=useState(false),[dragError,setDragError]=useState<string|null>(null);
   const [cameraCommand,setCameraCommand]=useState({key:'',seq:0});
@@ -202,7 +202,7 @@ function RobotView({ frames, cursor, config, playing, renderTime, perception=nul
     {config.task==='pick_place'&&config.scene_profile!=='orbital_salvage'&&<div className="perception-readout" role="status" data-testid="object-perception">
       <strong>SIMULATED OBJECT LOCALIZATION</strong>
       {perception?<><span>{perception.detected&&perception.estimated_xy_m?`Cube visible · X ${format(perception.estimated_xy_m[0],3)} m · Y ${format(perception.estimated_xy_m[1],3)} m`:'Cube not visible from overhead'}</span>
-        <small>{perception.visible_cube_rays.toLocaleString()} / {perception.ray_count.toLocaleString()} MuJoCo depth rays{perception.localization_error_m!==null?` · ${format(perception.localization_error_m*1000,1)} mm simulator error`:''}</small></>:<span>Scanning current physical scene…</span>}
+        <small>{perception.visible_cube_rays.toLocaleString()} / {perception.ray_count.toLocaleString()} MuJoCo depth rays{perception.localization_error_m!==null?` · ${format(perception.localization_error_m*1000,1)} mm simulator error`:''}</small></>:<span>{sensorPaused?'Sensor scan paused during physical execution. It refreshes when the run ends.':'Scanning current physical scene…'}</span>}
       <small>Simulator semantic labels · no real camera</small>
     </div>}
     <div className="viewport-bottom"><span><Target size={15} /> {config.task==='pick_place'?'Physical contact pickup · placement target':'Pre-grasp goal · reach only'}</span><button className="viewport-button" onClick={resetCamera} aria-label="Reset camera"><ArrowCounterClockwise size={17} /> Reset camera</button></div>

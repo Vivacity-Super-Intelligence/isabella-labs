@@ -38,3 +38,20 @@ state. The current staged controller may fail on some visible poses or
 obstacle layouts. Such outcomes remain failed branches, not fabricated picks.
 The sensor runs for state reads and planning, not continuously during each
 streamed integration frame. See `docs/API.md` for its response fields.
+
+Public verification on 2026-10-13: `https://demo.tryvivacity.com/` connected
+to the Render backend. A real browser drag moved the cube from estimated
+`[0.503,-0.150]` m to `[0.152,-0.160]` m near the arm mount; 30 MuJoCo rays
+hit the cube there. After choosing the reachable `[0.20,0.40]` m position,
+the deployed browser showed `[0.203,0.400]` m from 25 hits and an explicit
+Start submitted eight independent backend physics trials. All eight were
+evaluated feasible. A separate authoritative execution achieved measured
+grasp and placement with **2.0 mm final error, zero prohibited contacts**;
+the UI recorded `Task verified` at 5:19 elapsed wall time. A subsequent
+browser drag moved the estimate to `[0.428,-0.380]` m and the UI showed
+`World changed · run again` while retaining the old result only as stale
+history. No browser console errors were captured. Evidence:
+`artifacts/perception-public-success.png` and
+`artifacts/perception-public-stale.png`. The reachable sample does not prove
+every visible tabletop point can be grasped; the earlier near-mount drag
+verified detection and state rebuilding there, not a successful pickup.

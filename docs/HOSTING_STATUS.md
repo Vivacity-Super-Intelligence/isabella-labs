@@ -1,4 +1,41 @@
-# Render hosting verification — 2026-10-12
+# Render hosting verification — 2026-10-13
+
+## Tabletop localization release
+
+The [backend release](https://github.com/Tanish-Anand1/vivacity-runtime/commit/43d43f846ada0bbdf85b8e6bd1ab996c3913e380)
+is live on Render as `dep-db6keac9v7es73frteeg`. The [deployment-image CI
+run](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38305744573)
+passed **147 tests, one warning in 199.33 s**; its separate 512 MB host check
+passed **one test, one warning in 36.08 s**. Frontend Vercel production
+deployment `dpl_4VxYmJkgbBUcKBRVHMcEZhM8LZLQ` passed TypeScript and Vite
+builds. A scoped copy fix for the paused sensor readout passed another local
+TypeScript/Vite build and was released as final deployment
+`dpl_5UcnkRedkS5VnN8GrvmBNH83bLJT`, aliased to
+`https://demo.tryvivacity.com/`. Reloading that URL restored the changed
+workcell, sensor estimate, and stale-result message. The production JS asset
+contains the corrected execution-time sensor status.
+
+The public API created a fresh pickup world at cube center `[0.20,0.40,0.026]`
+m. Its actual MuJoCo ray response reported `8,181` rays, `25` cube hits,
+estimated XY `[0.203125,0.400000]` m, and `0.003125` m localization error.
+In the deployed browser, the initial cube estimated `[0.503,-0.150]` m;
+dragging toward the arm mount caused a new world state with estimated
+`[0.152,-0.160]` m and 30 cube ray hits. The page returned to **Ready to
+start** without automatically submitting an experiment. Subsequent settings
+changed the center to `[0.20,0.40]` m and the public readout recomputed
+`[0.203,0.400]` m. The explicit experiment then evaluated **8/8 independent
+physics trials** as feasible. A separate authoritative run finished with
+physical pickup and placement, **2.0 mm** final error and **zero prohibited
+contacts** at 5:19 elapsed wall time. Another public drag changed the readout
+to `[0.428,-0.380]` m and marked the completed result **World changed · run
+again**. No browser console errors were captured. Details and screenshots are
+in `docs/PERCEPTION_DEMO.md`.
+
+This is simulator semantic-depth localization of a dynamic cube, not an RGB
+camera or real-world perception system. Sensing coverage spans a bounded
+tabletop and reachable manipulation is not guaranteed everywhere. The Render
+Free service is subject to idle restarts and ephemeral SQLite storage; the
+five-minute uptime checks are monitoring, not an availability guarantee.
 
 ## Uptime monitoring release
 
