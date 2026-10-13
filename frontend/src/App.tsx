@@ -144,6 +144,6 @@ export default function App(){
         <details className="quick-templates"><summary>Legacy workcell templates</summary><TemplatePicker loaded={activeTemplate.selection} busy={rt.mutating} load={loadTemplate}/></details>
       </>}
     </main>
-    <footer><span>Viva Physics</span><details><summary>Credits & scope</summary><p>Robotics: MuJoCo and Menagerie Franka Panda (Apache 2.0), simplified physical workcell. Cloth: actuated Panda, MuJoCo flex, pre-attached folding fixture; experimental, no autonomous grasp acquisition. OpenAI structures world/operation proposals; deterministic planners drive measured physics. World Labs assets use explicit collision mapping. Sessions are bounded and stop without a browser lease.</p></details><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
+    <footer><span>Viva Physics</span><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
   </>;
 }
