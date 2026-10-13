@@ -4,7 +4,7 @@ import type {LibraryWorld} from './workspaceApi';
  * It is a geometry preview, never an experiment result or a facility photo.
  */
 export default function WorldThumbnail({world}:{world:LibraryWorld}){
- if(['warehouse','robotics_lab'].includes(world.id))return <img className="world-thumbnail" src={`/vivacity/world-previews/${world.id}.jpg`} alt={`${world.name}, captured from its actual colored 3D environment`} loading="lazy"/>;
+ if(['warehouse','robotics_lab'].includes(world.id))return <img className="world-thumbnail" src={`/vivacity/world-previews/${world.id}.jpg?v=2`} alt={`${world.name}, captured from its actual colored 3D environment`} loading="lazy"/>;
  const shapes=world.spec.geometries.filter(g=>g.type==='box');
  const project=(x:number,y:number,z:number)=>[(x-y)*.866,(x+y)*.5-z];
  const faces=shapes.flatMap(g=>{
