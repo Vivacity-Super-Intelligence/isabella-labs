@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef,useState} from 'react';
 import {factoryApi,type DiscoveryModel,type DiscoverySeries,type FactoryDiscoveryRecord,type FactoryFrame,type FactoryRun} from './factoryApi';
 import {sampleValue,type Quantity} from './factoryAnalysisData';
 import {errorMessage} from './api';
+import {desmosNumber} from './desmosNumber';
 
 const choices:[Quantity,string][]=[['x','Carton X'],['y','Carton Y'],['z','Carton height'],['speed','Carton speed'],['torque','Joint 1 torque'],['force','Gripper contact force'],['power','Actuator power'],['work','Mechanical work']];
 const key=import.meta.env.VITE_DESMOS_API_KEY as string|undefined;
@@ -41,7 +42,7 @@ function DesmosGraph({runId,quantity,unit,points,model,comparison,edited,onEdite
   c.setExpression(table('observations',points,'#ddb879',1));
   if(comparison)c.setExpression(table('comparison_observations',comparison.points,'#d1a7e7',2));else c.removeExpression({id:'comparison_observations'});
   if(!edited){
-   for(let i=0;i<5;i++){if(model&&i<model.parameters.length)c.setExpression({id:`parameter_${i+1}`,latex:`a_{${i+1}}=${model.parameters[i]}`});else c.removeExpression({id:`parameter_${i+1}`});}
+   for(let i=0;i<5;i++){if(model&&i<model.parameters.length)c.setExpression({id:`parameter_${i+1}`,latex:`a_{${i+1}}=${desmosNumber(model.parameters[i])}`});else c.removeExpression({id:`parameter_${i+1}`});}
    if(model)c.setExpression({id:'fitted_model',latex:model.editable_latex,color:'#78d1b3'});else c.removeExpression({id:'fitted_model'});
   }
   if(comparison?.model)c.setExpression({id:'comparison_model',latex:comparison.model.equation_latex,color:'#d1a7e7'});else c.removeExpression({id:'comparison_model'});

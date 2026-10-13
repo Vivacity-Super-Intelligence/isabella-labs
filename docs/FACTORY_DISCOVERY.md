@@ -102,6 +102,8 @@ not a production substitute. Until one is provided, the local measured graph,
 equations, comparison and exports remain usable, and the page clearly says the
 interactive Desmos embed is unavailable. The actual Desmos edit interaction
 cannot be accepted as working until tested with an authorized key.
+Both backend equations and browser parameter values expand scientific
+notation into plain decimal literals before being sent to Desmos.
 
 ## Verification and limits
 
