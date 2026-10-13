@@ -1,0 +1,41 @@
+{
+  "trials": [
+    {
+      "run_id": "d8544da0-508c-4d58-850c-e54729495e78",
+      "samples": 695,
+      "status": "completed",
+      "sha256": "69a6c613d1bc6cbcf9e30c96e48789848209261afc660d7654016a81fb8e981a"
+    },
+    {
+      "run_id": "0c43cf1e-8bf3-4942-8393-8320622c324c",
+      "samples": 193,
+      "status": "failed",
+      "sha256": "f1b0b62bebe6612bab43dfcb00b09bc2aaf8f83aa1d454052a91b11bda8ab14c"
+    },
+    {
+      "run_id": "c969f05a-e674-4013-97b3-dd6fcf22e3ee",
+      "samples": 695,
+      "status": "completed",
+      "sha256": "e936618a2a3ebffbdc89b3fc05ac75c0c01324764c7508f11c983bea18cbb363"
+    },
+    {
+      "run_id": "e1599ff3-f723-42b5-94de-c6db80271aa6",
+      "samples": 193,
+      "status": "failed",
+      "sha256": "ff3d241055b7373975a32785bfb6e1191945f20f49294f83918cdcfce78d629a"
+    },
+    {
+      "run_id": "9f9e62b6-8075-40ce-8aa2-f17f3abbd986",
+      "samples": 695,
+      "status": "completed",
+      "sha256": "ffad18d0fa60ca6d9474099286dda888a3df65604a992457a25dcd7acd173c37"
+    },
+    {
+      "run_id": "b18c7217-c6d4-45b1-88dd-f49ac67bf9e9",
+      "samples": 192,
+      "status": "failed",
+      "sha256": "96985969795e1d503e46880e9faf2693c886004f35362efd2f0d1c93e600c4bd"
+    }
+  ],
+  "zip_bytes": 6018874
+}

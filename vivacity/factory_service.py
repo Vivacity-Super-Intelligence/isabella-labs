@@ -22,6 +22,7 @@ class FactoryService:
         self.live={}
         self.latest_states={}
         self.camera_lock=threading.Lock()
+        self.report_lock=threading.Lock()
         # A process restart cannot resume an unrecorded native worker.
         with workspace.store.connect() as db:
             rows=db.execute("SELECT owner,payload,kind FROM library_items WHERE kind IN ('factory_run','factory_benchmark') AND json_extract(payload,'$.status') IN ('running','paused','queued')").fetchall()
@@ -296,6 +297,47 @@ class FactoryService:
                 'metric_definitions':METRICS,'missing_data':'null means unavailable; missing fields were not measured.',
                 'provenance':'Saved backend MuJoCo execution; imported measurements are never accepted as a verified run.',
                 'record':row}
+
+    def report(self,identifier,token,kind='run',archive=False):
+        from .factory_report import report_pdf,csv_samples
+        import tempfile,zipfile
+        from pathlib import Path
+        if not self.report_lock.acquire(blocking=False):raise Busy('Another report is being prepared. Try again shortly.')
+        target=None
+        try:
+            if kind=='run':self._authorize_run(identifier,token)
+            else:self.benchmark(identifier,token)
+            # A final frame can precede the durable SQLite flush by a moment.
+            with self.lock:
+                finishing=[c['done'] for key,c in self.controls.items() if not c['done'].is_set() and self.live.get(key,{}).get('status') not in ('queued','running','paused')]
+            for done in finishing:done.wait(5)
+            with self.lock:
+                if any(not c['done'].is_set() for c in self.controls.values()):raise Busy('Finish or stop active factory simulation before preparing a report.')
+            benchmark=self.benchmark(identifier,token) if kind=='benchmark' else None
+            if benchmark and not benchmark['trials']:raise Conflict('This benchmark has no recorded trials to report.')
+            run=self.get(benchmark['trials'][0]['run_id'] if benchmark else identifier,token,full=True)
+            if run['status'] in ('running','paused','queued'):raise Conflict('Finish or stop this run before preparing a report.')
+            pdf=report_pdf(run,benchmark)
+            if not archive:return pdf
+            handle=tempfile.NamedTemporaryFile(prefix='vivacity-report-',suffix='.zip',delete=False);target=Path(handle.name);handle.close()
+            encoder=json.JSONEncoder(ensure_ascii=False,allow_nan=False,separators=(',',':'))
+            with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=4) as z:
+                z.writestr('report.pdf',pdf)
+                z.writestr('README.txt','Saved MuJoCo evidence. CSV uses SI units and blank cells for unavailable measurements. Complete JSON retains every stored sample and full integration states. Definitions can be imported; measured results cannot be imported as verified executions.')
+                if benchmark:z.writestr('benchmark-results.json',json.dumps(benchmark,allow_nan=False))
+                try:z.writestr('definition.json',json.dumps(self.export_configuration(identifier if benchmark else run['cell_id'],token,'benchmark' if benchmark else 'configuration'),allow_nan=False))
+                except Conflict as exc:z.writestr('legacy-provenance.txt',str(exc))
+                ids=[t['run_id'] for t in benchmark['trials']] if benchmark else [run['id']]
+                for run_id in ids:
+                    if run['id']!=run_id:run=self.get(run_id,token,full=True)
+                    z.writestr('runs/'+run_id+'.csv',csv_samples(run))
+                    with z.open('runs/'+run_id+'.json','w') as out:
+                        for chunk in encoder.iterencode(run):out.write(chunk.encode('utf-8'))
+            return target
+        except BaseException:
+            if target is not None:target.unlink(missing_ok=True)
+            raise
+        finally:self.report_lock.release()
 
     def close(self):
         for control in self.controls.values():control['stop'].set();control['wake'].set()

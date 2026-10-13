@@ -16,6 +16,7 @@ async function request<T>(path:string,method='GET',body?:unknown):Promise<T>{
 export type BenchmarkInput={schema_version?:string;name:string;repeats:number;held_out_repeats:number;changes:{carton_mass_kg?:number;carton_friction?:number;gripper_force_scale?:number;conveyor_speed_m_s?:number}};
 export type FactoryImport={cell:FactoryCell;benchmark_request:BenchmarkInput|null;receipt_id:string;message:string};
 export const factoryApi={
+ report:async(kind:'run'|'benchmark',id:string,format:'pdf'|'zip')=>{const response=await fetchRuntime(API+`/v1/factory/reports/${kind}/${encodeURIComponent(id)}?format=${format}`,{headers:{'X-Workspace-Token':workspaceToken()},signal:AbortSignal.timeout(120000)});if(!response.ok)await readAPIResponse(response);return response.blob();},
  exportConfiguration:(id:string)=>request<unknown>(`/cells/${encodeURIComponent(id)}/export`),
  exportBenchmark:(id:string)=>request<unknown>(`/benchmarks/${encodeURIComponent(id)}/export`),
  exportRecord:(id:string)=>request<unknown>(`/runs/${encodeURIComponent(id)}/export`),

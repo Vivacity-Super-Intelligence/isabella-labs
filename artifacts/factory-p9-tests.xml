@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="20.151" timestamp="2026-10-14T00:18:44.992060+05:30" hostname="DESKTOP-THSIQ49"><testcase classname="tests.test_factory_reports" name="test_saved_run_pdf_and_zip_agree_with_actual_physics" time="19.409" /></testsuite></testsuites>

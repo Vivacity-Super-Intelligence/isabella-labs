@@ -96,3 +96,12 @@ async def import_configuration(request:Request,x_workspace_token:Token):
         reasons=['.'.join(map(str,e['loc']))+': '+e['msg'] for e in exc.errors(include_input=False)[:5]]
         raise ValueError('Incompatible interchange file. '+'; '.join(reasons)) from None
     return await asyncio.to_thread(request.app.state.factory.import_configuration,body.model_dump(mode='json'),x_workspace_token)
+
+@router.get('/reports/{kind}/{identifier}')
+def report(kind:Literal['run','benchmark'],identifier:str,request:Request,x_workspace_token:Token,format:Literal['pdf','zip']='pdf'):
+    from fastapi.responses import Response,FileResponse
+    from starlette.background import BackgroundTask
+    result=request.app.state.factory.report(identifier,x_workspace_token,kind,archive=format=='zip')
+    filename='vivacity-'+identifier+'.'+format
+    if format=='zip':return FileResponse(result,media_type='application/zip',filename=filename,background=BackgroundTask(result.unlink,missing_ok=True))
+    return Response(result,media_type='application/pdf',headers={'Content-Disposition':'attachment; filename="'+filename+'"'})
