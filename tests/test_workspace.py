@@ -166,6 +166,40 @@ def test_native_object_environment_collision_is_measured(arm,monkeypatch):
     assert result['contact_violations']
 
 
+def test_native_live_pacing_respects_speed_and_preserves_parent(monkeypatch):
+    from vivacity.native_pick_place import NativePickup
+    monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS','1')
+    backend=PickPlaceBackend();world=backend.create_world(RoboticsConfig(task='pick_place',obstacle_enabled=False).model_dump(),7)
+    start=world.data.qpos[:backend.arm_dof].tolist()
+    stage={'phase':'approach','start':start,'goal':start,'duration_s':.02,'dwell_s':.02,'gripper':255}
+    action={'kind':'pick_place','stages':[stage.copy() for _ in range(8)],'planning_feasible':True}
+    engine=NativePickup(backend,backend.snapshot(world))
+    assert engine.template.model is world.model and engine.template.data is not world.data
+    began=time.perf_counter()
+    result,_,final=engine.simulate(action,{'max_simulation_seconds':10,'realtime':True,'realtime_speed':.25})
+    assert result['simulation_steps']==160 and time.perf_counter()-began>=1.2
+    assert final['integration_state'][0]==pytest.approx(.32)
+    assert world.data.time==0
+
+
+def test_provider_reported_cost_survives_retrieval_failure(runtime,monkeypatch):
+    from vivacity.workspace import WorkspaceService,owner
+    import uuid
+    service=WorkspaceService(runtime);now=time.time();token=OWNER['X-Workspace-Token']
+    job={'id':str(uuid.uuid4()),'_owner':owner(token),'_token':token,'provider':'worldlabs',
+        'status':'generating','prompt':'A physical workshop','seed':7,'model':'marble-1.0-draft',
+        'operation_id':'existing-operation','created_unix_s':now,'updated_unix_s':now,
+        'events':[],'interpretation':EnvironmentSpec(name='Cell',description='A workshop').model_dump()}
+    monkeypatch.setattr(service.worldlabs,'operation',lambda _: {'done':True,'response':{'world_id':'existing-world'},'cost':{'total_credits':230}})
+    monkeypatch.setattr(service.worldlabs,'world',lambda _: {'assets':{}})
+    try:
+        service._put('generation',owner(token),job);service._resume(job)
+        record=service.generation(job['id'],token)
+        assert record['status']=='failed' and record['provider_cost_credits']==230
+        assert '_token' not in record
+    finally:service.close()
+
+
 @pytest.mark.parametrize('arm',['panda',*MODELS])
 def test_real_models_controller_forks_and_measured_pickup(arm,monkeypatch):
     monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS','1')

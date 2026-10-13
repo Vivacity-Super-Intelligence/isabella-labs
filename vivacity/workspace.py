@@ -252,6 +252,7 @@ class WorkspaceService:
         while not self.stop.is_set() and time.monotonic()<deadline:
             result=self.worldlabs.operation(job['operation_id'])
             if result.get('done'):
+                job['provider_cost_credits']=(result.get('cost') or {}).get('total_credits')
                 if result.get('error'):raise ProviderError('World Labs reported generation failure; no world was saved.')
                 response=result.get('response') or {};world_id=response.get('world_id')
                 if not world_id:raise ProviderError('World Labs completed without a world identifier.')

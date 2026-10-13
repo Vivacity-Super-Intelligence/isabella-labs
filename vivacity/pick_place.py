@@ -462,7 +462,13 @@ class RobotAdapter:
         return self.backend(world.config).apply_action(world, action)
 
     def simulate(self, world, limits):
-        return self.backend(world.config).simulate(world, limits)
+        backend=self.backend(world.config)
+        if world.config.get('task')=='pick_place' and limits.get('realtime'):
+            from .native_pick_place import NativePickup
+            result,_,final_state=NativePickup(backend,backend.snapshot(world)).simulate(world.action,limits)
+            backend.restore(world,final_state)
+            return result
+        return backend.simulate(world, limits)
 
     def evaluate(self, world, result):
         return self.backend(world.config).evaluate(world, result)
