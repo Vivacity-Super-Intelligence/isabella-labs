@@ -1,0 +1,15 @@
+{
+  "assets": [
+    {
+      "environment": "warehouse",
+      "bytes": 7421219,
+      "sha256": "202be5b14baa2ad79d41b20ea050c4f53d43b3f23c4e10d7a937fef6805ece39"
+    },
+    {
+      "environment": "laboratory",
+      "bytes": 4829370,
+      "sha256": "a5fec0653de4cd747c41985282fc3626b81bb3ecffb0d014a65784ec15dd0d20"
+    }
+  ],
+  "appearance_api_present": true
+}

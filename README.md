@@ -1,5 +1,9 @@
 # Vivacity robotics runtime
 
+Current visual release: [VISUAL_RELEASE.md](docs/VISUAL_RELEASE.md) documents
+colored SPZ worlds, embedded GLB resources, the simplified workspace and actual
+release evidence. Earlier reduced-collider preview descriptions are historical.
+
 The investor demo is robotics-only. Choose or generate a world, select a real
 robot and a bounded operation, save its conditions, then explicitly Start.
 Loading stays idle. Scientific Discovery remains retired.

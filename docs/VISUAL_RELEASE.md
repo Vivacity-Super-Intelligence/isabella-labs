@@ -151,3 +151,31 @@ The restart check also exposed a client bug: a legitimate JSON null from the
 optional live-state endpoint was classified as an unreadable response. The
 response parser now distinguishes null from malformed JSON, with four executed
 regression checks.
+
+## Production verification
+
+Backend Render deploy `dep-db709l7f3r2c73cp4bm0`, source `4a65958`, is live.
+The frontend is live at https://demo.tryvivacity.com/. Final Vercel deployment
+is `dpl_3e8iQH1bMyjDhtBtvRHSZ24NqUsq`, frontend source `a1df0d4`.
+
+Real UR5e HTTP/WSS verification used experiment
+`9f46fe0e-c87c-4db3-9d3f-1a6b7612fb42`: three measured validations, successful
+fresh execution, twelve event messages, validated replay/export, invalidation
+and new physics computation. Total probe wall time was 74.781 seconds; replay
+was 2,311,295 bytes. Both public SPZ assets matched their original bytes and
+SHA-256 hashes exactly.
+
+A fresh production load showed Ready to start without an experiment. Production
+Panda Start, Pause, Simulation paused, Resume and Task verified completed five
+real validations. Best displayed measured placement error was 1.1 mm. The
+browser error log was empty. Alternative results now keep their metrics compact
+until selected. Visual generation explicitly uses the verified Marble 1.1 model
+and discloses its consumption of provider credits.
+
+Evidence: `artifacts/visual-public-runtime.json`, `visual-public-assets.json`,
+`visual-real-generation.json`, JUnit reports and production screenshots.
+
+Final production checks also exercised alternative-result expansion and keyboard
+orbit/pan followed by camera reset. `visual-public-final.jpg` shows the completed
+live workspace. The final code release is committed; unrelated untracked work
+was preserved.

@@ -1,5 +1,9 @@
 # Current world and experimentation workspace
 
+The current visual release and binary appearance API are documented in
+[VISUAL_RELEASE.md](docs/VISUAL_RELEASE.md), including coordinates, supported
+formats, renderer lifetime, executed checks and remaining physical limits.
+
 The current implementation supersedes the older Panda-only availability below.
 See [WORLD_WORKSPACE_HANDOFF.md](docs/WORLD_WORKSPACE_HANDOFF.md) for seven
 implemented arm models, thirteen workcells, ten bounded physical operations,
