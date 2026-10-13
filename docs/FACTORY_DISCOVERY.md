@@ -70,6 +70,8 @@ The same response includes a separate `joint_1_torque_vs_dynamics`
 relationship when final data is available. It fits measured torque against
 measured angular acceleration and velocity with a chronological held-out
 fifth. It reports `insufficient_signal` when the joint did not vary enough.
+Both series and relationship provenance include the saved run configuration,
+which identifies the experimental conditions behind the measurement.
 Even a validated association is controller-specific, not an inertia or
 friction identification. The backend intentionally does not fit mass versus
 force, throughput versus speed or workload versus energy from one run when
