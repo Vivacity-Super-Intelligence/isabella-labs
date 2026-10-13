@@ -43,7 +43,8 @@ def history(request:Request,x_workspace_token:Token):
 
 @router.get('/runs/{identifier}/record')
 def record(identifier:str,request:Request,x_workspace_token:Token):
-    return request.app.state.factory.get(identifier,x_workspace_token,full=True)
+    from fastapi.responses import Response
+    return Response(request.app.state.factory.record_json(identifier,x_workspace_token),media_type='application/json')
 
 @router.get('/runs/{identifier}/samples',responses={200:{'model':FactorySamplesResponse}})
 def samples(identifier:str,request:Request,x_workspace_token:Token,after:int=Query(-1,ge=-1),limit:int=Query(400,ge=1,le=1000)):
@@ -81,7 +82,8 @@ def export_benchmark(identifier:str,request:Request,x_workspace_token:Token):
 
 @router.get('/runs/{identifier}/export')
 def export_record(identifier:str,request:Request,x_workspace_token:Token):
-    return request.app.state.factory.export_record(identifier,x_workspace_token)
+    from fastapi.responses import Response
+    return Response(request.app.state.factory.export_record(identifier,x_workspace_token,raw=True),media_type='application/json')
 
 @router.post('/imports',status_code=201,openapi_extra={'requestBody':{'required':True,'content':{'application/json':{'schema':Exchange.model_json_schema(ref_template='#/components/schemas/{model}')}}}})
 async def import_configuration(request:Request,x_workspace_token:Token):

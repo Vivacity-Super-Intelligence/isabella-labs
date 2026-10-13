@@ -28,14 +28,43 @@ class FactoryService:
         self.latest_states={}
         self.camera_lock=threading.Lock()
         self.report_lock=threading.Lock()
+        # Keep frequently polled metadata/pages separate from the full archive.
+        # SQLite JSON traversal of a 27 MB trace can allocate hundreds of MiB.
+        with workspace.store.connect() as db:
+            db.executescript('''
+                CREATE TABLE IF NOT EXISTS factory_run_index(
+                    run_id TEXT PRIMARY KEY,owner TEXT NOT NULL,summary TEXT NOT NULL,
+                    sample_count INTEGER NOT NULL,final_state TEXT);
+                CREATE INDEX IF NOT EXISTS factory_run_owner ON factory_run_index(owner);
+                CREATE TABLE IF NOT EXISTS factory_samples(
+                    run_id TEXT NOT NULL,sample_index INTEGER NOT NULL,payload TEXT NOT NULL,
+                    PRIMARY KEY(run_id,sample_index));
+            ''')
         # A process restart cannot resume an unrecorded native worker.
         with workspace.store.connect() as db:
-            rows=db.execute("SELECT owner,payload,kind FROM library_items WHERE kind IN ('factory_run','factory_benchmark') AND json_extract(payload,'$.status') IN ('running','paused','queued')").fetchall()
+            rows=db.execute("""SELECT l.owner,l.payload,l.kind FROM library_items l
+                JOIN factory_run_index i ON i.run_id=l.id
+                WHERE json_extract(i.summary,'$.status') IN ('running','paused','queued')
+                UNION ALL SELECT owner,payload,kind FROM library_items
+                WHERE (kind='factory_benchmark' OR (kind='factory_run' AND id NOT IN (SELECT run_id FROM factory_run_index)))
+                AND json_extract(payload,'$.status') IN ('running','paused','queued')""").fetchall()
         for owner_id,payload,kind in rows:
             row=json.loads(payload)
             if row['status'] in ('running','paused','queued'):
                 row.update(status='interrupted',error='Runtime restarted; start a new run from the saved configuration.')
-                workspace._put(kind,owner_id,row)
+                if kind=='factory_run':self._save_run(row,owner_id)
+                else:workspace._put(kind,owner_id,row)
+
+    def _save_run(self,row,owner_id):
+        from .storage import encode
+        with self.workspace.store.connect() as db:
+            self.workspace._put('factory_run',owner_id,row,db)
+            db.execute('INSERT OR REPLACE INTO factory_run_index VALUES(?,?,?,?,?)',
+                       (row['id'],owner_id,encode(self._summary(row)),len(row['trace']),
+                        encode(row['final_state']) if row.get('final_state') else None))
+            db.execute('DELETE FROM factory_samples WHERE run_id=?',(row['id'],))
+            db.executemany('INSERT INTO factory_samples VALUES(?,?,?)',
+                           ((row['id'],i,encode(frame)) for i,frame in enumerate(row['trace'])))
 
     def create(self,settings,token):
         return self._create_owned(settings,owner(token))
@@ -72,7 +101,7 @@ class FactoryService:
             control={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False}
             control['wake'].set()
             self.controls[row['id']]=control;self.live[row['id']]=row
-            self.workspace._put('factory_run',owner(token),row)
+            self._save_run(row,owner(token))
             cell['last_run_id']=row['id'];self.workspace._put('factory_cell',owner(token),cell)
             self.pool.submit(self._run,row['id'],owner(token),control)
             return self._summary(row)
@@ -92,8 +121,20 @@ class FactoryService:
             if row is not None:return deepcopy(row) if full else self._summary(row)
         if full:return self.workspace._get(identifier,token,'factory_run')
         with self.workspace.store.connect() as db:
+            indexed=db.execute('SELECT summary FROM factory_run_index WHERE run_id=? AND owner=?',(identifier,owner(token))).fetchone()
+            if indexed:return json.loads(indexed[0])
             payload=db.execute("SELECT json_remove(payload,'$.trace','$.initial_state','$.final_state','$.plans') FROM library_items WHERE id=? AND owner=?",(identifier,owner(token))).fetchone()[0]
         return json.loads(payload)
+
+    def record_json(self,identifier,token):
+        """Serve a native JSON archive without decoding and re-encoding its trace."""
+        from .storage import encode
+        self._authorize_run(identifier,token)
+        with self.lock:
+            row=self.live.get(identifier)
+            if row is not None:return encode(row)
+        with self.workspace.store.connect() as db:
+            return db.execute('SELECT payload FROM library_items WHERE id=? AND owner=?',(identifier,owner(token))).fetchone()[0]
 
     def command(self,identifier,token,action,kind='factory_run'):
         if kind=='factory_run':self._authorize_run(identifier,token)
@@ -117,6 +158,12 @@ class FactoryService:
                 return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':deepcopy(trace[after+1:end]),
                         'next_index':end-1,'total_samples':len(trace),'status':row['status']}
         with self.workspace.store.connect() as db:
+            indexed=db.execute('SELECT sample_count,summary FROM factory_run_index WHERE run_id=? AND owner=?',(identifier,owner(token))).fetchone()
+            if indexed:
+                total,summary=indexed
+                rows=db.execute('SELECT payload FROM factory_samples WHERE run_id=? AND sample_index>? ORDER BY sample_index LIMIT ?',(identifier,after,limit)).fetchall()
+                return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':[json.loads(r[0]) for r in rows],
+                        'next_index':min(total-1,after+len(rows)),'total_samples':total,'status':json.loads(summary)['status']}
             total,status=db.execute("SELECT json_array_length(payload,'$.trace'),json_extract(payload,'$.status') FROM library_items WHERE id=? AND owner=?",(identifier,owner(token))).fetchone()
             rows=db.execute("SELECT value FROM library_items,json_each(payload,'$.trace') WHERE library_items.id=? AND owner=? AND CAST(key AS INTEGER)>? ORDER BY CAST(key AS INTEGER) LIMIT ?",(identifier,owner(token),after,limit)).fetchall()
         return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':[json.loads(r[0]) for r in rows],
@@ -163,10 +210,11 @@ class FactoryService:
         except Exception as exc:
             with self.lock:row.update(status='failed',phase='failed',error=str(exc)[:300])
         finally:
-            try:self.workspace._put('factory_run',owner_id,row)
+            try:self._save_run(row,owner_id)
             finally:
-                with self.lock:self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
-                c['done'].set()
+                with self.lock:
+                    self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
+                    c['done'].set()
 
     def _production(self,identifier,owner_id,c,pace=True,finalize_control=True,checkpoint_record=None):
         from .factory_controller import ProductionController,FactoryFault
@@ -202,10 +250,11 @@ class FactoryService:
                         planning_wall_time_s=sum(p['planning_seconds'] for p in controller.plans) if controller else 0.,
                         candidate_plans_considered=sum(len(p['attempts']) for p in controller.plans) if controller else 0,
                         recorded_sample_count=len(row['trace']))
-            try:self.workspace._put('factory_run',owner_id,row)
+            try:self._save_run(row,owner_id)
             finally:
-                with self.lock:self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
-                if finalize_control:c['done'].set()
+                with self.lock:
+                    self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
+                    if finalize_control:c['done'].set()
 
     def start_benchmark(self,identifier,token,request):
         from .factory_benchmark import BenchmarkRequest,definition
@@ -235,7 +284,12 @@ class FactoryService:
 
     def history(self,token):
         with self.workspace.store.connect() as db:
-            rows=db.execute("SELECT json_remove(payload,'$.trace','$.initial_state','$.final_state','$.plans') FROM library_items WHERE owner=? AND kind='factory_run' ORDER BY rowid DESC LIMIT 30",(owner(token),)).fetchall()
+            rows=db.execute('''SELECT summary FROM (
+                SELECT summary FROM factory_run_index WHERE owner=?
+                UNION ALL SELECT json_remove(payload,'$.trace','$.initial_state','$.final_state','$.plans')
+                FROM library_items WHERE owner=? AND kind='factory_run'
+                AND id NOT IN (SELECT run_id FROM factory_run_index))
+                ORDER BY json_extract(summary,'$.created_at') DESC LIMIT 30''',(owner(token),owner(token))).fetchall()
         return [json.loads(r[0]) for r in rows]
 
     def _benchmark(self,row,owner_id,c):
@@ -252,7 +306,7 @@ class FactoryService:
                 cell['last_run_id']=identifier;self.workspace._put('factory_cell',owner_id,cell)
                 with self.lock:
                     self.live[identifier]=run;row.update(phase=f'{trial["partition"]}: {trial["condition"]}',active_run_id=identifier)
-                self.workspace._put('factory_run',owner_id,run)
+                self._save_run(run,owner_id)
                 self._production(identifier,owner_id,c,pace=False,finalize_control=False,checkpoint_record=row)
                 result={k:trial[k] for k in ('partition','repeat','condition','config')}
                 result.update(run_id=identifier,status=run['status'],failure_kind=run['phase'] if run['status']!='completed' else None,
@@ -290,7 +344,8 @@ class FactoryService:
             if live is not None:state=live
             else:
                 with self.workspace.store.connect() as db:
-                    saved=db.execute("SELECT json_extract(payload,'$.final_state') FROM library_items WHERE id=? AND owner=?",(identifier,owner(token))).fetchone()[0]
+                    indexed=db.execute('SELECT final_state FROM factory_run_index WHERE run_id=? AND owner=?',(identifier,owner(token))).fetchone()
+                    saved=indexed[0] if indexed else db.execute("SELECT json_extract(payload,'$.final_state') FROM library_items WHERE id=? AND owner=?",(identifier,owner(token))).fetchone()[0]
                 if saved:state=json.loads(saved)
         if not self.camera_lock.acquire(blocking=False):raise Busy('The simulated camera is capturing another frame. Try again shortly.')
         try:
@@ -318,13 +373,15 @@ class FactoryService:
         return {'cell':cell,'benchmark_request':value['benchmark_request'],'receipt_id':receipt['id'],
                 'message':'Compatible configuration imported. No experiment has started. Run it to produce new verified results.'}
 
-    def export_record(self,identifier,token):
-        row=self.get(identifier,token,full=True)
+    def export_record(self,identifier,token,raw=False):
+        row=self.get(identifier,token)
         if row['status'] in ('running','paused','queued'):raise Conflict('Stop or finish the run before exporting its complete record.')
-        return {'schema_version':'vivacity.factory-record-export/1.0','units':'SI','coordinates':'right-handed Z-up; quaternion wxyz',
+        metadata={'schema_version':'vivacity.factory-record-export/1.0','units':'SI','coordinates':'right-handed Z-up; quaternion wxyz',
                 'metric_definitions':METRICS,'missing_data':'null means unavailable; missing fields were not measured.',
-                'provenance':'Saved backend MuJoCo execution; imported measurements are never accepted as a verified run.',
-                'record':row}
+                'provenance':'Saved backend MuJoCo execution; imported measurements are never accepted as a verified run.'}
+        if raw:
+            return json.dumps(metadata,allow_nan=False)[:-1]+',"record":'+self.record_json(identifier,token)+'}'
+        return metadata|{'record':self.get(identifier,token,full=True)}
 
     def report(self,identifier,token,kind='run',archive=False,project_id=None):
         from .factory_report import report_pdf,csv_samples
