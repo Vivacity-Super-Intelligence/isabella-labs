@@ -17,6 +17,7 @@ The API and reproduction commands are in [FACTORY_RUNTIME_HANDOFF.md](FACTORY_RU
 | Ground-truth inspection | Native transforms, velocities, masses, inertias, joint state and contacts | Simulator truth and contact-model estimates, not physical sensor readings |
 | Physical telemetry | Native torque/contact forces; SI units; object energy; per-step mechanical work with equations | No motor efficiency/electrical consumption model; sampled contact peaks can be missed |
 | Engineering analysis | Six graphs, quantity selection, time range/zoom, shared event/sample cursor and 3D replay; CSV/JSON | Display uses saved samples, not every integration step; electrical values remain null |
+| Mathematical discovery | Eight measured MuJoCo series, background progressive and final equation fits, chronological holdout metrics, saved provenance, original/fit overlays, model and run comparison, CSV/Desmos-ready snapshots | Descriptive approximation only; flat holdouts omit unstable R²; official Desmos embed needs an authorized production key and has not been live-tested; 5,000–6,000 definition campaigns are not implemented |
 | Benchmarks | Frozen paired conditions/seeds; repeated training and held-out trials; failures, ties and all-fail remain honest | 6–10 serial trials per factory job; small sample, no significance/hardware reliability claim; no 5,000-run factory claim |
 | JSON interchange | Strict schema/checksum/software/native-state validation; idle configuration and benchmark import | Raw measured archives are inspection-only; incompatible controller versions must be recreated |
 | Reports | Saved-data vector PDF, measured charts, comparison tables and complete ZIP/CSV/JSON | Benchmark PDF details its first recorded trial plus all outcomes; fully tagged accessible PDF remains open |
@@ -39,13 +40,18 @@ The API and reproduction commands are in [FACTORY_RUNTIME_HANDOFF.md](FACTORY_RU
   `tests/test_factory_host_capacity.py`, executed inside Docker with a hard
   512 MiB limit, including actual camera/three-carton/replay/export/report operations.
 - Graph quantity/cursor/export contracts: `scripts/test-factory-analysis.mjs`.
+- Mathematical fits, owner-scoped persistence and provenance:
+  `tests/test_factory_discovery.py`; browser-number formatting:
+  `scripts/test-desmos-number.mjs`. API and integration details are in
+  [FACTORY_DISCOVERY.md](FACTORY_DISCOVERY.md).
 - End-to-end HTTP demonstration: `scripts/demo_factory.py`. Legacy real HTTP/WSS
   and geometry invalidation: `scripts/verify_workspace_live.py`.
 - Browser acceptance and inspected report pages: stage-specific
   `artifacts/factory-p0-*` through `artifacts/factory-p11-*` and the stage gate table.
 
-Priority follow-ups: durable managed persistence and authenticated ownership;
-long-duration bounded batch execution; hardware/calibration validation; a trained
+Priority follow-ups: licensed Desmos browser integration and live edit acceptance;
+durable managed persistence and authenticated ownership; long-duration bounded
+batch execution; hardware/calibration validation; a trained
 perception pipeline evaluated separately from simulator annotations. None of these
 is required to inspect the currently implemented native simulation evidence.
 

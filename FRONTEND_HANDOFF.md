@@ -4,6 +4,12 @@ The factory now exposes `GET /v1/factory/runs/{run_id}/discovery`, returning
 persisted measured-series fits, chronological held-out metrics, validation
 status, Desmos-ready expressions, predicted curves and a joint-torque
 association when supported. It uses the same `X-Workspace-Token` as the run.
+The verified backend source is `5657aaf` (Render deploy
+`dep-db7bq4tg1s2s739tt590`); the production frontend remains at
+https://demo.tryvivacity.com/. A public one-carton conveyor run exercised the
+25-frame provisional fit and final 43-frame/eight-series result with zero
+browser console errors. The full Linux gate passed 297 backend and four
+hard-512 MiB tests with no failures.
 See [FACTORY_DISCOVERY.md](docs/FACTORY_DISCOVERY.md) for exact polling,
 provenance, exports, comparison and optional Desmos setup. The React entry is
 [FactoryDiscovery.tsx](frontend/src/FactoryDiscovery.tsx), mounted in the

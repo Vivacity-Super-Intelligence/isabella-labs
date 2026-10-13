@@ -123,3 +123,16 @@ by this feature. Existing physics trial limits are unrelated to that target.
 The free 512 MiB backend can sleep and has ephemeral storage; it cannot be
 claimed always-on or durable. No live Desmos key, public edit test, calibrated
 hardware, or cross-run causal inference is present.
+
+## Release verification, 2026-10-14
+
+Backend commit `5657aaf` passed the full deployment-image Linux gate:
+297 backend tests and four hard-512 MiB tests, with zero failures, errors or
+skips ([GitHub Actions run](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38482835173)).
+It is live in Render deploy `dep-db7bq4tg1s2s739tt590`. The production
+OpenAPI path and health endpoint returned HTTP 200. In the deployed browser,
+a new one-carton conveyor run recorded 43 MuJoCo frames. At frame 25 the UI
+received a provisional model; after completion it received the final eight
+series. The selected height model remained `poor_fit`, and the held-out R²
+was correctly undefined at both stages because future variation was too
+small for a stable quotient. The browser logged zero console errors.

@@ -8,19 +8,32 @@ browser chart, model switching, saved-run comparison, CSV and Desmos-ready JSON
 export; optional official Desmos Graphing Calculator adapter. A joint-torque
 association is reported only when acceleration and torque vary sufficiently.
 
-Focused numerical/API tests: 8 passed. Frontend/API/analysis checks: 32 passed.
-TypeScript and production Vite build passed. A local browser observed two real
+Focused numerical/API tests: 8 passed. The final Linux container gate ran
+297/297 backend tests plus 4/4 hard-512 MiB tests, with zero failures, errors
+or skips ([run 38482835173](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38482835173)).
+The current frontend check ran 25 API/analysis/number tests and five template
+tests, all passing. TypeScript and production Vite build passed. A local browser observed two real
 conveyor conditions (174 and 236 samples), a 25-sample provisional checkpoint,
 eight final series, a validated carton-Y fit (held-out R² 0.9504), a correctly
 rejected height fit, model switching, two-run overlay and measured CSV export.
 A one-pair 4,225-step local conveyor comparison measured 6.599 s without
 discovery and 6.606 s with it; this does not establish general throughput.
 
+The final backend source is commit `5657aaf` on the private backend repository's
+`main` branch, live in Render deploy `dep-db7bq4tg1s2s739tt590`. The Vercel
+frontend is live at https://demo.tryvivacity.com/. A fresh public conveyor run
+recorded 43 MuJoCo frames. At 25 frames it published a provisional equation;
+at completion it published eight persisted series. The low-variance held-out
+R² displayed as undefined at both stages, and the selected height model was
+marked poor-fit. Public `/health` and `/openapi.json` returned HTTP 200; the
+deployed page showed no browser console errors. The public browser screenshot is
+`artifacts/factory-discovery-public-browser.png` (kept as local verification
+evidence, outside tracked source).
+
 Two pre-existing 60-second **Windows** factory production tests timed out
 while native MuJoCo was still running. A controlled earlier no-discovery run
 also timed out on this host, so attribution to discovery is unsupported.
-Linux container regression and hard 512 MiB host gate are pending for this
-revision. The optional Desmos embed has no licensed production key and has
+The optional Desmos embed has no licensed production key and has
 not been exercised. 5,000–6,000 experiment-definition campaigns are not
 implemented. See [FACTORY_DISCOVERY.md](docs/FACTORY_DISCOVERY.md) for details.
 
