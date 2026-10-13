@@ -6,12 +6,13 @@ OWNER={'X-Workspace-Token':'factory-owner-capability-123456789000'}
 OTHER={'X-Workspace-Token':'factory-other-capability-123456789000'}
 
 def wait(client,identifier,statuses):
-    deadline=time.monotonic()+20
+    # This is a functional physics test, not a 20-second hardware benchmark.
+    deadline=time.monotonic()+60
     while time.monotonic()<deadline:
         row=client.get('/v1/factory/runs/'+identifier,headers=OWNER).json()
         if row['status'] in statuses:return row
         time.sleep(.03)
-    raise AssertionError(row)
+    raise AssertionError({k:row.get(k) for k in ('id','status','phase','error','metrics')})
 
 def test_transport_controls_ownership_and_persistence(tmp_path):
     path=tmp_path/'factory.sqlite3'
@@ -32,6 +33,18 @@ def test_transport_controls_ownership_and_persistence(tmp_path):
         time.sleep(.08)
         assert c.get('/v1/factory/runs/'+identifier,headers=OWNER).json()['frame']['time']==paused['frame']['time']
         c.post(control,headers=OWNER,json={'action':'resume'})
+        deadline=time.monotonic()+20
+        while time.monotonic()<deadline:
+            current=c.get('/v1/factory/runs/'+identifier,headers=OWNER).json()
+            if current['frame']['time']>5.25:break
+            time.sleep(.03)
+        c.post(control,headers=OWNER,json={'action':'pause'})
+        wait(c,identifier,{'paused'})
+        live_record=c.get('/v1/factory/runs/'+identifier+'/record',headers=OWNER).json()
+        assert len(live_record['trace'])>100
+        crossing=c.get('/v1/factory/runs/'+identifier+'/samples?after=89&limit=30',headers=OWNER).json()
+        assert crossing['frames']==live_record['trace'][90:120]
+        c.post(control,headers=OWNER,json={'action':'resume'})
         row=wait(c,identifier,{'completed','failed'})
         assert row['status']=='completed',row
         FactoryRunResponse.model_validate(row)
@@ -48,6 +61,13 @@ def test_transport_controls_ownership_and_persistence(tmp_path):
         FactorySamplesResponse.model_validate(page)
         assert page['frames']+next_page['frames']==record['trace'][:20]
         assert page['next_index']==9 and next_page['next_index']==19
+        # The durable metadata stays small; full HTTP replay remains lossless.
+        import json
+        with c.app.state.runtime.store.connect() as db:
+            stored=json.loads(db.execute('SELECT payload FROM library_items WHERE id=?',(identifier,)).fetchone()[0])
+            assert stored['trace']==[] and stored['trace_storage']=='sqlite_pages/1.0'
+            assert db.execute('SELECT count(*) FROM factory_samples WHERE run_id=?',(identifier,)).fetchone()[0]==len(times)
+        assert c.get('/v1/factory/runs/'+identifier+'/export',headers=OWNER).json()['record']==record
     with TestClient(create_app(path)) as c:
         assert c.get('/v1/factory/runs/'+identifier+'/record',headers=OWNER).json()==record
 

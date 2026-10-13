@@ -57,14 +57,31 @@ class FactoryService:
 
     def _save_run(self,row,owner_id):
         from .storage import encode
+        if row.pop('trace_storage',None)=='sqlite_pages/1.0' and '_trace_offset' not in row:
+            with self.workspace.store.connect() as db:
+                row['_trace_offset']=db.execute('SELECT count(*) FROM factory_samples WHERE run_id=?',(row['id'],)).fetchone()[0]
+                last=db.execute('SELECT payload FROM factory_samples WHERE run_id=? ORDER BY sample_index DESC LIMIT 1',(row['id'],)).fetchone()
+            if last:row['frame']=json.loads(last[0])
+        self._flush_trace(row)
+        record={k:v for k,v in row.items() if not k.startswith('_') and k!='trace'}
+        record.update(trace=[],trace_storage='sqlite_pages/1.0')
         with self.workspace.store.connect() as db:
-            self.workspace._put('factory_run',owner_id,row,db)
+            self.workspace._put('factory_run',owner_id,record,db)
             db.execute('INSERT OR REPLACE INTO factory_run_index VALUES(?,?,?,?,?)',
-                       (row['id'],owner_id,encode(self._summary(row)),len(row['trace']),
+                       (row['id'],owner_id,encode(self._summary(row)),row.get('_trace_offset',0),
                         encode(row['final_state']) if row.get('final_state') else None))
-            db.execute('DELETE FROM factory_samples WHERE run_id=?',(row['id'],))
-            db.executemany('INSERT INTO factory_samples VALUES(?,?,?)',
-                           ((row['id'],i,encode(frame)) for i,frame in enumerate(row['trace'])))
+
+    def _flush_trace(self,row):
+        """Persist at most 100 pending frames; memory does not grow with a run."""
+        from .storage import encode
+        with self.lock:
+            frames=row.get('trace',[])
+            if not frames:return
+            offset=row.get('_trace_offset',0)
+            with self.workspace.store.connect() as db:
+                db.executemany('INSERT OR REPLACE INTO factory_samples VALUES(?,?,?)',
+                               ((row['id'],offset+i,encode(frame)) for i,frame in enumerate(frames)))
+            row['_trace_offset']=offset+len(frames);row['trace']=[]
 
     def create(self,settings,token):
         return self._create_owned(settings,owner(token))
@@ -107,7 +124,7 @@ class FactoryService:
             return self._summary(row)
 
     @staticmethod
-    def _summary(row):return {k:deepcopy(v) for k,v in row.items() if k not in ('trace','initial_state','final_state','plans')}
+    def _summary(row):return {k:deepcopy(v) for k,v in row.items() if not k.startswith('_') and k not in ('trace','trace_storage','initial_state','final_state','plans')}
 
     def _authorize_run(self,identifier,token):
         with self.workspace.store.connect() as db:
@@ -118,8 +135,20 @@ class FactoryService:
         self._authorize_run(identifier,token)
         with self.lock:
             row=self.live.get(identifier)
-            if row is not None:return deepcopy(row) if full else self._summary(row)
-        if full:return self.workspace._get(identifier,token,'factory_run')
+            if row is not None:
+                if not full:return self._summary(row)
+                value={k:deepcopy(v) for k,v in row.items() if not k.startswith('_')}
+                offset=row.get('_trace_offset',0)
+                with self.workspace.store.connect() as db:
+                    saved=db.execute('SELECT payload FROM factory_samples WHERE run_id=? AND sample_index<? ORDER BY sample_index',(identifier,offset)).fetchall()
+                value['trace']=[json.loads(r[0]) for r in saved]+value['trace']
+                return value
+        if full:
+            value=self.workspace._get(identifier,token,'factory_run')
+            if value.pop('trace_storage',None)=='sqlite_pages/1.0':
+                with self.workspace.store.connect() as db:
+                    value['trace']=[json.loads(r[0]) for r in db.execute('SELECT payload FROM factory_samples WHERE run_id=? ORDER BY sample_index',(identifier,))]
+            return value
         with self.workspace.store.connect() as db:
             indexed=db.execute('SELECT summary FROM factory_run_index WHERE run_id=? AND owner=?',(identifier,owner(token))).fetchone()
             if indexed:return json.loads(indexed[0])
@@ -127,14 +156,33 @@ class FactoryService:
         return json.loads(payload)
 
     def record_json(self,identifier,token):
-        """Serve a native JSON archive without decoding and re-encoding its trace."""
+        """Stream saved sample JSON; no full archive allocation on the server."""
         from .storage import encode
         self._authorize_run(identifier,token)
         with self.lock:
             row=self.live.get(identifier)
-            if row is not None:return encode(row)
-        with self.workspace.store.connect() as db:
-            return db.execute('SELECT payload FROM library_items WHERE id=? AND owner=?',(identifier,owner(token))).fetchone()[0]
+            if row is not None:
+                metadata={k:deepcopy(v) for k,v in row.items() if not k.startswith('_') and k!='trace'}
+                tail=deepcopy(row['trace']);offset=row.get('_trace_offset',0)
+            else:
+                with self.workspace.store.connect() as db:
+                    raw=db.execute('SELECT payload FROM library_items WHERE id=? AND owner=?',(identifier,owner(token))).fetchone()[0]
+                metadata=json.loads(raw)
+                if metadata.pop('trace_storage',None)!='sqlite_pages/1.0':return iter([raw])
+                metadata.pop('trace',None);tail=[];offset=None
+        def chunks():
+            yield encode(metadata)[:-1]+',"trace":['
+            separator='';after=-1
+            while True:
+                # StreamingResponse may resume the iterator on another thread.
+                # Close each SQLite connection before yielding a bounded page.
+                with self.workspace.store.connect() as db:
+                    rows=db.execute('SELECT sample_index,payload FROM factory_samples WHERE run_id=? AND sample_index>? AND (? IS NULL OR sample_index<?) ORDER BY sample_index LIMIT 100',(identifier,after,offset,offset)).fetchall()
+                if not rows:break
+                yield separator+','.join(r[1] for r in rows);separator=',';after=rows[-1][0]
+            if tail:yield separator+','.join(encode(frame) for frame in tail)
+            yield ']}'
+        return chunks()
 
     def command(self,identifier,token,action,kind='factory_run'):
         if kind=='factory_run':self._authorize_run(identifier,token)
@@ -154,9 +202,13 @@ class FactoryService:
         with self.lock:
             row=self.live.get(identifier)
             if row is not None:
-                trace=row['trace'];end=min(len(trace),after+1+limit)
-                return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':deepcopy(trace[after+1:end]),
-                        'next_index':end-1,'total_samples':len(trace),'status':row['status']}
+                trace=row['trace'];offset=row.get('_trace_offset',0);total=offset+len(trace)
+                with self.workspace.store.connect() as db:
+                    saved=db.execute('SELECT payload FROM factory_samples WHERE run_id=? AND sample_index>? AND sample_index<? ORDER BY sample_index LIMIT ?',(identifier,after,offset,limit)).fetchall()
+                frames=[json.loads(r[0]) for r in saved]+deepcopy(trace[max(0,after+1-offset):max(0,after+1+limit-offset)])
+                end=min(total,after+1+limit)
+                return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':frames,
+                        'next_index':end-1,'total_samples':total,'status':row['status']}
         with self.workspace.store.connect() as db:
             indexed=db.execute('SELECT sample_count,summary FROM factory_run_index WHERE run_id=? AND owner=?',(identifier,owner(token))).fetchone()
             if indexed:
@@ -249,7 +301,7 @@ class FactoryService:
                         integration_wall_time_s=controller.physics_seconds if controller else 0.,
                         planning_wall_time_s=sum(p['planning_seconds'] for p in controller.plans) if controller else 0.,
                         candidate_plans_considered=sum(len(p['attempts']) for p in controller.plans) if controller else 0,
-                        recorded_sample_count=len(row['trace']))
+                        recorded_sample_count=row.get('_trace_offset',0)+len(row['trace']))
             try:self._save_run(row,owner_id)
             finally:
                 with self.lock:
@@ -333,7 +385,9 @@ class FactoryService:
             row['frame']=frame;row['phase']=phase
             parent=self.live.get(row.get('benchmark_id'))
             if parent is not None:parent.update(active_phase=phase,active_time_s=frame['time'],active_frame=frame)
-            if not row['trace'] or frame['time']>row['trace'][-1]['time']:row['trace'].append(frame)
+            if frame['time']>row.get('_last_sample_time',-1):
+                row['trace'].append(frame);row['_last_sample_time']=frame['time']
+            if len(row['trace'])>=100:self._flush_trace(row)
 
     def observation(self,identifier,token,source='latest'):
         from .factory_vision import observe_camera
@@ -380,7 +434,8 @@ class FactoryService:
                 'metric_definitions':METRICS,'missing_data':'null means unavailable; missing fields were not measured.',
                 'provenance':'Saved backend MuJoCo execution; imported measurements are never accepted as a verified run.'}
         if raw:
-            return json.dumps(metadata,allow_nan=False)[:-1]+',"record":'+self.record_json(identifier,token)+'}'
+            from itertools import chain
+            return chain([json.dumps(metadata,allow_nan=False)[:-1]+',"record":'],self.record_json(identifier,token),['}'])
         return metadata|{'record':self.get(identifier,token,full=True)}
 
     def report(self,identifier,token,kind='run',archive=False,project_id=None):
