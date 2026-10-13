@@ -167,7 +167,7 @@ class ClothBackend(LegacyClothBackend):
                 frame=self.observe(world);trace.append(frame)
                 if limits.get('on_frame'):
                     limits['on_frame'](frame)
-                    if limits.get('realtime'):time.sleep(max(0.,float(d.time-start)-(time.perf_counter()-tic)+(limits.get('pause_seconds',lambda:0.)()-paused_start)))
+                    if limits.get('realtime'):time.sleep(max(0.,float(d.time-start)/limits.get('realtime_speed',1.)-(time.perf_counter()-tic)+(limits.get('pause_seconds',lambda:0.)()-paused_start)))
         trace.append(self.observe(world))
         return {'trace':trace,'failure':failure,'grasp_validated':steps>0 and failure!='planning_failure','grasp_constraint_error_m':grasp_error,'maximum_contact_penetration_m':max_penetration,'contact_violations':violations,'simulation_steps':steps,'execution_duration_s':float(d.time-start),'physics_wall_seconds':time.perf_counter()-tic,'robot_joint_displacement_rad':float(np.linalg.norm(d.qpos[:7]-initial_q)),'maximum_joint_tracking_error_rad':tracking,'ik_planning_seconds':a['ik_planning_seconds'],'executed_action':deepcopy(a)}
 

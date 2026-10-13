@@ -1,3 +1,13 @@
+# Current world and experimentation workspace
+
+The current implementation supersedes the older Panda-only availability below.
+See [WORLD_WORKSPACE_HANDOFF.md](docs/WORLD_WORKSPACE_HANDOFF.md) for seven
+implemented arm models, thirteen workcells, ten bounded physical operations,
+real provider integration, owned libraries/configurations, exact endpoint and
+socket contracts, transforms, geometry asset paths, run/replay examples and
+frontend commands. All old world/session/experiment endpoints remain compatible.
+Scientific Discovery stays retired. Historical release evidence follows.
+
 # Robotics template frontend handoff
 
 Verified release: backend source `2bf89e7`, Render deploy

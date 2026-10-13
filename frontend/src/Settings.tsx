@@ -19,6 +19,7 @@ export default function Settings({ config, disabled, apply, close }: { config: D
   const submit = async () => {
     const nextCube=clampPickupPosition(cube[0],cube[1],cubeHalfSizes);
     const nextPlacement=clampPickupPosition(placement[0],placement[1],cubeHalfSizes);
+    if(config.physical_operation==='stacking')nextPlacement[2]=3*cubeHalfSizes[2]+.001;
     const applied=await apply( {...config, obstacle_enabled:obstacleEnabled,obstacle_position:position, obstacle_size:size,target_position:target,
       cube_half_size:cubeHalfSizes[2],cube_half_sizes:pickup&&!orbital?cubeHalfSizes:null,cube_mass:cubeMass,cube_friction:cubeFriction,
       cube_position:pickup?nextCube:cube,placement_position:pickup?nextPlacement:placement}); if(applied!==false)close();

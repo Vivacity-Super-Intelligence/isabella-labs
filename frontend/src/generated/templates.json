@@ -7,39 +7,39 @@
       "status": "available",
       "technical": "7 joint actuators + parallel fingers",
       "business": "Flexible manipulation for automation integrators.",
-      "scope": "Menagerie MJCF; MuJoCo joint dynamics and contact."
+      "scope": "Actuated MuJoCo model, modeled parallel gripper, independent state and measured dynamics. Dual Panda uses its primary arm; SCARA is an analytical educational model."
     },
     {
       "id": "ur5e",
       "name": "UR5e collaborative arm",
-      "status": "reference",
+      "status": "available",
       "technical": "6-axis arm",
       "business": "Shared workstations and machine loading.",
-      "scope": "Requires a robot model, gripper and tested controller adapter."
+      "scope": "Actuated MuJoCo model, modeled parallel gripper, independent state and measured dynamics. Dual Panda uses its primary arm; SCARA is an analytical educational model."
     },
     {
       "id": "iiwa",
       "name": "KUKA iiwa",
-      "status": "reference",
+      "status": "available",
       "technical": "7-axis industrial arm",
       "business": "Flexible industrial cells and assembly research.",
-      "scope": "Requires a robot model, gripper and tested controller adapter."
+      "scope": "Actuated MuJoCo model, modeled parallel gripper, independent state and measured dynamics. Dual Panda uses its primary arm; SCARA is an analytical educational model."
     },
     {
       "id": "scara",
       "name": "SCARA arm",
-      "status": "reference",
+      "status": "available",
       "technical": "Planar assembly arm",
       "business": "Repeated handling on electronics production lines.",
-      "scope": "Requires a SCARA dynamics model and task controller."
+      "scope": "Actuated MuJoCo model, modeled parallel gripper, independent state and measured dynamics. Dual Panda uses its primary arm; SCARA is an analytical educational model."
     },
     {
       "id": "dual_arm",
       "name": "Dual-arm system",
-      "status": "reference",
+      "status": "available",
       "technical": "Two coordinated manipulators",
       "business": "Two-handed handling and garment automation.",
-      "scope": "Requires two-arm collision planning and coordinated control."
+      "scope": "Actuated MuJoCo model, modeled parallel gripper, independent state and measured dynamics. Dual Panda uses its primary arm; SCARA is an analytical educational model."
     }
   ],
   "worlds": [
@@ -112,18 +112,18 @@
     {
       "id": "machine_tending",
       "name": "Machine tending",
-      "status": "reference",
+      "status": "available",
       "technical": "Load, unload and synchronize with a machine",
       "business": "Potential application for production automation.",
-      "scope": "Needs a machine model, interlocks and a task controller."
+      "scope": "Single-part fixture seating or loading a modeled bay with an actuated door. No fastening, production machining or hardware interlocks."
     },
     {
       "id": "assembly",
       "name": "Precision assembly",
-      "status": "reference",
+      "status": "available",
       "technical": "Contact-guided alignment and insertion",
       "business": "Potential application for assembly integrators.",
-      "scope": "Needs insertion geometry, force control and assembly validation."
+      "scope": "Single-part fixture seating or loading a modeled bay with an actuated door. No fastening, production machining or hardware interlocks."
     }
   ],
   "contract": [

@@ -1,3 +1,16 @@
+# Current compatibility
+
+The older Panda-only availability notes below are historical. Current legacy
+catalog tests cover 81 runnable combinations and 1,215 selection interactions:
+five catalog arm models across four rigid worlds and four rigid tasks, plus
+Panda's dedicated textile fixture. The extended workspace separately exposes
+seven implemented models, thirteen environments and ten bounded operations.
+See [WORLD_WORKSPACE_HANDOFF.md](WORLD_WORKSPACE_HANDOFF.md) for exact scopes,
+provider/import workflows and interfaces. Feasibility remains measured per run;
+this compatibility matrix does not assert every trajectory will succeed.
+
+Historical implementation notes follow.
+
 # Robotics template release
 
 The public product is robotics-only. Scientific Discovery's UI, backend module,

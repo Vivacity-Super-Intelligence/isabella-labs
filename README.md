@@ -1,24 +1,26 @@
 # Vivacity robotics runtime
 
-The investor demo is robotics-only. Choose **Robot arm / Operating world / Task**
-from five options per category, load a compatible template, and press Start
-experiments. Loading stays idle. Scientific Discovery is removed from the app
-and public API.
+The investor demo is robotics-only. Choose or generate a world, select a real
+robot and a bounded operation, save its conditions, then explicitly Start.
+Loading stays idle. Scientific Discovery remains retired.
 
 Public UI: [demo.tryvivacity.com](https://demo.tryvivacity.com/).
 Backend: [API reference](https://vivacity-runtime.onrender.com/docs).
 
-The arm catalog contains Panda, UR5e, KUKA iiwa, SCARA and dual-arm references.
-**Panda is the implemented actuator model.** Other arm choices explain their
-intended use and missing adapters; they cannot launch a substitute simulation.
-Tasks include real pickup, obstacle-aware transfer and experimental
-fixture-assisted folding. Machine tending and assembly are planned references.
+Seven models are implemented: Panda, UR5e, KUKA iiwa 14, Kinova Gen3, xArm7,
+analytical educational SCARA and dual Panda (primary-arm execution). Non-Panda
+arms use a modeled Panda flange gripper, not a certified hardware mount.
+Thirteen environments use actual bounded collision geometry. Ten operations
+include pickup, transfer, reaching, seeded manipulation, experimental folding,
+rule-based sorting, passive fixture seating, two-body stacking, gravity-assisted
+insertion and actuated-door bay loading. Exact limits and API/setup examples are
+in [docs/WORLD_WORKSPACE_HANDOFF.md](docs/WORLD_WORKSPACE_HANDOFF.md).
 
-Five physical workcell presets represent industrial handling, warehouse packing,
-part presentation, constrained-cell handling and textile folding. They are
-simplified workcells, not complete factory digital twins. There are nine runnable
-Panda/world/task combinations. Exact scope, compatibility, API examples and
-limitations: [docs/ROBOTICS_TEMPLATES.md](docs/ROBOTICS_TEMPLATES.md).
+OpenAI provides real structured proposals; World Labs generates real 3D meshes.
+Generated/imported meshes use an explicit conservative solid collision proxy
+beside the workbench. They are not accurate full-facility digital twins.
+Provider keys are backend-only environment variables or a host secret file.
+Prebuilt worlds and deterministic experiments work without provider keys.
 
 The product explains both the application and runtime: automation teams can
 compare actions before a physical trial, inspect failures, change conditions and

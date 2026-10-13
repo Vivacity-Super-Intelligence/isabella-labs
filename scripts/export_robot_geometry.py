@@ -14,9 +14,9 @@ from vivacity.robotics import RoboticsBackend
 from vivacity.schemas import RoboticsConfig
 
 
-def export(directory=Path('docs')):
+def export(directory=Path('docs'), world=None):
     directory.mkdir(parents=True, exist_ok=True)
-    world = RoboticsBackend().create_world(RoboticsConfig().model_dump(), 7)
+    world = world or RoboticsBackend().create_world(RoboticsConfig().model_dump(), 7)
     model = world.model
     binary = bytearray()
     meshes = []

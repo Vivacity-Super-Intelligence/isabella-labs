@@ -1,0 +1,277 @@
+"""Capability-owned world/configuration library using the existing SQLite store."""
+from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
+import hashlib
+import json
+import os
+import threading
+import time
+import uuid
+import numpy as np
+
+from .schemas import CreateWorld, SessionRequest, EnvironmentProvenance
+from .workspace_schemas import LibraryWorld, EnvironmentSpec, ExperimentConfiguration, ResolvedConfiguration, GenerationResponse
+from .world_presets import prebuilt, box
+from .providers import OpenAIInterpreter, WorldLabs, ProviderError, download_asset
+from .storage import encode
+
+
+def digest(value):return hashlib.sha256(encode(value).encode()).hexdigest()
+def owner(token):return hashlib.sha256(token.encode()).hexdigest()
+
+
+class WorkspaceService:
+    def __init__(self,runtime,interpreter=None,worldlabs=None):
+        self.runtime=runtime;self.store=runtime.store
+        self.interpreter=interpreter or OpenAIInterpreter();self.worldlabs=worldlabs or WorldLabs()
+        self.stop=threading.Event();self.executor=ThreadPoolExecutor(max_workers=1,thread_name_prefix='vivacity-generation')
+        with self.store.connect() as db:
+            db.executescript('''CREATE TABLE IF NOT EXISTS library_items(id TEXT PRIMARY KEY, owner TEXT NOT NULL, kind TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX IF NOT EXISTS library_owner ON library_items(owner,kind);
+                CREATE TABLE IF NOT EXISTS configuration_runs(session_id TEXT PRIMARY KEY, owner TEXT NOT NULL, configuration_id TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS generation_keys(owner TEXT NOT NULL, key TEXT NOT NULL, fingerprint TEXT NOT NULL, job_id TEXT NOT NULL, PRIMARY KEY(owner,key));''')
+            pending=[json.loads(row[0]) for row in db.execute("SELECT payload FROM library_items WHERE kind='generation'")]
+        for job in pending:
+            if job['status'] not in ('completed','failed'):
+                if job.get('operation_id'):self.executor.submit(self._resume,job)
+                else:self._stage(job,'failed','Server restarted before a provider operation was recorded; retry explicitly.')
+
+    def close(self):self.stop.set();self.executor.shutdown(wait=True)
+
+    def _put(self,kind,token_hash,record,db=None):
+        if db is None:
+            with self.store.connect() as db:return self._put(kind,token_hash,record,db)
+        db.execute('INSERT INTO library_items VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload',
+                   (record['id'],token_hash,kind,encode(record)))
+
+    def _get(self,identifier,token,kind):
+        with self.store.connect() as db:
+            row=db.execute('SELECT payload FROM library_items WHERE id=? AND owner=? AND kind=?',(identifier,owner(token),kind)).fetchone()
+        if row is None:raise KeyError(identifier)
+        return json.loads(row[0])
+
+    def list(self,token,kind):
+        with self.store.connect() as db:
+            rows=[json.loads(r[0]) for r in db.execute('SELECT payload FROM library_items WHERE owner=? AND kind=? ORDER BY rowid DESC LIMIT 100',(owner(token),kind))]
+        return [r for r in rows if not r.get('deleted')]
+
+    def worlds(self,token):return prebuilt()+self.list(token,'world')
+
+    def world(self,identifier,token):
+        preset=next((r for r in prebuilt() if r['id']==identifier),None)
+        result=preset or self._get(identifier,token,'world')
+        if result.get('deleted'):raise KeyError(identifier)
+        return result
+
+    def save_world(self,spec,token,source,**fields):
+        record=LibraryWorld(id=str(uuid.uuid4()),name=spec.name,description=spec.description,source=source,
+            spec=spec,sha256=digest(spec.model_dump()),created_unix_s=time.time(),
+            physics_scope=fields.pop('physics_scope','Static collision primitives around a standardized manipulation workbench; generated appearance is not evidence of a physical outcome.'),**fields).model_dump()
+        with self.store.connect() as db:
+            count=db.execute("SELECT COUNT(*) FROM library_items WHERE owner=? AND kind='world'",(owner(token),)).fetchone()[0]
+            total=db.execute('SELECT COUNT(*) FROM library_items').fetchone()[0]
+            if count>=50 or total>=1000:raise ValueError('workspace library storage limit reached')
+            self._put('world',owner(token),record,db)
+        return record
+
+    def rename(self,identifier,token,name,kind='world'):
+        record=self._get(identifier,token,kind);record['name']=name
+        if kind=='world':record['spec']['name']=name
+        self._put(kind,owner(token),record);return record
+
+    def set_deleted(self,identifier,token,deleted):
+        record=self._get(identifier,token,'world');record['deleted']=deleted
+        self._put('world',owner(token),record);return record
+
+    def duplicate(self,identifier,token):
+        original=self.world(identifier,token);spec=EnvironmentSpec.model_validate(original['spec']);spec.name=(original['name'][:56]+' copy')
+        return self.save_world(spec,token,original['source'],import_id=original.get('import_id'),
+            provider_world_id=original.get('provider_world_id'),provider_url=original.get('provider_url'),
+            preview_available=original['preview_available'],physics_scope=original['physics_scope'],mapping=deepcopy(original.get('mapping')))
+
+    def map_import(self,record,preview,mapping,token,source='imported',**fields):
+        vertices=np.asarray(preview.get('source_bounds_m') or preview['positions'],dtype=float)*mapping.scale
+        if mapping.up_axis=='y':vertices=vertices[:,[0,2,1]]*np.array([1,-1,1])
+        lo,hi=vertices.min(axis=0),vertices.max(axis=0)
+        half=np.maximum((hi-lo)/2,.005);center=np.asarray(mapping.position_m)
+        if np.max(half)>4 or np.max(np.abs(center)+half)>8:raise ValueError('mapped scene exceeds supported bounds; reduce its scale')
+        geometry=box('import_collision_proxy',center.tolist(),half.tolist())
+        spec=EnvironmentSpec(name=mapping.name,description='Imported static geometry with an explicitly configured conservative bounding-box collision proxy.',
+                             dimensions_m=[min(16.,max(4.,float(2*(abs(center[i])+half[i])))) for i in range(3)],geometries=[geometry])
+        result=self.save_world(spec,token,source,import_id=record['id'],preview_available=True,
+            physics_scope='Original triangles are a visual preview. Physics uses a solid axis-aligned bounding-box proxy, centered at the chosen position and scale, plus the standard Panda workbench. A concave room must not be treated as an accurate solid-box reconstruction.',**fields)
+        result['mapping']={'scale':mapping.scale,'position_m':mapping.position_m,'up_axis':mapping.up_axis,
+                           'original_center_m':((lo+hi)/2).tolist(),'source_sha256':record['sha256']}
+        self._put('world',owner(token),result)
+        return result
+
+    def resolve(self,configuration,token):
+        from .registry import validate_hardware
+        validate_hardware(configuration.robot_id,configuration.gripper_id,configuration.operation_id)
+        scene=self.world(configuration.environment_id,token)
+        if configuration.validation_trials>self.runtime.max_physics_trials:
+            raise ValueError(f'This host permits at most {self.runtime.max_physics_trials} full validation trials.')
+        if configuration.operation_id=='cloth_fold':
+            if scene['id']!='textile_fixture':raise ValueError('Choose the textile fixture for cloth folding.')
+            world=CreateWorld(backend='cloth',seed=configuration.seed)
+        else:
+            if scene['id']=='textile_fixture':raise ValueError('Textile fixture requires the cloth-fold operation.')
+            reach=configuration.operation_id=='reach'
+            metadata=EnvironmentProvenance(id=scene['id'],name=scene['name'],version=scene['version'],source=scene['source'],
+                                           source_sha256=scene['sha256'],collision_scope=scene['physics_scope'])
+            config=dict(task='reach' if reach else 'pick_place',robot_model=configuration.robot_id,
+                        physical_operation=configuration.operation_id if configuration.operation_id in ('sorting','assembly','stacking','insertion','machine_tending') else 'pick_place',obstacle_enabled=False,
+                        cube_position=[*configuration.target_position[:2],configuration.object_half_sizes[2]+.001],placement_position=[*configuration.destination_position[:2],configuration.object_half_sizes[2]+.001],
+                        cube_half_sizes=configuration.object_half_sizes,cube_mass=configuration.object_mass_kg,cube_friction=configuration.object_friction,
+                        scene_geometries=scene['spec']['geometries'],environment=metadata.model_dump())
+            if configuration.operation_id=='stacking':config['placement_position']=[*configuration.destination_position[:2],3*configuration.object_half_sizes[2]+.001]
+            if configuration.operation_id=='sorting':
+                value=configuration.object_mass_kg if configuration.sort_property=='mass' else configuration.object_half_sizes[0]*2
+                config['sorting_rule']={'property':configuration.sort_property,'threshold':configuration.sort_threshold}
+                if value<configuration.sort_threshold:config['placement_position']=[*configuration.alternate_destination_position[:2],configuration.object_half_sizes[2]+.001]
+            if reach:config['target_position']=[configuration.destination_position[0],configuration.destination_position[1],.22]
+            world=CreateWorld(backend='mujoco',seed=configuration.seed,config=config)
+        adaptive=world.backend=='mujoco' and world.config.task=='pick_place' and configuration.trial_mode=='adaptive'
+        fixed=world.backend=='mujoco' and world.config.task=='pick_place' and configuration.trial_mode=='fixed'
+        session=SessionRequest(**world.model_dump(),max_cycles=configuration.randomization_cycles if configuration.operation_id=='randomized_manipulation' else 1,
+            realtime_speed=configuration.realtime_speed,realtime_execution=True,adaptive_trials=adaptive,
+            physics_trials=configuration.validation_trials if fixed else 0,
+            search_candidates=configuration.validation_trials if fixed else 256,
+            physics_budget=configuration.validation_trials)
+        return ResolvedConfiguration(world=world,session=session,provenance={'environment':scene['sha256'],'environment_version':scene['version'],
+             'robot_id':configuration.robot_id,'gripper_id':configuration.gripper_id,'operation_id':configuration.operation_id,
+             'configuration_sha256':digest(configuration.model_dump()),'seed':configuration.seed})
+
+    def save_configuration(self,configuration,token):
+        self.resolve(configuration,token)
+        record={'schema_version':'vivacity.saved-configuration/1.0','id':str(uuid.uuid4()),'configuration':configuration.model_dump(),
+                'created_unix_s':time.time(),'sha256':digest(configuration.model_dump()),'deleted':False}
+        if len(self.list(token,'configuration'))>=100:raise ValueError('configuration quota reached')
+        self._put('configuration',owner(token),record);return record
+
+    def configuration(self,identifier,token):return self._get(identifier,token,'configuration')
+
+    def start_run(self,identifier,token,actual_config=None):
+        import secrets
+        record=self.configuration(identifier,token)
+        resolved=self.resolve(ExperimentConfiguration.model_validate(record['configuration']),token)
+        if actual_config is not None:
+            actual=CreateWorld(backend=resolved.world.backend,seed=resolved.world.seed,config=actual_config)
+            resolved.world=actual;resolved.session.config=actual.config
+        resolved.provenance['execution_configuration_sha256']=digest(resolved.session.model_dump())
+        capability=secrets.token_urlsafe(36)
+        session=self.runtime.supervisor.create(resolved.session,capability)
+        with self.store.connect() as db:
+            db.execute('INSERT INTO configuration_runs VALUES(?,?,?,?)',(session['id'],owner(token),identifier,
+                        encode({'session_id':session['id'],'configuration_id':identifier,'provenance':resolved.provenance,'initial_configuration':resolved.world.model_dump(),
+                                'created_unix_s':time.time(),'capability':capability})))
+        return {'session':session,'session_token':capability}
+
+    def runs(self,token):
+        with self.store.connect() as db:
+            records=[json.loads(r[0]) for r in db.execute('SELECT payload FROM configuration_runs WHERE owner=? ORDER BY rowid DESC LIMIT 100',(owner(token),))]
+        result=[]
+        for r in records:
+            session=self.runtime.supervisor.get(r['session_id'],r['capability'])
+            experiments=[self.runtime.get_experiment(eid) for eid in session['experiments']]
+            entries=[]
+            for experiment in experiments:
+                branches=self.store.branches(experiment['id'])
+                measured=[b for b in branches if b['action'].get('execution_role')!='authoritative_execution']
+                with self.store.connect() as db:
+                    total,successes=db.execute("SELECT COUNT(*),COALESCE(SUM(json_extract(payload,'$.evaluation.success')),0) FROM trials WHERE experiment_id=?",(experiment['id'],)).fetchone()
+                if not total:total=len(measured);successes=sum(bool(b['evaluation']['success']) for b in measured)
+                entries.append({'experiment':experiment,'evaluations':[{'branch_id':b['id'],'evaluation':b['evaluation'],'performance':b['performance']} for b in measured],
+                                'validation_count':total,'successful_validations':successes,'success_rate':successes/total if total else None,
+                                'energy_joules':None,'energy_scope':'Energy accounting is not implemented.'})
+            result.append({k:v for k,v in r.items() if k!='capability'}|{'session':session,'experiments':entries})
+        return result
+
+    def _stage(self,job,status,message=None):
+        job['status']=status;job['updated_unix_s']=time.time()
+        if status=='failed':job['error']=message or 'Generation could not complete.'
+        job['events'].append({'stage':status,'timestamp_unix_s':time.time(),'message':message or status})
+        self._put('generation',job['_owner'],job)
+
+    def generation(self,identifier,token):
+        record=self._get(identifier,token,'generation')
+        return GenerationResponse.model_validate({k:v for k,v in record.items() if not k.startswith('_')}).model_dump()
+
+    def generate(self,request,token,key):
+        if not os.getenv('OPENAI_API_KEY'):raise ProviderError('OpenAI is not configured on the server.')
+        if request.provider=='worldlabs' and not os.getenv('WORLDLABS_API_KEY'):raise ProviderError('World Labs is not configured on the server.')
+        fingerprint=digest(request.model_dump());hashed=owner(token)
+        from .runtime import Busy,Conflict
+        with self.store.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            prior=db.execute('SELECT fingerprint,job_id FROM generation_keys WHERE owner=? AND key=?',(hashed,key)).fetchone()
+            if prior:
+                if prior[0]!=fingerprint:raise Conflict('generation key already used with different input')
+                return self.generation(prior[1],token)
+            jobs=[json.loads(r[0]) for r in db.execute("SELECT payload FROM library_items WHERE kind='generation'")]
+            if any(j['status'] not in ('completed','failed') for j in jobs):raise Busy('one world generation is already active')
+            if sum(j['created_unix_s']>time.time()-86400 for j in jobs)>=int(os.getenv('VIVACITY_GENERATIONS_PER_DAY','4')):
+                raise Busy('the server daily generation budget has been reached')
+            now=time.time();job=GenerationResponse(id=str(uuid.uuid4()),status='queued',provider=request.provider,prompt=request.prompt,
+                seed=request.seed,model=request.model,created_unix_s=now,updated_unix_s=now).model_dump()|{'_owner':hashed,'_token':token}
+            self._put('generation',hashed,job,db)
+            db.execute('INSERT INTO generation_keys VALUES(?,?,?,?)',(hashed,key,fingerprint,job['id']))
+        self.executor.submit(self._run,job)
+        return self.generation(job['id'],token)
+
+    def _run(self,job):
+        try:
+            self._stage(job,'interpreting','OpenAI is interpreting the prompt into a bounded scene specification.')
+            spec,provenance=self.interpreter.environment(job['prompt']);job['interpretation']=spec.model_dump();job['_interpretation_provenance']=provenance
+            if job['provider']=='openai':
+                record=self.save_world(spec,job['_token'],'openai')
+                job['world_id']=record['id'];self._stage(job,'completed','OpenAI structured primitive scene saved. This is not a World Labs generation.');return
+            self._stage(job,'generating','Submitting a private World Labs generation request.')
+            operation=self.worldlabs.generate(job['prompt'],spec.name,job['seed'],job['model'])
+            from .providers import identifier
+            identifier(operation.get('operation_id'));job['operation_id']=operation['operation_id'];self._stage(job,'generating','World Labs operation accepted; polling its actual status.')
+            self._poll(job)
+        except Exception as exc:self._stage(job,'failed',str(exc) if isinstance(exc,(ProviderError,ValueError)) else 'Generation failed; no successful world was fabricated.')
+
+    def _resume(self,job):
+        try:self._poll(job)
+        except Exception as exc:self._stage(job,'failed',str(exc) if isinstance(exc,(ProviderError,ValueError)) else 'Provider operation could not be resumed.')
+
+    def retry_retrieval(self,identifier,token):
+        job=self._get(identifier,token,'generation')
+        if job['status']!='failed' or not job.get('operation_id'):
+            raise ValueError('only an existing failed provider retrieval can be resumed without a new generation')
+        if any(j['status'] not in ('failed','completed') for j in self.list(token,'generation')):
+            raise ValueError('a generation is already active')
+        job['error']=None;self._stage(job,'generating','Resuming the existing World Labs operation; no new generation is submitted.')
+        self.executor.submit(self._resume,job)
+        return self.generation(identifier,token)
+
+    def _poll(self,job):
+        deadline=time.monotonic()+900
+        while not self.stop.is_set() and time.monotonic()<deadline:
+            result=self.worldlabs.operation(job['operation_id'])
+            if result.get('done'):
+                if result.get('error'):raise ProviderError('World Labs reported generation failure; no world was saved.')
+                response=result.get('response') or {};world_id=response.get('world_id')
+                if not world_id:raise ProviderError('World Labs completed without a world identifier.')
+                world=self.worldlabs.world(world_id)
+                assets=world.get('assets') or {};mesh=assets.get('mesh') or {}
+                url=mesh.get('collider_mesh_url') or mesh.get('full_res_mesh_url')
+                if not url:raise ProviderError('World Labs produced no compatible collider mesh. Gaussian splats alone are not collision geometry.')
+                self._stage(job,'receiving','Retrieving and validating the actual generated collider mesh.')
+                content=download_asset(url)
+                record=self.runtime.imports.create('worldlabs-collider.glb',content,reduce_preview=True)
+                preview=self.runtime.imports.get(record['id'],preview=True)
+                from .workspace_schemas import ImportMapping
+                span=np.ptp(np.asarray(preview.get('source_bounds_m') or preview['positions'],dtype=float),axis=0)
+                scale=min(1.,2./max(float(np.max(span)),.001))
+                library=self.map_import(record,preview,ImportMapping(name=world.get('display_name') or job['interpretation']['name'],scale=scale),job['_token'],'worldlabs',
+                    provider_world_id=world_id,provider_url=world.get('world_marble_url'))
+                library['description']=assets.get('caption') or job['interpretation']['description']
+                self._put('world',job['_owner'],library)
+                job['world_id']=library['id'];job['provider_cost_credits']=(result.get('cost') or {}).get('total_credits')
+                self._stage(job,'completed','Actual World Labs mesh retrieved. Review the conservative collision mapping before experimentation.');return
+            job['updated_unix_s']=time.time();self._put('generation',job['_owner'],job)
+            self.stop.wait(5.)
+        raise ProviderError('Generation polling stopped or exceeded 15 minutes; the provider operation ID is retained and never automatically resubmitted.')

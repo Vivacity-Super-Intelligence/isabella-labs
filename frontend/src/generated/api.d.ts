@@ -4,6 +4,299 @@
  */
 
 export interface paths {
+    "/v1/workspace/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Capabilities */
+        get: operations["capabilities_v1_workspace_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/worlds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Worlds */
+        get: operations["worlds_v1_workspace_worlds_get"];
+        put?: never;
+        /** Duplicate World */
+        post: operations["duplicate_world_v1_workspace_worlds_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/worlds/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** World */
+        get: operations["world_v1_workspace_worlds__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Rename */
+        patch: operations["rename_v1_workspace_worlds__identifier__patch"];
+        trace?: never;
+    };
+    "/v1/workspace/worlds/{identifier}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive */
+        post: operations["archive_v1_workspace_worlds__identifier__archive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/worlds/{identifier}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore */
+        post: operations["restore_v1_workspace_worlds__identifier__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/worlds/{identifier}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview */
+        get: operations["preview_v1_workspace_worlds__identifier__preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload */
+        post: operations["upload_v1_workspace_imports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/imports/{identifier}/map": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Map Import */
+        post: operations["map_import_v1_workspace_imports__identifier__map_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/generations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Generations */
+        get: operations["generations_v1_workspace_generations_get"];
+        put?: never;
+        /** Generate */
+        post: operations["generate_v1_workspace_generations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/generations/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Generation */
+        get: operations["generation_v1_workspace_generations__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/generations/{identifier}/retry-retrieval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry Retrieval */
+        post: operations["retry_retrieval_v1_workspace_generations__identifier__retry_retrieval_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/configurations/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve */
+        post: operations["resolve_v1_workspace_configurations_resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/configurations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Configurations */
+        get: operations["configurations_v1_workspace_configurations_get"];
+        put?: never;
+        /** Save */
+        post: operations["save_v1_workspace_configurations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/configurations/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Configuration */
+        get: operations["configuration_v1_workspace_configurations__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/configurations/{identifier}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run */
+        post: operations["run_v1_workspace_configurations__identifier__runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Runs */
+        get: operations["runs_v1_workspace_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/operations/interpret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Operation */
+        post: operations["operation_v1_workspace_operations_interpret_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -621,6 +914,27 @@ export interface components {
             /** Branch Id */
             branch_id: string;
         };
+        /** ConfigurationResponse */
+        ConfigurationResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.saved-configuration/1.0
+             * @constant
+             */
+            schema_version: "vivacity.saved-configuration/1.0";
+            /** Id */
+            id: string;
+            configuration: components["schemas"]["ExperimentConfiguration"];
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Sha256 */
+            sha256: string;
+            /**
+             * Deleted
+             * @default false
+             */
+            deleted: boolean;
+        };
         /** CreateWorld */
         CreateWorld: {
             /**
@@ -642,10 +956,66 @@ export interface components {
             /** Config */
             config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ClothConfig"] | null;
         };
+        /** CustomOperationRequest */
+        CustomOperationRequest: {
+            /** Prompt */
+            prompt: string;
+            /** Environment Id */
+            environment_id: string;
+        };
         /** EnvironmentPatch */
         EnvironmentPatch: {
             /** Config */
             config: components["schemas"]["RoboticsConfig"] | components["schemas"]["ClothConfig"];
+        };
+        /** EnvironmentProvenance */
+        EnvironmentProvenance: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "prebuilt" | "openai" | "worldlabs" | "imported";
+            /** Source Sha256 */
+            source_sha256: string;
+            /** Collision Scope */
+            collision_scope: string;
+        };
+        /** EnvironmentSpec */
+        EnvironmentSpec: {
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /**
+             * Dimensions M
+             * @default [
+             *       6,
+             *       6,
+             *       3
+             *     ]
+             */
+            dimensions_m: number[];
+            /**
+             * @default {
+             *       "ambient": 0.72,
+             *       "key_intensity": 3.2
+             *     }
+             */
+            lighting: components["schemas"]["Lighting"];
+            /**
+             * Geometries
+             * @default []
+             */
+            geometries: components["schemas"]["StaticGeometry"][];
         };
         /** EventResponse */
         EventResponse: {
@@ -667,8 +1037,127 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** ExperimentConfiguration */
+        ExperimentConfiguration: {
+            /**
+             * Schema Version
+             * @default vivacity.configuration/1.0
+             * @constant
+             */
+            schema_version: "vivacity.configuration/1.0";
+            /** Name */
+            name: string;
+            /** Environment Id */
+            environment_id: string;
+            /**
+             * Robot Id
+             * @default panda
+             * @enum {string}
+             */
+            robot_id: "panda" | "ur5e" | "iiwa" | "gen3" | "xarm7" | "scara" | "dual_arm";
+            /**
+             * Gripper Id
+             * @default panda_parallel
+             * @enum {string}
+             */
+            gripper_id: "panda_parallel" | "fold_fixture";
+            /**
+             * Operation Id
+             * @default pick_place
+             * @enum {string}
+             */
+            operation_id: "pick_place" | "object_transfer" | "reach" | "randomized_manipulation" | "cloth_fold" | "sorting" | "assembly" | "stacking" | "insertion" | "machine_tending";
+            /**
+             * Seed
+             * @default 7
+             */
+            seed: number;
+            /**
+             * Target Position
+             * @default [
+             *       0.5,
+             *       -0.15,
+             *       0.026
+             *     ]
+             */
+            target_position: number[];
+            /**
+             * Destination Position
+             * @default [
+             *       0.5,
+             *       0.18,
+             *       0.026
+             *     ]
+             */
+            destination_position: number[];
+            /**
+             * Object Half Sizes
+             * @default [
+             *       0.025,
+             *       0.025,
+             *       0.025
+             *     ]
+             */
+            object_half_sizes: number[];
+            /**
+             * Object Mass Kg
+             * @default 0.06
+             */
+            object_mass_kg: number;
+            /**
+             * Object Friction
+             * @default 1
+             */
+            object_friction: number;
+            /**
+             * Sort Property
+             * @default mass
+             * @enum {string}
+             */
+            sort_property: "mass" | "width";
+            /**
+             * Sort Threshold
+             * @default 0.08
+             */
+            sort_threshold: number;
+            /**
+             * Alternate Destination Position
+             * @default [
+             *       0.5,
+             *       0.35,
+             *       0.026
+             *     ]
+             */
+            alternate_destination_position: number[];
+            /**
+             * Trial Mode
+             * @default adaptive
+             * @enum {string}
+             */
+            trial_mode: "adaptive" | "fixed";
+            /**
+             * Validation Trials
+             * @default 3
+             */
+            validation_trials: number;
+            /**
+             * Randomization Cycles
+             * @default 1
+             */
+            randomization_cycles: number;
+            /**
+             * Realtime Speed
+             * @default 1
+             */
+            realtime_speed: number;
+        };
         /** ExperimentRequest */
         ExperimentRequest: {
+            /**
+             * Realtime Speed
+             * @default 1
+             */
+            realtime_speed: number;
             /**
              * Physics Trials
              * @default 0
@@ -768,13 +1257,106 @@ export interface components {
              */
             stale: boolean;
         };
+        /** GenerationRequest */
+        GenerationRequest: {
+            /** Prompt */
+            prompt: string;
+            /**
+             * Provider
+             * @default worldlabs
+             * @enum {string}
+             */
+            provider: "openai" | "worldlabs";
+            /**
+             * Seed
+             * @default 7
+             */
+            seed: number;
+            /**
+             * Model
+             * @default marble-1.0-draft
+             * @enum {string}
+             */
+            model: "marble-1.0-draft" | "marble-1.1";
+        };
+        /** GenerationResponse */
+        GenerationResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.generation/1.0
+             * @constant
+             */
+            schema_version: "vivacity.generation/1.0";
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "interpreting" | "generating" | "receiving" | "completed" | "failed";
+            /** Provider */
+            provider: string;
+            /** Prompt */
+            prompt: string;
+            /** Seed */
+            seed: number;
+            /** Model */
+            model: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** World Id */
+            world_id?: string | null;
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Updated Unix S */
+            updated_unix_s: number;
+            /** Error */
+            error?: string | null;
+            interpretation?: components["schemas"]["EnvironmentSpec"] | null;
+            /** Provider Cost Credits */
+            provider_cost_credits?: number | null;
+            /**
+             * Events
+             * @default []
+             */
+            events: {
+                [key: string]: unknown;
+            }[];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** ImportMapping */
+        ImportMapping: {
+            /** Name */
+            name: string;
+            /**
+             * Scale
+             * @default 1
+             */
+            scale: number;
+            /**
+             * Position M
+             * @default [
+             *       2.5,
+             *       2.5,
+             *       0.5
+             *     ]
+             */
+            position_m: number[];
+            /**
+             * Up Axis
+             * @default y
+             * @enum {string}
+             */
+            up_axis: "y" | "z";
+        };
         /** ImportPreview */
         ImportPreview: {
+            /** Source Bounds M */
+            source_bounds_m?: number[][] | null;
             /** Positions */
             positions: number[][];
             /** Indices */
@@ -838,6 +1420,76 @@ export interface components {
             /** Configured World Id */
             configured_world_id?: string | null;
         };
+        /** LibraryWorld */
+        LibraryWorld: {
+            /**
+             * Schema Version
+             * @default vivacity.library/1.0
+             * @constant
+             */
+            schema_version: "vivacity.library/1.0";
+            /** Id */
+            id: string;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "prebuilt" | "openai" | "worldlabs" | "imported";
+            spec: components["schemas"]["EnvironmentSpec"];
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Sha256 */
+            sha256: string;
+            /** Import Id */
+            import_id?: string | null;
+            /** Provider World Id */
+            provider_world_id?: string | null;
+            /** Provider Url */
+            provider_url?: string | null;
+            /**
+             * Preview Available
+             * @default false
+             */
+            preview_available: boolean;
+            /** Physics Scope */
+            physics_scope: string;
+            /** Mapping */
+            mapping?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Deleted
+             * @default false
+             */
+            deleted: boolean;
+            /**
+             * Editable
+             * @default true
+             */
+            editable: boolean;
+        };
+        /** Lighting */
+        Lighting: {
+            /**
+             * Ambient
+             * @default 0.72
+             */
+            ambient: number;
+            /**
+             * Key Intensity
+             * @default 3.2
+             */
+            key_intensity: number;
+        };
         /** LiveState */
         LiveState: {
             /**
@@ -860,6 +1512,11 @@ export interface components {
             frame: {
                 [key: string]: unknown;
             };
+        };
+        /** RenameRequest */
+        RenameRequest: {
+            /** Name */
+            name: string;
         };
         /** ReplayResponse */
         ReplayResponse: {
@@ -884,8 +1541,30 @@ export interface components {
                 [key: string]: unknown;
             }[];
         };
+        /** ResolvedConfiguration */
+        ResolvedConfiguration: {
+            world: components["schemas"]["CreateWorld"];
+            session: components["schemas"]["SessionRequest"];
+            /** Provenance */
+            provenance: {
+                [key: string]: unknown;
+            };
+        };
         /** RoboticsConfig */
         RoboticsConfig: {
+            /**
+             * Robot Model
+             * @default panda
+             * @enum {string}
+             */
+            robot_model: "panda" | "ur5e" | "iiwa" | "gen3" | "xarm7" | "scara" | "dual_arm";
+            /**
+             * Physical Operation
+             * @default pick_place
+             * @enum {string}
+             */
+            physical_operation: "pick_place" | "sorting" | "assembly" | "stacking" | "insertion" | "machine_tending";
+            sorting_rule?: components["schemas"]["SortingRule"] | null;
             /**
              * Task
              * @default reach
@@ -967,6 +1646,19 @@ export interface components {
              *     ]
              */
             target_position: number[];
+            /**
+             * Scene Geometries
+             * @default []
+             */
+            scene_geometries: components["schemas"]["StaticGeometry"][];
+            environment?: components["schemas"]["EnvironmentProvenance"] | null;
+        };
+        /** RunOverrides */
+        RunOverrides: {
+            /** Config */
+            config?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** SessionRequest */
         SessionRequest: {
@@ -988,6 +1680,11 @@ export interface components {
             seed: number;
             /** Config */
             config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ClothConfig"] | null;
+            /**
+             * Realtime Speed
+             * @default 1
+             */
+            realtime_speed: number;
             /**
              * Physics Trials
              * @default 0
@@ -1074,6 +1771,20 @@ export interface components {
                 [key: string]: unknown;
             }[];
         };
+        /** SortingRule */
+        SortingRule: {
+            /**
+             * Property
+             * @default mass
+             * @enum {string}
+             */
+            property: "mass" | "width";
+            /**
+             * Threshold
+             * @default 0.08
+             */
+            threshold: number;
+        };
         /** StateResponse */
         StateResponse: {
             /**
@@ -1090,6 +1801,36 @@ export interface components {
             observation: {
                 [key: string]: unknown;
             };
+        };
+        /** StaticGeometry */
+        StaticGeometry: {
+            /** Name */
+            name: string;
+            /**
+             * Type
+             * @default box
+             * @enum {string}
+             */
+            type: "box" | "cylinder";
+            /** Position */
+            position: number[];
+            /** Size */
+            size: number[];
+            /**
+             * Rgba
+             * @default [
+             *       0.4,
+             *       0.45,
+             *       0.5,
+             *       1
+             *     ]
+             */
+            rgba: number[];
+            /**
+             * Friction
+             * @default 0.8
+             */
+            friction: number;
         };
         /** TemplateCatalog */
         TemplateCatalog: {
@@ -1273,6 +2014,703 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    capabilities_v1_workspace_capabilities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    worlds_v1_workspace_worlds_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryWorld"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    duplicate_world_v1_workspace_worlds_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    world_v1_workspace_worlds__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_v1_workspace_worlds__identifier__patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    archive_v1_workspace_worlds__identifier__archive_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_v1_workspace_worlds__identifier__restore_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_v1_workspace_worlds__identifier__preview_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_v1_workspace_imports_post: {
+        parameters: {
+            query: {
+                filename: string;
+            };
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    map_import_v1_workspace_imports__identifier__map_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportMapping"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generations_v1_workspace_generations_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_v1_workspace_generations_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generation_v1_workspace_generations__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_retrieval_v1_workspace_generations__identifier__retry_retrieval_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_v1_workspace_configurations_resolve_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExperimentConfiguration"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolvedConfiguration"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    configurations_v1_workspace_configurations_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigurationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_v1_workspace_configurations_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExperimentConfiguration"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigurationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    configuration_v1_workspace_configurations__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigurationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_v1_workspace_configurations__identifier__runs_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunOverrides"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    runs_v1_workspace_runs_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    operation_v1_workspace_operations_interpret_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomOperationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_health_get: {
         parameters: {
             query?: never;

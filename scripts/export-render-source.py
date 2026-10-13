@@ -14,6 +14,8 @@ files += [root / 'fixtures/imports/orbital_salvage_lab.zip', root / 'fixtures/im
 files += [root / name for name in ('Dockerfile', '.dockerignore', 'requirements-lock.txt', 'render.yaml', '.github/workflows/backend-linux.yml', '.github/workflows/backend-physics-5000.yml', 'scripts/audit-varied-physics.py')]
 files += [root / name for name in subprocess.check_output(
     ['git', 'ls-files', 'assets/menagerie/franka_emika_panda'], cwd=root, text=True).splitlines()]
+for model in ('universal_robots_ur5e','kuka_iiwa_14','kinova_gen3','ufactory_xarm7'):
+    files += [p for p in (root/'assets/menagerie'/model).rglob('*') if p.is_file()]
 manifest = {}
 for source in sorted(set(files)):
     relative = source.relative_to(root)

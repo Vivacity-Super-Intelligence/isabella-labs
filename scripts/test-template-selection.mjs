@@ -6,12 +6,12 @@ import {changeSelection} from '../frontend/src/templateSelection.ts';
 const catalog = JSON.parse(readFileSync(new URL('../frontend/src/generated/templates.json', import.meta.url), 'utf8'));
 const initial = {arm:'panda', world:'manufacturing', task:'pick_place'};
 const worlds = ['manufacturing', 'warehouse', 'inspection', 'cluttered'];
-const combinations = worlds.flatMap(world => ['pick_place', 'obstacle_transfer'].map(task => ({arm:'panda',world,task})));
+const combinations = catalog.arms.filter(a=>a.status!=='reference').flatMap(arm=>worlds.flatMap(world => ['pick_place', 'obstacle_transfer','assembly','machine_tending'].map(task => ({arm:arm.id,world,task}))));
 combinations.push({arm:'panda',world:'textile',task:'cloth_fold'});
 const key = s => `${s.arm}:${s.world}:${s.task}`;
 const supported = new Set(combinations.map(key));
 
-test('all 135 catalog interactions stay within the nine executable combinations', () => {
+test('all catalog interactions preserve executable robot/world/task combinations', () => {
   let count = 0;
   for (const current of combinations) {
     for (const [field, options] of [['arm',catalog.arms], ['world',catalog.worlds], ['task',catalog.tasks]]) {
@@ -24,7 +24,7 @@ test('all 135 catalog interactions stay within the nine executable combinations'
       }
     }
   }
-  assert.equal(count, 135);
+  assert.equal(count, combinations.length*15);
 });
 
 test('unimplemented and unknown choices cannot replace a working selection', () => {

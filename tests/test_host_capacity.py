@@ -40,3 +40,21 @@ def test_all_labs_execute_sequentially_in_host_container(tmp_path, monkeypatch):
             replay = client.get(f'/v1/experiments/{eid}/replay').json()
             assert all(branch['frames'] for branch in replay['branches'])
             assert experiment['result']['execution_evaluation']['success']
+
+
+def test_every_available_arm_executes_in_host_container(tmp_path,monkeypatch):
+    monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS','1')
+    monkeypatch.setenv('VIVACITY_MAX_PICKUP_WALL_SECONDS','300')
+    with TestClient(create_app(tmp_path/'arms.sqlite')) as client:
+        for arm in ('panda','ur5e','iiwa','gen3','xarm7','scara','dual_arm'):
+            response=client.post('/v1/worlds',json={'backend':'mujoco','seed':7,'config':{'task':'pick_place','robot_model':arm,'obstacle_enabled':False}})
+            assert response.status_code==201,response.text
+            eid=client.post(f"/v1/worlds/{response.json()['id']}/experiments",json={'physics_trials':3,'search_candidates':3,'max_simulation_seconds':40}).json()['id']
+            deadline=time.monotonic()+120
+            while True:
+                experiment=client.get(f'/v1/experiments/{eid}').json()
+                if experiment['status'] not in ('queued','running'):break
+                assert time.monotonic()<deadline,(arm,experiment)
+                time.sleep(.05)
+            assert experiment['status']=='completed' and experiment['selected_branch_id'],(arm,experiment)
+            assert experiment['performance']['trial_count']==3

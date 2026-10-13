@@ -9,7 +9,41 @@ class Schema(BaseModel):
 Vec3 = Annotated[list[float], Field(min_length=3, max_length=3)]
 
 
+class StaticGeometry(Schema):
+    name: str = Field(min_length=1, max_length=60, pattern=r'^[A-Za-z][A-Za-z0-9_-]*$')
+    type: Literal['box', 'cylinder'] = 'box'
+    position: Vec3
+    size: Vec3
+    rgba: Annotated[list[float], Field(min_length=4, max_length=4)] = [.4, .45, .5, 1.]
+    friction: float = Field(.8, ge=.05, le=2.)
+
+    @model_validator(mode='after')
+    def bounded_geometry(self):
+        if any(abs(v) > 8 for v in self.position) or any(not .005 <= v <= 8 for v in self.size):
+            raise ValueError('static geometry exceeds the 16 m scene bounds')
+        if any(not 0 <= v <= 1 for v in self.rgba) or self.rgba[3] != 1:
+            raise ValueError('collision geometry requires opaque RGBA values in 0..1')
+        return self
+
+
+class EnvironmentProvenance(Schema):
+    id: str = Field(max_length=80)
+    name: str = Field(max_length=100)
+    version: int = Field(1, ge=1)
+    source: Literal['prebuilt', 'openai', 'worldlabs', 'imported']
+    source_sha256: str = Field(pattern=r'^[a-f0-9]{64}$')
+    collision_scope: str = Field(max_length=400)
+
+
+class SortingRule(Schema):
+    property: Literal['mass','width'] = 'mass'
+    threshold: float = Field(.08, ge=.01, le=.2)
+
+
 class RoboticsConfig(Schema):
+    robot_model: Literal['panda','ur5e','iiwa','gen3','xarm7','scara','dual_arm'] = 'panda'
+    physical_operation: Literal['pick_place','sorting','assembly','stacking','insertion','machine_tending'] = 'pick_place'
+    sorting_rule: SortingRule | None = None
     task: Literal['reach', 'pick_place'] = 'reach'
     scene_profile: Literal['workcell', 'orbital_salvage'] = 'workcell'
     source_import_id: str | None = None
@@ -23,13 +57,20 @@ class RoboticsConfig(Schema):
     obstacle_position: Vec3 = [0.45, 0.04, 0.22]
     obstacle_size: Vec3 = [0.055, 0.13, 0.22]
     target_position: Vec3 = [0.55, 0.28, 0.22]
+    scene_geometries: Annotated[list[StaticGeometry], Field(max_length=24)] = []
+    environment: EnvironmentProvenance | None = None
 
     @model_validator(mode='after')
     def bounds(self):
+        if self.physical_operation=='sorting' and self.sorting_rule is None:
+            raise ValueError('sorting requires a bounded physical-property classification rule')
+        if len({g.name for g in self.scene_geometries}) != len(self.scene_geometries):
+            raise ValueError('static geometry names must be unique')
         half_sizes = self.cube_half_sizes or [self.cube_half_size] * 3
         if any(not 0.02 <= half <= 0.03 for half in half_sizes):
             raise ValueError('object half-dimensions must be 0.02..0.03 m')
         if self.scene_profile == 'orbital_salvage':
+            if self.robot_model!='panda' or self.physical_operation!='pick_place':raise ValueError('Orbital fixture currently uses Panda pickup only')
             if self.task != 'pick_place' or not self.source_import_id:
                 raise ValueError('Orbital task requires pickup and a verified source import')
             if abs(self.obstacle_size[0]-self.obstacle_size[1]) > 1e-8:
@@ -38,15 +79,16 @@ class RoboticsConfig(Schema):
                 raise ValueError('Orbital cargo geometry is fixed by its adapted source fixture')
             if self.cube_half_sizes is not None:
                 raise ValueError('Orbital cargo dimensions are fixed by its adapted source fixture')
-        for point in (self.cube_position, self.placement_position):
+        for index,point in enumerate((self.cube_position, self.placement_position)):
             if self.task == 'pick_place' and self.scene_profile == 'workcell':
                 inside = (-.3 + half_sizes[0] + .001 <= point[0] <= 1.1 - half_sizes[0] - .001
                           and -.65 + half_sizes[1] + .001 <= point[1] <= .65 - half_sizes[1] - .001)
             else:
                 inside = .15 <= point[0] <= .8 and abs(point[1]) <= .45
-            if not (inside and .02 <= point[2] <= .032):
+            z_ok=.02 <= point[2] <= .032 if not (index==1 and self.physical_operation=='stacking') else abs(point[2]-(3*half_sizes[2]+.001))<=.002
+            if not (inside and z_ok):
                 raise ValueError('pickup and placement centers must be on the supported table workspace')
-        if self.task == 'pick_place' and any(abs(point[2] - (half_sizes[2] + .001)) > .002 for point in (self.cube_position, self.placement_position)):
+        if self.task == 'pick_place' and any(abs(point[2] - ((3 if index==1 and self.physical_operation=='stacking' else 1)*half_sizes[2] + .001)) > .002 for index,point in enumerate((self.cube_position, self.placement_position))):
             raise ValueError('pickup and placement center heights must match the cube size')
         # Coordinates supplied by range controls are binary floats. Accept the
         # exact 10 cm boundary despite harmless representation error.
@@ -86,6 +128,7 @@ class CreateWorld(Schema):
 
 
 class ExperimentRequest(Schema):
+    realtime_speed: float = Field(1., ge=.25, le=4.)
     physics_trials: int = Field(0, ge=0, le=5000)
     adaptive_trials: bool = False
     execute_selected: bool = False
@@ -140,6 +183,7 @@ class ImportResponse(Schema):
 
 
 class ImportPreview(Schema):
+    source_bounds_m: list[Vec3] | None = None
     positions: list[Vec3]
     indices: list[int]
     vertex_count: int
@@ -259,6 +303,7 @@ class BranchExport(Schema):
 
 
 class SessionRequest(CreateWorld):
+    realtime_speed: float = Field(1., ge=.25, le=4.)
     physics_trials: int = Field(0, ge=0, le=5000)
     adaptive_trials: bool = False
     max_cycles: int = Field(4, ge=1, le=8)

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, APIError, errorMessage, liveProtocols, liveWebsocketURL, setSessionToken, websocketURL } from './api';
 import { simulatedPerception, type Backend, type World, type Experiment, type Branch, type Event, type Dict, type SimulatedPerception } from './domain';
 import type { components } from './generated/api';
+import {workspaceApi} from './workspaceApi';
 
 type Session = components['schemas']['SessionResponse'];
 type Live = components['schemas']['LiveState'];
@@ -9,20 +10,21 @@ const get=(key:string)=>{try{return localStorage.getItem(`vivacity:${key}`);}cat
 const put=(key:string,value:string)=>{try{localStorage.setItem(`vivacity:${key}`,value);}catch{/* Optional persistence. */}};
 const pending=new Map<string,Promise<Session>>();
 function freshToken(){return crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','');}
-async function ensureSession(backend:Backend,storageKey:string,config?:Dict,fresh=false){
+async function ensureSession(backend:Backend,storageKey:string,config?:Dict,fresh=false,configurationId?:string){
   if(!pending.has(storageKey)){
     const work=(async()=>{
       const id=get(`${storageKey}:session`),token=get(`${storageKey}:token`);
       if(!fresh&&id&&token){setSessionToken(token);try{return await api.session(id);}catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}}
-      const capability=freshToken();setSessionToken(capability);
-      const session=await api.createSession(backend,capability,config);
+      const configured=configurationId?await workspaceApi.start(configurationId,config):null;
+      const capability=configured?.session_token??freshToken();setSessionToken(capability);
+      const session=configured?.session??await api.createSession(backend,capability,config);
       put(`${storageKey}:token`,capability);put(`${storageKey}:session`,session.id);return session;
     })().finally(()=>pending.delete(storageKey));pending.set(storageKey,work);
   }
   return pending.get(storageKey)!;
 }
 export const isBusy=(e:Experiment|null)=>e?.status==='queued'||e?.status==='running';
-export function useRuntime(backend:Backend,templateKey="default",initialConfig?:Dict){
+export function useRuntime(backend:Backend,templateKey="default",initialConfig?:Dict,configurationId?:string){
   const storageKey=`robotics-v2:${backend}:${templateKey}`;
   const [session,setSession]=useState<Session|null>(null),[world,setWorld]=useState<World|null>(null);
   const [observation,setObservation]=useState<Dict|null>(null),[experiment,setExperiment]=useState<Experiment|null>(null);
@@ -177,7 +179,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
     }
   },[]);
   const start=()=>perform(async()=>{
-    await stop();inspecting.current=false;const s=await ensureSession(backend,storageKey,stagedConfig.current??currentWorld.current?.config,true);await adopt(s,generation.current);
+    await stop();inspecting.current=false;const s=await ensureSession(backend,storageKey,stagedConfig.current??currentWorld.current?.config,true,configurationId);await adopt(s,generation.current);
   });
   const togglePause=()=>perform(async()=>{
     const s=currentSession.current;if(!s||s.status!=='active')return;
