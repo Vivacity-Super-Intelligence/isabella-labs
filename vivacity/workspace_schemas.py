@@ -12,7 +12,7 @@ class Lighting(Schema):
 class EnvironmentSpec(Schema):
     name: str = Field(min_length=1, max_length=64)
     description: str = Field(min_length=1, max_length=800)
-    dimensions_m: Vec3 = [6., 6., 3.]
+    dimensions_m: Annotated[list[Annotated[float,Field(ge=1,le=16)]],Field(min_length=3,max_length=3)] = [6., 6., 3.]
     lighting: Lighting = Lighting()
     geometries: Annotated[list[StaticGeometry], Field(max_length=24)] = []
 

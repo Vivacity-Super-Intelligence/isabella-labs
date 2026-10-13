@@ -223,14 +223,14 @@
   "vivacity/robotics.py": "71c272d6d2ec6032eed4b0a5895423129abec6f468d8529d38a960932ecf5a91",
   "vivacity/runtime.py": "a0f134fd698d45942755b7fa69e1a014fa9e3c3ffd753caeb61affd859cb7c3a",
   "vivacity/scene.py": "13432d8d95d9df9f8ea4a04b8a0c00e25d894b6a5b17d736089365ccb16491ad",
-  "vivacity/schemas.py": "5797be04bb800bb72827f9d0fbbbf1d5e3ded09f960a9808f7499c6cbb350cd2",
+  "vivacity/schemas.py": "f87e8ffc636b54b07639dd3299ae6fb9f65f1205db8e5456ff0602d5be5b972d",
   "vivacity/search.py": "0c3bdbecc8c0d71787ffe861d17cdedb1cc131868b02465dc84cfd3056ca58ef",
   "vivacity/storage.py": "68d08cae9a1dc5a07ab5d238904d05b3c9652765498d42b3a08e571bb1669bb7",
   "vivacity/supervisor.py": "2d8dada2dda1cb1c82e7e5a4acdd33bf42721537bc1b998403598c54ae1e3b5f",
   "vivacity/templates.py": "6ed6af838f8c0f89c28a2ad3d7b7338028d5875c4a1328b3e9daf62a9d17351d",
   "vivacity/workspace.py": "94d01682ff68e4d200ade31242f7d6f4320547dd0014fc55f4049ddd4b375631",
   "vivacity/workspace_api.py": "825db2d97859cf117d2aa501b1f863b472a7cfbe4e85b273f38f05d89de8e063",
-  "vivacity/workspace_schemas.py": "855fafcef2858ec030bc2d30aede558823ab816c2e7bf50e4f1bb6315724fca4",
+  "vivacity/workspace_schemas.py": "729e610b2d43787680ec37f3c9a9991fd83b1585d18b1aec2347d35ca1d73599",
   "vivacity/world_presets.py": "74863cea8e2d22e451e85c1119166f8abf4b3f13da1a707f9cc1e5cb1896fe1e",
   ".github/workflows/backend-host-memory.yml": "b7757c00c074e880c4ca1fee0d9f0ac1615e87eb9bea6927069c0e2962970197",
   "vivacity/visual_catalog.json": "f32d6509c8c1e6b422fd89e93d4af2690cf8ef7b8a7d49d59bc35f5c7f1904d6",
@@ -244,5 +244,5 @@
   "tests/test_physical_platform.py": "43a7bebf6f2df025ce3b07379631f9e1e47ba67a0c13529b82df80663e8a094b",
   "vivacity/spatial.py": "90bf641d4c1c2bd9f9152a80a7e31c33b19318b5d4e8664350c7c68388467e99",
   "vivacity/variation.py": "31faf80ac97f8f83f84ea2667e0d7bddfb8de9daf5e1b592cb997712b1850bfd",
-  "tests/test_spatial_pipeline.py": "ce7010d1a04f45120fa09a3e0226ee17d567daeff6c0311739e69c21b39e8042"
+  "tests/test_spatial_pipeline.py": "16fc6aac0cb52d73333684238f5bc5dd9ec4a71925ca8f7dac3cd2ee982140c5"
 }
