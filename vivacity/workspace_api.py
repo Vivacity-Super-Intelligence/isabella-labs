@@ -10,6 +10,7 @@ from .registry import registry
 from .workspace import owner
 from .providers import ProviderError
 from .imports import MAX_UPLOAD
+from .schemas import ImportPreview
 
 Token=Annotated[str,Header(alias='X-Workspace-Token',min_length=32,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
 Key=Annotated[str,Header(alias='Idempotency-Key',min_length=8,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
@@ -52,7 +53,7 @@ def archive(identifier:str,request:Request,x_workspace_token:Token):return reque
 def restore(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.set_deleted(identifier,x_workspace_token,False)
 
 
-@router.get('/worlds/{identifier}/preview')
+@router.get('/worlds/{identifier}/preview',response_model=ImportPreview)
 def preview(identifier:str,request:Request,x_workspace_token:Token):
     record=request.app.state.workspace.world(identifier,x_workspace_token)
     if not record.get('import_id'):raise ValueError('primitive scenes use their typed scene specification for preview')

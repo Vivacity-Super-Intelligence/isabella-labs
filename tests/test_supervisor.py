@@ -113,7 +113,8 @@ def test_selected_pickup_is_fresh_physics_execution_and_live_state(runtime):
     assert live['action']['execution_role']=='authoritative_execution'
     assert live['performance']['simulation_steps']>1000 and live['initial_state']==branches[0]['initial_state']
     latest=runtime.live(e['id'])
-    assert latest['stage']=='verified' and latest['sequence']>100
+    assert latest['stage']=='verified' and latest['sequence']>=len(live['trace'])-2
+    assert latest['frame']['time']==live['final_state']['integration_state'][0]
     assert latest['frame']['cube_position']==live['evaluation']['final_cube_position']
     assert runtime.get_world(done['world_id'])['state']==live['final_state']
     assert not e['stale']

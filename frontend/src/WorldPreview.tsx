@@ -33,6 +33,12 @@ function PreviewControls({target,distance}:{target:[number,number,number];distan
   return <OrbitControls ref={controls} makeDefault enableDamping={false} target={target}/>;
 }
 
+function PreviewRefresh({revision}:{revision:unknown}){
+  const {invalidate}=useThree();
+  useEffect(()=>{invalidate();},[invalidate,revision]);
+  return null;
+}
+
 export default function WorldPreview({world}:{world:LibraryWorld}){
   const [preview,setPreview]=useState<components['schemas']['ImportPreview']|null>(null),[error,setError]=useState<string|null>(null);
   useEffect(()=>{let active=true;setPreview(null);setError(null);if(world.preview_available)workspaceApi.preview(world.id).then(p=>active&&setPreview(p)).catch(()=>active&&setError('Original geometry preview could not load. The collision specification remains available.'));return()=>{active=false;};},[world.id]);
@@ -42,6 +48,6 @@ export default function WorldPreview({world}:{world:LibraryWorld}){
     <ambientLight intensity={world.spec.lighting.ambient}/><directionalLight position={[2,-2,6]} intensity={world.spec.lighting.key_intensity}/>
     <mesh position={[.4,0,-.04]}><boxGeometry args={[1.4,1.3,.08]}/><meshStandardMaterial color="#b9ae95"/></mesh>
     {world.spec.geometries.filter(g=>!preview||g.name!=='import_collision_proxy').map(g=><mesh key={g.name} position={g.position as [number,number,number]} rotation={g.type==='cylinder'?[Math.PI/2,0,0]:undefined}>{g.type==='box'?<boxGeometry args={g.size.map(v=>v*2) as [number,number,number]}/>:<cylinderGeometry args={[g.size[0],g.size[0],g.size[1]*2,24]}/>}<meshStandardMaterial color={`rgb(${g.rgba.slice(0,3).map(v=>Math.round(v*255)).join(',')})`}/></mesh>)}
-    {preview&&world.mapping&&<ImportedVisual preview={preview} mapping={world.mapping}/>}<PreviewControls target={focus} distance={distance}/>
-  </Canvas></SceneBoundary></div><p className="small">Static geometry preview. Drag to orbit or focus the preview and use arrow keys, +/− to zoom, R to reset. Loading an environment initializes physics; it does not start an experiment.</p>{error&&<p role="alert" className="negative">{error}</p>}</>;
+    {preview&&world.mapping&&<ImportedVisual preview={preview} mapping={world.mapping}/>}<PreviewControls target={focus} distance={distance}/><PreviewRefresh revision={preview}/>
+  </Canvas></SceneBoundary></div><p className="small">{world.source==='worldlabs'?'Reduced collider preview. Display triangles are sampled; textures and Gaussian splats are not rendered.':'Static geometry preview.'} Drag to orbit or focus the preview and use arrow keys, +/− to zoom, R to reset. Loading an environment initializes physics; it does not start an experiment.</p>{error&&<p role="alert" className="negative">{error}</p>}</>;
 }

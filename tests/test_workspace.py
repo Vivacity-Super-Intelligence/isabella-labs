@@ -48,6 +48,10 @@ def test_import_mapping_uses_actual_uploaded_geometry_and_capability(tmp_path):
         record=client.post('/v1/workspace/imports?filename=triangle.obj',headers=OWNER,content=obj)
         assert record.status_code==201,record.text
         identifier=record.json()['id']
+        legacy=client.app.state.imports._load(identifier)
+        legacy['preview']['indices']=[[0,1,2]]
+        legacy['preview'].pop('coordinate_system')
+        client.app.state.imports._save(legacy)
         assert client.get('/v1/imports/'+identifier,headers=OTHER).status_code==403
         assert client.get('/v1/imports/'+identifier,headers=OWNER).status_code==200
         assert client.post('/v1/workspace/imports/'+identifier+'/map',headers=OTHER,json={'name':'Private triangle'}).status_code==404
@@ -55,6 +59,7 @@ def test_import_mapping_uses_actual_uploaded_geometry_and_capability(tmp_path):
         assert mapped.status_code==201,mapped.text
         world=mapped.json();preview=client.get('/v1/workspace/worlds/'+world['id']+'/preview',headers=OWNER).json()
         assert preview['vertex_count']==3 and preview['triangle_count']==1
+        assert preview['indices']==[0,1,2] and preview['coordinate_system']
         assert world['spec']['geometries'][0]['size']==[.25,.005,.25]
         assert world['mapping']['source_sha256']==record.json()['sha256']
         copied=client.post('/v1/workspace/worlds',headers=OWNER,json={'source_id':world['id']}).json()
@@ -138,6 +143,8 @@ def test_provider_preview_reduction_preserves_full_collision_bounds():
     content=struct.pack('<4sII',b'glTF',2,28+len(metadata)+len(raw))+struct.pack('<II',len(metadata),0x4e4f534a)+metadata+struct.pack('<II',len(raw),0x004e4942)+raw
     preview,_=gltf_preview(content,'.glb',{},reduce_preview=True)
     assert preview['triangle_count']<=25000
+    assert all(type(index) is int for index in preview['indices'])
+    assert len(preview['indices'])==preview['triangle_count']*3
     assert preview['source_bounds_m']==[[0,0,0],[9,4,2]]
 
 
@@ -151,13 +158,13 @@ def test_machine_closure_respects_timeout_and_cancellation():
     assert steps==0 and failure=='cancelled'
 
 
-@pytest.mark.parametrize('arm',['panda','ur5e'])
+@pytest.mark.parametrize('arm',['panda','ur5e','dual_arm'])
 def test_native_object_environment_collision_is_measured(arm,monkeypatch):
     from vivacity.native_pick_place import NativePickup
     monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS','1')
     backend=PickPlaceBackend() if arm=='panda' else ModelPickupBackend(arm)
     config=RoboticsConfig(task='pick_place',robot_model=arm,obstacle_enabled=False,
-        scene_geometries=[{'name':'collision_fixture','type':'box','position':[.5,-.15,.03],'size':[.06,.06,.02]}]).model_dump()
+        scene_geometries=[{'name':'collision_fixture','type':'box','position':[-1.4,0,.35] if arm=='dual_arm' else [.5,-.15,.03],'size':[.08,.08,.08] if arm=='dual_arm' else [.06,.06,.02]}]).model_dump()
     world=backend.create_world(config,7);start=world.data.qpos[:backend.arm_dof].tolist()
     stage={'phase':'approach','start':start,'goal':start,'duration_s':.02,'dwell_s':.02,'gripper':255}
     action={'kind':'pick_place','stages':[stage.copy() for _ in range(8)],'planning_feasible':True}
