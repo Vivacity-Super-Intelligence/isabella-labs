@@ -44,6 +44,9 @@ def test_nearly_flat_heldout_interval_has_no_misleading_r_squared():
     assert result['models']
     assert all(model['validation']['r2'] is None for model in result['models'])
     assert all(math.isfinite(model['validation']['rmse']) for model in result['models'])
+    mildly_flat=[(i*.1,math.sin(i*.1) if i<80 else .01*math.sin(i*.1)) for i in range(100)]
+    result=discover(mildly_flat,'low-variation-future','power')
+    assert all(model['validation']['r2'] is None for model in result['models'])
 
 
 def test_desmos_equations_expand_scientific_notation():

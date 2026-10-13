@@ -7,7 +7,7 @@ blocking the physics lane. It starts at 25 recorded samples and refreshes in
 quadratic, cubic, exponential, sinusoidal, damped sinusoidal and piecewise
 linear models. Fitting starts after 25 finite samples. This is trajectory
 description within a run, not physical-law discovery or a causal estimate.
-R² is `null` when held-out variance is less than 0.1% of training variance;
+R² is `null` when held-out standard deviation is less than 5% of training standard deviation;
 RMSE and MAE remain available instead of displaying an unstable quotient.
 
 ## API
