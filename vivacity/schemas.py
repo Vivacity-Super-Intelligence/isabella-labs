@@ -40,7 +40,33 @@ class SortingRule(Schema):
     threshold: float = Field(.08, ge=.01, le=.2)
 
 
+MaterialId = Literal['custom', 'steel', 'aluminium', 'rubber', 'wood', 'plastic', 'glass', 'concrete', 'cardboard']
+
+
+class PhysicsSettings(Schema):
+    schema_version: Literal['vivacity.physics/1.0'] = 'vivacity.physics/1.0'
+    gravity_m_s2: float = Field(9.81, ge=0., le=20.)
+    air_density_kg_m3: float = Field(0., ge=0., le=5.)
+    air_viscosity_pa_s: float = Field(0., ge=0., le=.001)
+    wind_velocity_m_s: Vec3 = [0., 0., 0.]
+    blunt_drag_coefficient: float = Field(.5, ge=0., le=3.)
+    contact_damping_ratio: float = Field(1., ge=.2, le=1.)
+    gripper_force_scale: float = Field(1., ge=.05, le=1.)
+    object_force_n: Vec3 = [0., 0., 0.]
+    object_torque_nm: Vec3 = [0., 0., 0.]
+
+    @model_validator(mode='after')
+    def bounded_inputs(self):
+        if any(abs(v)>20. for v in self.wind_velocity_m_s):
+            raise ValueError('wind components must be within ±20 m/s')
+        if any(abs(v)>2. for v in self.object_force_n) or any(abs(v)>.2 for v in self.object_torque_nm):
+            raise ValueError('object forces must be within ±2 N; torques within ±0.2 Nm')
+        return self
+
+
 class RoboticsConfig(Schema):
+    physics: PhysicsSettings = PhysicsSettings()
+    object_material: MaterialId = 'custom'
     robot_model: Literal['panda','ur5e','iiwa','gen3','xarm7','scara','dual_arm'] = 'panda'
     physical_operation: Literal['pick_place','sorting','assembly','stacking','insertion','machine_tending'] = 'pick_place'
     sorting_rule: SortingRule | None = None

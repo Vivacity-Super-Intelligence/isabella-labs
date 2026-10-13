@@ -141,6 +141,9 @@ class WorkspaceService:
         if configuration.validation_trials>self.runtime.max_physics_trials:
             raise ValueError(f'This host permits at most {self.runtime.max_physics_trials} full validation trials.')
         if configuration.operation_id=='cloth_fold':
+            from .schemas import PhysicsSettings
+            if configuration.physics != PhysicsSettings() or configuration.object_material!='custom':
+                raise ValueError('Configurable air/material/force settings currently apply to rigid robotics tasks, not the dedicated cloth fixture.')
             if scene['id']!='textile_fixture':raise ValueError('Choose the textile fixture for cloth folding.')
             world=CreateWorld(backend='cloth',seed=configuration.seed)
         else:
@@ -152,6 +155,7 @@ class WorkspaceService:
                         physical_operation=configuration.operation_id if configuration.operation_id in ('sorting','assembly','stacking','insertion','machine_tending') else 'pick_place',obstacle_enabled=False,
                         cube_position=[*configuration.target_position[:2],configuration.object_half_sizes[2]+.001],placement_position=[*configuration.destination_position[:2],configuration.object_half_sizes[2]+.001],
                         cube_half_sizes=configuration.object_half_sizes,cube_mass=configuration.object_mass_kg,cube_friction=configuration.object_friction,
+                        physics=configuration.physics.model_dump(),object_material=configuration.object_material,
                         scene_geometries=scene['spec']['geometries'],environment=metadata.model_dump())
             if configuration.operation_id=='stacking':config['placement_position']=[*configuration.destination_position[:2],3*configuration.object_half_sizes[2]+.001]
             if configuration.operation_id=='sorting':

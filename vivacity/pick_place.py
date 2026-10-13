@@ -56,6 +56,8 @@ class PickPlaceBackend(RoboticsBackend):
             adapt_scene(root, config)
         from .scene import append_scene
         append_scene(wb, config, root)
+        from .physical_properties import configure_xml
+        configure_xml(root, config)
         physical_root = deepcopy(root)
         physical_root.find('compiler').set('meshdir', 'assets')
         digest = hashlib.sha256((ET.tostring(physical_root, encoding='unicode') + asset_digest() + self.version).encode()).hexdigest()
@@ -76,6 +78,8 @@ class PickPlaceBackend(RoboticsBackend):
         data.ctrl[:self.arm_dof] = data.qpos[:self.arm_dof]; data.ctrl[self.arm_dof] = 255
         from .scene import initialize_task
         initialize_task(model,data,config)
+        from .physical_properties import initialize_inputs
+        initialize_inputs(model, data, config)
         mj.mj_forward(model, data)
         root.find('compiler').set('meshdir', 'assets')
         world = RobotWorld(model, data, deepcopy(config), seed, digest)
@@ -136,6 +140,8 @@ class PickPlaceBackend(RoboticsBackend):
             from .scene import observed_scene
             observation['environment_geometries'] = observation.get('environment_geometries', []) + observed_scene(world)
         observation['environment_provenance'] = world.config.get('environment')
+        from .physical_properties import inspect
+        observation['inspection'] = inspect(world, self.arm_dof)
         return observation
 
     def pose_ik(self, world, goal, start, orientation=None):

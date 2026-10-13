@@ -148,6 +148,8 @@ class ModelPickupBackend(PickPlaceBackend):
                       contype='1' if config['obstacle_enabled'] else '0',conaffinity='1' if config['obstacle_enabled'] else '0')
         from .scene import append_scene
         append_scene(wb,config,root)
+        from .physical_properties import configure_xml
+        configure_xml(root, config)
         portable=deepcopy(root)
         for mesh in portable.findall('.//asset/mesh'):
             mesh.set('file',Path(mesh.get('file')).relative_to(ASSET_DIR.parent).as_posix())
@@ -176,6 +178,8 @@ class ModelPickupBackend(PickPlaceBackend):
         if self.identifier=='dual_arm':data.ctrl[8:15]=initial[9:16];data.ctrl[15]=255
         from .scene import initialize_task
         initialize_task(model,data,config)
+        from .physical_properties import initialize_inputs
+        initialize_inputs(model, data, config)
         mj.mj_forward(model,data)
         world=RobotWorld(model,data,deepcopy(config),seed,checksum)
         return world if diagnostics else remember(world,'mujoco')

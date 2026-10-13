@@ -57,6 +57,8 @@ class RoboticsBackend:
         ET.SubElement(wb[-1], 'geom', name='obstacle_geom', type='box', size=' '.join(map(str, config['obstacle_size'])), rgba='0.8 0.3 0.2 1')
         from .scene import append_scene
         append_scene(wb, config, root)
+        from .physical_properties import configure_xml
+        configure_xml(root, config)
         xml = ET.tostring(root, encoding='unicode')
         from .headless import collision_only
         collision_only(root)

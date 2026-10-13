@@ -39,6 +39,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspace/materials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Materials */
+        get: operations["materials_v1_workspace_materials_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/physics-validations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Physics Validation */
+        post: operations["physics_validation_v1_workspace_physics_validations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/physics-validations/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Physics Validation Report */
+        get: operations["physics_validation_report_v1_workspace_physics_validations__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/workspace/worlds/{identifier}": {
         parameters: {
             query?: never;
@@ -153,6 +204,23 @@ export interface paths {
         put?: never;
         /** Map Import */
         post: operations["map_import_v1_workspace_imports__identifier__map_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/imports/{identifier}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Staged Import Preview */
+        get: operations["staged_import_preview_v1_workspace_imports__identifier__preview_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1057,6 +1125,39 @@ export interface components {
         /** ExperimentConfiguration */
         ExperimentConfiguration: {
             /**
+             * @default {
+             *       "schema_version": "vivacity.physics/1.0",
+             *       "gravity_m_s2": 9.81,
+             *       "air_density_kg_m3": 0,
+             *       "air_viscosity_pa_s": 0,
+             *       "wind_velocity_m_s": [
+             *         0,
+             *         0,
+             *         0
+             *       ],
+             *       "blunt_drag_coefficient": 0.5,
+             *       "contact_damping_ratio": 1,
+             *       "gripper_force_scale": 1,
+             *       "object_force_n": [
+             *         0,
+             *         0,
+             *         0
+             *       ],
+             *       "object_torque_nm": [
+             *         0,
+             *         0,
+             *         0
+             *       ]
+             *     }
+             */
+            physics: components["schemas"]["PhysicsSettings"];
+            /**
+             * Object Material
+             * @default custom
+             * @enum {string}
+             */
+            object_material: "custom" | "steel" | "aluminium" | "rubber" | "wood" | "plastic" | "glass" | "concrete" | "cardboard";
+            /**
              * Schema Version
              * @default vivacity.configuration/1.0
              * @constant
@@ -1534,6 +1635,110 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** PhysicsSettings */
+        PhysicsSettings: {
+            /**
+             * Schema Version
+             * @default vivacity.physics/1.0
+             * @constant
+             */
+            schema_version: "vivacity.physics/1.0";
+            /**
+             * Gravity M S2
+             * @default 9.81
+             */
+            gravity_m_s2: number;
+            /**
+             * Air Density Kg M3
+             * @default 0
+             */
+            air_density_kg_m3: number;
+            /**
+             * Air Viscosity Pa S
+             * @default 0
+             */
+            air_viscosity_pa_s: number;
+            /**
+             * Wind Velocity M S
+             * @default [
+             *       0,
+             *       0,
+             *       0
+             *     ]
+             */
+            wind_velocity_m_s: number[];
+            /**
+             * Blunt Drag Coefficient
+             * @default 0.5
+             */
+            blunt_drag_coefficient: number;
+            /**
+             * Contact Damping Ratio
+             * @default 1
+             */
+            contact_damping_ratio: number;
+            /**
+             * Gripper Force Scale
+             * @default 1
+             */
+            gripper_force_scale: number;
+            /**
+             * Object Force N
+             * @default [
+             *       0,
+             *       0,
+             *       0
+             *     ]
+             */
+            object_force_n: number[];
+            /**
+             * Object Torque Nm
+             * @default [
+             *       0,
+             *       0,
+             *       0
+             *     ]
+             */
+            object_torque_nm: number[];
+        };
+        /** PhysicsValidationResponse */
+        PhysicsValidationResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.physics-validation/1.0
+             * @constant
+             */
+            schema_version: "vivacity.physics-validation/1.0";
+            /** Id */
+            id: string;
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Engine */
+            engine: string;
+            /** Engine Version */
+            engine_version: string;
+            /** Seed */
+            seed: number;
+            /**
+             * Readiness
+             * @enum {string}
+             */
+            readiness: "benchmark_tested" | "benchmark_failure";
+            /** Passed */
+            passed: number;
+            /** Total */
+            total: number;
+            /** Cases */
+            cases: {
+                [key: string]: unknown;
+            }[];
+            /** Performance */
+            performance: {
+                [key: string]: unknown;
+            };
+            /** Scope */
+            scope: string;
+        };
         /** RenameRequest */
         RenameRequest: {
             /** Name */
@@ -1573,6 +1778,39 @@ export interface components {
         };
         /** RoboticsConfig */
         RoboticsConfig: {
+            /**
+             * @default {
+             *       "schema_version": "vivacity.physics/1.0",
+             *       "gravity_m_s2": 9.81,
+             *       "air_density_kg_m3": 0,
+             *       "air_viscosity_pa_s": 0,
+             *       "wind_velocity_m_s": [
+             *         0,
+             *         0,
+             *         0
+             *       ],
+             *       "blunt_drag_coefficient": 0.5,
+             *       "contact_damping_ratio": 1,
+             *       "gripper_force_scale": 1,
+             *       "object_force_n": [
+             *         0,
+             *         0,
+             *         0
+             *       ],
+             *       "object_torque_nm": [
+             *         0,
+             *         0,
+             *         0
+             *       ]
+             *     }
+             */
+            physics: components["schemas"]["PhysicsSettings"];
+            /**
+             * Object Material
+             * @default custom
+             * @enum {string}
+             */
+            object_material: "custom" | "steel" | "aluminium" | "rubber" | "wood" | "plastic" | "glass" | "concrete" | "cardboard";
             /**
              * Robot Model
              * @default panda
@@ -2123,6 +2361,90 @@ export interface operations {
             };
         };
     };
+    materials_v1_workspace_materials_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    physics_validation_v1_workspace_physics_validations_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhysicsValidationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    physics_validation_report_v1_workspace_physics_validations__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhysicsValidationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     world_v1_workspace_worlds__identifier__get: {
         parameters: {
             query?: never;
@@ -2382,6 +2704,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LibraryWorld"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    staged_import_preview_v1_workspace_imports__identifier__preview_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportPreview"];
                 };
             };
             /** @description Validation Error */

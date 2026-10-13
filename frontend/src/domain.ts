@@ -19,6 +19,7 @@ export interface SimulatedPerception {
 export interface BodyPose { name: string; position: Vec3; quaternion_wxyz: Quat }
 export interface Contact { bodies: string[]; geoms: string[]; penetration_m: number; category: string }
 export interface RobotFrame {
+  inspection?:import('./EngineeringPanel').Inspection;
   environment_geometries?: {name:string;type:string;position:Vec3;quaternion_wxyz:number[];size:Vec3;rgba:number[]}[];
   time: number; qpos: number[]; qvel: number[]; ctrl: number[];
   end_effector: Vec3; body_transforms: BodyPose[];

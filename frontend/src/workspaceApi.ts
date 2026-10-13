@@ -23,6 +23,8 @@ async function request<T>(path:string,method='GET',body?:unknown,extra:Record<st
   return value as T;
 }
 export const workspaceApi={
+  materials:()=>request<{materials:Record<string,{name:string;sliding:number;torsional:number;rolling:number;density_kg_m3:number}>;scope:string}>('/materials'),
+  validatePhysics:()=>request<PhysicsValidation>('/physics-validations','POST'),
   capabilities:()=>request<Capabilities>('/capabilities'),
   worlds:()=>request<LibraryWorld[]>('/worlds'),
   world:(id:string)=>request<LibraryWorld>('/worlds/'+encodeURIComponent(id)),
@@ -31,6 +33,7 @@ export const workspaceApi={
   archive:(id:string)=>request<LibraryWorld>(`/worlds/${encodeURIComponent(id)}/archive`,'POST'),
   restore:(id:string)=>request<LibraryWorld>(`/worlds/${encodeURIComponent(id)}/restore`,'POST'),
   preview:(id:string)=>request<components['schemas']['ImportPreview']>(`/worlds/${encodeURIComponent(id)}/preview`),
+  stagedPreview:(id:string)=>request<components['schemas']['ImportPreview']>(`/imports/${encodeURIComponent(id)}/preview`),
   generate:(prompt:string,provider:'openai'|'worldlabs',key:string)=>request<Generation>('/generations','POST',{prompt,provider,seed:7,model:'marble-1.1'},{'Idempotency-Key':key}),
   generation:(id:string)=>request<Generation>('/generations/'+encodeURIComponent(id)),
   generations:()=>request<Generation[]>('/generations'),
@@ -48,6 +51,7 @@ export const workspaceApi={
   interpret:(prompt:string,environment_id:string)=>request<{proposal:{supported:boolean;explanation:string;configuration:Configuration};provenance:Record<string,unknown>}>('/operations/interpret','POST',{prompt,environment_id}),
 };
 export type Run={session_id:string;configuration_id:string;created_unix_s:number;provenance:Record<string,unknown>;initial_configuration:{config:Record<string,unknown>};session:components['schemas']['SessionResponse'];experiments:{experiment:components['schemas']['ExperimentResponse'];validation_count:number;successful_validations:number;success_rate:number|null;evaluations:{branch_id:string;evaluation:Record<string,unknown>;performance:Record<string,unknown>}[];energy_joules:null;energy_scope:string}[]};
-export const defaultConfiguration=(world='desktop'):Configuration=>({schema_version:'vivacity.configuration/1.0',name:'My robotic experiment',environment_id:world,robot_id:'panda',gripper_id:'panda_parallel',operation_id:'pick_place',seed:7,
+export type PhysicsValidation=components['schemas']['PhysicsValidationResponse'];
+export const defaultConfiguration=(world='desktop'):Configuration=>({physics:{schema_version:'vivacity.physics/1.0',gravity_m_s2:9.81,air_density_kg_m3:0,air_viscosity_pa_s:0,wind_velocity_m_s:[0,0,0],blunt_drag_coefficient:.5,contact_damping_ratio:1,gripper_force_scale:1,object_force_n:[0,0,0],object_torque_nm:[0,0,0]},object_material:'custom',schema_version:'vivacity.configuration/1.0',name:'My robotic experiment',environment_id:world,robot_id:'panda',gripper_id:'panda_parallel',operation_id:'pick_place',seed:7,
   target_position:[.5,-.15,.026],destination_position:[.5,.18,.026],object_half_sizes:[.025,.025,.025],object_mass_kg:.06,object_friction:1,
   sort_property:'mass',sort_threshold:.08,alternate_destination_position:[.5,.35,.026],trial_mode:'adaptive',validation_trials:3,randomization_cycles:1,realtime_speed:1});

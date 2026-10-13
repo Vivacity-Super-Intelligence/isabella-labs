@@ -9,6 +9,7 @@ import {workspaceApi,type LibraryWorld} from './workspaceApi';
 import type {components} from './generated/api';
 import EnvironmentAppearance,{appearanceFor} from './EnvironmentAppearance';
 import Workbench from './Workbench';
+import EngineeringOverlay,{type OverlayOptions} from './EngineeringOverlay';
 
 type MeshSpec = { id: number; positions: { byte_offset: number; count: number }; indices: { byte_offset: number; count: number } };
 type Geom = { id: number; name: string; body_id: number; type: string; group: number; mesh_id: number | null; position: Vec3; quaternion_wxyz: number[]; size: Vec3; rgba: number[] };
@@ -45,7 +46,7 @@ function CameraInteraction({command,enabled,catalog=false}:{command:{key:string;
   const orbitTarget=useMemo(()=>catalog?[.12,0,.35] as Vec3:[.35,0,.3] as Vec3,[catalog]);
   useEffect(()=>{
     const c=controls.current;if(!c)return;
-    if(!command.key){camera.position.set(...(catalog?[1.1,-1.2,.9]:[1.8,-2.1,1.35]) as Vec3);c.target.set(...(catalog?[.12,0,.35]:[.35,0,.3]) as Vec3);c.update();invalidate();return;}
+    if(!command.key||command.key.startsWith('preset:')){const preset=command.key.slice(7);camera.position.set(...(preset==='top'?[.4,-.01,2.8]:preset==='side'?[1.9,0,.8]:catalog?[1.1,-1.2,.9]:[1.8,-2.1,1.35]) as Vec3);c.target.set(...(catalog?[.12,0,.35]:[.35,0,.3]) as Vec3);c.update();invalidate();return;}
     if(command.key.startsWith('Shift+Arrow')){const right=new Vector3(1,0,0).applyQuaternion(camera.quaternion),up=new Vector3(0,1,0).applyQuaternion(camera.quaternion);const delta=(command.key.includes('Left')||command.key.includes('Right')?right:up).multiplyScalar(command.key.includes('Left')||command.key.includes('Down')?-.08:.08);camera.position.add(delta);c.target.add(delta);c.update();invalidate();return;}
     if(command.key==='ArrowLeft'||command.key==='ArrowRight')c.setAzimuthalAngle(c.getAzimuthalAngle()+(command.key==='ArrowLeft'?.12:-.12));
     if(command.key==='ArrowUp'||command.key==='ArrowDown')c.setPolarAngle(Math.max(.1,Math.min(Math.PI*.49,c.getPolarAngle()+(command.key==='ArrowUp'?-.1:.1))));
@@ -67,12 +68,12 @@ export function GeomMesh({ geom, assets, config }: { geom: Geom; assets: Assets;
     {geom.type === 'plane' && <planeGeometry args={[6,6]} />}
     {geom.type === 'cylinder' && <cylinderGeometry args={[size[0],size[0],size[1]*2,36]} />}
     {geom.type === 'capsule' && <capsuleGeometry args={[size[0],size[1]*2,8,20]} />}
-    <meshStandardMaterial color={color} roughness={geom.name === 'table' ? .78 : .38} metalness={geom.group === 2 ? .18 : .05} />
+    <meshStandardMaterial color={config.collision_overlay?'#a8d4cb':color} wireframe={!!config.collision_overlay} transparent={!!config.collision_overlay} opacity={config.collision_overlay?.65:1} roughness={geom.name === 'table' ? .78 : .38} metalness={geom.group === 2 ? .18 : .05} />
   </mesh>;
 }
 
 type CubeDrag = { pointerId:number; start:Vec3; draft:Vec3; offsetX:number; offsetY:number; moved:boolean };
-function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime, canMoveCube, onMoveCube, onDragging, onHover, onDragError }: { assets: Assets; frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; playing:boolean; renderTime:number; canMoveCube:boolean; onMoveCube:(point:Vec3)=>Promise<boolean>; onDragging:(active:boolean)=>void; onHover:(active:boolean)=>void; onDragError:(message:string|null)=>void }) {
+function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime, canMoveCube, onMoveCube, onDragging, onHover, onDragError, onSelect }: { assets: Assets; frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; playing:boolean; renderTime:number; canMoveCube:boolean; onMoveCube:(point:Vec3)=>Promise<boolean>; onDragging:(active:boolean)=>void; onHover:(active:boolean)=>void; onDragError:(message:string|null)=>void;onSelect:(s:'object'|'robot')=>void }) {
   const invalidate=useThree(state=>state.invalidate);
   useEffect(()=>{invalidate();},[invalidate,frames,playing,renderTime]);
   const groups = useRef(new Map<string,Group>());
@@ -85,6 +86,7 @@ function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime, ca
   useEffect(()=>{preview.current=null;drag.current=null;onDragging(false);invalidate();},[config.cube_position,invalidate,onDragging]);
   const pointOnTable=(event:ThreeEvent<PointerEvent>)=>event.ray.intersectPlane(dragPlane,dragPoint);
   const pointerDown=(event:ThreeEvent<PointerEvent>)=>{
+    onSelect('object');
     if(!canMoveCube)return;
     const point=pointOnTable(event),group=groups.current.get('target');if(!point||!group)return;
     event.stopPropagation();(event.target as Element|null)?.setPointerCapture(event.pointerId);
@@ -149,11 +151,12 @@ function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime, ca
   const last = frames.at(-1);
   return <group dispose={null}>
     {assets.manifest.bodies.map(body => <group key={body.id} ref={g=>{ if (g) groups.current.set(body.name,g); else groups.current.delete(body.name); }}
-      onPointerDown={body.name==='target'?pointerDown:undefined} onPointerMove={body.name==='target'?pointerMove:undefined}
+      onPointerDown={body.name==='target'?pointerDown:body.name!=='world'?()=>onSelect('robot'):undefined} onPointerMove={body.name==='target'?pointerMove:undefined}
       onPointerUp={body.name==='target'?pointerUp:undefined} onPointerCancel={body.name==='target'?pointerCancel:undefined}
       onPointerOver={body.name==='target'&&canMoveCube?()=>onHover(true):undefined}
       onPointerOut={body.name==='target'?()=>onHover(false):undefined}>
       {assets.manifest.geoms.filter(g=>g.body_id === body.id && !(config.catalog&&(g.body_id===0||body.name==='target')) && (g.group === 0 || g.group === 2) && !(config.show_environment_appearance&&g.type==='plane') && !(g.name==='obstacle_geom'&&config.obstacle_enabled===false) && !last?.environment_geometries?.some(measured=>measured.name===g.name)).map(geom=><GeomMesh key={geom.id} geom={geom} assets={assets} config={config} />)}
+      {!!config.collision_overlay&&assets.manifest.geoms.filter(g=>g.body_id===body.id&&(g.group===3||g.name==='cube')).map(g=><GeomMesh key={'collision-'+g.id} geom={g} assets={assets} config={{...config,collision_overlay:true}}/>)}
       {body.name==='target'&&canMoveCube&&<mesh><boxGeometry args={[.1,.1,.08]}/><meshBasicMaterial transparent opacity={0} depthWrite={false}/></mesh>}
     </group>)}
     {last?.environment_geometries?.filter(geom=>!(config.show_imported_appearance&&geom.name==='environment_import_collision_proxy')&&!config.show_environment_appearance).map((geom,i)=><GeomMesh key={geom.name} geom={{...geom,id:i,body_id:0,group:0,mesh_id:null}} assets={assets} config={{}} />)}
@@ -167,7 +170,7 @@ class SceneBoundary extends Component<{children: ReactNode;onError:()=>void}, { 
   render() { return this.state.error ? null : this.props.children; }
 }
 
-function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=false, onMoveCube=async()=>false,visualWorld }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean>;visualWorld?:LibraryWorld }) {
+function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=false, onMoveCube=async()=>false,visualWorld,overlays,trace=[],onSelect=()=>{} }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean>;visualWorld?:LibraryWorld;overlays?:OverlayOptions;trace?:RobotFrame[];onSelect?:(s:'object'|'robot')=>void }) {
   const [assets,setAssets] = useState<Assets | null>(null), [error,setError] = useState<string | null>(null);
   const [appearanceStatus,setAppearanceStatus]=useState(''),[appearanceError,setAppearanceError]=useState(false);
   const appearance=appearanceFor(visualWorld);
@@ -184,14 +187,15 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
         <ambientLight intensity={visualWorld?.spec.lighting.ambient??.72} /><hemisphereLight args={['#ffffff','#6f706a',1.8]} />
         <directionalLight position={[1,-1.5,3]} intensity={visualWorld?.spec.lighting.key_intensity??3.2} castShadow shadow-mapSize={[1024,1024]} shadow-bias={-.00005} shadow-normalBias={.008} shadow-camera-left={-1.5} shadow-camera-right={1.5} shadow-camera-top={1.5} shadow-camera-bottom={-1.5} />
         <directionalLight position={[-2,1,1.5]} intensity={1.3} />
-        <MeasuredRobot assets={assets} frames={frames} cursor={cursor} config={{...config,show_imported_appearance:(!!imported||!!appearance)&&showImported,show_environment_appearance:!!appearance&&showImported}} playing={playing} renderTime={renderTime} canMoveCube={canMoveCube} onMoveCube={onMoveCube} onDragging={setDragging} onHover={setHovering} onDragError={setDragError} />
+        <MeasuredRobot assets={assets} frames={frames} cursor={cursor} config={{...config,show_imported_appearance:(!!imported||!!appearance)&&showImported,show_environment_appearance:!!appearance&&showImported,collision_overlay:overlays?.collision}} playing={playing} renderTime={renderTime} canMoveCube={canMoveCube} onMoveCube={onMoveCube} onDragging={setDragging} onHover={setHovering} onDragError={setDragError} onSelect={onSelect} />
+        {overlays&&frames.at(-1)&&<EngineeringOverlay frame={frames.at(-1)!} trace={trace} options={overlays}/>}
         {imported&&showImported&&visualWorld?.mapping&&<ImportedVisual preview={imported} mapping={visualWorld.mapping}/>}
         {appearance&&showImported&&<EnvironmentAppearance world={visualWorld} appearance={appearance} onStatus={(message,failed=false)=>{setAppearanceStatus(message);setAppearanceError(failed);}}/>}
         <CameraInteraction command={cameraCommand} enabled={!dragging} catalog={!!config.catalog} />
       </Canvas>
     </SceneBoundary>}
   </div>
-    <div className="scene-toolbar"><span>{robot==='panda'?'Franka Panda':robot.toUpperCase()} · {visualWorld?.name??'Physical workcell'}</span><button type="button" onClick={resetCamera}>Reset camera</button>{(imported||appearance)&&<label><input type="checkbox" checked={showImported} onChange={e=>setShowImported(e.target.checked)}/> Environment</label>}</div>
+    <div className="scene-toolbar"><span>{robot==='panda'?'Franka Panda':robot.toUpperCase()} · {visualWorld?.name??'Physical workcell'}</span><label>View<select aria-label="Camera preset" value={cameraCommand.key.startsWith('preset:')?cameraCommand.key.slice(7):'perspective'} onChange={e=>setCameraCommand(c=>({key:'preset:'+e.target.value,seq:c.seq+1}))}><option value="perspective">Perspective</option><option value="top">Top</option><option value="side">Side</option></select></label><button type="button" onClick={resetCamera}>Reset camera</button>{(imported||appearance)&&<label><input type="checkbox" checked={showImported} onChange={e=>setShowImported(e.target.checked)}/> Environment</label>}</div>
     {appearanceStatus&&<p className={appearanceError?'negative small':'small'} role={appearanceError?'alert':'status'}>{appearanceStatus}</p>}
     {(error||dragError)&&<p className="negative" role="alert">{error??dragError}</p>}
     {!error&&(!assets||!frames.length)&&<p className="small" role="status">{!assets?'Loading Panda geometry…':'Waiting for a measured world state…'}</p>}

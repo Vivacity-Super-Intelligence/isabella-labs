@@ -129,6 +129,124 @@
         }
       }
     },
+    "/v1/workspace/materials": {
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Materials",
+        "operationId": "materials_v1_workspace_materials_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/physics-validations": {
+      "post": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Physics Validation",
+        "operationId": "physics_validation_v1_workspace_physics_validations_post",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhysicsValidationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/physics-validations/{identifier}": {
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Physics Validation Report",
+        "operationId": "physics_validation_report_v1_workspace_physics_validations__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhysicsValidationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/workspace/worlds/{identifier}": {
       "get": {
         "tags": [
@@ -560,6 +678,60 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LibraryWorld"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/imports/{identifier}/preview": {
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Staged Import Preview",
+        "operationId": "staged_import_preview_v1_workspace_imports__identifier__preview_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPreview"
                 }
               }
             }
@@ -2933,6 +3105,49 @@
       },
       "ExperimentConfiguration": {
         "properties": {
+          "physics": {
+            "$ref": "#/components/schemas/PhysicsSettings",
+            "default": {
+              "schema_version": "vivacity.physics/1.0",
+              "gravity_m_s2": 9.81,
+              "air_density_kg_m3": 0.0,
+              "air_viscosity_pa_s": 0.0,
+              "wind_velocity_m_s": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "blunt_drag_coefficient": 0.5,
+              "contact_damping_ratio": 1.0,
+              "gripper_force_scale": 1.0,
+              "object_force_n": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "object_torque_nm": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          "object_material": {
+            "type": "string",
+            "enum": [
+              "custom",
+              "steel",
+              "aluminium",
+              "rubber",
+              "wood",
+              "plastic",
+              "glass",
+              "concrete",
+              "cardboard"
+            ],
+            "title": "Object Material",
+            "default": "custom"
+          },
           "schema_version": {
             "type": "string",
             "const": "vivacity.configuration/1.0",
@@ -3901,6 +4116,182 @@
         ],
         "title": "LiveState"
       },
+      "PhysicsSettings": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.physics/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.physics/1.0"
+          },
+          "gravity_m_s2": {
+            "type": "number",
+            "maximum": 20.0,
+            "minimum": 0.0,
+            "title": "Gravity M S2",
+            "default": 9.81
+          },
+          "air_density_kg_m3": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Air Density Kg M3",
+            "default": 0.0
+          },
+          "air_viscosity_pa_s": {
+            "type": "number",
+            "maximum": 0.001,
+            "minimum": 0.0,
+            "title": "Air Viscosity Pa S",
+            "default": 0.0
+          },
+          "wind_velocity_m_s": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Wind Velocity M S",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "blunt_drag_coefficient": {
+            "type": "number",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Blunt Drag Coefficient",
+            "default": 0.5
+          },
+          "contact_damping_ratio": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.2,
+            "title": "Contact Damping Ratio",
+            "default": 1.0
+          },
+          "gripper_force_scale": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.05,
+            "title": "Gripper Force Scale",
+            "default": 1.0
+          },
+          "object_force_n": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Object Force N",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "object_torque_nm": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Object Torque Nm",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PhysicsSettings"
+      },
+      "PhysicsValidationResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.physics-validation/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.physics-validation/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_unix_s": {
+            "type": "number",
+            "title": "Created Unix S"
+          },
+          "engine": {
+            "type": "string",
+            "title": "Engine"
+          },
+          "engine_version": {
+            "type": "string",
+            "title": "Engine Version"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "readiness": {
+            "type": "string",
+            "enum": [
+              "benchmark_tested",
+              "benchmark_failure"
+            ],
+            "title": "Readiness"
+          },
+          "passed": {
+            "type": "integer",
+            "title": "Passed"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "cases": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Cases"
+          },
+          "performance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Performance"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "created_unix_s",
+          "engine",
+          "engine_version",
+          "seed",
+          "readiness",
+          "passed",
+          "total",
+          "cases",
+          "performance",
+          "scope"
+        ],
+        "title": "PhysicsValidationResponse"
+      },
       "RenameRequest": {
         "properties": {
           "name": {
@@ -3987,6 +4378,49 @@
       },
       "RoboticsConfig": {
         "properties": {
+          "physics": {
+            "$ref": "#/components/schemas/PhysicsSettings",
+            "default": {
+              "schema_version": "vivacity.physics/1.0",
+              "gravity_m_s2": 9.81,
+              "air_density_kg_m3": 0.0,
+              "air_viscosity_pa_s": 0.0,
+              "wind_velocity_m_s": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "blunt_drag_coefficient": 0.5,
+              "contact_damping_ratio": 1.0,
+              "gripper_force_scale": 1.0,
+              "object_force_n": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "object_torque_nm": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          "object_material": {
+            "type": "string",
+            "enum": [
+              "custom",
+              "steel",
+              "aluminium",
+              "rubber",
+              "wood",
+              "plastic",
+              "glass",
+              "concrete",
+              "cardboard"
+            ],
+            "title": "Object Material",
+            "default": "custom"
+          },
           "robot_model": {
             "type": "string",
             "enum": [

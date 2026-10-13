@@ -1,7 +1,7 @@
 """Versioned library/configuration contracts, independent of simulator state."""
 from typing import Literal, Annotated
 from pydantic import Field, model_validator
-from .schemas import Schema, Vec3, StaticGeometry, CreateWorld, SessionRequest
+from .schemas import Schema, Vec3, StaticGeometry, CreateWorld, SessionRequest, PhysicsSettings, MaterialId
 
 
 class Lighting(Schema):
@@ -89,6 +89,8 @@ class ImportMapping(Schema):
 
 
 class ExperimentConfiguration(Schema):
+    physics: PhysicsSettings = PhysicsSettings()
+    object_material: MaterialId = 'custom'
     schema_version: Literal['vivacity.configuration/1.0'] = 'vivacity.configuration/1.0'
     name: str = Field(min_length=1, max_length=80)
     environment_id: str
@@ -138,3 +140,18 @@ class OperationProposal(Schema):
 
 class RunOverrides(Schema):
     config: dict | None = None
+
+
+class PhysicsValidationResponse(Schema):
+    schema_version: Literal['vivacity.physics-validation/1.0'] = 'vivacity.physics-validation/1.0'
+    id: str
+    created_unix_s: float
+    engine: str
+    engine_version: str
+    seed: int
+    readiness: Literal['benchmark_tested', 'benchmark_failure']
+    passed: int
+    total: int
+    cases: list[dict]
+    performance: dict
+    scope: str

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowRight, X } from '@phosphor-icons/react';
 import { format, type Dict } from './domain';
 import { clampPickupPosition, objectHalfSizes, pickupBounds, pickupSeparationValid } from './pickupWorkspace';
+import PhysicsControls,{defaultPhysics,type Physics,type Material} from './PhysicsControls';
 export default function Settings({ config, disabled, apply, close }: { config: Dict; disabled: boolean; apply:(d:Dict)=>Promise<boolean|void>; close:()=>void }) {
   const [position,setPosition] = useState<number[]>(config.obstacle_position as number[] ?? [.45,.04,.22]);
   const [size,setSize] = useState<number[]>(config.obstacle_size as number[] ?? [.055,.13,.22]);
@@ -14,6 +15,8 @@ export default function Settings({ config, disabled, apply, close }: { config: D
   const [cubeMass,setCubeMass]=useState(Number(config.cube_mass??.06));
   const [cubeFriction,setCubeFriction]=useState(Number(config.cube_friction??1));
   const [obstacleEnabled,setObstacleEnabled]=useState(config.obstacle_enabled!==false);
+  const [physics,setPhysics]=useState<Physics>({...defaultPhysics,...config.physics as Partial<Physics>});
+  const [material,setMaterial]=useState<Material>(config.object_material as Material??'custom');
   const bounds=pickupBounds(cubeHalfSizes);
   const separationValid=!pickup||pickupSeparationValid(cube,placement);
   const submit = async () => {
@@ -22,7 +25,7 @@ export default function Settings({ config, disabled, apply, close }: { config: D
     if(config.physical_operation==='stacking')nextPlacement[2]=3*cubeHalfSizes[2]+.001;
     const applied=await apply( {...config, obstacle_enabled:obstacleEnabled,obstacle_position:position, obstacle_size:size,target_position:target,
       cube_half_size:cubeHalfSizes[2],cube_half_sizes:pickup&&!orbital?cubeHalfSizes:null,cube_mass:cubeMass,cube_friction:cubeFriction,
-      cube_position:pickup?nextCube:cube,placement_position:pickup?nextPlacement:placement}); if(applied!==false)close();
+      cube_position:pickup?nextCube:cube,placement_position:pickup?nextPlacement:placement,physics,object_material:material}); if(applied!==false)close();
   };
   return <section className="environment-editor" aria-labelledby="environment-heading">
     <div className="section-heading"><h2 id="environment-heading">Change the scene</h2><button className="icon-button" onClick={close} aria-label="Close settings"><X size={18} /></button></div>
@@ -36,11 +39,12 @@ export default function Settings({ config, disabled, apply, close }: { config: D
       {pickup&&!separationValid&&<p className="setting-error" role="alert">Move the pickup or placement point so they are at least 10 cm apart.</p>}
       {pickup&&!orbital&&<>
         {['Width','Depth','Height'].map((name,i)=><label className="range-field" key={name}><span>Object {name.toLowerCase()} <output>{Math.round(cubeHalfSizes[i]*2000)} mm</output></span><input aria-label={`Object ${name.toLowerCase()}`} type="range" min=".02" max=".03" step=".001" value={cubeHalfSizes[i]} onChange={e=>setCubeHalfSizes(s=>s.map((v,j)=>j===i?Number(e.target.value):v) as typeof s)}/></label>)}
-        <label className="range-field"><span>Object mass / weight <output>{Math.round(cubeMass*1000)} g · {format(cubeMass*9.81,2)} N</output></span><input aria-label="Object mass" type="range" min=".02" max=".15" step=".005" value={cubeMass} onChange={e=>setCubeMass(Number(e.target.value))}/></label>
-        <label className="range-field"><span>Object friction coefficient <output>{format(cubeFriction,2)}</output></span><input aria-label="Object friction" type="range" min=".05" max="1.5" step=".05" value={cubeFriction} onChange={e=>setCubeFriction(Number(e.target.value))}/></label>
+        <label className="range-field"><span>Object mass / weight <output>{Math.round(cubeMass*1000)} g · {format(cubeMass*physics.gravity_m_s2,2)} N</output></span><input aria-label="Object mass" type="range" min=".02" max=".15" step=".005" value={cubeMass} onChange={e=>setCubeMass(Number(e.target.value))}/></label>
+        <label className="range-field"><span>Object friction coefficient <output>{format(cubeFriction,2)}</output></span><input aria-label="Object friction" type="range" min=".05" max="1.5" step=".05" value={cubeFriction} onChange={e=>{setCubeFriction(Number(e.target.value));setMaterial('custom');}}/></label>
       </>}
       <p className="small">Obstacle half-sizes: {size.map(v=>format(v,3)).join(' × ')} m. Applying a change first stops the worker safely, then initializes new physical conditions. {pickup?'The cube is a dynamic free body held by finger friction.':'This legacy world verifies reaching only.'}</p>
     </>
+    {pickup&&!orbital&&<PhysicsControls value={physics} material={material} onChange={setPhysics} onMaterial={(m,f)=>{setMaterial(m);if(f!==undefined)setCubeFriction(f);}}/>}
     <button className="primary full" disabled={disabled||!separationValid} onClick={submit}>Apply settings <ArrowRight size={17} /></button>
   </section>;
 }

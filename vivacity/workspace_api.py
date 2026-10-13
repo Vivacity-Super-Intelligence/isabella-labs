@@ -36,6 +36,37 @@ def capabilities(request:Request):
 def worlds(request:Request,x_workspace_token:Token):return [public_world(w) for w in request.app.state.workspace.worlds(x_workspace_token)]
 
 
+@router.get('/materials')
+def materials():
+    from .physical_properties import registry
+    return registry()
+
+
+from .workspace_schemas import PhysicsValidationResponse
+
+
+@router.post('/physics-validations', status_code=201, response_model=PhysicsValidationResponse)
+async def physics_validation(request: Request, x_workspace_token: Token):
+    import time
+    from .physics_validation import run_benchmarks
+    workspace = request.app.state.workspace
+    # Atomically cap public CPU requests; no unbounded benchmark load.
+    with workspace.store.connect() as db:
+        db.execute('CREATE TABLE IF NOT EXISTS physics_validation_calls(created REAL)')
+        db.execute('BEGIN IMMEDIATE')
+        if db.execute('SELECT COUNT(*) FROM physics_validation_calls WHERE created>?', (time.time()-86400,)).fetchone()[0]>=50:
+            raise HTTPException(429, 'daily physics-validation budget reached')
+        db.execute('INSERT INTO physics_validation_calls VALUES(?)', (time.time(),))
+    record = await asyncio.to_thread(run_benchmarks)
+    workspace._put('physics_validation', owner(x_workspace_token), record)
+    return record
+
+
+@router.get('/physics-validations/{identifier}', response_model=PhysicsValidationResponse)
+def physics_validation_report(identifier: str, request: Request, x_workspace_token: Token):
+    return request.app.state.workspace._get(identifier, x_workspace_token, 'physics_validation')
+
+
 @router.get('/worlds/{identifier}',response_model=LibraryWorld)
 def world(identifier:str,request:Request,x_workspace_token:Token):return public_world(request.app.state.workspace.world(identifier,x_workspace_token))
 
@@ -90,6 +121,12 @@ def map_import(identifier:str,body:ImportMapping,request:Request,x_workspace_tok
     record=request.app.state.workspace._get(identifier,x_workspace_token,'staged_import')
     preview=request.app.state.imports.get(identifier,preview=True)
     return public_world(request.app.state.workspace.map_import(record,preview,body,x_workspace_token))
+
+
+@router.get('/imports/{identifier}/preview',response_model=ImportPreview)
+def staged_import_preview(identifier:str,request:Request,x_workspace_token:Token):
+    request.app.state.workspace._get(identifier,x_workspace_token,'staged_import')
+    return request.app.state.imports.get(identifier,preview=True)
 
 
 @router.post('/generations',response_model=GenerationResponse,status_code=202)
