@@ -1,0 +1,12 @@
+{
+  "schema_version": "vivacity.capture/1.0",
+  "id": "cdda1dbc-6d25-499f-a90d-518a57444c28",
+  "filename": "container-test.mp4",
+  "kind": "video",
+  "extension": "mp4",
+  "dimensions_px": null,
+  "validation": "container signature only; duration/codec and decoding are validated by the provider",
+  "sha256": "78d1ee8e0be2ba21be461b6a400407c0e0727d9e82ede9ab7bd6b71abfec8619",
+  "uploaded_bytes": 5242880,
+  "created_unix_s": 1791907035.0403905
+}

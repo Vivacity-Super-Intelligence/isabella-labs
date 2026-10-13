@@ -1,3 +1,13 @@
+# Spatial world pipeline — 2026-10-13
+
+Deployed owned image/multi-image/panorama/video capture contracts, actual asynchronous World Labs generation, preserved original collider/thumbnail assets, separated representation/readiness evidence, streamed SPZ decoding with view-dependent Spark LoD, three rendering quality levels and seeded physical condition/held-out reports. Added persisted object-trajectory measurement comparison. Physics remains real MuJoCo and the current interface/runtime are preserved.
+
+Executed final backend checks: **261/261 Linux tests**, zero failures/errors/skips; **3/3 hard 512 MiB checks**; **67/67 Windows spatial/schema/workspace checks**; **26/26 frontend checks**; TypeScript and production/Vercel builds passed. Real public image generation completed. Public baseline/training/held-out conditions executed nine physics candidates plus fresh executions (74,867 steps, peak two workers), all three successful; a separate weak-grip run failed all three conditions honestly. REST, native WSS, replay, owned artifacts and exact 55-path OpenAPI were verified. Numerical self-reference comparison is not hardware validation.
+
+Fixed provider-schema geometry bounds, hidden active canvases, idle collection recursion and LoD teardown/framing. Generation mode mounts zero canvases. Device-specific idle/load measurements and evidence are recorded in [SPATIAL_PIPELINE_RELEASE.md](docs/SPATIAL_PIPELINE_RELEASE.md).
+
+Limitations: conservative solid proxies, not reconstructed concave-room physics; uncalibrated physical properties; real hardware alignment/robot-contact matching unavailable; multi-image/panorama/video adapters require further full live-provider validation; Atlas unavailable in the verified API; no RAD paging output; Render Free sleeps and its persistence is ephemeral. Full capability status, exact endpoints/examples, measurements and reproduction commands are in the linked release document.
+
 # Physical experimentation workspace — 2026-10-13
 
 Deployed native gravity/air/wind, bounded object force/torque, gripper actuator

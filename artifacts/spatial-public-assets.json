@@ -1,0 +1,10 @@
+{
+  "/environments/warehouse/world-100k.spz": {
+    "bytes": 1208312,
+    "sha256": "9e9c45309ba9700bd29bb8abb1f61ad122a56dbb302cbeb5241dec1ff4ed3dc1"
+  },
+  "/environments/laboratory/world-100k.spz": {
+    "bytes": 1044710,
+    "sha256": "c9570350be0d2ed85dddc486b9157c96b89304e9aa2d86a119a4ea21504025dc"
+  }
+}

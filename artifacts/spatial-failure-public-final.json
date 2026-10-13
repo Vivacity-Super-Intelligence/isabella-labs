@@ -1,0 +1,868 @@
+{
+  "base_url": "https://demo.tryvivacity.com/runtime",
+  "started_unix_s": 1791908789.0153263,
+  "session": {
+    "pause_requested": false,
+    "paused": false,
+    "paused_seconds": 0.0,
+    "schema_version": "vivacity.session/1.0",
+    "id": "94073528-0a51-43ac-944a-775fcb489f7b",
+    "backend": "mujoco",
+    "status": "completed",
+    "world_id": "9befce29-b331-492f-b8c5-bcfe190935ff",
+    "experiment_id": "66cb55d2-2b0c-43f4-b799-25c47f0cd3ae",
+    "cycle": 3,
+    "max_cycles": 3,
+    "experiments": [
+      "e2c9f766-1529-49fa-b18f-9dfda0eb851f",
+      "489c3ceb-82df-4f81-b4af-48345e5cfeb4",
+      "66cb55d2-2b0c-43f4-b799-25c47f0cd3ae"
+    ],
+    "world_ids": [
+      "ad23989d-02f6-42c0-bb99-2ceffa3f7ac0",
+      "c3b06979-82f0-44b6-bc1e-caeaf071f16e",
+      "9befce29-b331-492f-b8c5-bcfe190935ff"
+    ],
+    "error": null,
+    "started_unix_s": 1791908790.76341,
+    "last_heartbeat_unix_s": 1791908851.3470798,
+    "conditions": [
+      {
+        "cycle": 1,
+        "seed": 7,
+        "world_id": "ad23989d-02f6-42c0-bb99-2ceffa3f7ac0",
+        "partition": "baseline",
+        "configuration_sha256": "75caaae44c05466e04ce13a1328729ea930dcece5b7ccae55055a1d308750e15"
+      },
+      {
+        "cycle": 2,
+        "seed": 8,
+        "world_id": "c3b06979-82f0-44b6-bc1e-caeaf071f16e",
+        "partition": "training",
+        "configuration_sha256": "adeb1e31230509f2f6c83998d02aa8437e354b962a727f45c299341a40b693a2"
+      },
+      {
+        "cycle": 3,
+        "seed": 9,
+        "world_id": "9befce29-b331-492f-b8c5-bcfe190935ff",
+        "partition": "held_out",
+        "configuration_sha256": "fc149116cb1682a53176d742753b3394fdfae3c0aae7820537dd38fab3f2d8c1"
+      }
+    ]
+  },
+  "robustness": {
+    "schema_version": "vivacity.robustness/1.0",
+    "partitions": {
+      "baseline": {
+        "completed_configurations": 1,
+        "successes": 0,
+        "failures": 1,
+        "success_rate": 0.0,
+        "failure_rate": 1.0
+      },
+      "training": {
+        "completed_configurations": 1,
+        "successes": 0,
+        "failures": 1,
+        "success_rate": 0.0,
+        "failure_rate": 1.0
+      },
+      "held_out": {
+        "completed_configurations": 1,
+        "successes": 0,
+        "failures": 1,
+        "success_rate": 0.0,
+        "failure_rate": 1.0
+      }
+    },
+    "configurations": [
+      {
+        "experiment_id": "e2c9f766-1529-49fa-b18f-9dfda0eb851f",
+        "world_id": "ad23989d-02f6-42c0-bb99-2ceffa3f7ac0",
+        "seed": 7,
+        "partition": "baseline",
+        "configuration_sha256": "75caaae44c05466e04ce13a1328729ea930dcece5b7ccae55055a1d308750e15",
+        "conditions": {
+          "object_position_m": [
+            0.5,
+            -0.15,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5,
+            0.18,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.15,
+          "friction": 0.05
+        },
+        "success": false,
+        "status": "dropped_object",
+        "goal_error_m": 0.3290321075352706,
+        "execution_duration_s": 8.079999999999368,
+        "collision_events": 0,
+        "evaluation_source": "failed validation branch; no feasible selection"
+      },
+      {
+        "experiment_id": "489c3ceb-82df-4f81-b4af-48345e5cfeb4",
+        "world_id": "c3b06979-82f0-44b6-bc1e-caeaf071f16e",
+        "seed": 8,
+        "partition": "training",
+        "configuration_sha256": "adeb1e31230509f2f6c83998d02aa8437e354b962a727f45c299341a40b693a2",
+        "conditions": {
+          "object_position_m": [
+            0.49134861383027806,
+            -0.12563615783310372,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.49093554192427585,
+            0.19442744679100143,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.14869896511696215,
+          "friction": 0.0695542403269597
+        },
+        "success": false,
+        "status": "dropped_object",
+        "goal_error_m": 0.3206217311837562,
+        "execution_duration_s": 6.749999999999479,
+        "collision_events": 0,
+        "evaluation_source": "failed validation branch; no feasible selection"
+      },
+      {
+        "experiment_id": "66cb55d2-2b0c-43f4-b799-25c47f0cd3ae",
+        "world_id": "9befce29-b331-492f-b8c5-bcfe190935ff",
+        "seed": 9,
+        "partition": "held_out",
+        "configuration_sha256": "fc149116cb1682a53176d742753b3394fdfae3c0aae7820537dd38fab3f2d8c1",
+        "conditions": {
+          "object_position_m": [
+            0.5185124601985043,
+            -0.16065913954562222,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5051574075025781,
+            0.19387670414600894,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.14716074629603565,
+          "friction": 0.09576900602452539
+        },
+        "success": false,
+        "status": "dropped_object",
+        "goal_error_m": 0.35496978436561133,
+        "execution_duration_s": 6.5059999999995055,
+        "collision_events": 0,
+        "evaluation_source": "failed validation branch; no feasible selection"
+      }
+    ],
+    "failure_regions": [
+      {
+        "experiment_id": "e2c9f766-1529-49fa-b18f-9dfda0eb851f",
+        "world_id": "ad23989d-02f6-42c0-bb99-2ceffa3f7ac0",
+        "seed": 7,
+        "partition": "baseline",
+        "configuration_sha256": "75caaae44c05466e04ce13a1328729ea930dcece5b7ccae55055a1d308750e15",
+        "conditions": {
+          "object_position_m": [
+            0.5,
+            -0.15,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5,
+            0.18,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.15,
+          "friction": 0.05
+        },
+        "success": false,
+        "status": "dropped_object",
+        "goal_error_m": 0.3290321075352706,
+        "execution_duration_s": 8.079999999999368,
+        "collision_events": 0,
+        "evaluation_source": "failed validation branch; no feasible selection"
+      },
+      {
+        "experiment_id": "489c3ceb-82df-4f81-b4af-48345e5cfeb4",
+        "world_id": "c3b06979-82f0-44b6-bc1e-caeaf071f16e",
+        "seed": 8,
+        "partition": "training",
+        "configuration_sha256": "adeb1e31230509f2f6c83998d02aa8437e354b962a727f45c299341a40b693a2",
+        "conditions": {
+          "object_position_m": [
+            0.49134861383027806,
+            -0.12563615783310372,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.49093554192427585,
+            0.19442744679100143,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.14869896511696215,
+          "friction": 0.0695542403269597
+        },
+        "success": false,
+        "status": "dropped_object",
+        "goal_error_m": 0.3206217311837562,
+        "execution_duration_s": 6.749999999999479,
+        "collision_events": 0,
+        "evaluation_source": "failed validation branch; no feasible selection"
+      },
+      {
+        "experiment_id": "66cb55d2-2b0c-43f4-b799-25c47f0cd3ae",
+        "world_id": "9befce29-b331-492f-b8c5-bcfe190935ff",
+        "seed": 9,
+        "partition": "held_out",
+        "configuration_sha256": "fc149116cb1682a53176d742753b3394fdfae3c0aae7820537dd38fab3f2d8c1",
+        "conditions": {
+          "object_position_m": [
+            0.5185124601985043,
+            -0.16065913954562222,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5051574075025781,
+            0.19387670414600894,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.14716074629603565,
+          "friction": 0.09576900602452539
+        },
+        "success": false,
+        "status": "dropped_object",
+        "goal_error_m": 0.35496978436561133,
+        "execution_duration_s": 6.5059999999995055,
+        "collision_events": 0,
+        "evaluation_source": "failed validation branch; no feasible selection"
+      }
+    ],
+    "recommended_next_experiments": [
+      {
+        "around_configuration_sha256": "75caaae44c05466e04ce13a1328729ea930dcece5b7ccae55055a1d308750e15",
+        "conditions": {
+          "object_position_m": [
+            0.5,
+            -0.15,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5,
+            0.18,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.15,
+          "friction": 0.05
+        },
+        "reason": "repeat this measured failure and vary one physical input at a time"
+      },
+      {
+        "around_configuration_sha256": "adeb1e31230509f2f6c83998d02aa8437e354b962a727f45c299341a40b693a2",
+        "conditions": {
+          "object_position_m": [
+            0.49134861383027806,
+            -0.12563615783310372,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.49093554192427585,
+            0.19442744679100143,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.14869896511696215,
+          "friction": 0.0695542403269597
+        },
+        "reason": "repeat this measured failure and vary one physical input at a time"
+      },
+      {
+        "around_configuration_sha256": "fc149116cb1682a53176d742753b3394fdfae3c0aae7820537dd38fab3f2d8c1",
+        "conditions": {
+          "object_position_m": [
+            0.5185124601985043,
+            -0.16065913954562222,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5051574075025781,
+            0.19387670414600894,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.14716074629603565,
+          "friction": 0.09576900602452539
+        },
+        "reason": "repeat this measured failure and vary one physical input at a time"
+      }
+    ],
+    "scope": "Seeded simulated conditions, with replanning on each configuration. Held-out seeds are assigned before execution. Small-sample descriptive rates, not hardware predictive accuracy or a trained-policy benchmark.",
+    "hardware_validation": "not performed",
+    "unrandomized": [
+      "orientation",
+      "clutter",
+      "initial joints",
+      "lighting",
+      "camera",
+      "object geometry"
+    ]
+  },
+  "experiments": [
+    {
+      "schema_version": "1.0",
+      "id": "e2c9f766-1529-49fa-b18f-9dfda0eb851f",
+      "world_id": "ad23989d-02f6-42c0-bb99-2ceffa3f7ac0",
+      "revision": 0,
+      "status": "completed",
+      "request": {
+        "realtime_speed": 4.0,
+        "physics_trials": 3,
+        "adaptive_trials": false,
+        "execute_selected": true,
+        "realtime_execution": true,
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 40.0,
+        "policy": "deterministic",
+        "search_candidates": 3,
+        "physics_budget": 3
+      },
+      "selected_branch_id": null,
+      "result": {
+        "conclusion": "No candidate completed physical pickup and placement.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "435f3e08-88c3-4168-b9eb-af61e87de09d",
+          "618b588c-ec1e-46e6-b307-2e5f6f3a3709",
+          "03d3c80c-0a47-4764-afd1-09b4bed9eff3"
+        ],
+        "top_feasible_branch_ids": [],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "realtime_speed": 4.0,
+          "physics_trials": 3,
+          "adaptive_trials": false,
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 3,
+          "physics_budget": 3,
+          "max_wall_seconds": 300
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 3,
+          "distinct_generated": 3,
+          "screened": 3,
+          "rejected": 0,
+          "screening_passed": 3,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "8135106bcec6f6e97eea0f84047b0636c5a617e497544cf4f21d7c7744462812",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0,
+            "object_not_visible": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "adaptive_stopping": false,
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "physics_target": 3,
+          "verified_feasible": 0,
+          "physics_rejected": 3,
+          "trial_simulation_steps": 11777,
+          "engine": "mujoco.rollout/contact-sensors-v1",
+          "retained_full_traces": 3,
+          "physics_trial_workers": 2,
+          "peak_parallel_trials": 2,
+          "stopping_reason": "candidate_exhausted"
+        }
+      },
+      "performance": {
+        "job_wall_seconds": 17.487074619624764,
+        "process_cpu_seconds": 2.6119626510000025,
+        "queue_wait_seconds": 0.010352223180234432,
+        "planning_wall_seconds": 8.428819546941668,
+        "physics_wall_seconds": 12.40227344026789,
+        "candidate_count": 3,
+        "simulation_steps": 11777,
+        "integration_calls": 98,
+        "replay_payload_bytes": 925150,
+        "branch_failure_rate": 1.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+        "trial_count": 3,
+        "integrated_trial_count": 3,
+        "trial_simulation_steps": 11777,
+        "trial_integration_calls": 98,
+        "trial_physics_wall_seconds": 12.40227344026789,
+        "trial_failure_rate": 1.0,
+        "trial_engine": "mujoco.rollout/contact-sensors-v1",
+        "stopping_reason": "candidate_exhausted",
+        "physics_trial_workers": 2,
+        "peak_parallel_trials": 2
+      },
+      "error": null,
+      "stale": false
+    },
+    {
+      "schema_version": "1.0",
+      "id": "489c3ceb-82df-4f81-b4af-48345e5cfeb4",
+      "world_id": "c3b06979-82f0-44b6-bc1e-caeaf071f16e",
+      "revision": 0,
+      "status": "completed",
+      "request": {
+        "realtime_speed": 4.0,
+        "physics_trials": 3,
+        "adaptive_trials": false,
+        "execute_selected": true,
+        "realtime_execution": true,
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 40.0,
+        "policy": "deterministic",
+        "search_candidates": 3,
+        "physics_budget": 3
+      },
+      "selected_branch_id": null,
+      "result": {
+        "conclusion": "No candidate completed physical pickup and placement.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "e9cf322a-1a4b-4513-bb9e-307c9e3519ba",
+          "fe098890-a723-4c34-9306-cffda85b9982",
+          "5baecad5-4e4e-4527-a319-e327bcb5570b"
+        ],
+        "top_feasible_branch_ids": [],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "realtime_speed": 4.0,
+          "physics_trials": 3,
+          "adaptive_trials": false,
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 3,
+          "physics_budget": 3,
+          "max_wall_seconds": 300
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 3,
+          "distinct_generated": 3,
+          "screened": 3,
+          "rejected": 0,
+          "screening_passed": 3,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "12fcba5161d3b75bc26e6b903986289ad8e5136b7b33209165b5ddd6a57f9a0b",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0,
+            "object_not_visible": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "adaptive_stopping": false,
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "physics_target": 3,
+          "verified_feasible": 0,
+          "physics_rejected": 3,
+          "trial_simulation_steps": 11358,
+          "engine": "mujoco.rollout/contact-sensors-v1",
+          "retained_full_traces": 3,
+          "physics_trial_workers": 2,
+          "peak_parallel_trials": 2,
+          "stopping_reason": "candidate_exhausted"
+        }
+      },
+      "performance": {
+        "job_wall_seconds": 15.275565702002496,
+        "process_cpu_seconds": 2.2804509999999993,
+        "queue_wait_seconds": 0.011381192598491907,
+        "planning_wall_seconds": 7.391016103792936,
+        "physics_wall_seconds": 10.355317329987884,
+        "candidate_count": 3,
+        "simulation_steps": 11358,
+        "integration_calls": 92,
+        "replay_payload_bytes": 894870,
+        "branch_failure_rate": 1.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+        "trial_count": 3,
+        "integrated_trial_count": 3,
+        "trial_simulation_steps": 11358,
+        "trial_integration_calls": 92,
+        "trial_physics_wall_seconds": 10.355317329987884,
+        "trial_failure_rate": 1.0,
+        "trial_engine": "mujoco.rollout/contact-sensors-v1",
+        "stopping_reason": "candidate_exhausted",
+        "physics_trial_workers": 2,
+        "peak_parallel_trials": 2
+      },
+      "error": null,
+      "stale": false
+    },
+    {
+      "schema_version": "1.0",
+      "id": "66cb55d2-2b0c-43f4-b799-25c47f0cd3ae",
+      "world_id": "9befce29-b331-492f-b8c5-bcfe190935ff",
+      "revision": 0,
+      "status": "completed",
+      "request": {
+        "realtime_speed": 4.0,
+        "physics_trials": 3,
+        "adaptive_trials": false,
+        "execute_selected": true,
+        "realtime_execution": true,
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 40.0,
+        "policy": "deterministic",
+        "search_candidates": 3,
+        "physics_budget": 3
+      },
+      "selected_branch_id": null,
+      "result": {
+        "conclusion": "No candidate completed physical pickup and placement.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "d4121786-a342-46fb-b37c-3354bbf90f6b",
+          "a044b2c2-b2be-4566-874c-0af984764ff3",
+          "03f46339-e696-44bd-b03a-cc10f867894c"
+        ],
+        "top_feasible_branch_ids": [],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "realtime_speed": 4.0,
+          "physics_trials": 3,
+          "adaptive_trials": false,
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 3,
+          "physics_budget": 3,
+          "max_wall_seconds": 300
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 3,
+          "distinct_generated": 3,
+          "screened": 3,
+          "rejected": 0,
+          "screening_passed": 3,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "68e18de50ed505be44769cf9832c567e516081a7444a23f9f001c45d0a1a3f45",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0,
+            "object_not_visible": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "adaptive_stopping": false,
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "physics_target": 3,
+          "verified_feasible": 0,
+          "physics_rejected": 3,
+          "trial_simulation_steps": 10295,
+          "engine": "mujoco.rollout/contact-sensors-v1",
+          "retained_full_traces": 3,
+          "physics_trial_workers": 2,
+          "peak_parallel_trials": 2,
+          "stopping_reason": "candidate_exhausted"
+        }
+      },
+      "performance": {
+        "job_wall_seconds": 14.718996995128691,
+        "process_cpu_seconds": 2.1942572989999967,
+        "queue_wait_seconds": 0.01149509334936738,
+        "planning_wall_seconds": 7.188072891905904,
+        "physics_wall_seconds": 11.554677367210388,
+        "candidate_count": 3,
+        "simulation_steps": 10295,
+        "integration_calls": 86,
+        "replay_payload_bytes": 836397,
+        "branch_failure_rate": 1.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+        "trial_count": 3,
+        "integrated_trial_count": 3,
+        "trial_simulation_steps": 10295,
+        "trial_integration_calls": 86,
+        "trial_physics_wall_seconds": 11.554677367210388,
+        "trial_failure_rate": 1.0,
+        "trial_engine": "mujoco.rollout/contact-sensors-v1",
+        "stopping_reason": "candidate_exhausted",
+        "physics_trial_workers": 2,
+        "peak_parallel_trials": 2
+      },
+      "error": null,
+      "stale": false
+    }
+  ],
+  "replay_frames": 104,
+  "measurement_comparison": {
+    "schema_version": "vivacity.measurement-comparison/1.0",
+    "id": "81c7287d-faa7-4e3a-94cc-ac15e05fbecd",
+    "created_unix_s": 1791908854.0478487,
+    "session_id": "94073528-0a51-43ac-944a-775fcb489f7b",
+    "experiment_id": "e2c9f766-1529-49fa-b18f-9dfda0eb851f",
+    "branch_id": "03d3c80c-0a47-4764-afd1-09b4bed9eff3",
+    "source_label": "Recorded simulation self-reference, numerical alignment check only",
+    "source_kind": "synthetic_reference",
+    "coordinate_system": "runtime_z_up_m",
+    "time_offset_s": 0,
+    "input_sha256": "244cea7799d11b7a4969a844c2082ea99239038287f3918572a0dc6ca776bea6",
+    "matched_samples": 12,
+    "excluded_samples": 0,
+    "rmse_position_m": 0.0,
+    "max_position_error_m": 0.0,
+    "mean_position_error_m": 0.0,
+    "observed_displacement_m": [
+      0.00017534844632272062,
+      0.0009694721171120968,
+      -0.0010043720089697485
+    ],
+    "simulated_displacement_m": [
+      0.00017534844632272062,
+      0.0009694721171120968,
+      -0.0010043720089697485
+    ],
+    "overlap_duration_s": 7.82399999999936,
+    "residuals_m": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "samples": [
+      {
+        "time_s": 0.0,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.026000000000000002
+        ]
+      },
+      {
+        "time_s": 0.7680000000000006,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.02499562799105252
+        ]
+      },
+      {
+        "time_s": 1.5360000000000011,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.024995627991032783
+        ]
+      },
+      {
+        "time_s": 2.303999999999968,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.024995627991050793
+        ]
+      },
+      {
+        "time_s": 3.0719999999998833,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.024995627991070187
+        ]
+      },
+      {
+        "time_s": 3.8399999999997987,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.024995627991032957
+        ]
+      },
+      {
+        "time_s": 4.4359999999997335,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.02499562799105432
+        ]
+      },
+      {
+        "time_s": 5.203999999999649,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.024995627990979746
+        ]
+      },
+      {
+        "time_s": 5.823999999999581,
+        "position_m": [
+          0.5000015259275897,
+          -0.14856258657212176,
+          0.024995261994977373
+        ]
+      },
+      {
+        "time_s": 6.437999999999513,
+        "position_m": [
+          0.5000023849066869,
+          -0.14856466123082096,
+          0.02499539374291274
+        ]
+      },
+      {
+        "time_s": 7.205999999999428,
+        "position_m": [
+          0.5001753484463227,
+          -0.1490305278828879,
+          0.024995627991030268
+        ]
+      },
+      {
+        "time_s": 7.82399999999936,
+        "position_m": [
+          0.5001753484463227,
+          -0.1490305278828879,
+          0.024995627991030254
+        ]
+      }
+    ],
+    "simulated_positions_m": [
+      [
+        0.5,
+        -0.15,
+        0.026000000000000002
+      ],
+      [
+        0.5,
+        -0.15,
+        0.02499562799105252
+      ],
+      [
+        0.5,
+        -0.15,
+        0.024995627991032783
+      ],
+      [
+        0.5,
+        -0.15,
+        0.024995627991050793
+      ],
+      [
+        0.5,
+        -0.15,
+        0.024995627991070187
+      ],
+      [
+        0.5,
+        -0.15,
+        0.024995627991032957
+      ],
+      [
+        0.5,
+        -0.15,
+        0.02499562799105432
+      ],
+      [
+        0.5,
+        -0.15,
+        0.024995627990979746
+      ],
+      [
+        0.5000015259275897,
+        -0.14856258657212176,
+        0.024995261994977373
+      ],
+      [
+        0.5000023849066869,
+        -0.14856466123082096,
+        0.02499539374291274
+      ],
+      [
+        0.5001753484463227,
+        -0.1490305278828879,
+        0.024995627991030268
+      ],
+      [
+        0.5001753484463227,
+        -0.1490305278828879,
+        0.024995627991030254
+      ]
+    ],
+    "scope": "User-supplied object positions in runtime meters, Z-up, linearly interpolated recorded MuJoCo states. Source authenticity and hardware predictive accuracy are not independently verified. No automatic spatial calibration, robot/contact alignment or parameter fitting."
+  },
+  "websocket_events": 9,
+  "completed_unix_s": 1791908855.9452982
+}

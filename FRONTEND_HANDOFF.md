@@ -1,3 +1,23 @@
+# Spatial pipeline contract update — 2026-10-13
+
+The current application is deployed at https://demo.tryvivacity.com/ with backend https://vivacity-runtime.onrender.com. All 55 OpenAPI paths are exported in `openapi.json` and `docs/openapi.json`; generated TypeScript contracts remain in `frontend/src/generated/api.d.ts`.
+
+[SPATIAL_PIPELINE_RELEASE.md](docs/SPATIAL_PIPELINE_RELEASE.md) contains exact capture/generation/asset/measurement routes, request examples, coordinates/transforms, representation readiness, quality/streaming behavior and tested/incomplete capability status. Existing experiment REST/WebSocket/replay formats below remain valid. New saved configuration field `variation` controls independent physical conditions and preassigned held-out seeds; use `GET /v1/sessions/{id}` to renew the session lease. Native trials run on the server; the browser decodes and renders actual assets/recorded MuJoCo transforms.
+
+For Claude Code, work in `P:\VIVACITY\DEMO-`. Important frontend files are `WorldLibrary.tsx`, `WorldPreview.tsx`, `EnvironmentAppearance.tsx`, `QualityControl.tsx`, `renderQuality.ts`, `WorldEvidence.tsx`, `ExperimentSetup.tsx`, `VariationControls.tsx`, `RobustnessReport.tsx`, `workspaceApi.ts`, `useRuntime.ts`, `RobotView.tsx` and `engineering.css` under `frontend/src`. Preserve the owned worker barriers, version-based collection signature, API capability handling and independent physics/rendering contract. Imported/generated appearance must never replace measured collision/dynamics results.
+
+```powershell
+# Separate terminals, from the repository root:
+.venv\Scripts\python.exe -m scripts.run_workspace_server
+$env:VITE_API_BASE_URL='http://127.0.0.1:8010'
+npm --prefix frontend run dev
+# Verification/build:
+node --experimental-strip-types --test scripts/test-api-responses.mjs scripts/test-api-transport.mjs scripts/test-spatial-quality.mjs scripts/test-template-selection.mjs
+npm --prefix frontend run build
+```
+
+Provider keys are server-only. Do not read secrets into frontend configuration. Do not restore Scientific Discovery or the removed credits footer. Keep generation an explicit user action and world loading idle. A real `--generate` verification command spends provider credits; `--resume` retrieves its existing operation.
+
 # Physical inspection contract update — 2026-10-13
 
 See [PHYSICAL_PLATFORM_RELEASE.md](docs/PHYSICAL_PLATFORM_RELEASE.md) for the deployed

@@ -1,0 +1,100 @@
+{
+  "representations": {
+    "schema_version": "vivacity.representations/1.0",
+    "visual": {
+      "kind": "Gaussian splats",
+      "format": "SPZ",
+      "qualities": [
+        "100k",
+        "500k"
+      ],
+      "coordinates": "Marble raw OpenCV",
+      "semantics": {
+        "metric_scale_factor": 1.3389413356781006,
+        "ground_plane_offset": 1.8548452854156494
+      },
+      "physics_source": false
+    },
+    "geometry": {
+      "source_sha256": "7d7d0e5855eef49f97f38b87e112e64c35e3d71b1f6c1b9e44089ce27b8a8495",
+      "original_glb_preserved": true,
+      "validation": {
+        "schema_version": "vivacity.geometry-evidence/1.0",
+        "scope": "deterministically subsampled preview",
+        "source_mesh_fully_checked": false,
+        "vertices": 39139,
+        "triangles": 20646,
+        "bounds_source_coordinates": [
+          [
+            -3.966806411743164,
+            -0.7947186231613159,
+            -10.341623306274414
+          ],
+          [
+            10.145918846130371,
+            2.3441808223724365,
+            2.966005802154541
+          ]
+        ],
+        "coordinate_system": "glTF Y-up; original scene transforms applied; camera framing is display-only",
+        "finite_vertices": true,
+        "valid_indices": true,
+        "degenerate_triangles": 0,
+        "boundary_edges": 50286,
+        "nonmanifold_edges": 0,
+        "inconsistent_winding_edges": 0,
+        "watertight_preview": false,
+        "normals": "computed finite face normals; imported normal attributes are not validated",
+        "self_intersections": "not checked",
+        "object_separation": "not inferred; connected surfaces are not semantic objects",
+        "metric_scale": "user supplied or provider reported; not independently measured",
+        "physical_properties": {
+          "mass": "unknown",
+          "friction": "unknown",
+          "restitution": "unknown"
+        },
+        "physics_readiness": "requires explicit collision mapping and independent validation"
+      }
+    },
+    "physical": {
+      "engine": "MuJoCo",
+      "collision": "explicit conservative solid box proxy",
+      "readiness": "configured_proxy",
+      "calibration": "not performed",
+      "parameters": "configured estimates",
+      "source_visual_alignment": "not independently validated"
+    }
+  },
+  "generation": {
+    "provider": "worldlabs",
+    "job_id": "424e0ccb-8672-4023-adad-9ef846963c6b",
+    "operation_id": "a18240bf-21fd-49e7-89c0-56ff06650462",
+    "source_prompt": "Reconstruct this compact industrial warehouse with metal racks, concrete floor and an empty central robotics workbench. Preserve the layout from this virtual-scene image. No people.",
+    "input_type": "image",
+    "inputs": [
+      {
+        "schema_version": "vivacity.capture/1.0",
+        "id": "b2e16372-c662-4424-b29d-e58946300578",
+        "filename": "warehouse.jpg",
+        "kind": "image",
+        "extension": "jpg",
+        "dimensions_px": [
+          550,
+          290
+        ],
+        "validation": "bounded image dimensions and signature; full decoding is validated by the provider",
+        "sha256": "4d21c2a0b3c6e09e7c7cb45f7df2242832850f958a027b1d41db87981c3a0eea",
+        "uploaded_bytes": 38756,
+        "created_unix_s": 1791908135.3735726,
+        "provider_media_asset_id": "39562db0-a0fa-4beb-826c-a274f532822a",
+        "azimuth_deg": null
+      }
+    ],
+    "geometry_origin": "generated/inferred from observations; not a measured digital twin",
+    "model": "marble-1.1",
+    "seed": 7,
+    "provider_cost_credits": 1580,
+    "processing_status": "received",
+    "validation_status": "bounded geometry checks; explicit proxy physics; uncalibrated"
+  }
+}

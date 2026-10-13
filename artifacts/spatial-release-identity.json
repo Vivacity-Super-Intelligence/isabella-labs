@@ -1,0 +1,17 @@
+{
+  "frontend_source": "6e01c10",
+  "frontend_deployment": "dpl_fw4Z5Wf9EvtAHgewwxfkfdr5XmSx",
+  "frontend_url": "https://demo.tryvivacity.com/",
+  "immutable_url": "https://vivacity-demo-pwbqlbtcv-tanishs-projects-66633ee2.vercel.app",
+  "backend_source": "fcfb6f6cc415a7ca664e5557dfa634c1ad146384",
+  "render_deployment": "dep-db75f60m7kps73c3b4ng",
+  "openapi_paths": 55,
+  "public_aliases_identical": true,
+  "html_sha256": "b04b39b36c45af8fb645b136e3ac34cdb485d664b3a83bf9f0868470b5d90184",
+  "linux_tests": 261,
+  "linux_failures": 0,
+  "linux_errors": 0,
+  "linux_skips": 0,
+  "memory_limit_tests": 3,
+  "frontend_tests": 26
+}

@@ -1,0 +1,112 @@
+{
+  "world_switches": [
+    {
+      "world": "warehouse",
+      "quality": "balanced",
+      "asset": "500k",
+      "source_splats": null,
+      "lod_tree_splats": 710325,
+      "load_ms": 2436.7999999821186,
+      "lod": true,
+      "asset_bytes": 7421219,
+      "lod_budget": 300000,
+      "geometry_count": 2,
+      "texture_count": 10
+    },
+    {
+      "world": "robotics_lab",
+      "quality": "balanced",
+      "asset": "500k",
+      "source_splats": null,
+      "lod_tree_splats": 591223,
+      "load_ms": 2369,
+      "lod": true,
+      "asset_bytes": 4829370,
+      "lod_budget": 300000,
+      "geometry_count": 2,
+      "texture_count": 9
+    },
+    {
+      "world": "warehouse",
+      "quality": "balanced",
+      "asset": "500k",
+      "source_splats": null,
+      "lod_tree_splats": 710325,
+      "load_ms": 2360.9000000059605,
+      "lod": true,
+      "asset_bytes": 7421219,
+      "lod_budget": 300000,
+      "geometry_count": 2,
+      "texture_count": 11
+    },
+    {
+      "world": "robotics_lab",
+      "quality": "balanced",
+      "asset": "500k",
+      "source_splats": null,
+      "lod_tree_splats": 591223,
+      "load_ms": 1780.2999999821186,
+      "lod": true,
+      "asset_bytes": 4829370,
+      "lod_budget": 300000,
+      "geometry_count": 2,
+      "texture_count": 11
+    },
+    {
+      "world": "warehouse",
+      "quality": "balanced",
+      "asset": "500k",
+      "source_splats": null,
+      "lod_tree_splats": 710325,
+      "load_ms": 2348.9000000059605,
+      "lod": true,
+      "asset_bytes": 7421219,
+      "lod_budget": 300000,
+      "geometry_count": 2,
+      "texture_count": 11
+    },
+    {
+      "world": "warehouse",
+      "quality": "high",
+      "asset": "500k",
+      "source_splats": null,
+      "lod_tree_splats": 710325,
+      "load_ms": 2085.5,
+      "lod": true,
+      "asset_bytes": 7421219,
+      "lod_budget": 500000,
+      "geometry_count": 2,
+      "texture_count": 9
+    },
+    {
+      "world": "warehouse",
+      "quality": "performance",
+      "asset": "100k",
+      "source_splats": null,
+      "lod_tree_splats": 134215,
+      "load_ms": 489.59999999403954,
+      "lod": true,
+      "asset_bytes": 1208312,
+      "lod_budget": 100000,
+      "geometry_count": 2,
+      "texture_count": 8
+    }
+  ],
+  "asset_failure_coarse_fallback": true,
+  "asset_recovery_warning_cleared": true,
+  "mobile_viewport_px": 390,
+  "mobile_document_width_px": 390,
+  "reduced_motion_checked": true,
+  "paused_clock_before": [
+    "6.694 s"
+  ],
+  "paused_clock_after": [
+    "6.694 s"
+  ],
+  "local_idle_sample": {
+    "elapsed_s": 79.52652499999385,
+    "main_thread_task_s": 0.112427,
+    "script_s": 0.042176,
+    "js_heap_bytes": 17075236
+  }
+}

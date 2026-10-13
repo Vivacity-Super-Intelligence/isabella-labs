@@ -185,10 +185,61 @@ Use the real production base and socket base for deployment verification.
 
 ## Verification evidence
 
-Release verification is in progress. Do not treat earlier-release results as checks
-of this source revision. Local real image generation and three physical conditions
-are recorded in `artifacts/spatial-live-local.json`; targeted tests are recorded
-in `artifacts/spatial-pipeline-tests.xml` and `artifacts/spatial-runtime-regression.xml`.
+Final backend revision `fcfb6f6cc415a7ca664e5557dfa634c1ad146384` passed **261/261 Linux tests** with zero failures, errors or skips, plus **3/3 hard 512 MiB checks**. [Executed CI run](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38426776786); JUnit evidence is in `artifacts/spatial-final-linux/`. Shards executed 92/75/94 tests in 311.464/195.438/347.953 seconds; memory checks took 67.914 seconds. Windows spatial/schema/workspace checks passed 67/67; earlier changed-area checks passed 86/86. All 26 frontend transport/selection/quality checks and TypeScript/Vite/Vercel builds passed.
+
+Public verification on this backend revision executed three independent physical configurations, nine candidate trials plus fresh authoritative executions: **74,867 simulation steps**, 75.585 seconds aggregate experiment wall time, peak two independent physics workers in every experiment. All three configurations succeeded, including the single held-out seed. This is a three-configuration demonstration, not a statistically established success rate. Replay returned 250 frames; native WSS delivered 12 events. A separate weak-grip run genuinely failed all three configurations and retained those failure regions; it returned 104 replay frames and nine WSS events. Recorded self-reference measurement comparison returned position RMSE 0 m; this verifies interpolation, not hardware alignment.
+
+The browser submitted a real image generation and saved world `aec0bc04-e661-45ab-a3c6-ed764963f446`, operation `a18240bf-21fd-49e7-89c0-56ff06650462`, with the actual provider-reported 1,580 credits. Its image was our virtual warehouse render, explicitly described as such. Input SHA-256, provider media ID, collider evidence and separate uncalibrated physics mapping are recorded in `artifacts/spatial-public-generation.json`. A separate local image generation, owned original collider/100k/500k/thumbnail byte hashes and actual physics executions are in `artifacts/spatial-live-local.json`.
+
+The first local and first public generation attempts failed during OpenAI scene validation, without a World Labs submission or fake world. The reproduced issue was fixed by putting position/size/dimension bounds into the provider's structured schema and retaining one bounded correction. A fresh real OpenAI call passed (`artifacts/spatial-provider-schema-live.json`), followed by successful browser generation. A local verification-client connection interrupted polling once; it resumed the recorded operation without submitting a new paid generation.
+
+Public HTTP uses the actual same-origin rewrite, WSS connects directly to Render, and all **55 OpenAPI paths** match `openapi.json`. A 5 MiB container-signature upload crossed the public rewrite and was persisted with its real byte count. It was deliberately a container-boundary test, not a valid decoded video or successful video generation.
+
+Rendering audit found and fixed hidden active previews and recursive idle collection. The corrected LoD signature includes SDK generator/mapping versions, and teardown awaits sorting plus the public LoD worker barrier. One idle local measurement observed 0.112 seconds of browser main-thread task time over 79.527 seconds, 0.042 seconds script time and a 17,075,236-byte JS heap at the final sample. Those figures are device-specific and exclude total GPU/worker memory. Generation mode had zero mounted canvases. The public generated environment rendered with the real Panda; gallery framing now uses an interior eye height anchored to the aligned workcell ground rather than outlier splat bounds. Large Spark/Three bundles remain a cold-load cost (~901 KiB/~262 KiB gzip).
+
+Evidence: `artifacts/spatial-live-public-final.json`, `artifacts/spatial-failure-public-final.json`, `artifacts/spatial-upload-boundary.json`, `artifacts/spatial-public-openapi.json`, browser screenshots and acceptance record. Multi-image/panorama/video provider contracts passed isolated tests; each still needs its own full live generation. Source self-intersection checks, automatic segmentation/calibration, hardware prediction and Atlas access remain unavailable.
+
+## Public investor journey and release identity
+
+The public browser created a world from an uploaded virtual warehouse image,
+loaded the actual generated splats and real Panda model, saved a named variation
+configuration, explicitly started the experiment, paused/resumed native execution,
+and exported recorded physics. Loading/reloading stayed idle. The clock remained
+exactly 6.694 s across the acknowledged pause. The three generated-world conditions
+completed with 3/3, 2/3 and 2/3 feasible candidate validations, followed by three
+successful fresh executions; placement errors were 1.062/1.098/2.958 mm. This run
+integrated 74,855 steps. Its wall time includes the deliberately long pause.
+Actual executed masses were 0.060/0.092194/0.082964 kg and sliding friction was
+1.000/0.560639/1.111149. Comparison rows now show each executed condition, rather
+than repeating the initial run mass. Full evidence: `artifacts/spatial-public-ui-run.json`
+and `artifacts/spatial-public-ui-export.json`.
+
+Five repeated public warehouse/laboratory switches completed without JavaScript
+errors. At 500k load completion, geometry count stayed at two and texture counts
+were 9–11; these are load-time resource samples, not total-memory certification.
+Performance, Balanced and High fidelity were exercised. A deliberately blocked
+500k download preserved its real coarse splats; unblocking and changing quality
+retrieved 500k and cleared the warning. The test initially exposed a stale warning,
+which was fixed and rechecked. Mobile/reduced-motion testing at 390×844 measured
+390 px document width with the Enter workspace action available. Test emulation
+and network blocks were cleared. The remaining cold-load bundle cost is documented
+above. No claim is made about every GPU/device or long-duration memory behavior.
+
+A frontend release while an old tab retained old lazy chunk URLs triggered the
+new recovery boundary; Reload workspace recovered and the saved server run remained
+accessible. The final release is verified after reload. Normal world switching had
+no errors; deliberate network/release faults are distinguished from normal operation.
+
+Backend source: `fcfb6f6cc415a7ca664e5557dfa634c1ad146384`, Render deployment
+`dep-db75f60m7kps73c3b4ng`, Live (53.2 s deployment). Frontend source `6e01c10`,
+Vercel deployment `dpl_fw4Z5Wf9EvtAHgewwxfkfdr5XmSx`; exact identities and final
+matching-HTML verification are in `artifacts/spatial-release-identity.json`.
+The final live result screenshot is `artifacts/spatial-public-final.jpg`.
+Both public aliases return identical HTML and the live 55-path contract matches
+the exported specification. The public workspace was reset to 0.000 s with Start
+available; old results are explicitly marked as belonging to the previous state.
+Render Free still sleeps and loses local files on deployment;
+this release does not create paid always-on or persistent-disk hosting.
 
 ## Sources checked
 
