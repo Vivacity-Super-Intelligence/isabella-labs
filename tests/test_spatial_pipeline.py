@@ -204,3 +204,24 @@ def test_measurement_schema_rejects_unordered_or_nonfinite_values():
     with pytest.raises(ValueError):MeasurementRequest.model_validate(body)
     body['samples'][1]['time_s']=2;body['samples'][1]['position_m'][0]=float('nan')
     with pytest.raises(ValueError):MeasurementRequest.model_validate(body)
+
+
+def test_run_report_reads_persisted_configuration_not_public_projection(runtime,monkeypatch):
+    from vivacity.workspace import WorkspaceService
+    from vivacity.storage import encode
+    svc=WorkspaceService(runtime)
+    session={'experiments':['e'],'conditions':[{'world_id':'w','partition':'held_out','seed':9}]}
+    experiment={'id':'e','world_id':'w','status':'completed','selected_branch_id':'b','result':{'execution_evaluation':{'success':True,'status':'success'}}}
+    monkeypatch.setattr(runtime.supervisor,'get',lambda *args:session)
+    monkeypatch.setattr(runtime,'get_experiment',lambda _:experiment)
+    monkeypatch.setattr(runtime.store,'branches',lambda _:[])
+    original=runtime.store.get
+    monkeypatch.setattr(runtime.store,'get',lambda kind,identifier,*args: {'config':{'cube_mass':.08,'cube_friction':.3}} if kind=='experiments' else original(kind,identifier,*args))
+    with runtime.store.connect() as db:
+        db.execute('INSERT INTO configuration_runs VALUES(?,?,?,?)',('s',owner(OWNER['X-Workspace-Token']),'c',encode({'session_id':'s','configuration_id':'c','capability':'secret-test-token'})))
+    try:
+        result=svc.runs(OWNER['X-Workspace-Token'])
+        assert result[0]['robustness']['partitions']['held_out']['success_rate']==1
+        assert result[0]['robustness']['configurations'][0]['conditions']['mass_kg']==.08
+        assert 'capability' not in result[0] and 'config' not in result[0]['experiments'][0]['experiment']
+    finally:svc.close()

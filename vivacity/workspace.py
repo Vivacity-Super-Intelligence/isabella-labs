@@ -74,7 +74,7 @@ class WorkspaceService:
         with self.visual_lock, self.store.connect() as db:
             db.execute('BEGIN IMMEDIATE')
             if db.execute("SELECT COUNT(*) FROM library_items WHERE kind='capture' AND owner=?",(owner(token),)).fetchone()[0]>=20:
-                raise ValueError('twenty captures per workspace; remove unused captures before uploading more')
+                raise ValueError('twenty captures per workspace; administrator storage cleanup required')
             if sum(p.stat().st_size for p in root.glob('*.bin'))+len(content)>128*1024*1024:
                 raise ValueError('capture storage quota reached')
             path=root/(record['id']+'.bin');path.write_bytes(content)
@@ -264,7 +264,10 @@ class WorkspaceService:
             entries=[];robustness_inputs=[]
             for experiment in experiments:
                 branches=self.store.branches(experiment['id'])
-                robustness_inputs.append((experiment,[{k:b[k] for k in ('id','evaluation')} for b in branches]))
+                # Public experiment responses omit config. Reports use the
+                # persisted execution inputs, not the current editable world.
+                executed=self.store.get('experiments',experiment['id'])['config']
+                robustness_inputs.append((experiment|{'config':executed},[{k:b[k] for k in ('id','evaluation')} for b in branches]))
                 measured=[b for b in branches if b['action'].get('execution_role')!='authoritative_execution']
                 with self.store.connect() as db:
                     total,successes=db.execute("SELECT COUNT(*),COALESCE(SUM(json_extract(payload,'$.evaluation.success')),0) FROM trials WHERE experiment_id=?",(experiment['id'],)).fetchone()

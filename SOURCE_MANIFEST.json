@@ -228,7 +228,7 @@
   "vivacity/storage.py": "68d08cae9a1dc5a07ab5d238904d05b3c9652765498d42b3a08e571bb1669bb7",
   "vivacity/supervisor.py": "2d8dada2dda1cb1c82e7e5a4acdd33bf42721537bc1b998403598c54ae1e3b5f",
   "vivacity/templates.py": "6ed6af838f8c0f89c28a2ad3d7b7338028d5875c4a1328b3e9daf62a9d17351d",
-  "vivacity/workspace.py": "ec8a5e47421180dc2378a6f6b912663e642723c916d56d84a30e0bbf6234cf27",
+  "vivacity/workspace.py": "94d01682ff68e4d200ade31242f7d6f4320547dd0014fc55f4049ddd4b375631",
   "vivacity/workspace_api.py": "825db2d97859cf117d2aa501b1f863b472a7cfbe4e85b273f38f05d89de8e063",
   "vivacity/workspace_schemas.py": "855fafcef2858ec030bc2d30aede558823ab816c2e7bf50e4f1bb6315724fca4",
   "vivacity/world_presets.py": "74863cea8e2d22e451e85c1119166f8abf4b3f13da1a707f9cc1e5cb1896fe1e",
@@ -244,5 +244,5 @@
   "tests/test_physical_platform.py": "43a7bebf6f2df025ce3b07379631f9e1e47ba67a0c13529b82df80663e8a094b",
   "vivacity/spatial.py": "90bf641d4c1c2bd9f9152a80a7e31c33b19318b5d4e8664350c7c68388467e99",
   "vivacity/variation.py": "a890126db854f1217f18ac4a9dc8c88cb9a0749596b3d6a527a273572962d8bf",
-  "tests/test_spatial_pipeline.py": "f708f484b5f415f07e06bf9830aa7564b71b5c9e45c0b691883f4db797e9c942"
+  "tests/test_spatial_pipeline.py": "bde0219911293c0ffbef051ac41a009cbe6cc7646576c02b4615e9a2f35bc91a"
 }
