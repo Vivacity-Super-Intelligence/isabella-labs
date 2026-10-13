@@ -21,8 +21,11 @@ Panda × any of the four rigid worlds × either rigid handling task gives eight
 runnable combinations. Panda × textile × cloth folding gives the ninth.
 Compatibility is checked on the server, not just by disabling a button.
 Successful loading creates an idle world. Only Start experiments launches work.
-Each loaded template has separate world/session/settings storage keys. Picking
-a planned reference does not rename the already-loaded Panda simulation.
+Each loaded template has separate world/session/settings storage keys. Planned
+arms and tasks are visible but disabled, with plain availability labels. Choosing
+textile or cloth folding selects both; switching to object handling selects a
+compatible rigid station. Changing between rigid stations preserves the chosen
+handling task. Hardware is never silently substituted or relabeled.
 
 Worlds are simplified task workcells, not complete factories or warehouse
 digital twins. Warehouse uses a rigid parcel surrogate; inspection has no
@@ -62,6 +65,7 @@ Unknown IDs, extra fields and non-finite parameters are rejected by Pydantic.
 .\.venv\Scripts\python scripts/update-robotics-catalog.py
 npm --prefix frontend run generate:api
 npm --prefix frontend run build
+npm --prefix frontend run test:templates
 $env:OPENBLAS_NUM_THREADS='1'; $env:OMP_NUM_THREADS='1'; $env:MKL_NUM_THREADS='1'
 .\.venv\Scripts\python -m pytest tests/test_templates.py -q
 ```
