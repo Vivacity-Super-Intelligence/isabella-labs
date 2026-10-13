@@ -9,12 +9,14 @@ the same equation for the discovery panel. `equation_latex` and
 `editable_latex` remain the Desmos forms. The frontend renders the display
 with KaTeX/MathML, copies that LaTeX source, and keeps horizontal scrolling
 inside the equation card on mobile.
-The verified backend source is `5657aaf` (Render deploy
-`dep-db7bq4tg1s2s739tt590`); the production frontend remains at
+The verified backend source is `5e481e9` (Render deploy
+`dep-db7c6le7bikc73ab2gqg`); Vercel deployment
+`dpl_2DKas6D8YaLo4PdvL4UAKjGVkjpt` is live at
 https://demo.tryvivacity.com/. A public one-carton conveyor run exercised the
-25-frame provisional fit and final 43-frame/eight-series result with zero
-browser console errors. The full Linux gate passed 297 backend and four
-hard-512 MiB tests with no failures.
+25-frame provisional fit and final 43-frame/eight-series result. Its piecewise
+model rendered as LaTeX `cases` with MathML, model switching and copying worked,
+and the browser logged zero errors. The full Linux gate passed 297 backend and
+four hard-512 MiB tests with no failures.
 See [FACTORY_DISCOVERY.md](docs/FACTORY_DISCOVERY.md) for exact polling,
 provenance, exports, comparison and optional Desmos setup. The React entry is
 [FactoryDiscovery.tsx](frontend/src/FactoryDiscovery.tsx), mounted in the

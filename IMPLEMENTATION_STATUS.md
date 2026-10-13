@@ -5,12 +5,13 @@ checkpoint and 100-sample numerical updates; final eight-family equation
 comparison with chronological held-out metrics and poor-fit reporting;
 SQLite persistence/restart; owner-scoped discovery API; measured-plus-fitted
 browser chart, model switching, saved-run comparison, CSV and Desmos-ready JSON
-export; optional official Desmos Graphing Calculator adapter. A joint-torque
+export; conventional LaTeX for each new fitted model, KaTeX/MathML display and
+LaTeX copy; optional official Desmos Graphing Calculator adapter. A joint-torque
 association is reported only when acceleration and torque vary sufficiently.
 
 Focused numerical/API tests: 8 passed. The final Linux container gate ran
 297/297 backend tests plus 4/4 hard-512 MiB tests, with zero failures, errors
-or skips ([run 38482835173](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38482835173)).
+or skips ([run 38485502046](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38485502046)).
 The current frontend check ran 25 API/analysis/number tests and five template
 tests, all passing. TypeScript and production Vite build passed. A local browser observed two real
 conveyor conditions (174 and 236 samples), a 25-sample provisional checkpoint,
@@ -19,16 +20,20 @@ rejected height fit, model switching, two-run overlay and measured CSV export.
 A one-pair 4,225-step local conveyor comparison measured 6.599 s without
 discovery and 6.606 s with it; this does not establish general throughput.
 
-The final backend source is commit `5657aaf` on the private backend repository's
-`main` branch, live in Render deploy `dep-db7bq4tg1s2s739tt590`. The Vercel
-frontend is live at https://demo.tryvivacity.com/. A fresh public conveyor run
+The final backend source is commit `5e481e9` on the private backend repository's
+`main` branch, live in Render deploy `dep-db7c6le7bikc73ab2gqg`. Vercel
+deployment `dpl_2DKas6D8YaLo4PdvL4UAKjGVkjpt` is live at
+https://demo.tryvivacity.com/. A fresh public conveyor run
 recorded 43 MuJoCo frames. At 25 frames it published a provisional equation;
 at completion it published eight persisted series. The low-variance held-out
 R² displayed as undefined at both stages, and the selected height model was
 marked poor-fit. Public `/health` and `/openapi.json` returned HTTP 200; the
-deployed page showed no browser console errors. The public browser screenshot is
-`artifacts/factory-discovery-public-browser.png` (kept as local verification
-evidence, outside tracked source).
+deployed page showed conventional piecewise `cases` notation with accessible
+MathML, updated correctly when the model changed, copied valid LaTeX, and
+logged zero browser console errors. Sixteen backend-generated expressions
+rendered through KaTeX in an independent parser check. The public browser
+screenshot is `artifacts/factory-latex-public.png` (local verification evidence,
+outside tracked source).
 
 Two pre-existing 60-second **Windows** factory production tests timed out
 while native MuJoCo was still running. A controlled earlier no-discovery run
