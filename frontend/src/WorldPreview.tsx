@@ -9,6 +9,8 @@ import {workspaceApi} from './workspaceApi';
 import type {components} from './generated/api';
 import SceneBoundary from './SceneBoundary';
 import EnvironmentAppearance,{appearanceFor} from './EnvironmentAppearance';
+import RenderQualityControl,{useRenderQuality} from './QualityControl';
+import {qualityProfiles} from './renderQuality';
 
 export function ImportedVisual({preview,mapping}:{preview:components['schemas']['ImportPreview'];mapping:Record<string,unknown>}){
   const geometry=useMemo(()=>{
@@ -44,15 +46,16 @@ export default function WorldPreview({world}:{world:LibraryWorld}){
   const [preview,setPreview]=useState<components['schemas']['ImportPreview']|null>(null),[error,setError]=useState<string|null>(null);
   const [loading,setLoading]=useState(''),[bounds,setBounds]=useState<Box3|null>(null),[reset,setReset]=useState(0);
   const appearance=appearanceFor(world);
+  const quality=useRenderQuality();
   useEffect(()=>{let active=true;setPreview(null);setError(null);setBounds(null);setLoading('');if(world.preview_available&&!appearance)workspaceApi.preview(world.id).then(p=>active&&setPreview(p)).catch(()=>active&&setError('Original geometry could not load.'));return()=>{active=false;};},[world.id]);
   const size=bounds?.getSize(new Vector3()),center=bounds?.getCenter(new Vector3());
   const focus:[number,number,number]=bounds&&size&&center?(appearance?.format==='spz'?[.2,.7,bounds.min.z+size.z*.3]:center.toArray() as [number,number,number]):(world.mapping?.position_m as [number,number,number]|undefined)??[.4,0,0];
   const distance=bounds&&size?(appearance?.format==='spz'?Math.max(.3,Math.min(size.z*.25,size.x*.15,size.y*.15)):Math.max(...size.toArray())*1.1):world.mapping?Math.max(2.4,Math.max(...world.spec.geometries[0].size)*3.2):4;
-  return <><div className="world-preview" aria-label={`${world.name}: static scene preview, not an executed experiment`}><SceneBoundary><Canvas frameloop="demand" dpr={[1,1.5]} gl={{antialias:false}} camera={{position:[4,-5,3.5],near:.015,far:150,fov:55}} onCreated={({camera,gl})=>{camera.up.set(0,0,1);gl.setClearColor('#262a2d');}}>
+  return <><div className="world-preview" aria-label={`${world.name}: static scene preview, not an executed experiment`}><SceneBoundary><Canvas frameloop="demand" dpr={qualityProfiles[quality].pixelRatio} gl={{antialias:false}} camera={{position:[4,-5,3.5],near:.015,far:150,fov:55}} onCreated={({camera,gl})=>{camera.up.set(0,0,1);gl.setClearColor('#262a2d');}}>
     <ambientLight intensity={world.spec.lighting.ambient}/><directionalLight position={[2,-2,6]} intensity={world.spec.lighting.key_intensity}/>
     {!appearance&&<mesh position={[.4,0,-.04]}><boxGeometry args={[1.4,1.3,.08]}/><meshStandardMaterial color="#b9ae95"/></mesh>}
     {!appearance&&world.source!=='worldlabs'&&world.spec.geometries.filter(g=>!preview||g.name!=='import_collision_proxy').map(g=><mesh key={g.name} position={g.position as [number,number,number]} rotation={g.type==='cylinder'?[Math.PI/2,0,0]:undefined}>{g.type==='box'?<boxGeometry args={g.size.map(v=>v*2) as [number,number,number]}/>:<cylinderGeometry args={[g.size[0],g.size[0],g.size[1]*2,24]}/>}<meshStandardMaterial color={`rgb(${g.rgba.slice(0,3).map(v=>Math.round(v*255)).join(',')})`}/></mesh>)}
     {preview&&world.mapping&&world.source!=='worldlabs'&&<ImportedVisual preview={preview} mapping={world.mapping}/>}<PreviewControls target={focus} distance={distance} reset={reset}/><PreviewRefresh revision={[preview,reset,bounds]}/>
     {appearance&&<EnvironmentAppearance world={world} appearance={appearance} onStatus={(m,failed)=>{setLoading(failed?'':m);if(failed)setError(m);}} onBounds={setBounds}/>}
-  </Canvas></SceneBoundary></div><div className="scene-toolbar"><span>{appearance?(appearance.format==='spz'?'World Labs · colored 3D splats':'Original mesh · embedded materials'):'Simplified collision workcell'}</span><button onClick={()=>setReset(r=>r+1)}>Reset camera</button></div>{loading&&<p className="small" role="status">{loading}</p>}{world.source==='worldlabs'&&!appearance&&<p role="alert" className="negative">This older world has no visual asset recorded. Generate a new environment to load its colored appearance.</p>}{error&&<p role="alert" className="negative">{error}</p>}</>;
+  </Canvas></SceneBoundary></div><div className="scene-toolbar"><span>{appearance?(appearance.format==='spz'?'World Labs · colored 3D splats':'Original mesh · embedded materials'):'Simplified collision workcell'}</span><RenderQualityControl worldId={world.id}/><button onClick={()=>setReset(r=>r+1)}>Reset camera</button></div>{loading&&<p className="small" role="status">{loading}</p>}{world.source==='worldlabs'&&!appearance&&<p role="alert" className="negative">This older world has no visual asset recorded. Generate a new environment to load its colored appearance.</p>}{error&&<p role="alert" className="negative">{error}</p>}</>;
 }

@@ -34,7 +34,12 @@ export const workspaceApi={
   restore:(id:string)=>request<LibraryWorld>(`/worlds/${encodeURIComponent(id)}/restore`,'POST'),
   preview:(id:string)=>request<components['schemas']['ImportPreview']>(`/worlds/${encodeURIComponent(id)}/preview`),
   stagedPreview:(id:string)=>request<components['schemas']['ImportPreview']>(`/imports/${encodeURIComponent(id)}/preview`),
-  generate:(prompt:string,provider:'openai'|'worldlabs',key:string)=>request<Generation>('/generations','POST',{prompt,provider,seed:7,model:'marble-1.1'},{'Idempotency-Key':key}),
+  generate:(prompt:string,provider:'openai'|'worldlabs',key:string,input_type:Generation['input_type']='text',inputs:Generation['inputs']=[])=>request<Generation>('/generations','POST',{prompt,provider,seed:7,model:'marble-1.1',input_type,inputs},{'Idempotency-Key':key}),
+  async capture(file:File){
+    if(file.size>16*1024*1024)throw new Error('Capture limit: 16 MiB per file.');
+    const r=await fetchRuntime(`${API}/v1/workspace/captures?filename=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'X-Workspace-Token':workspaceToken(),'Content-Type':'application/octet-stream'},body:file,signal:AbortSignal.timeout(60000)});
+    const value=await r.json();if(!r.ok)throw new APIError(r.status,value.detail);return value as components['schemas']['CaptureResponse'];
+  },
   generation:(id:string)=>request<Generation>('/generations/'+encodeURIComponent(id)),
   generations:()=>request<Generation[]>('/generations'),
   retry:(id:string)=>request<Generation>(`/generations/${encodeURIComponent(id)}/retry-retrieval`,'POST'),
@@ -48,10 +53,12 @@ export const workspaceApi={
   configurations:()=>request<SavedConfiguration[]>('/configurations'),
   start:(id:string,config?:Record<string,unknown>)=>request<{session:components['schemas']['SessionResponse'];session_token:string}>(`/configurations/${encodeURIComponent(id)}/runs`,'POST',{config:config??null}),
   runs:()=>request<Run[]>('/runs'),
+  compareMeasurements:(sid:string,body:components['schemas']['MeasurementRequest'])=>request<Record<string,unknown>>(`/runs/${encodeURIComponent(sid)}/measurements`,'POST',body),
   interpret:(prompt:string,environment_id:string)=>request<{proposal:{supported:boolean;explanation:string;configuration:Configuration};provenance:Record<string,unknown>}>('/operations/interpret','POST',{prompt,environment_id}),
 };
-export type Run={session_id:string;configuration_id:string;created_unix_s:number;provenance:Record<string,unknown>;initial_configuration:{config:Record<string,unknown>};session:components['schemas']['SessionResponse'];experiments:{experiment:components['schemas']['ExperimentResponse'];validation_count:number;successful_validations:number;success_rate:number|null;evaluations:{branch_id:string;evaluation:Record<string,unknown>;performance:Record<string,unknown>}[];energy_joules:null;energy_scope:string}[]};
+export type Robustness={partitions:Record<string,{completed_configurations:number;successes:number;failures:number;success_rate:number}>;configurations:Record<string,unknown>[];failure_regions:Record<string,unknown>[];scope:string;hardware_validation:string};
+export type Run={robustness?:Robustness;session_id:string;configuration_id:string;created_unix_s:number;provenance:Record<string,unknown>;initial_configuration:{config:Record<string,unknown>};session:components['schemas']['SessionResponse'];experiments:{experiment:components['schemas']['ExperimentResponse'];validation_count:number;successful_validations:number;success_rate:number|null;evaluations:{branch_id:string;evaluation:Record<string,unknown>;performance:Record<string,unknown>}[];energy_joules:null;energy_scope:string}[]};
 export type PhysicsValidation=components['schemas']['PhysicsValidationResponse'];
-export const defaultConfiguration=(world='desktop'):Configuration=>({physics:{schema_version:'vivacity.physics/1.0',gravity_m_s2:9.81,air_density_kg_m3:0,air_viscosity_pa_s:0,wind_velocity_m_s:[0,0,0],blunt_drag_coefficient:.5,contact_damping_ratio:1,gripper_force_scale:1,object_force_n:[0,0,0],object_torque_nm:[0,0,0]},object_material:'custom',schema_version:'vivacity.configuration/1.0',name:'My robotic experiment',environment_id:world,robot_id:'panda',gripper_id:'panda_parallel',operation_id:'pick_place',seed:7,
+export const defaultConfiguration=(world='desktop'):Configuration=>({variation:{enabled:false,position_radius_m:.04,friction_min:.15,friction_max:1.2,mass_min_kg:.04,mass_max_kg:.1,held_out_fraction:.25},physics:{schema_version:'vivacity.physics/1.0',gravity_m_s2:9.81,air_density_kg_m3:0,air_viscosity_pa_s:0,wind_velocity_m_s:[0,0,0],blunt_drag_coefficient:.5,contact_damping_ratio:1,gripper_force_scale:1,object_force_n:[0,0,0],object_torque_nm:[0,0,0]},object_material:'custom',schema_version:'vivacity.configuration/1.0',name:'My robotic experiment',environment_id:world,robot_id:'panda',gripper_id:'panda_parallel',operation_id:'pick_place',seed:7,
   target_position:[.5,-.15,.026],destination_position:[.5,.18,.026],object_half_sizes:[.025,.025,.025],object_mass_kg:.06,object_friction:1,
   sort_property:'mass',sort_threshold:.08,alternate_destination_position:[.5,.35,.026],trial_mode:'adaptive',validation_trials:3,randomization_cycles:1,realtime_speed:1});

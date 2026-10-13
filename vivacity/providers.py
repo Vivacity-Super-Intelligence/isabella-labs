@@ -4,6 +4,7 @@ import json
 import os
 import re
 import socket
+import time
 from urllib.parse import urlparse, quote
 import httpx
 
@@ -56,14 +57,24 @@ class OpenAIInterpreter:
                  'input':[{'role':'system','content':instructions},{'role':'user','content':prompt}],
                  'text':{'format':{'type':'json_schema','name':model_type.__name__,'strict':True,
                                   'schema':_strict_schema(model_type.model_json_schema())}}}
-        try:
-            with httpx.Client(timeout=60,trust_env=False,transport=self.transport) as client:
-                value=_json(client.post(OPENAI_API+'/responses',headers={'Authorization':f'Bearer {key}'},json=payload),'OpenAI')
-        except httpx.HTTPError:raise ProviderError('OpenAI connection failed; no scene was created.') from None
-        if value.get('status')!='completed':raise ProviderError('OpenAI did not complete a valid specification.')
-        texts=[c.get('text','') for out in value.get('output',[]) for c in out.get('content',[]) if c.get('type')=='output_text']
-        try:return model_type.model_validate_json(''.join(texts)), {'provider':'openai','model':model,'response_id':value.get('id'),'usage':value.get('usage',{})}
-        except ValueError:raise ProviderError('OpenAI returned a specification outside supported physical bounds.') from None
+        usage=[]
+        for attempt in range(2):
+            try:
+                with httpx.Client(timeout=60,trust_env=False,transport=self.transport) as client:
+                    value=_json(client.post(OPENAI_API+'/responses',headers={'Authorization':f'Bearer {key}'},json=payload),'OpenAI')
+            except httpx.HTTPError:raise ProviderError('OpenAI connection failed; no scene was created.') from None
+            if value.get('status')!='completed':raise ProviderError('OpenAI did not complete a valid specification.')
+            usage.append(value.get('usage',{}))
+            texts=[c.get('text','') for out in value.get('output',[]) for c in out.get('content',[]) if c.get('type')=='output_text']
+            try:return model_type.model_validate_json(''.join(texts)), {'provider':'openai','model':model,'response_id':value.get('id'),'usage':value.get('usage',{}),'attempts':attempt+1,'attempt_usage':usage}
+            except ValueError as error:
+                issues=error.errors(include_input=False,include_url=False) if hasattr(error,'errors') else []
+                failures='; '.join('.'.join(str(p) for p in i['loc'])+': '+i['msg'][:180] for i in issues[:4])
+                if attempt:raise ProviderError('OpenAI returned an invalid physical specification after one correction: '+failures) from None
+                # Request a corrected specification, never silently clamp or
+                # invent provider geometry. Paid inference is capped at two calls.
+                payload['input'].append({'role':'assistant','content':''.join(texts)})
+                payload['input'].append({'role':'user','content':'Correct only the invalid specification. Validator reported: '+failures+'. Keep every box/cylinder size component in .005..8 m, opaque RGBA alpha=1, positions within ±8 m, friction .05..2. Room dimensions 1..16 m. Return a full valid specification with at most eight geometries.'})
 
     def environment(self,prompt):
         return self.structured(prompt,EnvironmentSpec,
@@ -90,14 +101,36 @@ class WorldLabs:
         if not key:raise ProviderError('World Labs is not configured on the server.')
         try:
             with httpx.Client(timeout=45,trust_env=False,follow_redirects=False,transport=self.transport) as client:
-                response=client.request('POST' if body is not None else 'GET',WORLD_API+'/'+path,
-                                        headers={'WLT-Api-Key':key},json=body)
+                # Poll/retrieval GETs are safe to retry. Never automatically
+                # repeat a paid generation or prepare-upload mutation.
+                for attempt in range(3 if body is None else 1):
+                    response=client.request('POST' if body is not None else 'GET',WORLD_API+'/'+path,
+                                            headers={'WLT-Api-Key':key},json=body)
+                    if body is not None or response.status_code not in (429,502,503,504) or attempt==2:break
+                    time.sleep(.5*2**attempt)
                 return _json(response,'World Labs')
         except httpx.HTTPError:raise ProviderError('World Labs connection failed. Generation is not reported as successful.') from None
 
-    def generate(self,prompt,name,seed,model):
-        return self.request('worlds:generate',{'world_prompt':{'type':'text','text_prompt':prompt},
+    def generate(self,prompt,name,seed,model,world_prompt=None):
+        return self.request('worlds:generate',{'world_prompt':world_prompt or {'type':'text','text_prompt':prompt},
                                              'display_name':name,'seed':seed,'model':model,'permission':{'public':False}})
+
+    def upload_capture(self,filename,kind,extension,content):
+        prepared=self.request('media-assets:prepare_upload',{'file_name':filename,'kind':kind,'extension':extension})
+        media=prepared.get('media_asset') or {}; info=prepared.get('upload_info') or {}
+        media_id=media.get('media_asset_id') or media.get('id');identifier(media_id)
+        url=asset_url(info.get('upload_url',''))
+        headers=info.get('required_headers') or {}
+        if info.get('upload_method')!='PUT' or not isinstance(headers,dict) or any(
+            not isinstance(k,str) or not isinstance(v,str) or
+            not (k.lower().startswith('x-goog-') or k.lower()=='content-type') or '\r' in v or '\n' in v
+            for k,v in headers.items()):raise ProviderError('World Labs returned unsupported upload instructions.')
+        try:
+            with httpx.Client(timeout=60,trust_env=False,follow_redirects=False,transport=self.transport) as client:
+                response=client.put(url,headers=headers,content=content)
+                if not response.is_success:raise ProviderError(f'World Labs capture upload failed (HTTP {response.status_code}).')
+        except httpx.HTTPError:raise ProviderError('World Labs capture upload failed; no generation was submitted.') from None
+        return media_id
 
     def operation(self,operation_id):return self.request('operations/'+identifier(operation_id))
     def world(self,world_id):return self.request('worlds/'+identifier(world_id))

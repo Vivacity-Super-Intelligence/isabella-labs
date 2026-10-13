@@ -97,12 +97,49 @@ def preview(identifier:str,request:Request,x_workspace_token:Token):
 
 
 @router.get('/worlds/{identifier}/appearance')
-def appearance(identifier:str,request:Request,x_workspace_token:Token):
+def appearance(identifier:str,request:Request,x_workspace_token:Token,quality:Annotated[str|None,Query(pattern=r'^(100k|500k)$')]=None):
     try:
-        path=request.app.state.workspace.visual_asset(identifier,x_workspace_token)
+        path=request.app.state.workspace.visual_asset(identifier,x_workspace_token,quality)
         return FileResponse(path,media_type='model/gltf-binary' if path.suffix=='.glb' else 'application/octet-stream',filename='world'+path.suffix,
                             headers={'Cache-Control':'private, max-age=3600','X-Content-Type-Options':'nosniff'})
     except ProviderError as error:raise HTTPException(502,str(error)) from None
+
+
+@router.get('/worlds/{identifier}/thumbnail')
+def thumbnail(identifier:str,request:Request,x_workspace_token:Token):
+    try:
+        path=request.app.state.workspace.thumbnail_asset(identifier,x_workspace_token)
+        first=path.read_bytes()[:12]
+        mime='image/png' if first.startswith(b'\x89PNG') else 'image/webp' if first[:4]==b'RIFF' else 'image/jpeg'
+        return FileResponse(path,media_type=mime,headers={'Cache-Control':'private, max-age=3600','X-Content-Type-Options':'nosniff'})
+    except ProviderError as error:raise HTTPException(502,str(error)) from None
+
+
+@router.get('/worlds/{identifier}/geometry')
+def original_geometry(identifier:str,request:Request,x_workspace_token:Token):
+    world=request.app.state.workspace.world(identifier,x_workspace_token)
+    if not world.get('import_id'):raise HTTPException(404,'this world has no source GLB')
+    request.app.state.imports.get(world['import_id'])
+    path=request.app.state.imports.root/(world['import_id']+'.glb')
+    if not path.is_file():raise HTTPException(404,'source GLB bytes unavailable')
+    return FileResponse(path,media_type='model/gltf-binary',filename='source-collider.glb',headers={'X-Content-Type-Options':'nosniff'})
+
+
+from .workspace_schemas import CaptureResponse
+from .spatial import MAX_CAPTURE
+
+
+@router.post('/captures',status_code=201,response_model=CaptureResponse)
+async def capture(request:Request,x_workspace_token:Token,filename:str=Query(min_length=1,max_length=64)):
+    content=bytearray()
+    async for chunk in request.stream():
+        content.extend(chunk)
+        if len(content)>MAX_CAPTURE:raise ValueError('capture exceeds 16 MiB')
+    return await asyncio.to_thread(request.app.state.workspace.capture,filename,bytes(content),x_workspace_token)
+
+
+@router.get('/captures',response_model=list[CaptureResponse])
+def captures(request:Request,x_workspace_token:Token):return request.app.state.workspace.list(x_workspace_token,'capture')
 
 
 @router.post('/imports',status_code=201)
@@ -171,6 +208,19 @@ def run(identifier:str,body:RunOverrides,request:Request,x_workspace_token:Token
 
 @router.get('/runs')
 def runs(request:Request,x_workspace_token:Token):return request.app.state.workspace.runs(x_workspace_token)
+
+
+from .workspace_schemas import MeasurementRequest
+
+
+@router.post('/runs/{sid}/measurements',status_code=201)
+def compare_measurements(sid:str,body:MeasurementRequest,request:Request,x_workspace_token:Token):
+    return request.app.state.workspace.compare_measurements(sid,body,x_workspace_token)
+
+
+@router.get('/measurement-comparisons')
+def measurement_comparisons(request:Request,x_workspace_token:Token):
+    return request.app.state.workspace.list(x_workspace_token,'measurement_comparison')
 
 
 @router.post('/operations/interpret')

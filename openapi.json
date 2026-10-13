@@ -543,6 +543,23 @@
             }
           },
           {
+            "name": "quality",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(100k|500k)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Quality"
+            }
+          },
+          {
             "name": "X-Workspace-Token",
             "in": "header",
             "required": true,
@@ -561,6 +578,213 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/worlds/{identifier}/thumbnail": {
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Thumbnail",
+        "operationId": "thumbnail_v1_workspace_worlds__identifier__thumbnail_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/worlds/{identifier}/geometry": {
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Original Geometry",
+        "operationId": "original_geometry_v1_workspace_worlds__identifier__geometry_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/captures": {
+      "post": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Capture",
+        "operationId": "capture_v1_workspace_captures_post",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Filename"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Captures",
+        "operationId": "captures_v1_workspace_captures_get",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CaptureResponse"
+                  },
+                  "title": "Response Captures V1 Workspace Captures Get"
+                }
               }
             }
           },
@@ -1251,6 +1475,111 @@
         ],
         "summary": "Runs",
         "operationId": "runs_v1_workspace_runs_get",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/runs/{sid}/measurements": {
+      "post": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Compare Measurements",
+        "operationId": "compare_measurements_v1_workspace_runs__sid__measurements_post",
+        "parameters": [
+          {
+            "name": "sid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sid"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeasurementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspace/measurement-comparisons": {
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Measurement Comparisons",
+        "operationId": "measurement_comparisons_v1_workspace_measurement_comparisons_get",
         "parameters": [
           {
             "name": "X-Workspace-Token",
@@ -2780,6 +3109,108 @@
         ],
         "title": "BranchResponse"
       },
+      "CaptureReference": {
+        "properties": {
+          "capture_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9-]{36}$",
+            "title": "Capture Id"
+          },
+          "azimuth_deg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 360.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Azimuth Deg"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "capture_id"
+        ],
+        "title": "CaptureReference"
+      },
+      "CaptureResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.capture/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.capture/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video"
+            ],
+            "title": "Kind"
+          },
+          "extension": {
+            "type": "string",
+            "title": "Extension"
+          },
+          "dimensions_px": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dimensions Px"
+          },
+          "validation": {
+            "type": "string",
+            "title": "Validation"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "uploaded_bytes": {
+            "type": "integer",
+            "title": "Uploaded Bytes"
+          },
+          "created_unix_s": {
+            "type": "number",
+            "title": "Created Unix S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "filename",
+          "kind",
+          "extension",
+          "dimensions_px",
+          "validation",
+          "sha256",
+          "uploaded_bytes",
+          "created_unix_s"
+        ],
+        "title": "CaptureResponse"
+      },
       "ClothConfig": {
         "properties": {
           "robot_model": {
@@ -3105,6 +3536,18 @@
       },
       "ExperimentConfiguration": {
         "properties": {
+          "variation": {
+            "$ref": "#/components/schemas/VariationSettings",
+            "default": {
+              "enabled": false,
+              "position_radius_m": 0.04,
+              "friction_min": 0.15,
+              "friction_max": 1.2,
+              "mass_min_kg": 0.04,
+              "mass_max_kg": 0.1,
+              "held_out_fraction": 0.25
+            }
+          },
           "physics": {
             "$ref": "#/components/schemas/PhysicsSettings",
             "default": {
@@ -3535,6 +3978,27 @@
             ],
             "title": "Model",
             "default": "marble-1.0-draft"
+          },
+          "input_type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "image",
+              "multi-image",
+              "panorama",
+              "video"
+            ],
+            "title": "Input Type",
+            "default": "text"
+          },
+          "inputs": {
+            "items": {
+              "$ref": "#/components/schemas/CaptureReference"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "title": "Inputs",
+            "default": []
           }
         },
         "additionalProperties": false,
@@ -3653,6 +4117,26 @@
             },
             "type": "array",
             "title": "Events",
+            "default": []
+          },
+          "input_type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "image",
+              "multi-image",
+              "panorama",
+              "video"
+            ],
+            "title": "Input Type",
+            "default": "text"
+          },
+          "inputs": {
+            "items": {
+              "$ref": "#/components/schemas/CaptureReference"
+            },
+            "type": "array",
+            "title": "Inputs",
             "default": []
           }
         },
@@ -4024,6 +4508,35 @@
             ],
             "title": "Appearance"
           },
+          "representations": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Representations"
+          },
+          "generation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation"
+          },
+          "thumbnail_available": {
+            "type": "boolean",
+            "title": "Thumbnail Available",
+            "default": false
+          },
           "deleted": {
             "type": "boolean",
             "title": "Deleted",
@@ -4115,6 +4628,90 @@
           "frame"
         ],
         "title": "LiveState"
+      },
+      "MeasurementPoint": {
+        "properties": {
+          "time_s": {
+            "type": "number",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Time S"
+          },
+          "position_m": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Position M"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "time_s",
+          "position_m"
+        ],
+        "title": "MeasurementPoint"
+      },
+      "MeasurementRequest": {
+        "properties": {
+          "experiment_id": {
+            "type": "string",
+            "title": "Experiment Id"
+          },
+          "branch_id": {
+            "type": "string",
+            "title": "Branch Id"
+          },
+          "source_label": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Source Label"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "user_recording",
+              "synthetic_reference"
+            ],
+            "title": "Source Kind"
+          },
+          "coordinate_system": {
+            "type": "string",
+            "const": "runtime_z_up_m",
+            "title": "Coordinate System",
+            "default": "runtime_z_up_m"
+          },
+          "time_offset_s": {
+            "type": "number",
+            "maximum": 10000.0,
+            "minimum": -10000.0,
+            "title": "Time Offset S",
+            "default": 0
+          },
+          "samples": {
+            "items": {
+              "$ref": "#/components/schemas/MeasurementPoint"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "minItems": 2,
+            "title": "Samples"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "branch_id",
+          "source_label",
+          "source_kind",
+          "samples"
+        ],
+        "title": "MeasurementRequest"
       },
       "PhysicsSettings": {
         "properties": {
@@ -4678,6 +5275,18 @@
               }
             ],
             "title": "Config"
+          },
+          "variation": {
+            "$ref": "#/components/schemas/VariationSettings",
+            "default": {
+              "enabled": false,
+              "position_radius_m": 0.04,
+              "friction_min": 0.15,
+              "friction_max": 1.2,
+              "mass_min_kg": 0.04,
+              "mass_max_kg": 0.1,
+              "held_out_fraction": 0.25
+            }
           },
           "realtime_speed": {
             "type": "number",
@@ -5262,6 +5871,60 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VariationSettings": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "position_radius_m": {
+            "type": "number",
+            "maximum": 0.08,
+            "minimum": 0.0,
+            "title": "Position Radius M",
+            "default": 0.04
+          },
+          "friction_min": {
+            "type": "number",
+            "maximum": 1.5,
+            "minimum": 0.05,
+            "title": "Friction Min",
+            "default": 0.15
+          },
+          "friction_max": {
+            "type": "number",
+            "maximum": 1.5,
+            "minimum": 0.05,
+            "title": "Friction Max",
+            "default": 1.2
+          },
+          "mass_min_kg": {
+            "type": "number",
+            "maximum": 0.15,
+            "minimum": 0.02,
+            "title": "Mass Min Kg",
+            "default": 0.04
+          },
+          "mass_max_kg": {
+            "type": "number",
+            "maximum": 0.15,
+            "minimum": 0.02,
+            "title": "Mass Max Kg",
+            "default": 0.1
+          },
+          "held_out_fraction": {
+            "type": "number",
+            "maximum": 0.5,
+            "minimum": 0.2,
+            "title": "Held Out Fraction",
+            "default": 0.25
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "VariationSettings"
       },
       "WorldResponse": {
         "properties": {

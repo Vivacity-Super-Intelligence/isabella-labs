@@ -1,0 +1,1584 @@
+{
+  "base_url": "http://127.0.0.1:8010",
+  "started_unix_s": 1791906200.024338,
+  "generation": {
+    "schema_version": "vivacity.generation/1.0",
+    "id": "c4815014-3233-4226-9e37-598192f5d05a",
+    "status": "completed",
+    "provider": "worldlabs",
+    "prompt": "Reconstruct this compact industrial warehouse with metal racks, concrete floor and an empty central robotics workbench. Preserve the room layout from the supplied virtual-scene image. No people.",
+    "seed": 19,
+    "model": "marble-1.1",
+    "operation_id": "75ff56d1-cb20-4404-a099-3427476360cf",
+    "world_id": "74514aa1-cfbd-4747-a80e-20125170e7bc",
+    "created_unix_s": 1791905650.5897691,
+    "updated_unix_s": 1791906030.1900206,
+    "error": null,
+    "interpretation": {
+      "name": "CompactIndustrialWarehouse",
+      "description": "Simplified compact industrial warehouse room with metal racks positioned along walls, a concrete floor, and an empty central robotics workbench area maintained clear. Workbench area is standardized Panda workbench footprint. Room approx 8m x 6m x 3m. Corrected geometry sizes and counts to fit constraints (max 8 geometries, sizes capped, positions within bounds).",
+      "dimensions_m": [
+        8.0,
+        6.0,
+        3.0
+      ],
+      "lighting": {
+        "ambient": 0.5,
+        "key_intensity": 0.7
+      },
+      "geometries": [
+        {
+          "name": "floor",
+          "type": "box",
+          "position": [
+            4.0,
+            3.0,
+            0.05
+          ],
+          "size": [
+            8.0,
+            6.0,
+            0.1
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.9
+        },
+        {
+          "name": "ceiling",
+          "type": "box",
+          "position": [
+            4.0,
+            3.0,
+            3.0
+          ],
+          "size": [
+            8.0,
+            6.0,
+            0.1
+          ],
+          "rgba": [
+            0.8,
+            0.8,
+            0.8,
+            1.0
+          ],
+          "friction": 0.5
+        },
+        {
+          "name": "wall_north",
+          "type": "box",
+          "position": [
+            4.0,
+            6.0,
+            1.5
+          ],
+          "size": [
+            8.0,
+            0.2,
+            3.0
+          ],
+          "rgba": [
+            0.7,
+            0.7,
+            0.7,
+            1.0
+          ],
+          "friction": 0.8
+        },
+        {
+          "name": "wall_south",
+          "type": "box",
+          "position": [
+            4.0,
+            0.0,
+            1.5
+          ],
+          "size": [
+            8.0,
+            0.2,
+            3.0
+          ],
+          "rgba": [
+            0.7,
+            0.7,
+            0.7,
+            1.0
+          ],
+          "friction": 0.8
+        },
+        {
+          "name": "wall_west",
+          "type": "box",
+          "position": [
+            0.0,
+            3.0,
+            1.5
+          ],
+          "size": [
+            0.2,
+            6.0,
+            3.0
+          ],
+          "rgba": [
+            0.7,
+            0.7,
+            0.7,
+            1.0
+          ],
+          "friction": 0.8
+        },
+        {
+          "name": "wall_east",
+          "type": "box",
+          "position": [
+            8.0,
+            3.0,
+            1.5
+          ],
+          "size": [
+            0.2,
+            6.0,
+            3.0
+          ],
+          "rgba": [
+            0.7,
+            0.7,
+            0.7,
+            1.0
+          ],
+          "friction": 0.8
+        },
+        {
+          "name": "rack_west",
+          "type": "box",
+          "position": [
+            0.6,
+            2.0,
+            1.0
+          ],
+          "size": [
+            0.5,
+            1.5,
+            2.0
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.6,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "rack_east",
+          "type": "box",
+          "position": [
+            7.4,
+            4.0,
+            1.0
+          ],
+          "size": [
+            0.5,
+            1.5,
+            2.0
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.6,
+            1.0
+          ],
+          "friction": 0.7
+        }
+      ]
+    },
+    "provider_cost_credits": 1580,
+    "events": [
+      {
+        "stage": "interpreting",
+        "timestamp_unix_s": 1791905650.6424284,
+        "message": "OpenAI is interpreting the prompt into a bounded scene specification."
+      },
+      {
+        "stage": "generating",
+        "timestamp_unix_s": 1791905670.7614315,
+        "message": "Submitting a private World Labs generation request."
+      },
+      {
+        "stage": "generating",
+        "timestamp_unix_s": 1791905681.659203,
+        "message": "World Labs operation accepted; polling its actual status."
+      },
+      {
+        "stage": "receiving",
+        "timestamp_unix_s": 1791906021.6823094,
+        "message": "Retrieving and validating the actual generated collider mesh."
+      },
+      {
+        "stage": "completed",
+        "timestamp_unix_s": 1791906030.1900206,
+        "message": "World Labs colored SPZ appearance and separate collision mesh retrieved. Review the conservative collision mapping before experimentation."
+      }
+    ],
+    "input_type": "image",
+    "inputs": [
+      {
+        "capture_id": "f6268f43-c04a-45a7-b1a8-a4a517724bda",
+        "azimuth_deg": null
+      }
+    ]
+  },
+  "generated_world": {
+    "schema_version": "vivacity.library/1.0",
+    "id": "74514aa1-cfbd-4747-a80e-20125170e7bc",
+    "version": 1,
+    "name": "CompactIndustrialWarehouse",
+    "description": "The scene is a compact industrial warehouse, captured in a realistic style, presenting an organized and functional environment. The overall tone is orderly and industrious, reflecting a space optimized for storage and work. The warehouse is filled with metal racks organized in several rows, extending across the entire space. These racks hold numerous uniform cardboard boxes, systematically arranged on multiple shelves, creating a consistent pattern of stored goods. The floor is made of concrete, presenting a clean and durable surface throughout the facility. In the center of the warehouse, an empty robotics workbench stands, suggesting a hub for assembly or maintenance operations. The workbench is strategically placed to allow access to various parts of the warehouse, facilitating efficient workflow. The layout emphasizes practicality, with aisles between the racks allowing for movement and access to stored items. The entire setup is designed for maximum storage capacity and operational efficiency. ",
+    "source": "worldlabs",
+    "spec": {
+      "name": "CompactIndustrialWarehouse",
+      "description": "Imported static geometry with an explicitly configured conservative bounding-box collision proxy.",
+      "dimensions_m": [
+        7.0,
+        6.643069611305743,
+        4.0
+      ],
+      "lighting": {
+        "ambient": 0.72,
+        "key_intensity": 3.2
+      },
+      "geometries": [
+        {
+          "name": "import_collision_proxy",
+          "type": "box",
+          "position": [
+            2.5,
+            2.5,
+            0.5
+          ],
+          "size": [
+            1.0,
+            0.8215348056528711,
+            0.3275358436689179
+          ],
+          "rgba": [
+            0.35,
+            0.4,
+            0.43,
+            1.0
+          ],
+          "friction": 0.8
+        }
+      ]
+    },
+    "created_unix_s": 1791906025.8358498,
+    "sha256": "7648c0475ffd60e7cab7b9c0dc336028873650aa5164d110006307627ec27dbc",
+    "import_id": "9d182163-c655-42c0-99f7-6e715c44dde4",
+    "provider_world_id": "761512a8-70c2-4edc-a3c5-5ff93ab20f17",
+    "provider_url": "https://marble.worldlabs.ai/world/761512a8-70c2-4edc-a3c5-5ff93ab20f17",
+    "preview_available": true,
+    "physics_scope": "Original triangles are a visual preview. Physics uses a solid axis-aligned bounding-box proxy, centered at the chosen position and scale, plus the standard Panda workbench. A concave room must not be treated as an accurate solid-box reconstruction.",
+    "mapping": {
+      "scale": 0.34649859591084464,
+      "position_m": [
+        2.5,
+        2.5,
+        0.5
+      ],
+      "up_axis": "y",
+      "original_center_m": [
+        0.18979943737299743,
+        0.1408693931695405,
+        0.033700927873994035
+      ],
+      "source_sha256": "4a01c8e981b3735b684d8e5841a5efab7e4ac21fd4c4bf33f91cb6186218bb1b"
+    },
+    "appearance": {
+      "format": "spz",
+      "quality": "500k",
+      "qualities": [
+        "100k",
+        "500k"
+      ],
+      "semantics": {
+        "metric_scale_factor": 1.9889326095581055,
+        "ground_plane_offset": 1.6685092449188232
+      },
+      "coordinate_system": "marble_raw_opencv",
+      "metric_scale_verified": true
+    },
+    "representations": {
+      "schema_version": "vivacity.representations/1.0",
+      "visual": {
+        "kind": "Gaussian splats",
+        "format": "SPZ",
+        "qualities": [
+          "100k",
+          "500k"
+        ],
+        "coordinates": "Marble raw OpenCV",
+        "semantics": {
+          "metric_scale_factor": 1.9889326095581055,
+          "ground_plane_offset": 1.6685092449188232
+        },
+        "physics_source": false
+      },
+      "geometry": {
+        "source_sha256": "4a01c8e981b3735b684d8e5841a5efab7e4ac21fd4c4bf33f91cb6186218bb1b",
+        "original_glb_preserved": true,
+        "validation": {
+          "schema_version": "vivacity.geometry-evidence/1.0",
+          "scope": "deterministically subsampled preview",
+          "source_mesh_fully_checked": false,
+          "vertices": 54900,
+          "triangles": 23042,
+          "bounds_source_coordinates": [
+            [
+              -2.3378050327301025,
+              -0.8479193449020386,
+              -2.7666144371032715
+            ],
+            [
+              3.4258954524993896,
+              1.042534589767456,
+              1.9644103050231934
+            ]
+          ],
+          "coordinate_system": "glTF Y-up; original scene transforms applied; camera framing is display-only",
+          "finite_vertices": true,
+          "valid_indices": true,
+          "degenerate_triangles": 0,
+          "boundary_edges": 62708,
+          "nonmanifold_edges": 0,
+          "inconsistent_winding_edges": 0,
+          "watertight_preview": false,
+          "normals": "computed finite face normals; imported normal attributes are not validated",
+          "self_intersections": "not checked",
+          "object_separation": "not inferred; connected surfaces are not semantic objects",
+          "metric_scale": "user supplied or provider reported; not independently measured",
+          "physical_properties": {
+            "mass": "unknown",
+            "friction": "unknown",
+            "restitution": "unknown"
+          },
+          "physics_readiness": "requires explicit collision mapping and independent validation"
+        }
+      },
+      "physical": {
+        "engine": "MuJoCo",
+        "collision": "explicit conservative solid box proxy",
+        "readiness": "configured_proxy",
+        "calibration": "not performed",
+        "parameters": "configured estimates",
+        "source_visual_alignment": "not independently validated"
+      }
+    },
+    "generation": {
+      "provider": "worldlabs",
+      "job_id": "c4815014-3233-4226-9e37-598192f5d05a",
+      "operation_id": "75ff56d1-cb20-4404-a099-3427476360cf",
+      "source_prompt": "Reconstruct this compact industrial warehouse with metal racks, concrete floor and an empty central robotics workbench. Preserve the room layout from the supplied virtual-scene image. No people.",
+      "input_type": "image",
+      "inputs": [
+        {
+          "schema_version": "vivacity.capture/1.0",
+          "id": "f6268f43-c04a-45a7-b1a8-a4a517724bda",
+          "filename": "warehouse-view.jpg",
+          "kind": "image",
+          "extension": "jpg",
+          "dimensions_px": [
+            550,
+            290
+          ],
+          "validation": "bounded image dimensions and signature; full decoding is validated by the provider",
+          "sha256": "4d21c2a0b3c6e09e7c7cb45f7df2242832850f958a027b1d41db87981c3a0eea",
+          "uploaded_bytes": 38756,
+          "created_unix_s": 1791905650.5338135,
+          "provider_media_asset_id": "fcb73329-9eed-406f-8c3b-d753eeeb33ab",
+          "azimuth_deg": null
+        }
+      ],
+      "geometry_origin": "generated/inferred from observations; not a measured digital twin",
+      "model": "marble-1.1",
+      "seed": 19,
+      "provider_cost_credits": 1580,
+      "processing_status": "received",
+      "validation_status": "bounded geometry checks; explicit proxy physics; uncalibrated"
+    },
+    "thumbnail_available": true,
+    "deleted": false,
+    "editable": true
+  },
+  "input_provenance": "image of an actual virtual-scene render; not a hardware recording",
+  "assets": {
+    "appearance?quality=100k": {
+      "bytes": 1335062,
+      "sha256": "fa1bd03fa6726dfec77334d07ea755c2514cef338061ab7447c3756a1936a03a"
+    },
+    "appearance?quality=500k": {
+      "bytes": 7554077,
+      "sha256": "2e280809b7e0615036a67f29900cb7eab9fc7675f74835bb58917ee63d261654"
+    },
+    "geometry": {
+      "bytes": 5989032,
+      "sha256": "4a01c8e981b3735b684d8e5841a5efab7e4ac21fd4c4bf33f91cb6186218bb1b"
+    },
+    "thumbnail": {
+      "bytes": 39192,
+      "sha256": "dd38852a3b81f7591de5a2d0ec54b62dec6b42e5145c4eba8efd522f8a67fa15"
+    }
+  },
+  "session": {
+    "pause_requested": false,
+    "paused": false,
+    "paused_seconds": 0.0,
+    "schema_version": "vivacity.session/1.0",
+    "id": "3263c6b6-c5b9-47b8-925b-08c0524cbcf2",
+    "backend": "mujoco",
+    "status": "completed",
+    "world_id": "93d511bf-13d7-4408-92c7-70e9c91b0cfc",
+    "experiment_id": "62cf4201-697e-4d6b-8dfa-9371aa123484",
+    "cycle": 3,
+    "max_cycles": 3,
+    "experiments": [
+      "a668ab48-13a6-4604-b354-c31aedb3ef96",
+      "61f0d238-0a74-4f53-b612-fe679bd16015",
+      "62cf4201-697e-4d6b-8dfa-9371aa123484"
+    ],
+    "world_ids": [
+      "acdbca84-8400-48a7-99b0-ec4efd63c577",
+      "8d77e381-5d94-4388-b2d6-ce8398957d52",
+      "93d511bf-13d7-4408-92c7-70e9c91b0cfc"
+    ],
+    "error": null,
+    "started_unix_s": 1791906034.8279197,
+    "last_heartbeat_unix_s": 1791906202.7208824,
+    "conditions": [
+      {
+        "cycle": 1,
+        "seed": 7,
+        "world_id": "acdbca84-8400-48a7-99b0-ec4efd63c577",
+        "partition": "baseline",
+        "configuration_sha256": "565e36366b957831ffa6e8ebac35be0629ec9c2f034c3119bba0fc9a7d1a7f41"
+      },
+      {
+        "cycle": 2,
+        "seed": 8,
+        "world_id": "8d77e381-5d94-4388-b2d6-ce8398957d52",
+        "partition": "training",
+        "configuration_sha256": "81f0ffcafb72f03e76641daefa561d1f85faa97d7ce6e31382ac004663fe2296"
+      },
+      {
+        "cycle": 3,
+        "seed": 9,
+        "world_id": "93d511bf-13d7-4408-92c7-70e9c91b0cfc",
+        "partition": "held_out",
+        "configuration_sha256": "9dfbd8890a1108eeeb08442d8a37f4213a61d501bde4c7431ff1e5580c27c30d"
+      }
+    ]
+  },
+  "robustness": {
+    "schema_version": "vivacity.robustness/1.0",
+    "partitions": {
+      "baseline": {
+        "completed_configurations": 1,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0,
+        "failure_rate": 0.0
+      },
+      "training": {
+        "completed_configurations": 1,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0,
+        "failure_rate": 0.0
+      },
+      "held_out": {
+        "completed_configurations": 1,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0,
+        "failure_rate": 0.0
+      }
+    },
+    "configurations": [
+      {
+        "experiment_id": "a668ab48-13a6-4604-b354-c31aedb3ef96",
+        "world_id": "acdbca84-8400-48a7-99b0-ec4efd63c577",
+        "seed": 7,
+        "partition": "baseline",
+        "configuration_sha256": "565e36366b957831ffa6e8ebac35be0629ec9c2f034c3119bba0fc9a7d1a7f41",
+        "conditions": {
+          "object_position_m": [
+            0.5,
+            -0.15,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5,
+            0.18,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.06,
+          "friction": 1.0
+        },
+        "success": true,
+        "status": "execution_success",
+        "goal_error_m": 0.0010620133499254995,
+        "execution_duration_s": 14.062000000001365,
+        "collision_events": 0,
+        "evaluation_source": "fresh authoritative execution"
+      },
+      {
+        "experiment_id": "61f0d238-0a74-4f53-b612-fe679bd16015",
+        "world_id": "8d77e381-5d94-4388-b2d6-ce8398957d52",
+        "seed": 8,
+        "partition": "training",
+        "configuration_sha256": "81f0ffcafb72f03e76641daefa561d1f85faa97d7ce6e31382ac004663fe2296",
+        "conditions": {
+          "object_position_m": [
+            0.49134861383027806,
+            -0.12563615783310372,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.49093554192427585,
+            0.19442744679100143,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.09219379070177297,
+          "friction": 0.5606390468661537
+        },
+        "success": true,
+        "status": "execution_success",
+        "goal_error_m": 0.001078299291887072,
+        "execution_duration_s": 12.474000000000835,
+        "collision_events": 0,
+        "evaluation_source": "fresh authoritative execution"
+      },
+      {
+        "experiment_id": "62cf4201-697e-4d6b-8dfa-9371aa123484",
+        "world_id": "93d511bf-13d7-4408-92c7-70e9c91b0cfc",
+        "seed": 9,
+        "partition": "held_out",
+        "configuration_sha256": "9dfbd8890a1108eeeb08442d8a37f4213a61d501bde4c7431ff1e5580c27c30d",
+        "conditions": {
+          "object_position_m": [
+            0.5185124601985043,
+            -0.16065913954562222,
+            0.026000000000000002
+          ],
+          "placement_position_m": [
+            0.5051574075025781,
+            0.19387670414600894,
+            0.026000000000000002
+          ],
+          "mass_kg": 0.08296447777621392,
+          "friction": 1.1111491265150328
+        },
+        "success": true,
+        "status": "execution_success",
+        "goal_error_m": 0.0011842444204938282,
+        "execution_duration_s": 13.112000000001048,
+        "collision_events": 0,
+        "evaluation_source": "fresh authoritative execution"
+      }
+    ],
+    "failure_regions": [],
+    "recommended_next_experiments": [],
+    "scope": "Seeded simulated conditions, with replanning on each configuration. Held-out seeds are assigned before execution. Small-sample descriptive rates, not hardware predictive accuracy or a trained-policy benchmark.",
+    "hardware_validation": "not performed",
+    "unrandomized": [
+      "orientation",
+      "clutter",
+      "initial joints",
+      "lighting",
+      "camera",
+      "object geometry"
+    ]
+  },
+  "experiments": [
+    {
+      "schema_version": "1.0",
+      "id": "a668ab48-13a6-4604-b354-c31aedb3ef96",
+      "world_id": "acdbca84-8400-48a7-99b0-ec4efd63c577",
+      "revision": 0,
+      "status": "completed",
+      "request": {
+        "realtime_speed": 4.0,
+        "physics_trials": 3,
+        "adaptive_trials": false,
+        "execute_selected": true,
+        "realtime_execution": true,
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 40.0,
+        "policy": "deterministic",
+        "search_candidates": 3,
+        "physics_budget": 3
+      },
+      "selected_branch_id": "0de317c2-8d23-407f-a2a8-5e5a54731de6",
+      "result": {
+        "conclusion": "Measured physical pickup and placement found.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "0de317c2-8d23-407f-a2a8-5e5a54731de6",
+          "decc019c-0403-4591-89ec-7a4ffb246f5c",
+          "608f0cfe-b16a-4d6d-b107-a7bb592a6db6"
+        ],
+        "top_feasible_branch_ids": [
+          "0de317c2-8d23-407f-a2a8-5e5a54731de6",
+          "decc019c-0403-4591-89ec-7a4ffb246f5c",
+          "608f0cfe-b16a-4d6d-b107-a7bb592a6db6"
+        ],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "realtime_speed": 4.0,
+          "physics_trials": 3,
+          "adaptive_trials": false,
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 3,
+          "physics_budget": 3,
+          "max_wall_seconds": 120
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 3,
+          "distinct_generated": 3,
+          "screened": 3,
+          "rejected": 0,
+          "screening_passed": 3,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "aaa22831809fe5fdc0862eae8ca8536696c829737bf6b795cc7c0300b8e654b8",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0,
+            "object_not_visible": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "adaptive_stopping": false,
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "physics_target": 3,
+          "verified_feasible": 3,
+          "physics_rejected": 0,
+          "trial_simulation_steps": 21910,
+          "engine": "mujoco.rollout/contact-sensors-v1",
+          "retained_full_traces": 3,
+          "physics_trial_workers": 2,
+          "peak_parallel_trials": 2,
+          "stopping_reason": "candidate_exhausted"
+        },
+        "execution_branch_id": "0b48a765-7d92-4cba-a3a7-33bf0acfd4ba",
+        "execution_evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "milestone": "physical_pick_and_place",
+          "planning_feasible": true,
+          "goal_error_m": 0.0010620133499254995,
+          "final_cube_position": [
+            0.4996576773780893,
+            0.17995613149710668,
+            0.024995627991030184
+          ],
+          "grasp_established": true,
+          "lifted": true,
+          "retained_during_transport": true,
+          "released": true,
+          "table_supported": true,
+          "max_cube_height_m": 0.17674409489466775,
+          "max_tracking_error_rad": 0.04807929042322409,
+          "max_tracking_error_m": 0.0,
+          "contact_violations": [],
+          "phase_evidence": [
+            {
+              "phase": "approach",
+              "time": 4.179999999999762,
+              "cube_position": [
+                0.5,
+                -0.15,
+                0.024995627990993547
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5885999994782642,
+              "table_support": true
+            },
+            {
+              "phase": "descend",
+              "time": 5.567999999999609,
+              "cube_position": [
+                0.5,
+                -0.15,
+                0.024995627991027617
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886000000097041,
+              "table_support": true
+            },
+            {
+              "phase": "close",
+              "time": 6.437999999999513,
+              "cube_position": [
+                0.5000902863859391,
+                -0.14864898748542488,
+                0.024986427368587232
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 4.323389675848431,
+              "table_support": true
+            },
+            {
+              "phase": "lift",
+              "time": 7.82399999999936,
+              "cube_position": [
+                0.5001218583246021,
+                -0.14857781696194572,
+                0.17657889509543317
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.499716451399316,
+              "table_support": false
+            },
+            {
+              "phase": "transport",
+              "time": 10.196000000000074,
+              "cube_position": [
+                0.4996095584951744,
+                0.17984056735255446,
+                0.17671665713947654
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4991406533777223,
+              "table_support": false
+            },
+            {
+              "phase": "lower",
+              "time": 11.56200000000053,
+              "cube_position": [
+                0.49966649742273134,
+                0.1799594497989145,
+                0.024980234404024658
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 5.179780799595832,
+              "table_support": true
+            },
+            {
+              "phase": "release",
+              "time": 12.296000000000776,
+              "cube_position": [
+                0.49965767737861194,
+                0.17995613149730275,
+                0.024995627991030302
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5886000000000045,
+              "table_support": true
+            },
+            {
+              "phase": "retract",
+              "time": 14.062000000001365,
+              "cube_position": [
+                0.4996576773780893,
+                0.17995613149710668,
+                0.024995627991030184
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.5885999999998408,
+              "table_support": true
+            }
+          ],
+          "execution_duration_s": 14.062000000001365
+        },
+        "executed_world_revision": 1
+      },
+      "performance": {
+        "job_wall_seconds": 7.600916299998062,
+        "process_cpu_seconds": 3.6875,
+        "queue_wait_seconds": 0.1384487749019172,
+        "planning_wall_seconds": 1.1106925000203773,
+        "physics_wall_seconds": 5.594836199947167,
+        "candidate_count": 4,
+        "simulation_steps": 28941,
+        "integration_calls": 242,
+        "replay_payload_bytes": 2186308,
+        "branch_failure_rate": 0.0,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+        "trial_count": 3,
+        "integrated_trial_count": 3,
+        "trial_simulation_steps": 21910,
+        "trial_integration_calls": 183,
+        "trial_physics_wall_seconds": 2.0776879999611992,
+        "trial_failure_rate": 0.0,
+        "trial_engine": "mujoco.rollout/contact-sensors-v1",
+        "stopping_reason": "candidate_exhausted",
+        "physics_trial_workers": 2,
+        "peak_parallel_trials": 2
+      },
+      "error": null,
+      "stale": false
+    },
+    {
+      "schema_version": "1.0",
+      "id": "61f0d238-0a74-4f53-b612-fe679bd16015",
+      "world_id": "8d77e381-5d94-4388-b2d6-ce8398957d52",
+      "revision": 0,
+      "status": "completed",
+      "request": {
+        "realtime_speed": 4.0,
+        "physics_trials": 3,
+        "adaptive_trials": false,
+        "execute_selected": true,
+        "realtime_execution": true,
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 40.0,
+        "policy": "deterministic",
+        "search_candidates": 3,
+        "physics_budget": 3
+      },
+      "selected_branch_id": "264349f4-fdab-4331-8fcf-981662f192c1",
+      "result": {
+        "conclusion": "Measured physical pickup and placement found.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "264349f4-fdab-4331-8fcf-981662f192c1",
+          "98a83cf5-c78c-45e0-b314-5be242fd9f87",
+          "1b9bf3c0-9e20-469d-9196-b8337ada3446"
+        ],
+        "top_feasible_branch_ids": [
+          "264349f4-fdab-4331-8fcf-981662f192c1",
+          "98a83cf5-c78c-45e0-b314-5be242fd9f87"
+        ],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "realtime_speed": 4.0,
+          "physics_trials": 3,
+          "adaptive_trials": false,
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 3,
+          "physics_budget": 3,
+          "max_wall_seconds": 120
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 3,
+          "distinct_generated": 3,
+          "screened": 3,
+          "rejected": 0,
+          "screening_passed": 3,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "08b1ddce5a2c2cd1b7784bf6473b29946145bc9974787924c906c550ec8b248a",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0,
+            "object_not_visible": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "adaptive_stopping": false,
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "physics_target": 3,
+          "verified_feasible": 2,
+          "physics_rejected": 1,
+          "trial_simulation_steps": 17075,
+          "engine": "mujoco.rollout/contact-sensors-v1",
+          "retained_full_traces": 3,
+          "physics_trial_workers": 2,
+          "peak_parallel_trials": 2,
+          "stopping_reason": "candidate_exhausted"
+        },
+        "execution_branch_id": "63a310b8-7853-4eab-a598-7a7e0543b1a7",
+        "execution_evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "milestone": "physical_pick_and_place",
+          "planning_feasible": true,
+          "goal_error_m": 0.001078299291887072,
+          "final_cube_position": [
+            0.49067002064935744,
+            0.19413854424160457,
+            0.024995627991030292
+          ],
+          "grasp_established": true,
+          "lifted": true,
+          "retained_during_transport": true,
+          "released": true,
+          "table_supported": true,
+          "max_cube_height_m": 0.1827371027708456,
+          "max_tracking_error_rad": 0.05005398281550866,
+          "max_tracking_error_m": 0.0,
+          "contact_violations": [],
+          "phase_evidence": [
+            {
+              "phase": "approach",
+              "time": 2.811999999999912,
+              "cube_position": [
+                0.49134861383027806,
+                -0.12563615783310372,
+                0.024995627991052503
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.9044210859552765,
+              "table_support": true
+            },
+            {
+              "phase": "descend",
+              "time": 4.221999999999757,
+              "cube_position": [
+                0.49134861383027806,
+                -0.12563615783310372,
+                0.024995627991033945
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.9044210875125506,
+              "table_support": true
+            },
+            {
+              "phase": "close",
+              "time": 5.083999999999662,
+              "cube_position": [
+                0.4914562732729533,
+                -0.1257649453913899,
+                0.024995354442986294
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 4.342957173792641,
+              "table_support": true
+            },
+            {
+              "phase": "lift",
+              "time": 6.493999999999507,
+              "cube_position": [
+                0.4915357604605538,
+                -0.1257242943202056,
+                0.1825842467074729
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 3.25307824419826,
+              "table_support": false
+            },
+            {
+              "phase": "transport",
+              "time": 8.729999999999585,
+              "cube_position": [
+                0.49062357412319973,
+                0.19395127025110176,
+                0.1824995785747123
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 3.3834442240274964,
+              "table_support": false
+            },
+            {
+              "phase": "lower",
+              "time": 10.09400000000004,
+              "cube_position": [
+                0.49067253401819466,
+                0.19414021884422492,
+                0.024986671433955582
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 6.134727798521208,
+              "table_support": true
+            },
+            {
+              "phase": "release",
+              "time": 10.712000000000247,
+              "cube_position": [
+                0.49067002064933474,
+                0.19413854424158924,
+                0.024995627991030275
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.9044210867843929,
+              "table_support": true
+            },
+            {
+              "phase": "retract",
+              "time": 12.474000000000835,
+              "cube_position": [
+                0.49067002064935744,
+                0.19413854424160457,
+                0.024995627991030292
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.9044210867845422,
+              "table_support": true
+            }
+          ],
+          "execution_duration_s": 12.474000000000835
+        },
+        "executed_world_revision": 1
+      },
+      "performance": {
+        "job_wall_seconds": 5.719405700016068,
+        "process_cpu_seconds": 2.390625,
+        "queue_wait_seconds": 0.05006311371107586,
+        "planning_wall_seconds": 0.5470388000248931,
+        "physics_wall_seconds": 4.130453600053443,
+        "candidate_count": 4,
+        "simulation_steps": 23312,
+        "integration_calls": 192,
+        "replay_payload_bytes": 1666200,
+        "branch_failure_rate": 0.25,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+        "trial_count": 3,
+        "integrated_trial_count": 3,
+        "trial_simulation_steps": 17075,
+        "trial_integration_calls": 140,
+        "trial_physics_wall_seconds": 1.0073582000331953,
+        "trial_failure_rate": 0.3333333333333333,
+        "trial_engine": "mujoco.rollout/contact-sensors-v1",
+        "stopping_reason": "candidate_exhausted",
+        "physics_trial_workers": 2,
+        "peak_parallel_trials": 2
+      },
+      "error": null,
+      "stale": false
+    },
+    {
+      "schema_version": "1.0",
+      "id": "62cf4201-697e-4d6b-8dfa-9371aa123484",
+      "world_id": "93d511bf-13d7-4408-92c7-70e9c91b0cfc",
+      "revision": 0,
+      "status": "completed",
+      "request": {
+        "realtime_speed": 4.0,
+        "physics_trials": 3,
+        "adaptive_trials": false,
+        "execute_selected": true,
+        "realtime_execution": true,
+        "candidates": 3,
+        "planner_iterations": 1500,
+        "max_simulation_seconds": 40.0,
+        "policy": "deterministic",
+        "search_candidates": 3,
+        "physics_budget": 3
+      },
+      "selected_branch_id": "bc07d0d6-c5f3-4cb7-b935-df3ac1f7a41d",
+      "result": {
+        "conclusion": "Measured physical pickup and placement found.",
+        "milestone": "physical_pick_and_place",
+        "ranked_branch_ids": [
+          "bc07d0d6-c5f3-4cb7-b935-df3ac1f7a41d",
+          "b339b2f3-0eba-41ed-ac69-cd5cb00968d8",
+          "2abd5f6e-74e2-4de7-a213-fc31e071fd6f"
+        ],
+        "top_feasible_branch_ids": [
+          "bc07d0d6-c5f3-4cb7-b935-df3ac1f7a41d",
+          "b339b2f3-0eba-41ed-ac69-cd5cb00968d8"
+        ],
+        "policy": {
+          "policy": "deterministic_planning_policy",
+          "llm_used": false,
+          "steps": [
+            "Inspect structured observation and valid action schema.",
+            "Generate candidate interventions through backend tools.",
+            "Fork the same persisted state for each candidate.",
+            "Rank measured outcomes; retain failures."
+          ]
+        },
+        "executed_settings": {
+          "realtime_speed": 4.0,
+          "physics_trials": 3,
+          "adaptive_trials": false,
+          "execute_selected": true,
+          "realtime_execution": true,
+          "candidates": 3,
+          "planner_iterations": 1500,
+          "max_simulation_seconds": 40.0,
+          "policy": "deterministic",
+          "search_candidates": 3,
+          "physics_budget": 3,
+          "max_wall_seconds": 120
+        },
+        "followup_settings": null,
+        "search": {
+          "generated": 3,
+          "distinct_generated": 3,
+          "screened": 3,
+          "rejected": 0,
+          "screening_passed": 3,
+          "promoted_to_physics": 3,
+          "candidate_catalog_sha256": "7649f18d4ca5efb908789cae1efa3d9c5da84fc576994d3015773960d5a16718",
+          "rejection_reasons": {
+            "kinematic_collision": 0,
+            "ik_failure": 0,
+            "simulation_horizon": 0,
+            "object_not_visible": 0
+          },
+          "kinematic_templates_checked": 8,
+          "diagnostic_rollouts": 0,
+          "sampling": "seeded lift-height templates and distinct speed/close-dwell/release-dwell commands",
+          "adaptive_stopping": false,
+          "screening_scope": "actual template IK/kinematic contacts plus per-candidate timing/horizon checks; no dynamic success claim",
+          "ranking_objective": "successful execution, measured duration, placement error, candidate index",
+          "fully_simulated": 3,
+          "physics_attempts": 3,
+          "physics_target": 3,
+          "verified_feasible": 2,
+          "physics_rejected": 1,
+          "trial_simulation_steps": 16186,
+          "engine": "mujoco.rollout/contact-sensors-v1",
+          "retained_full_traces": 3,
+          "physics_trial_workers": 2,
+          "peak_parallel_trials": 2,
+          "stopping_reason": "candidate_exhausted"
+        },
+        "execution_branch_id": "34e9131d-a1d8-431e-8404-b3a83d3468a6",
+        "execution_evaluation": {
+          "success": true,
+          "status": "execution_success",
+          "milestone": "physical_pick_and_place",
+          "planning_feasible": true,
+          "goal_error_m": 0.0011842444204938282,
+          "final_cube_position": [
+            0.5057824662322681,
+            0.19382217617605357,
+            0.024995627991030393
+          ],
+          "grasp_established": true,
+          "lifted": true,
+          "retained_during_transport": true,
+          "released": true,
+          "table_supported": true,
+          "max_cube_height_m": 0.1767408786107064,
+          "max_tracking_error_rad": 0.05130809335907663,
+          "max_tracking_error_m": 0.0,
+          "contact_violations": [],
+          "phase_evidence": [
+            {
+              "phase": "approach",
+              "time": 3.8879999999997934,
+              "cube_position": [
+                0.5185124601985043,
+                -0.16065913954562222,
+                0.024995627991083944
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.8138815271919567,
+              "table_support": true
+            },
+            {
+              "phase": "descend",
+              "time": 5.163999999999653,
+              "cube_position": [
+                0.5185124601985043,
+                -0.16065913954562222,
+                0.0249956279910337
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.8138815265685423,
+              "table_support": true
+            },
+            {
+              "phase": "close",
+              "time": 5.8519999999995775,
+              "cube_position": [
+                0.5185672872773566,
+                -0.15804878116145044,
+                0.024998966676226936
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 3.9187386566816502,
+              "table_support": true
+            },
+            {
+              "phase": "lift",
+              "time": 7.127999999999437,
+              "cube_position": [
+                0.5186499873013835,
+                -0.15786246799592638,
+                0.17655281250460741
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4997714315248523,
+              "table_support": false
+            },
+            {
+              "phase": "transport",
+              "time": 9.475999999999834,
+              "cube_position": [
+                0.5056385441609861,
+                0.19378240686563294,
+                0.17666548277346528
+              ],
+              "finger_contacts": [
+                "left_finger",
+                "right_finger"
+              ],
+              "bilateral_grasp": true,
+              "cube_contact_normal_force_n": 2.4991161524771908,
+              "table_support": false
+            },
+            {
+              "phase": "lower",
+              "time": 10.75400000000026,
+              "cube_position": [
+                0.505804549076013,
+                0.19383002117000878,
+                0.02499472987761509
+              ],
+              "finger_contacts": [
+                "left_finger"
+              ],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 4.874698642074877,
+              "table_support": true
+            },
+            {
+              "phase": "release",
+              "time": 11.436000000000488,
+              "cube_position": [
+                0.5057824662325077,
+                0.19382217617570385,
+                0.024995627991030275
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.8138815269846583,
+              "table_support": true
+            },
+            {
+              "phase": "retract",
+              "time": 13.112000000001048,
+              "cube_position": [
+                0.5057824662322681,
+                0.19382217617605357,
+                0.024995627991030393
+              ],
+              "finger_contacts": [],
+              "bilateral_grasp": false,
+              "cube_contact_normal_force_n": 0.813881526984786,
+              "table_support": true
+            }
+          ],
+          "execution_duration_s": 13.112000000001048
+        },
+        "executed_world_revision": 1
+      },
+      "performance": {
+        "job_wall_seconds": 5.7097573000064585,
+        "process_cpu_seconds": 2.390625,
+        "queue_wait_seconds": 0.046718485333258286,
+        "planning_wall_seconds": 0.525825699995039,
+        "physics_wall_seconds": 4.0907086999795865,
+        "candidate_count": 4,
+        "simulation_steps": 22742,
+        "integration_calls": 190,
+        "replay_payload_bytes": 1684162,
+        "branch_failure_rate": 0.25,
+        "adapter_error_count": 0,
+        "measurement_complete": true,
+        "job_error_rate": 0.0,
+        "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+        "trial_count": 3,
+        "integrated_trial_count": 3,
+        "trial_simulation_steps": 16186,
+        "trial_integration_calls": 136,
+        "trial_physics_wall_seconds": 0.8088797999953385,
+        "trial_failure_rate": 0.3333333333333333,
+        "trial_engine": "mujoco.rollout/contact-sensors-v1",
+        "stopping_reason": "candidate_exhausted",
+        "physics_trial_workers": 2,
+        "peak_parallel_trials": 2
+      },
+      "error": null,
+      "stale": false
+    }
+  ],
+  "replay_frames": 250,
+  "measurement_comparison": {
+    "schema_version": "vivacity.measurement-comparison/1.0",
+    "id": "7ed6b1cb-f909-4abc-bfb5-12cce8817032",
+    "created_unix_s": 1791906203.1654046,
+    "session_id": "3263c6b6-c5b9-47b8-925b-08c0524cbcf2",
+    "experiment_id": "a668ab48-13a6-4604-b354-c31aedb3ef96",
+    "branch_id": "0de317c2-8d23-407f-a2a8-5e5a54731de6",
+    "source_label": "Recorded simulation self-reference, numerical alignment check only",
+    "source_kind": "synthetic_reference",
+    "coordinate_system": "runtime_z_up_m",
+    "time_offset_s": 0,
+    "input_sha256": "eafadf689d0d72c1aed6442c99feda5fbd0196349750a02c7680f63036926f23",
+    "matched_samples": 11,
+    "excluded_samples": 0,
+    "rmse_position_m": 0.0,
+    "max_position_error_m": 0.0,
+    "mean_position_error_m": 0.0,
+    "observed_displacement_m": [
+      -0.0003423226219106956,
+      0.3299561314971067,
+      -0.0010043720089698178
+    ],
+    "simulated_displacement_m": [
+      -0.0003423226219106956,
+      0.3299561314971067,
+      -0.0010043720089698178
+    ],
+    "overlap_duration_s": 14.062000000001365,
+    "residuals_m": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "samples": [
+      {
+        "time_s": 0.0,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.026000000000000002
+        ]
+      },
+      {
+        "time_s": 1.5360000000000011,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.024995627991032766
+        ]
+      },
+      {
+        "time_s": 3.0719999999998833,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.02499562799106732
+        ]
+      },
+      {
+        "time_s": 4.4359999999997335,
+        "position_m": [
+          0.5,
+          -0.15,
+          0.024995627991054592
+        ]
+      },
+      {
+        "time_s": 5.823999999999581,
+        "position_m": [
+          0.5000684260037345,
+          -0.1486781280457894,
+          0.02498069470396155
+        ]
+      },
+      {
+        "time_s": 7.205999999999428,
+        "position_m": [
+          0.5055734924421063,
+          -0.14917993521391484,
+          0.1271177006418513
+        ]
+      },
+      {
+        "time_s": 8.591999999999539,
+        "position_m": [
+          0.519324574074523,
+          -0.0684855094463745,
+          0.1762846567627217
+        ]
+      },
+      {
+        "time_s": 10.128000000000052,
+        "position_m": [
+          0.49965793566104155,
+          0.17968912036073695,
+          0.17671829819464352
+        ]
+      },
+      {
+        "time_s": 11.476000000000502,
+        "position_m": [
+          0.49968383802617145,
+          0.17995187471324298,
+          0.02529629249530569
+        ]
+      },
+      {
+        "time_s": 12.808000000000947,
+        "position_m": [
+          0.4996576773781029,
+          0.17995613149711162,
+          0.02499562799103026
+        ]
+      },
+      {
+        "time_s": 14.062000000001365,
+        "position_m": [
+          0.4996576773780893,
+          0.17995613149710668,
+          0.024995627991030184
+        ]
+      }
+    ],
+    "simulated_positions_m": [
+      [
+        0.5,
+        -0.15,
+        0.026000000000000002
+      ],
+      [
+        0.5,
+        -0.15,
+        0.024995627991032766
+      ],
+      [
+        0.5,
+        -0.15,
+        0.02499562799106732
+      ],
+      [
+        0.5,
+        -0.15,
+        0.024995627991054592
+      ],
+      [
+        0.5000684260037345,
+        -0.1486781280457894,
+        0.02498069470396155
+      ],
+      [
+        0.5055734924421063,
+        -0.14917993521391484,
+        0.1271177006418513
+      ],
+      [
+        0.519324574074523,
+        -0.0684855094463745,
+        0.1762846567627217
+      ],
+      [
+        0.49965793566104155,
+        0.17968912036073695,
+        0.17671829819464352
+      ],
+      [
+        0.49968383802617145,
+        0.17995187471324298,
+        0.02529629249530569
+      ],
+      [
+        0.4996576773781029,
+        0.17995613149711162,
+        0.02499562799103026
+      ],
+      [
+        0.4996576773780893,
+        0.17995613149710668,
+        0.024995627991030184
+      ]
+    ],
+    "scope": "User-supplied object positions in runtime meters, Z-up, linearly interpolated recorded MuJoCo states. Source authenticity and hardware predictive accuracy are not independently verified. No automatic spatial calibration, robot/contact alignment or parameter fitting."
+  },
+  "websocket_events": 12,
+  "completed_unix_s": 1791906203.403418
+}

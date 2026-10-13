@@ -1,0 +1,35 @@
+{
+  "schema_version": "vivacity.generation/1.0",
+  "id": "db8b0b73-5ff3-408b-b7cd-1d0b331a5bde",
+  "status": "failed",
+  "provider": "worldlabs",
+  "prompt": "Reconstruct this compact industrial warehouse with metal racks, concrete floor and an empty central robotics workbench. Preserve the room layout from the supplied virtual-scene image. No people.",
+  "seed": 19,
+  "model": "marble-1.1",
+  "operation_id": null,
+  "world_id": null,
+  "created_unix_s": 1791905455.387173,
+  "updated_unix_s": 1791905465.6994188,
+  "error": "OpenAI returned a specification outside supported physical bounds.",
+  "interpretation": null,
+  "provider_cost_credits": null,
+  "events": [
+    {
+      "stage": "interpreting",
+      "timestamp_unix_s": 1791905455.4320548,
+      "message": "OpenAI is interpreting the prompt into a bounded scene specification."
+    },
+    {
+      "stage": "failed",
+      "timestamp_unix_s": 1791905465.6994188,
+      "message": "OpenAI returned a specification outside supported physical bounds."
+    }
+  ],
+  "input_type": "image",
+  "inputs": [
+    {
+      "capture_id": "ac8875d1-6f8d-43ed-969d-dcf989cc3b7c",
+      "azimuth_deg": null
+    }
+  ]
+}

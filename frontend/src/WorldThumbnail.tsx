@@ -1,9 +1,18 @@
 import type {LibraryWorld} from './workspaceApi';
+import {useEffect,useState} from 'react';
+import {API} from './api';
+import {workspaceToken} from './workspaceApi';
 
 /** Orthographic projection of the real typed box collision geometry.
  * It is a geometry preview, never an experiment result or a facility photo.
  */
 export default function WorldThumbnail({world}:{world:LibraryWorld}){
+ const [thumbnail,setThumbnail]=useState<string|null>(null);
+ useEffect(()=>{let active=true,url:string|undefined;const controller=new AbortController();setThumbnail(null);
+  if(world.thumbnail_available)fetch(`${API}/v1/workspace/worlds/${encodeURIComponent(world.id)}/thumbnail`,{headers:{'X-Workspace-Token':workspaceToken()},signal:controller.signal})
+   .then(r=>{if(!r.ok)throw new Error('Thumbnail unavailable');return r.blob();}).then(blob=>{if(active){url=URL.createObjectURL(blob);setThumbnail(url);}}).catch(()=>{});
+  return()=>{active=false;controller.abort();if(url)URL.revokeObjectURL(url);};},[world.id,world.thumbnail_available]);
+ if(thumbnail)return <img className="world-thumbnail" src={thumbnail} alt={`${world.name}: actual provider preview of this generated environment`} loading="lazy"/>;
  if(['warehouse','robotics_lab'].includes(world.id))return <img className="world-thumbnail" src={`/vivacity/world-previews/${world.id}.jpg?v=2`} alt={`${world.name}, captured from its actual colored 3D environment`} loading="lazy"/>;
  const shapes=world.spec.geometries.filter(g=>g.type==='box');
  const project=(x:number,y:number,z:number)=>[(x-y)*.866,(x+y)*.5-z];

@@ -10,6 +10,8 @@ import type {components} from './generated/api';
 import EnvironmentAppearance,{appearanceFor} from './EnvironmentAppearance';
 import Workbench from './Workbench';
 import EngineeringOverlay,{type OverlayOptions} from './EngineeringOverlay';
+import RenderQualityControl,{useRenderQuality} from './QualityControl';
+import {qualityProfiles} from './renderQuality';
 
 type MeshSpec = { id: number; positions: { byte_offset: number; count: number }; indices: { byte_offset: number; count: number } };
 type Geom = { id: number; name: string; body_id: number; type: string; group: number; mesh_id: number | null; position: Vec3; quaternion_wxyz: number[]; size: Vec3; rgba: number[] };
@@ -174,6 +176,7 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
   const [assets,setAssets] = useState<Assets | null>(null), [error,setError] = useState<string | null>(null);
   const [appearanceStatus,setAppearanceStatus]=useState(''),[appearanceError,setAppearanceError]=useState(false);
   const appearance=appearanceFor(visualWorld);
+  const quality=useRenderQuality();
   const [dragging,setDragging]=useState(false),[hovering,setHovering]=useState(false),[dragError,setDragError]=useState<string|null>(null);
   const [cameraCommand,setCameraCommand]=useState({key:'',seq:0});
   const [imported,setImported]=useState<components['schemas']['ImportPreview']|null>(null),[showImported,setShowImported]=useState(true);
@@ -183,7 +186,7 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
   useEffect(() => { let active = true;setAssets(null);setError(null);loadAssets(robot).then(a=>active&&setAssets(a)).catch(e=>active&&setError(String(e))); return ()=>{ active=false; }; },[robot]);
   return <><div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label={`${robot==='panda'?'Franka Panda':robot} workcell. ${canMoveCube?'Drag the blue object on the supported table. Change conditions provides keyboard position controls. ':''}Arrow keys orbit, Shift and arrows pan, plus and minus zoom, R resets camera.`} onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.shiftKey?'Shift+'+e.key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
     {!error&&assets&&frames.length>0&&<SceneBoundary onError={()=>setError('3D rendering is unavailable. Your experiment data remains accessible in the inspector. Try a WebGL2-capable browser.')}>
-      <Canvas frameloop="demand" shadows={{type:PCFShadowMap}} dpr={[1,1.5]} style={{cursor:canMoveCube?(dragging?'grabbing':hovering?'grab':'auto'):'auto',touchAction:'none'}} camera={{ position:[1.8,-2.1,1.35], fov: 42, near: .015, far: 100 }} gl={{ antialias: false }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#262a2d'); performance.mark('vivacity:robot-scene-ready'); }}>
+      <Canvas frameloop="demand" shadows={{type:PCFShadowMap}} dpr={qualityProfiles[quality].pixelRatio} style={{cursor:canMoveCube?(dragging?'grabbing':hovering?'grab':'auto'):'auto',touchAction:'none'}} camera={{ position:[1.8,-2.1,1.35], fov: 42, near: .015, far: 100 }} gl={{ antialias: false }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#262a2d'); performance.mark('vivacity:robot-scene-ready'); }}>
         <ambientLight intensity={visualWorld?.spec.lighting.ambient??.72} /><hemisphereLight args={['#ffffff','#6f706a',1.8]} />
         <directionalLight position={[1,-1.5,3]} intensity={visualWorld?.spec.lighting.key_intensity??3.2} castShadow shadow-mapSize={[1024,1024]} shadow-bias={-.00005} shadow-normalBias={.008} shadow-camera-left={-1.5} shadow-camera-right={1.5} shadow-camera-top={1.5} shadow-camera-bottom={-1.5} />
         <directionalLight position={[-2,1,1.5]} intensity={1.3} />
@@ -196,6 +199,7 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
     </SceneBoundary>}
   </div>
     <div className="scene-toolbar"><span>{robot==='panda'?'Franka Panda':robot.toUpperCase()} · {visualWorld?.name??'Physical workcell'}</span><label>View<select aria-label="Camera preset" value={cameraCommand.key.startsWith('preset:')?cameraCommand.key.slice(7):'perspective'} onChange={e=>setCameraCommand(c=>({key:'preset:'+e.target.value,seq:c.seq+1}))}><option value="perspective">Perspective</option><option value="top">Top</option><option value="side">Side</option></select></label><button type="button" onClick={resetCamera}>Reset camera</button>{(imported||appearance)&&<label><input type="checkbox" checked={showImported} onChange={e=>setShowImported(e.target.checked)}/> Environment</label>}</div>
+    <div className="scene-quality"><RenderQualityControl worldId={visualWorld?.id}/></div>
     {appearanceStatus&&<p className={appearanceError?'negative small':'small'} role={appearanceError?'alert':'status'}>{appearanceStatus}</p>}
     {(error||dragError)&&<p className="negative" role="alert">{error??dragError}</p>}
     {!error&&(!assets||!frames.length)&&<p className="small" role="status">{!assets?'Loading Panda geometry…':'Waiting for a measured world state…'}</p>}

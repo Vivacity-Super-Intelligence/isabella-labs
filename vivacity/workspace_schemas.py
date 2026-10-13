@@ -1,7 +1,7 @@
 """Versioned library/configuration contracts, independent of simulator state."""
 from typing import Literal, Annotated
 from pydantic import Field, model_validator
-from .schemas import Schema, Vec3, StaticGeometry, CreateWorld, SessionRequest, PhysicsSettings, MaterialId
+from .schemas import Schema, Vec3, StaticGeometry, CreateWorld, SessionRequest, PhysicsSettings, MaterialId, VariationSettings
 
 
 class Lighting(Schema):
@@ -42,6 +42,9 @@ class LibraryWorld(Schema):
     physics_scope: str
     mapping: dict | None = None
     appearance: dict | None = None
+    representations: dict | None = None
+    generation: dict | None = None
+    thumbnail_available: bool = False
     deleted: bool = False
     editable: bool = True
 
@@ -50,11 +53,43 @@ class RenameRequest(Schema):
     name: str = Field(min_length=1, max_length=64)
 
 
+class CaptureReference(Schema):
+    capture_id: str = Field(pattern=r'^[a-f0-9-]{36}$')
+    azimuth_deg: float | None = Field(None, ge=0, lt=360)
+
+
+class CaptureResponse(Schema):
+    schema_version: Literal['vivacity.capture/1.0'] = 'vivacity.capture/1.0'
+    id: str
+    filename: str
+    kind: Literal['image','video']
+    extension: str
+    dimensions_px: list[int] | None
+    validation: str
+    sha256: str
+    uploaded_bytes: int
+    created_unix_s: float
+
+
 class GenerationRequest(Schema):
     prompt: str = Field(min_length=8, max_length=4000)
     provider: Literal['openai', 'worldlabs'] = 'worldlabs'
     seed: int = Field(7, ge=0, le=2**32-1)
     model: Literal['marble-1.0-draft', 'marble-1.1'] = 'marble-1.0-draft'
+    input_type: Literal['text', 'image', 'multi-image', 'panorama', 'video'] = 'text'
+    inputs: Annotated[list[CaptureReference], Field(max_length=4)] = []
+
+    @model_validator(mode='after')
+    def capture_count(self):
+        count = len(self.inputs)
+        expected = count == 0 if self.input_type == 'text' else 2 <= count <= 4 if self.input_type == 'multi-image' else count == 1
+        if not expected:
+            raise ValueError('text requires no capture; image/panorama/video require one; multi-image requires 2..4')
+        if self.provider == 'openai' and self.input_type != 'text':
+            raise ValueError('capture reconstruction requires the World Labs provider')
+        if len({v.capture_id for v in self.inputs}) != count:
+            raise ValueError('capture references must be distinct')
+        return self
 
 
 class GenerationResponse(Schema):
@@ -73,6 +108,8 @@ class GenerationResponse(Schema):
     interpretation: EnvironmentSpec | None = None
     provider_cost_credits: int | None = None
     events: list[dict] = []
+    input_type: Literal['text', 'image', 'multi-image', 'panorama', 'video'] = 'text'
+    inputs: list[CaptureReference] = []
 
 
 class ImportMapping(Schema):
@@ -89,6 +126,7 @@ class ImportMapping(Schema):
 
 
 class ExperimentConfiguration(Schema):
+    variation: VariationSettings = VariationSettings()
     physics: PhysicsSettings = PhysicsSettings()
     object_material: MaterialId = 'custom'
     schema_version: Literal['vivacity.configuration/1.0'] = 'vivacity.configuration/1.0'
@@ -140,6 +178,32 @@ class OperationProposal(Schema):
 
 class RunOverrides(Schema):
     config: dict | None = None
+
+
+class MeasurementPoint(Schema):
+    time_s: float = Field(ge=0,le=10000)
+    position_m: Vec3
+
+    @model_validator(mode='after')
+    def bounds(self):
+        if any(abs(p)>100 for p in self.position_m):raise ValueError('measurements must be in runtime meters within ±100 m')
+        return self
+
+
+class MeasurementRequest(Schema):
+    experiment_id: str
+    branch_id: str
+    source_label: str = Field(min_length=1,max_length=160)
+    source_kind: Literal['user_recording','synthetic_reference']
+    coordinate_system: Literal['runtime_z_up_m'] = 'runtime_z_up_m'
+    time_offset_s: float = Field(0,ge=-10000,le=10000)
+    samples: Annotated[list[MeasurementPoint],Field(min_length=2,max_length=1000)]
+
+    @model_validator(mode='after')
+    def times(self):
+        if any(b.time_s<=a.time_s for a,b in zip(self.samples,self.samples[1:])):
+            raise ValueError('measurement times must be strictly increasing')
+        return self
 
 
 class PhysicsValidationResponse(Schema):

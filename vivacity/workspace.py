@@ -65,7 +65,30 @@ class WorkspaceService:
         if result.get('deleted'):raise KeyError(identifier)
         return result
 
-    def visual_asset(self,identifier,token):
+    def capture(self,filename,content,token):
+        from .spatial import capture_metadata
+        metadata=capture_metadata(filename,content)
+        root=self.runtime.imports.root/'captures';root.mkdir(exist_ok=True)
+        record={'schema_version':'vivacity.capture/1.0','id':str(uuid.uuid4()),'filename':filename,
+                **metadata,'sha256':hashlib.sha256(content).hexdigest(),'uploaded_bytes':len(content),'created_unix_s':time.time()}
+        with self.visual_lock, self.store.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            if db.execute("SELECT COUNT(*) FROM library_items WHERE kind='capture' AND owner=?",(owner(token),)).fetchone()[0]>=20:
+                raise ValueError('twenty captures per workspace; administrator storage cleanup required')
+            if sum(p.stat().st_size for p in root.glob('*.bin'))+len(content)>128*1024*1024:
+                raise ValueError('capture storage quota reached')
+            path=root/(record['id']+'.bin');path.write_bytes(content)
+            try:self._put('capture',owner(token),record,db)
+            except Exception:path.unlink(missing_ok=True);raise
+        return record
+
+    def capture_path(self,identifier,token):
+        record=self._get(identifier,token,'capture')
+        path=self.runtime.imports.root/'captures'/(record['id']+'.bin')
+        if not path.is_file():raise ValueError('capture bytes are no longer available; upload again')
+        return record,path
+
+    def visual_asset(self,identifier,token,quality=None):
         """Owned visual bytes, never provider credentials or signed URLs."""
         record=self.world(identifier,token)
         if (record.get('appearance') or {}).get('format')=='glb':
@@ -75,15 +98,34 @@ class WorkspaceService:
             return path
         if not record.get('appearance') or not record.get('_visual_url'):
             raise ValueError('This environment has no supported SPZ appearance. Generate a new World Labs environment.')
-        target=self.runtime.imports.root/(record['id']+'.spz')
+        if quality is not None:
+            url=(record.get('_visual_urls') or {}).get(quality)
+            if not url:raise ValueError('requested visual detail is not available')
+            target=self.runtime.imports.root/(record['id']+'-'+quality+'.spz')
+        else:
+            url=record['_visual_url'];target=self.runtime.imports.root/(record['id']+'.spz')
         with self.visual_lock:
             if not target.exists():
-                content=download_asset(record['_visual_url'])
+                content=download_asset(url)
                 if not content.startswith(b'\x1f\x8b'):raise ProviderError('World Labs visual output is not a compressed SPZ file.')
                 cached=list(self.runtime.imports.root.glob('*.spz'))
                 if sum(p.stat().st_size for p in cached)+len(content)>128*1024*1024:
                     raise ProviderError('Generated visual asset storage quota reached.')
                 temporary=target.with_suffix('.spz.tmp');temporary.write_bytes(content);temporary.replace(target)
+        return target
+
+    def thumbnail_asset(self,identifier,token):
+        record=self.world(identifier,token)
+        if not record.get('_thumbnail_url'):raise KeyError(identifier)
+        target=self.runtime.imports.root/(record['id']+'-thumbnail.img')
+        with self.visual_lock:
+            if not target.is_file():
+                from .spatial import capture_metadata
+                content=download_asset(record['_thumbnail_url'])
+                if len(content)>4*1024*1024:raise ProviderError('thumbnail exceeds 4 MiB')
+                extension='png' if content.startswith(b'\x89PNG') else 'webp' if content[:4]==b'RIFF' else 'jpg'
+                capture_metadata('thumbnail.'+extension,content)
+                target.write_bytes(content)
         return target
 
     def save_world(self,spec,token,source,**fields):
@@ -111,9 +153,13 @@ class WorkspaceService:
         result=self.save_world(spec,token,original['source'],import_id=original.get('import_id'),
             provider_world_id=original.get('provider_world_id'),provider_url=original.get('provider_url'),
             preview_available=original['preview_available'],physics_scope=original['physics_scope'],mapping=deepcopy(original.get('mapping')),
-            appearance=deepcopy(original.get('appearance')))
+            appearance=deepcopy(original.get('appearance')),representations=deepcopy(original.get('representations')),
+            generation=deepcopy(original.get('generation')),thumbnail_available=original.get('thumbnail_available',False))
         if original.get('_visual_url'):
             result['_visual_url']=original['_visual_url'];self._put('world',owner(token),result)
+        for key in ('_visual_urls','_thumbnail_url'):
+            if original.get(key):result[key]=deepcopy(original[key])
+        self._put('world',owner(token),result)
         return result
 
     def map_import(self,record,preview,mapping,token,source='imported',**fields):
@@ -129,6 +175,13 @@ class WorkspaceService:
             physics_scope='Original triangles are a visual preview. Physics uses a solid axis-aligned bounding-box proxy, centered at the chosen position and scale, plus the standard Panda workbench. A concave room must not be treated as an accurate solid-box reconstruction.',**fields)
         result['mapping']={'scale':mapping.scale,'position_m':mapping.position_m,'up_axis':mapping.up_axis,
                            'original_center_m':((lo+hi)/2).tolist(),'source_sha256':record['sha256']}
+        result['representations']={'schema_version':'vivacity.representations/1.0',
+            'visual':{'kind':'static mesh preview','physics_source':False},
+            'geometry':{'source_sha256':record['sha256'],'original_glb_preserved':(self.runtime.imports.root/(record['id']+'.glb')).is_file(),
+                        'validation':record.get('summary',{}).get('geometry_validation')},
+            'physical':{'engine':'MuJoCo','collision':'explicit conservative solid box proxy',
+                        'readiness':'configured_proxy','calibration':'not performed','parameters':'configured estimates',
+                        'source_visual_alignment':'not independently validated'}}
         if source=='imported' and (self.runtime.imports.root/(record['id']+'.glb')).is_file():
             result['appearance']={'format':'glb','embedded_resources':True}
         self._put('world',owner(token),result)
@@ -166,7 +219,8 @@ class WorkspaceService:
             world=CreateWorld(backend='mujoco',seed=configuration.seed,config=config)
         adaptive=world.backend=='mujoco' and world.config.task=='pick_place' and configuration.trial_mode=='adaptive'
         fixed=world.backend=='mujoco' and world.config.task=='pick_place' and configuration.trial_mode=='fixed'
-        session=SessionRequest(**world.model_dump(),max_cycles=configuration.randomization_cycles if configuration.operation_id=='randomized_manipulation' else 1,
+        session=SessionRequest(**world.model_dump(),variation=configuration.variation,
+            max_cycles=configuration.randomization_cycles if configuration.operation_id=='randomized_manipulation' or configuration.variation.enabled else 1,
             realtime_speed=configuration.realtime_speed,realtime_execution=True,adaptive_trials=adaptive,
             physics_trials=configuration.validation_trials if fixed else 0,
             search_candidates=configuration.validation_trials if fixed else 256,
@@ -207,9 +261,13 @@ class WorkspaceService:
         for r in records:
             session=self.runtime.supervisor.get(r['session_id'],r['capability'])
             experiments=[self.runtime.get_experiment(eid) for eid in session['experiments']]
-            entries=[]
+            entries=[];robustness_inputs=[]
             for experiment in experiments:
                 branches=self.store.branches(experiment['id'])
+                # Public experiment responses omit config. Reports use the
+                # persisted execution inputs, not the current editable world.
+                executed=self.store.get('experiments',experiment['id'])['config']
+                robustness_inputs.append((experiment|{'config':executed},[{k:b[k] for k in ('id','evaluation')} for b in branches]))
                 measured=[b for b in branches if b['action'].get('execution_role')!='authoritative_execution']
                 with self.store.connect() as db:
                     total,successes=db.execute("SELECT COUNT(*),COALESCE(SUM(json_extract(payload,'$.evaluation.success')),0) FROM trials WHERE experiment_id=?",(experiment['id'],)).fetchone()
@@ -217,8 +275,45 @@ class WorkspaceService:
                 entries.append({'experiment':experiment,'evaluations':[{'branch_id':b['id'],'evaluation':b['evaluation'],'performance':b['performance']} for b in measured],
                                 'validation_count':total,'successful_validations':successes,'success_rate':successes/total if total else None,
                                 'energy_joules':None,'energy_scope':'Energy accounting is not implemented.'})
-            result.append({k:v for k,v in r.items() if k!='capability'}|{'session':session,'experiments':entries})
+            from .variation import report
+            result.append({k:v for k,v in r.items() if k!='capability'}|{'session':session,'experiments':entries,
+                'robustness':report(robustness_inputs,session['conditions'])})
         return result
+
+    def compare_measurements(self,sid,request,token):
+        with self.store.connect() as db:
+            row=db.execute('SELECT payload FROM configuration_runs WHERE session_id=? AND owner=?',(sid,owner(token))).fetchone()
+        if row is None:raise KeyError(sid)
+        saved=json.loads(row[0]);session=self.runtime.supervisor.get(sid,saved['capability'])
+        if request.experiment_id not in session['experiments']:raise ValueError('experiment is not part of this owned run')
+        experiment=self.runtime.get_experiment(request.experiment_id)
+        if experiment['status']!='completed':raise ValueError('measurements require a completed simulation')
+        branch=self.store.get('branches',request.branch_id)
+        if branch['experiment_id']!=request.experiment_id:raise ValueError('branch is not part of this experiment')
+        samples=[]
+        for frame in branch['trace']:
+            body=next((b for b in frame.get('body_transforms',[]) if b['name']=='target'),None)
+            if body:samples.append([frame['time'],*body['position']])
+        if len(samples)<2:raise ValueError('this branch has no recorded object trajectory')
+        simulated=np.asarray(samples);observed=np.asarray([[p.time_s+request.time_offset_s,*p.position_m] for p in request.samples])
+        inside=(observed[:,0]>=simulated[0,0])&(observed[:,0]<=simulated[-1,0])
+        matched=observed[inside]
+        if len(matched)<2:raise ValueError('at least two observations must overlap the recorded simulation; no extrapolation is performed')
+        predicted=np.column_stack([np.interp(matched[:,0],simulated[:,0],simulated[:,i]) for i in range(1,4)])
+        errors=np.linalg.norm(predicted-matched[:,1:],axis=1)
+        record={'schema_version':'vivacity.measurement-comparison/1.0','id':str(uuid.uuid4()),'created_unix_s':time.time(),
+            'session_id':sid,'experiment_id':request.experiment_id,'branch_id':request.branch_id,
+            'source_label':request.source_label,'source_kind':request.source_kind,'coordinate_system':request.coordinate_system,
+            'time_offset_s':request.time_offset_s,'input_sha256':digest(request.model_dump()),'matched_samples':len(matched),
+            'excluded_samples':len(observed)-len(matched),'rmse_position_m':float(np.sqrt(np.mean(errors**2))),
+            'max_position_error_m':float(errors.max()),'mean_position_error_m':float(errors.mean()),
+            'observed_displacement_m':(matched[-1,1:]-matched[0,1:]).tolist(),
+            'simulated_displacement_m':(predicted[-1]-predicted[0]).tolist(),
+            'overlap_duration_s':float(matched[-1,0]-matched[0,0]),'residuals_m':errors.tolist(),
+            'samples':request.model_dump()['samples'],'simulated_positions_m':predicted.tolist(),
+            'scope':'User-supplied object positions in runtime meters, Z-up, linearly interpolated recorded MuJoCo states. Source authenticity and hardware predictive accuracy are not independently verified. No automatic spatial calibration, robot/contact alignment or parameter fitting.'}
+        if len(self.list(token,'measurement_comparison'))>=30:raise ValueError('measurement comparison quota reached')
+        self._put('measurement_comparison',owner(token),record);return record
 
     def _stage(self,job,status,message=None):
         job['status']=status;job['updated_unix_s']=time.time()
@@ -233,6 +328,13 @@ class WorkspaceService:
     def generate(self,request,token,key):
         if not os.getenv('OPENAI_API_KEY'):raise ProviderError('OpenAI is not configured on the server.')
         if request.provider=='worldlabs' and not os.getenv('WORLDLABS_API_KEY'):raise ProviderError('World Labs is not configured on the server.')
+        for reference in request.inputs:
+            capture,_=self.capture_path(reference.capture_id,token)
+            if capture['kind']!=('video' if request.input_type=='video' else 'image'):
+                raise ValueError('capture kind does not match the requested generation input')
+            if request.input_type=='panorama':
+                width,height=capture['dimensions_px']
+                if abs(width/height-2)>.02:raise ValueError('panorama must be a 2:1 equirectangular image')
         fingerprint=digest(request.model_dump());hashed=owner(token)
         from .runtime import Busy,Conflict
         with self.store.connect() as db:
@@ -246,7 +348,8 @@ class WorkspaceService:
             if sum(j['created_unix_s']>time.time()-86400 for j in jobs)>=int(os.getenv('VIVACITY_GENERATIONS_PER_DAY','4')):
                 raise Busy('the server daily generation budget has been reached')
             now=time.time();job=GenerationResponse(id=str(uuid.uuid4()),status='queued',provider=request.provider,prompt=request.prompt,
-                seed=request.seed,model=request.model,created_unix_s=now,updated_unix_s=now).model_dump()|{'_owner':hashed,'_token':token}
+                seed=request.seed,model=request.model,input_type=request.input_type,inputs=request.inputs,
+                created_unix_s=now,updated_unix_s=now).model_dump()|{'_owner':hashed,'_token':token}
             self._put('generation',hashed,job,db)
             db.execute('INSERT INTO generation_keys VALUES(?,?,?,?)',(hashed,key,fingerprint,job['id']))
         self.executor.submit(self._run,job)
@@ -260,7 +363,20 @@ class WorkspaceService:
                 record=self.save_world(spec,job['_token'],'openai')
                 job['world_id']=record['id'];self._stage(job,'completed','OpenAI structured primitive scene saved. This is not a World Labs generation.');return
             self._stage(job,'generating','Submitting a private World Labs generation request.')
-            operation=self.worldlabs.generate(job['prompt'],spec.name,job['seed'],job['model'])
+            if job.get('input_type','text')=='text':
+                operation=self.worldlabs.generate(job['prompt'],spec.name,job['seed'],job['model'])
+            else:
+                contents=[];job['_capture_provenance']=[]
+                for ref in job['inputs']:
+                    record,path=self.capture_path(ref['capture_id'],job['_token'])
+                    media_id=self.worldlabs.upload_capture(record['filename'],record['kind'],record['extension'],path.read_bytes())
+                    contents.append({'source':'media_asset','media_asset_id':media_id})
+                    job['_capture_provenance'].append(record|{'provider_media_asset_id':media_id,'azimuth_deg':ref.get('azimuth_deg')})
+                kind=job['input_type'];world_prompt={'type':'image' if kind=='panorama' else kind,'text_prompt':job['prompt']}
+                if kind=='multi-image':world_prompt['multi_image_prompt']=[{'content':content,**({'azimuth':ref['azimuth_deg']} if ref.get('azimuth_deg') is not None else {})} for content,ref in zip(contents,job['inputs'])]
+                elif kind=='video':world_prompt['video_prompt']=contents[0]
+                else:world_prompt.update(image_prompt=contents[0],is_pano=kind=='panorama')
+                operation=self.worldlabs.generate(job['prompt'],spec.name,job['seed'],job['model'],world_prompt)
             from .providers import identifier
             identifier(operation.get('operation_id'));job['operation_id']=operation['operation_id'];self._stage(job,'generating','World Labs operation accepted; polling its actual status.')
             self._poll(job)
@@ -311,11 +427,26 @@ class WorkspaceService:
                 from .providers import asset_url
                 asset_url(visual_url)
                 library['appearance']={'format':'spz','quality':'500k' if urls.get('500k') else '100k',
+                    'qualities':[quality for quality in ('100k','500k') if urls.get(quality)],
                     'semantics':splats.get('semantics_metadata'),'coordinate_system':'marble_raw_opencv',
                     'metric_scale_verified':bool(splats.get('semantics_metadata'))}
                 library['_visual_url']=visual_url
+                library['_visual_urls']={quality:asset_url(urls[quality]) for quality in ('100k','500k') if urls.get(quality)}
+                library['representations']['visual']={'kind':'Gaussian splats','format':'SPZ','qualities':list(library['_visual_urls']),
+                    'coordinates':'Marble raw OpenCV','semantics':splats.get('semantics_metadata'),'physics_source':False}
+                library['generation']={'provider':'worldlabs','job_id':job['id'],'operation_id':job['operation_id'],
+                    'source_prompt':job['prompt'],'input_type':job.get('input_type','text'),
+                    'inputs':job.get('_capture_provenance',[]),'geometry_origin':'generated/inferred from observations; not a measured digital twin',
+                    'model':job['model'],'seed':job['seed'],'provider_cost_credits':job['provider_cost_credits'],
+                    'processing_status':'received','validation_status':'bounded geometry checks; explicit proxy physics; uncalibrated'}
+                if assets.get('thumbnail_url'):
+                    library['_thumbnail_url']=asset_url(assets['thumbnail_url']);library['thumbnail_available']=True
                 self._put('world',job['_owner'],library)
-                self.visual_asset(library['id'],job['_token'])
+                self.visual_asset(library['id'],job['_token'],'100k' if urls.get('100k') else '500k')
+                if library['thumbnail_available']:
+                    try:self.thumbnail_asset(library['id'],job['_token'])
+                    except (ProviderError,ValueError):
+                        library['thumbnail_available']=False;self._put('world',job['_owner'],library)
                 job['world_id']=library['id'];job['provider_cost_credits']=(result.get('cost') or {}).get('total_credits')
                 self._stage(job,'completed','World Labs colored SPZ appearance and separate collision mesh retrieved. Review the conservative collision mapping before experimentation.');return
             job['updated_unix_s']=time.time();self._put('generation',job['_owner'],job)

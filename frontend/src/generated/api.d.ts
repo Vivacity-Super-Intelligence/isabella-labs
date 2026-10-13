@@ -176,6 +176,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspace/worlds/{identifier}/thumbnail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Thumbnail */
+        get: operations["thumbnail_v1_workspace_worlds__identifier__thumbnail_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/worlds/{identifier}/geometry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Original Geometry */
+        get: operations["original_geometry_v1_workspace_worlds__identifier__geometry_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/captures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Captures */
+        get: operations["captures_v1_workspace_captures_get"];
+        put?: never;
+        /** Capture */
+        post: operations["capture_v1_workspace_captures_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/workspace/imports": {
         parameters: {
             query?: never;
@@ -357,6 +409,40 @@ export interface paths {
         };
         /** Runs */
         get: operations["runs_v1_workspace_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/runs/{sid}/measurements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compare Measurements */
+        post: operations["compare_measurements_v1_workspace_runs__sid__measurements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspace/measurement-comparisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Measurement Comparisons */
+        get: operations["measurement_comparisons_v1_workspace_measurement_comparisons_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -968,6 +1054,43 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** CaptureReference */
+        CaptureReference: {
+            /** Capture Id */
+            capture_id: string;
+            /** Azimuth Deg */
+            azimuth_deg?: number | null;
+        };
+        /** CaptureResponse */
+        CaptureResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.capture/1.0
+             * @constant
+             */
+            schema_version: "vivacity.capture/1.0";
+            /** Id */
+            id: string;
+            /** Filename */
+            filename: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "image" | "video";
+            /** Extension */
+            extension: string;
+            /** Dimensions Px */
+            dimensions_px: number[] | null;
+            /** Validation */
+            validation: string;
+            /** Sha256 */
+            sha256: string;
+            /** Uploaded Bytes */
+            uploaded_bytes: number;
+            /** Created Unix S */
+            created_unix_s: number;
+        };
         /** ClothConfig */
         ClothConfig: {
             /**
@@ -1124,6 +1247,18 @@ export interface components {
         };
         /** ExperimentConfiguration */
         ExperimentConfiguration: {
+            /**
+             * @default {
+             *       "enabled": false,
+             *       "position_radius_m": 0.04,
+             *       "friction_min": 0.15,
+             *       "friction_max": 1.2,
+             *       "mass_min_kg": 0.04,
+             *       "mass_max_kg": 0.1,
+             *       "held_out_fraction": 0.25
+             *     }
+             */
+            variation: components["schemas"]["VariationSettings"];
             /**
              * @default {
              *       "schema_version": "vivacity.physics/1.0",
@@ -1396,6 +1531,17 @@ export interface components {
              * @enum {string}
              */
             model: "marble-1.0-draft" | "marble-1.1";
+            /**
+             * Input Type
+             * @default text
+             * @enum {string}
+             */
+            input_type: "text" | "image" | "multi-image" | "panorama" | "video";
+            /**
+             * Inputs
+             * @default []
+             */
+            inputs: components["schemas"]["CaptureReference"][];
         };
         /** GenerationResponse */
         GenerationResponse: {
@@ -1440,6 +1586,17 @@ export interface components {
             events: {
                 [key: string]: unknown;
             }[];
+            /**
+             * Input Type
+             * @default text
+             * @enum {string}
+             */
+            input_type: "text" | "image" | "multi-image" | "panorama" | "video";
+            /**
+             * Inputs
+             * @default []
+             */
+            inputs: components["schemas"]["CaptureReference"][];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1588,6 +1745,19 @@ export interface components {
             appearance?: {
                 [key: string]: unknown;
             } | null;
+            /** Representations */
+            representations?: {
+                [key: string]: unknown;
+            } | null;
+            /** Generation */
+            generation?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Thumbnail Available
+             * @default false
+             */
+            thumbnail_available: boolean;
             /**
              * Deleted
              * @default false
@@ -1634,6 +1804,40 @@ export interface components {
             frame: {
                 [key: string]: unknown;
             };
+        };
+        /** MeasurementPoint */
+        MeasurementPoint: {
+            /** Time S */
+            time_s: number;
+            /** Position M */
+            position_m: number[];
+        };
+        /** MeasurementRequest */
+        MeasurementRequest: {
+            /** Experiment Id */
+            experiment_id: string;
+            /** Branch Id */
+            branch_id: string;
+            /** Source Label */
+            source_label: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "user_recording" | "synthetic_reference";
+            /**
+             * Coordinate System
+             * @default runtime_z_up_m
+             * @constant
+             */
+            coordinate_system: "runtime_z_up_m";
+            /**
+             * Time Offset S
+             * @default 0
+             */
+            time_offset_s: number;
+            /** Samples */
+            samples: components["schemas"]["MeasurementPoint"][];
         };
         /** PhysicsSettings */
         PhysicsSettings: {
@@ -1940,6 +2144,18 @@ export interface components {
             /** Config */
             config?: components["schemas"]["RoboticsConfig"] | components["schemas"]["ClothConfig"] | null;
             /**
+             * @default {
+             *       "enabled": false,
+             *       "position_radius_m": 0.04,
+             *       "friction_min": 0.15,
+             *       "friction_max": 1.2,
+             *       "mass_min_kg": 0.04,
+             *       "mass_max_kg": 0.1,
+             *       "held_out_fraction": 0.25
+             *     }
+             */
+            variation: components["schemas"]["VariationSettings"];
+            /**
              * Realtime Speed
              * @default 1
              */
@@ -2214,6 +2430,44 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** VariationSettings */
+        VariationSettings: {
+            /**
+             * Enabled
+             * @default false
+             */
+            enabled: boolean;
+            /**
+             * Position Radius M
+             * @default 0.04
+             */
+            position_radius_m: number;
+            /**
+             * Friction Min
+             * @default 0.15
+             */
+            friction_min: number;
+            /**
+             * Friction Max
+             * @default 1.2
+             */
+            friction_max: number;
+            /**
+             * Mass Min Kg
+             * @default 0.04
+             */
+            mass_min_kg: number;
+            /**
+             * Mass Max Kg
+             * @default 0.1
+             */
+            mass_max_kg: number;
+            /**
+             * Held Out Fraction
+             * @default 0.25
+             */
+            held_out_fraction: number;
         };
         /** WorldResponse */
         WorldResponse: {
@@ -2616,6 +2870,41 @@ export interface operations {
     };
     appearance_v1_workspace_worlds__identifier__appearance_get: {
         parameters: {
+            query?: {
+                quality?: string | null;
+            };
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    thumbnail_v1_workspace_worlds__identifier__thumbnail_get: {
+        parameters: {
             query?: never;
             header: {
                 "X-Workspace-Token": string;
@@ -2634,6 +2923,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    original_geometry_v1_workspace_worlds__identifier__geometry_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    captures_v1_workspace_captures_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaptureResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    capture_v1_workspace_captures_post: {
+        parameters: {
+            query: {
+                filename: string;
+            };
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaptureResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3055,6 +3441,74 @@ export interface operations {
         };
     };
     runs_v1_workspace_runs_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_measurements_v1_workspace_runs__sid__measurements_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                sid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeasurementRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    measurement_comparisons_v1_workspace_measurement_comparisons_get: {
         parameters: {
             query?: never;
             header: {
