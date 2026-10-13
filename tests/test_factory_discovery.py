@@ -27,6 +27,8 @@ def test_linear_recovery_and_time_ordered_validation():
     assert result['models'][0]['validation_status'] == 'validated_approximation'
     assert result['provenance']['run_id'] == 'measured-run'
     assert result['models'][0]['equation_latex'].startswith('y=')
+    assert result['models'][0]['display_latex'].startswith(r'\begin{aligned}y(t)&=')
+    assert r'\frac{t}{' in result['models'][0]['display_latex']
 
 
 def test_unpredictable_future_is_not_called_validated():
@@ -77,6 +79,9 @@ def test_nonlinear_model_families_fit_computed_curves():
         model = next(row for row in result['models'] if row['model'] == family)
         assert model['training']['rmse'] < .05, (family, model['training'])
         assert model['equation_text'].startswith('y(t) = ')
+        assert model['display_latex'].startswith(r'\begin{aligned}y(t)&=')
+        if family == 'piecewise_linear':
+            assert r'\begin{cases}' in model['display_latex']
         assert len(model['predicted_curve']) == 120
 
 
@@ -94,6 +99,7 @@ def test_joint_relationship_recovers_only_supported_association():
     coefficients=result['models'][0]['coefficients']
     assert np.allclose(coefficients,[2,.5,.2],atol=1e-9)
     assert result['models'][0]['validation']['rmse']<1e-9
+    assert result['models'][0]['equation_latex'].startswith(r'\tau=')
     assert 'not a causal' in result['scope']
     weak=infer_joint_torque([(float(i),{'torque':0.,'joint_acceleration':0.,'joint_velocity':0.}) for i in range(100)],'static')
     assert weak['status']=='insufficient_signal' and not weak['models']

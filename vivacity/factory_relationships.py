@@ -5,6 +5,7 @@ descriptive and cannot identify inertia, friction or causal mechanisms alone.
 """
 import math
 import time
+from decimal import Decimal
 
 import numpy as np
 
@@ -67,7 +68,12 @@ def infer_joint_torque(rows,run_id):
             and validation['rmse']<=1.5*training['rmse']+.1*float(np.std(train[:,1]))) else 'poor_fit'
         equation=f'τ = {intercept:.6g} + ({slopes[0]:.6g})×α'
         if len(slopes)>1:equation+=f' + ({slopes[1]:.6g})×ω'
+        number=lambda value:format(Decimal(format(float(value),'.8g')),'f')
+        latex=r'\tau='+number(intercept)
+        for slope,symbol in zip(slopes,(r'\alpha',r'\omega')):
+            latex+=(' - ' if slope<0 else ' + ')+number(abs(slope))+symbol
         models.append({'model':name,'coefficients':coefficients,'equation_text':equation,
+                       'equation_latex':latex,
                        'training':training,'validation':validation,'condition_number':condition,
                        'validation_status':status,
                        'selection_score':validation['rmse']+float(np.std(train[:,1]))*1e-4*len(coefficients)})

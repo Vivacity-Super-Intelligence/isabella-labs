@@ -80,6 +80,7 @@ class DiscoveryModelResponse(Wire):
     parameters:list[float]
     parameter_count:int
     equation_latex:str
+    display_latex:str|None=None
     equation_text:str|None=None
     editable_latex:str
     training:DiscoveryMetrics

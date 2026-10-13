@@ -108,6 +108,50 @@ def _latex(kind, p, t0, scale, minimum, maximum, parameterized=False):
     return f'y={expression}\\left\\{{{n(minimum)}\\le x\\le {n(maximum)}\\right\\}}'
 
 
+def _display_latex(kind, p, t0, scale, minimum, maximum):
+    """Typeset the same measured fit with conventional time and cases notation.
+
+    Desmos needs its own piecewise/domain syntax; this form is for readers.
+    Both expressions are generated from the identical fitted parameters.
+    """
+    n = _number
+
+    def sum_terms(intercept, terms):
+        expression = n(intercept)
+        for coefficient, factor in terms:
+            sign = '-' if coefficient < 0 else '+'
+            expression += f' {sign} {n(abs(coefficient))}{factor}'
+        return expression
+
+    if kind == 'constant':
+        expression = n(p[0])
+    elif kind in ('linear', 'quadratic', 'cubic'):
+        expression = sum_terms(p[0], [(p[i], 'u' if i == 1 else f'u^{{{i}}}') for i in range(1, len(p))])
+    elif kind == 'exponential':
+        expression = sum_terms(p[0], [(p[1], f'e^{{{n(p[2])}u}}')])
+    elif kind in ('sinusoidal', 'damped_sinusoidal'):
+        phase = sum_terms(0., [(p[2], 'u'), (p[3], '')])
+        # Remove the artificial zero introduced by the shared signed formatter.
+        phase = phase.removeprefix('0 + ').removeprefix('0 - ')
+        if p[2] < 0:
+            phase = '-' + phase
+        envelope = f'e^{{-{n(p[4])}u}}' if kind == 'damped_sinusoidal' else ''
+        expression = sum_terms(p[0], [(p[1], f'{envelope}\\sin\\left({phase}\\right)')])
+    elif kind == 'piecewise_linear':
+        boundary = n(t0 + scale * p[4])
+        left = sum_terms(p[0], [(p[1], 'u')])
+        right = sum_terms(p[2], [(p[3], 'u')])
+        expression = (r'\begin{cases}' + f'{left}, & t\\le {boundary}'
+                      + r'\\' + f'{right}, & t>{boundary}' + r'\end{cases}')
+    else:
+        raise ValueError(kind)
+    time_shift = 't' if abs(t0) < 1e-12 else f't-{n(t0)}' if t0 > 0 else f't+{n(abs(t0))}'
+    return (r'\begin{aligned}y(t)&=' + expression + r'\\'
+            + f'u&=\\frac{{{time_shift}}}{{{n(scale)}}},\\quad '
+            + f'{n(minimum)}\\le t\\le {n(maximum)}\\;\\mathrm{{s}}'
+            + r'\end{aligned}')
+
+
 def _plain(kind, p, t0, scale, minimum, maximum):
     """A readable counterpart to the machine-ready Desmos LaTeX."""
     n = _number
@@ -176,6 +220,7 @@ def discover(points, run_id, quantity, *, updated_at=None, families=None):
                 continue
             models.append({'model': kind, 'parameters': [float(v) for v in p], 'parameter_count': parameters,
                            'equation_latex': _latex(kind, p, t0, scale, float(times[0]), float(times[-1])),
+                           'display_latex': _display_latex(kind, p, t0, scale, float(times[0]), float(times[-1])),
                            'editable_latex': _latex(kind, p, t0, scale, float(times[0]), float(times[-1]), True),
                            'equation_text': _plain(kind, p, t0, scale, float(times[0]), float(times[-1])),
                            'training': train, 'validation': validation, 'selection_score': float(score),
