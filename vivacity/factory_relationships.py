@@ -9,12 +9,12 @@ import time
 import numpy as np
 
 
-def _scores(actual,predicted):
+def _scores(actual,predicted,reference_variation=0.):
     residual=actual-predicted
     mse=float(np.mean(residual*residual))
     total=float(np.sum((actual-np.mean(actual))**2))
     return {'rmse':math.sqrt(mse),'mae':float(np.mean(np.abs(residual))),
-            'r2':1-float(np.sum(residual*residual))/total if total>1e-20 else None}
+            'r2':1-float(np.sum(residual*residual))/total if total>max(1e-20,len(actual)*(reference_variation*1e-3)**2) else None}
 
 
 def infer_joint_torque(rows,run_id):
@@ -59,7 +59,7 @@ def infer_joint_torque(rows,run_id):
         intercept=float(standardized[0]-np.sum(slopes*means))
         coefficients=[intercept,*map(float,slopes)]
         predict=lambda rows:intercept+np.asarray(rows[:,indices])@slopes
-        training=_scores(train[:,1],predict(train));validation=_scores(test[:,1],predict(test))
+        training=_scores(train[:,1],predict(train));validation=_scores(test[:,1],predict(test),float(np.std(train[:,1])))
         if not all(math.isfinite(v) for v in (training['rmse'],validation['rmse'])):
             continue
         status='validated_association' if (validation['r2'] is not None and validation['r2']>=.25

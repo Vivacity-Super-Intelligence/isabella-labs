@@ -12,12 +12,15 @@ import numpy as np
 from .factory_discovery_data import QUANTITIES
 
 
-def _metrics(actual, predicted):
+def _metrics(actual, predicted, reference_variation=0.):
     residual = actual - predicted
     rmse = float(np.sqrt(np.mean(residual * residual)))
     mae = float(np.mean(np.abs(residual)))
     total = float(np.sum((actual - np.mean(actual)) ** 2))
-    return {'rmse': rmse, 'mae': mae, 'r2': 1 - float(np.sum(residual * residual)) / total if total > 1e-20 else None}
+    # A nearly flat future window has no useful variance denominator. Keep
+    # residual errors, but do not display an arbitrarily huge R² quotient.
+    meaningful = total > max(1e-20, len(actual) * (reference_variation * 1e-3) ** 2)
+    return {'rmse': rmse, 'mae': mae, 'r2': 1 - float(np.sum(residual * residual)) / total if meaningful else None}
 
 
 def _number(value):
@@ -160,7 +163,7 @@ def discover(points, run_id, quantity, *, updated_at=None, families=None):
             if not np.all(np.isfinite(train_pred)) or not np.all(np.isfinite(held_pred)):
                 continue
             train = _metrics(training_y, train_pred)
-            validation = _metrics(held_y, held_pred)
+            validation = _metrics(held_y, held_pred, float(np.std(training_y)))
             if not all(math.isfinite(value) for value in (train['rmse'], validation['rmse'])):
                 continue
             # Complexity cost discourages unnecessarily flexible descriptions.
