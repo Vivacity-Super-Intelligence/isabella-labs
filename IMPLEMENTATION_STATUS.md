@@ -1,3 +1,23 @@
+# Physical experimentation workspace — 2026-10-13
+
+Deployed native gravity/air/wind, bounded object force/torque, gripper actuator
+limits, eight illustrative contact materials, real engineering inspection/overlays,
+mechanical object energy and analytical validation reports. Added Explore / Generate
+/ Import with actual previews, staged import validation and current-run results.
+
+Executed: **235/235 Linux tests passed**, zero failures/errors/skips; **3/3** hard
+512 MiB checks passed; **22/22** new Windows physics tests; **75/75** changed-area
+regression; **19 + 5** frontend checks and production build passed. Public real
+HTTP/WSS experiment: three validations and successful fresh placement (1.069 mm
+error), 250 replay frames, 12 WSS events; changed weak-grip inputs invalidated the
+old run and produced two actual dropped-object failures. Public OpenAPI matches.
+
+This remains a bounded physical demonstration, not a calibrated universal factory
+simulator. Two curated visual worlds, one implemented object gripper, simplified
+fluid/contact models, fixture cloth, primary-arm dual robot, eight public trials,
+Free idle sleep/ephemeral persistence. Full implemented/incomplete inventory,
+measurements, evidence and commands: [PHYSICAL_PLATFORM_RELEASE.md](docs/PHYSICAL_PLATFORM_RELEASE.md).
+
 # Runtime stability and parallel trials — 2026-10-13
 
 Fixed the reproduced Render 512 MB memory crash and persistent stale-session 404

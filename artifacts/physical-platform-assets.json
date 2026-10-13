@@ -1,0 +1,15 @@
+[
+  {
+    "world": "warehouse",
+    "matches_source": true,
+    "bytes": 38756
+  },
+  {
+    "world": "robotics_lab",
+    "matches_source": true,
+    "bytes": 20360
+  },
+  {
+    "aliases_match": true
+  }
+]

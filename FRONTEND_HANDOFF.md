@@ -1,3 +1,46 @@
+# Physical inspection contract update — 2026-10-13
+
+See [PHYSICAL_PLATFORM_RELEASE.md](docs/PHYSICAL_PLATFORM_RELEASE.md) for the deployed
+capabilities, exact verification and remaining limitations. The existing HTTP/WSS
+contracts below remain valid. New `RoboticsConfig` and `ExperimentConfiguration`
+fields are `object_material` and typed `physics` (`PhysicsSettings` in OpenAPI).
+Defaults preserve the prior rigid-body controller; cloth rejects unsupported
+physical overrides. Snapshot/replay/export retain the complete applied inputs.
+
+New endpoints on `/v1/workspace`:
+
+- `GET /materials`: eight illustrative presets and their scope.
+- `POST /physics-validations`: execute bounded native benchmarks, save an owned
+  report, return `vivacity.physics-validation/1.0` (201).
+- `GET /physics-validations/{id}`: retrieve the capability-owned report.
+- `GET /imports/{id}/preview`: validate ownership of the staged upload and return
+  actual triangles before `POST /imports/{id}/map` saves a collision mapping.
+
+Use `X-Workspace-Token` for owned operations. No secret is embedded in the UI.
+Benchmarks are globally capped at 50 calls/day; long robot tasks use existing jobs.
+
+Example saved configuration request (other fields retain their defaults):
+
+```json
+{"name":"Rubber in air","environment_id":"warehouse","robot_id":"panda","gripper_id":"panda_parallel","operation_id":"pick_place","object_material":"rubber","physics":{"gravity_m_s2":9.81,"air_density_kg_m3":1.225,"wind_velocity_m_s":[0,0,0],"gripper_force_scale":1},"trial_mode":"fixed","validation_trials":3}
+```
+
+Native pickup frames now contain `inspection` (`vivacity.inspection/1.0`): object
+position/COM/mass/principal inertia, velocities, contact parameters, applied force
+and torque, mechanical energy, joints/actuation, engine settings and contact
+positions/force vectors. Existing `body_transforms` remain the render source.
+Force vectors act on `geoms[1]`; `force_solution_time_s` is the conservative lower bound of the sample interval
+ending at `state_time_s` (one timestep). Treat it as a bound, not an exact
+substep timestamp across scalar and native execution. No electrical energy or real-world calibration.
+Contact samples are capped at 48 with a truncation flag. Optional overlays scale
+vectors for visibility and display actual recorded trajectories.
+
+`PhysicsControls.tsx`, `EngineeringPanel.tsx`, `EngineeringOverlay.tsx`,
+`CurrentExperiment.tsx` and `WorldThumbnail.tsx` are the new frontend surfaces.
+`frontend/src/generated/api.d.ts` and both `openapi.json` files are updated.
+`python -m scripts.export_openapi` works from the root (direct script invocation
+without installing the package may omit the root from Python's import path).
+
 # Current world and experimentation workspace
 
 Current connection/parallel-execution release:

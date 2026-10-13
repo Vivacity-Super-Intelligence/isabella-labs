@@ -1,0 +1,27 @@
+{
+  "finalState": {
+    "documentWidth": 1046,
+    "hasPauseButton": false,
+    "hasStartButton": true,
+    "inspectorVisible": true,
+    "url": "https://demo.tryvivacity.com/",
+    "width": 1061
+  },
+  "consoleErrors": [],
+  "comparisonRows": [
+    "Investor condition comparison9a4f719f-b372-4b72-aefc-72a9bcff45d3rubber0.090 kgcompleted2 / 3 (66.7%)Verified72.79 s wall24136 stepsExport JSON",
+    "Investor condition comparison246f4266-b00f-45c3-b320-5360527d3933custom0.060 kgcompleted · stale3 / 3 (100.0%)Verified49.42 s wall28941 stepsExport JSON"
+  ],
+  "mobile": {
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "keyboardFocusVisible": true,
+    "cameraPresetsVerified": true,
+    "deviceEmulationCleared": true
+  },
+  "publicPauseResumeVerified": true,
+  "localStagedImportVerified": true,
+  "worldSwitchesVerified": true,
+  "autoStartOnReload": false
+}
