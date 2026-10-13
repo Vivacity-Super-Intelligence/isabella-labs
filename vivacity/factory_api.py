@@ -22,6 +22,10 @@ def create_cell(body:FactorySettings,request:Request,x_workspace_token:Token):
 def cell(identifier:str,request:Request,x_workspace_token:Token):
     return request.app.state.factory.cell(identifier,x_workspace_token)
 
+@router.get('/cells/{identifier}/observation')
+def observation(identifier:str,request:Request,x_workspace_token:Token,source:Literal['initial','latest']='latest'):
+    return request.app.state.factory.observation(identifier,x_workspace_token,source)
+
 @router.post('/cells/{identifier}/runs',status_code=202)
 def start(identifier:str,body:RunRequest,request:Request,x_workspace_token:Token):
     return request.app.state.factory.start(identifier,x_workspace_token,body.mode)

@@ -51,3 +51,15 @@ def test_emergency_stop_and_fresh_cell_reset(tmp_path):
         assert c.get('/v1/factory/runs/'+run['id'],headers=OWNER).json()['frame']['time']==row['frame']['time']
         reset=c.post('/v1/factory/cells',headers=OWNER,json=cell['config']).json()
         assert reset['initial_state']==cell['initial_state'] and reset['frame']['time']==0
+
+def test_camera_http_ownership_and_changed_initial_conditions(tmp_path):
+    with TestClient(create_app(tmp_path/'factory.sqlite3')) as c:
+        cell=c.post('/v1/factory/cells',headers=OWNER,json={'carton_count':1,'carton_start_y_m':-.4}).json()
+        url='/v1/factory/cells/'+cell['id']+'/observation'
+        assert c.get(url,headers=OTHER).status_code==404
+        response=c.get(url,headers=OWNER)
+        assert response.status_code==200
+        value=response.json();assert value['camera']['detections'][0]['detected']
+        assert value['camera']['time_s']==value['ground_truth']['time']==0
+        assert abs(value['camera']['detections'][0]['estimated_center_m'][1]+.4)<.01
+        assert c.get('/v1/factory/cells/'+cell['id'],headers=OWNER).json()['initial_state']==cell['initial_state']

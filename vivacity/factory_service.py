@@ -18,6 +18,8 @@ class FactoryService:
         self.lock=threading.RLock()
         self.controls={}
         self.live={}
+        self.latest_states={}
+        self.camera_lock=threading.Lock()
         # A process restart cannot resume an unrecorded native worker.
         with workspace.store.connect() as db:
             rows=db.execute("SELECT owner,payload FROM library_items WHERE kind='factory_run'").fetchall()
@@ -46,6 +48,7 @@ class FactoryService:
                 raise Busy('A factory run is already using the simulation worker.')
             self.controls.clear()
             self.live.clear()
+            self.latest_states.clear()
             row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-run/1.0','cell_id':identifier,
                  'created_at':time.time(),'status':'queued','phase':'queued','config':cell['config'],
                  'world_version':cell['world_version'],'engine':cell['engine'],'initial_state':cell['initial_state'],
@@ -156,8 +159,21 @@ class FactoryService:
     def _frame(self,row,w,phase):
         frame=self.backend.observe(w)|{'phase':phase}
         with self.lock:
+            self.latest_states[row['id']]=self.backend.snapshot(w)
             row['frame']=frame;row['phase']=phase
             if not row['trace'] or frame['time']>row['trace'][-1]['time']:row['trace'].append(frame)
+
+    def observation(self,identifier,token,source='latest'):
+        from .factory_vision import observe_camera
+        cell=self.cell(identifier,token);state=cell['initial_state']
+        if source=='latest' and cell['last_run_id']:
+            run=self.workspace._get(cell['last_run_id'],token,'factory_run')
+            with self.lock:state=deepcopy(self.latest_states.get(run['id'],run.get('final_state',state)))
+        if not self.camera_lock.acquire(blocking=False):raise Busy('The simulated camera is capturing another frame. Try again shortly.')
+        try:
+            w=self.backend.fork(state)
+            return {'camera':observe_camera(w),'ground_truth':self.backend.observe(w)}
+        finally:self.camera_lock.release()
 
     def close(self):
         for control in self.controls.values():control['stop'].set();control['wake'].set()

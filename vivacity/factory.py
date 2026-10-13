@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 
 import mujoco as mj
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .robotics import ASSET_DIR, RobotWorld, RoboticsBackend, STATE_SPEC, asset_digest
 from .headless import collision_only
@@ -29,11 +29,19 @@ class FactorySettings(BaseModel):
     carton_mass_kg: float = Field(.06, ge=.02, le=.15)
     carton_friction: float = Field(.8, ge=.05, le=1.5)
     carton_half_size_m: float = Field(.025, ge=.02, le=.03)
+    carton_start_x_m: float = Field(.5, ge=.465, le=.535)
+    carton_start_y_m: float = Field(-.94, ge=-1.28, le=-.35)
     conveyor_speed_m_s: float = Field(.09, ge=.02, le=.18)
     arrival_interval_s: float = Field(18., ge=1., le=60.)
     realtime_speed: float = Field(2., ge=.25, le=8.)
     sort_threshold_kg: float = Field(.07, ge=.02, le=.15)
     gripper_force_scale: float = Field(1., ge=.005, le=1.)
+
+    @model_validator(mode='after')
+    def supported_batch(self):
+        if self.carton_start_y_m-(self.carton_count-1)*.16-self.carton_half_size_m < LAYOUT['infeed']['start_y']:
+            raise ValueError('The complete carton batch must fit on the infeed. Move its first carton closer to the station or reduce the count.')
+        return self
 
 
 def _geom(parent, name, kind, position, size, **kw):
@@ -74,7 +82,7 @@ def _compiled(settings_json):
     for index in range(settings['carton_count']):
         name = 'target' if index==0 else f'carton_{index}'
         mass = settings['carton_mass_kg'] if index==0 else float(np.clip(settings['carton_mass_kg']*rng.uniform(.7,1.6),.02,.15))
-        body=ET.SubElement(wb,'body',name=name,pos=f'.5 {-0.94-index*.16} {h+.001}')
+        body=ET.SubElement(wb,'body',name=name,pos=f'{settings["carton_start_x_m"]} {settings["carton_start_y_m"]-index*.16} {h+.001}')
         ET.SubElement(body,'freejoint',name='cube_free' if index==0 else name+'_free')
         _geom(body,'cube' if index==0 else name,'box',[0,0,0],[h,h,h],mass=str(mass),
               friction=f'{settings["carton_friction"]} .005 .0001', condim='4',priority='1',

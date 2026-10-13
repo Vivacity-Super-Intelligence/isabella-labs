@@ -54,7 +54,7 @@ geometry. Sampled telemetry, charts, JSON and reports share the same saved data.
 | P1 Factory composition | Detailed existing robot, authored industrial machine assets, distinct render modes; no fake motion; browser review | Passed visual preview: TypeScript/build; browser High fidelity/Performance and keyboard Plan/Overview; no JS errors. Engineering mode awaits P5. `artifacts/factory-p1-fidelity.jpg` |
 | P2 Conveyor physics | Motor-driven contacts transport a free carton to station; pause/reset and state reproduction | Passed: 7 physics/API tests, TypeScript; browser Start/Pause (time frozen at 0.350 s)/Resume/arrival (8.650 s)/Reset to idle. Snapshot, owner isolation, emergency stop and restart persistence tested. `artifacts/factory-p2-tests.xml`, `artifacts/factory-p2-browser.jpg` |
 | P3 Production workflow | Observe → plan → physical grip → transfer → route → destination events; counters match recorded events | Passed: 10 physics/API tests (including 3 physical deliveries across both lanes, weak-grip failure and cancellation); 26 frontend checks; TypeScript/build; compiled browser Start/Pause/Resume → 3/3 deliveries at 109.902 s. `artifacts/factory-p3-tests.xml`, `artifacts/factory-p3-browser.jpg` |
-| P4 Observations | Actual rendered camera, semantic detection/occlusion, world estimate compared to ground truth; no invented confidence | Pending |
+| P4 Observations | Actual rendered camera, semantic detection/occlusion, world estimate compared to ground truth; no invented confidence | Passed locally: 5 API/camera tests, TypeScript/build; compiled browser moved carton to Y=-0.400 m → image estimate -0.399 m, then Y=-0.940 m → outside view. Actual occlusion tested with physical occluder. `artifacts/factory-p4-tests.xml`, `artifacts/factory-p4-browser.jpg` |
 | P5 Physical records | Timestamped state, contacts, actuator outputs, derived work/power with equations and missing-data semantics | Pending |
 | P6 Analysis | Recorded graphs, units, cursor/range/zoom/export and synchronized replay; values match data | Pending |
 | P7 Benchmarks | Defined task, repeated seeded trials, controlled/held-out comparisons, failures preserved | Pending |
@@ -83,3 +83,5 @@ idle/restart behavior, assets and console errors. Save reports/screenshots under
 `artifacts/factory-*`. Run full regression and public acceptance before release.
 
 P3 scope: finite 1–3 carton batches, one carton handled at a time. Classification currently reads simulator mass; no camera inference claim. Lateral shuttle uses a position actuator and contact friction. Failed grip/routing/timeouts remain failed. Dev HMR lost a stale lazy module; the production build passed the browser journey.
+
+P4 scope: manual synchronized RGB/depth/semantic capture, camera is overhead 320×240. The centre estimate assumes an upright configured box; semantic IDs are simulator annotations, not a trained detector. Host GPU/software-render support remains a P11 release gate.
