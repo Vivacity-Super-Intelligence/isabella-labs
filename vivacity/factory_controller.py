@@ -75,7 +75,7 @@ def plan(w,carton,checkpoint=lambda:True):
 class ProductionController:
     def __init__(self,backend,world,on_frame=lambda w,p:None,on_event=lambda e:None,checkpoint=lambda:True,pace=True):
         self.backend=backend;self.w=world;self.on_frame=on_frame;self.on_event=on_event;self.checkpoint=checkpoint;self.pace=pace
-        self.steps=0;self.sorted=0;self.arrivals=0;self.carton='target';self.plans=[];self.max_tracking=0.;self._tick=time.perf_counter()
+        self.physics_seconds=0.;self.steps=0;self.sorted=0;self.arrivals=0;self.carton='target';self.plans=[];self.max_tracking=0.;self._tick=time.perf_counter()
 
     def event(self,kind,**fields):
         self.on_event({'time_s':float(self.w.data.time),'kind':kind,'carton_id':self.carton,**fields})
@@ -86,7 +86,9 @@ class ProductionController:
             if not self.checkpoint():raise InterruptedError('Simulation stopped')
             self._tick=time.perf_counter()
         if command is not None:d.ctrl[:8]=command
+        physics_start=time.perf_counter()
         self.backend.step(w);self.steps+=1
+        self.physics_seconds+=time.perf_counter()-physics_start
         # Contacts/forces describe the integration step just performed.
         violations=prohibited(w,self.carton)
         if violations:raise FactoryFault('collision_failure',str(violations[:3]))

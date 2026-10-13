@@ -4,6 +4,9 @@ import threading
 import time
 import uuid
 import json
+import logging
+
+log=logging.getLogger('uvicorn.error')
 
 from .factory import FactoryBackend, FactorySettings, LAYOUT
 from .workspace import owner
@@ -37,12 +40,14 @@ class FactoryService:
         return self._create_owned(settings,owner(token))
 
     def _create_owned(self,settings,owner_id):
+        initialized=time.perf_counter()
         settings=FactorySettings.model_validate(settings).model_dump()
         w=self.backend.create_world(settings)
         row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-cell/1.0','created_at':time.time(),
              'software':software(),'config':settings,'world_version':LAYOUT['version'],'engine':{'name':'MuJoCo','version':self.backend.version},
              'frame':self.backend.observe(w),'initial_state':self.backend.snapshot(w),'last_run_id':None,
              'collision_geometry':self.backend.machine_collision_geometry(w)}
+        row['performance']={'initialization_wall_seconds':time.perf_counter()-initialized}
         self.workspace._put('factory_cell',owner_id,row)
         return row
 
@@ -50,6 +55,7 @@ class FactoryService:
 
     def start(self,identifier,token,mode='conveyor',creator_label=None):
         cell=self.cell(identifier,token)
+        if cell.get('software')!=software():raise Conflict('This cell was saved with a different controller version. Reset or apply its conditions before a new execution. Its previous results remain available.')
         if self.backend.create_world(cell['config']).model_hash!=cell['initial_state']['model_hash']:
             raise Conflict('The physical model has changed since this cell was saved. Reset or apply its conditions to create a compatible initial state. Saved results remain inspectable.')
         with self.lock:
@@ -161,9 +167,10 @@ class FactoryService:
 
     def _production(self,identifier,owner_id,c,pace=True,finalize_control=True,checkpoint_record=None):
         from .factory_controller import ProductionController,FactoryFault
-        row=self.live[identifier];wall=time.perf_counter();w=None;controller=None
+        row=self.live[identifier];wall=time.perf_counter();cpu=time.thread_time();w=None;controller=None
         def event(value):
             with self.lock:row['events'].append(value)
+            log.info('factory_event %s',json.dumps({'run_id':identifier,**value},separators=(',',':')))
             if w is not None:self._frame(row,w,value['kind'])
         try:
             w=self.backend.fork(row['initial_state'])
@@ -186,7 +193,11 @@ class FactoryService:
                     row['metrics'].update(cartons_sorted=controller.sorted if controller else 0,
                         station_arrivals=controller.arrivals if controller else 0,
                         simulation_steps=controller.steps if controller else 0,simulation_time_s=float(w.data.time),
-                        wall_time_s=time.perf_counter()-wall)
+                        wall_time_s=time.perf_counter()-wall,worker_cpu_time_s=time.thread_time()-cpu,
+                        integration_wall_time_s=controller.physics_seconds if controller else 0.,
+                        planning_wall_time_s=sum(p['planning_seconds'] for p in controller.plans) if controller else 0.,
+                        candidate_plans_considered=sum(len(p['attempts']) for p in controller.plans) if controller else 0,
+                        recorded_sample_count=len(row['trace']))
             try:self.workspace._put('factory_run',owner_id,row)
             finally:
                 if finalize_control:c['done'].set()
@@ -194,6 +205,7 @@ class FactoryService:
     def start_benchmark(self,identifier,token,request):
         from .factory_benchmark import BenchmarkRequest,definition
         cell=self.cell(identifier,token);settings=BenchmarkRequest.model_validate(request).model_dump()
+        if cell.get('software')!=software():raise Conflict('Reset or apply this cell’s conditions to use the current controller before starting a new benchmark.')
         spec=definition(cell['config'],settings)
         with self.lock:
             if any(not c['done'].is_set() for c in self.controls.values()):raise Busy('A factory experiment is already using the simulation worker.')
@@ -244,6 +256,7 @@ class FactoryService:
                     row['trials'].append(result);row['comparison']=comparison(row['trials'],row['request']['repeats'])
                     self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
                 self.workspace._put('factory_benchmark',owner_id,row)
+                log.info('factory_trial %s',json.dumps({'benchmark_id':row['id'],'run_id':identifier,'partition':trial['partition'],'condition':trial['condition'],'status':run['status'],'simulation_steps':run['metrics'].get('simulation_steps',0)},separators=(',',':')))
                 del run
                 if c['stop'].is_set():break
             with self.lock:row.update(status='stopped' if c['stop'].is_set() else 'completed',phase='finished',active_run_id=None,active_frame=None)
