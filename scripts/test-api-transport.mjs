@@ -15,6 +15,11 @@ test('local development retains the explicitly configured backend',()=>{
   assert.equal(runtimeEndpoints(false,'http://localhost:8000/','http://localhost:5173').http,'http://localhost:8000');
   assert.equal(runtimeEndpoints(false,undefined,'http://localhost:5173').http,'http://127.0.0.1:8000');
 });
+test('production-build preview uses the local proxy and native local socket',()=>{
+  const endpoints=runtimeEndpoints(true,undefined,'http://127.0.0.1:5173');
+  assert.equal(endpoints.http,'http://127.0.0.1:5173/runtime');
+  assert.equal(runtimeSocketURL(endpoints.backend,'example','live'),'ws://127.0.0.1:8000/v1/experiments/example/live');
+});
 test('a read recovers from a transport failure without losing capability headers',async()=>{
   let attempts=0;
   const response=await fetchRuntime('/runtime/health',{headers:{'X-Session-Token':'test-capability'}},{wait:noWait,fetcher:async(url,init)=>{
