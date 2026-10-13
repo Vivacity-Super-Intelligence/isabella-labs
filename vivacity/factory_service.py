@@ -12,6 +12,7 @@ from .factory import FactoryBackend, FactorySettings, LAYOUT
 from .workspace import owner
 from .runtime import Busy, Conflict
 from .factory_exchange import software,configuration_export,validate_import,METRICS
+from .compiled import release_unused_memory
 
 
 class FactoryService:
@@ -163,10 +164,13 @@ class FactoryService:
             with self.lock:row.update(status='failed',phase='failed',error=str(exc)[:300])
         finally:
             try:self.workspace._put('factory_run',owner_id,row)
-            finally:c['done'].set()
+            finally:
+                with self.lock:self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
+                c['done'].set()
 
     def _production(self,identifier,owner_id,c,pace=True,finalize_control=True,checkpoint_record=None):
         from .factory_controller import ProductionController,FactoryFault
+        release_unused_memory()
         row=self.live[identifier];wall=time.perf_counter();cpu=time.thread_time();w=None;controller=None
         def event(value):
             with self.lock:row['events'].append(value)
@@ -200,6 +204,7 @@ class FactoryService:
                         recorded_sample_count=len(row['trace']))
             try:self.workspace._put('factory_run',owner_id,row)
             finally:
+                with self.lock:self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
                 if finalize_control:c['done'].set()
 
     def start_benchmark(self,identifier,token,request):
@@ -290,8 +295,12 @@ class FactoryService:
         if not self.camera_lock.acquire(blocking=False):raise Busy('The simulated camera is capturing another frame. Try again shortly.')
         try:
             w=self.backend.fork(state)
-            return {'camera':observe_camera(w),'ground_truth':self.backend.observe(w)}
-        finally:self.camera_lock.release()
+            result={'camera':observe_camera(w),'ground_truth':self.backend.observe(w)}
+            del w
+            return result
+        finally:
+            release_unused_memory()
+            self.camera_lock.release()
 
     def export_configuration(self,identifier,token,kind='configuration'):
         benchmark=self.benchmark(identifier,token) if kind=='benchmark' else None
@@ -332,6 +341,7 @@ class FactoryService:
             for done in finishing:done.wait(5)
             with self.lock:
                 if any(not c['done'].is_set() for c in self.controls.values()):raise Busy('Finish or stop active factory simulation before preparing a report.')
+            release_unused_memory()
             benchmark=self.benchmark(identifier,token) if kind=='benchmark' else None
             if benchmark and not benchmark['trials']:raise Conflict('This benchmark has no recorded trials to report.')
             run=self.get(benchmark['trials'][0]['run_id'] if benchmark else identifier,token,full=True)

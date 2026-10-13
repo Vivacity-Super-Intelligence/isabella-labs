@@ -66,6 +66,8 @@ def _rollers(root, parent, prefix, x, start_y, end_y):
 
 @lru_cache(maxsize=2)
 def _compiled(settings_json):
+    from .compiled import release_unused_memory
+    release_unused_memory()
     settings = json.loads(settings_json)
     root = ET.parse(ASSET_DIR/'panda.xml').getroot()
     root.find('compiler').set('meshdir', str(ASSET_DIR/'assets'))

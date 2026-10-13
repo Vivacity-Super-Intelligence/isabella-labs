@@ -22,6 +22,19 @@ _lock = RLock()
 _compiled = OrderedDict()
 
 
+def release_unused_memory():
+    """Return freed native buffers between large jobs, never during stepping.
+
+    glibc otherwise retains worker-thread arenas after MuJoCo/GL objects close.
+    Active models and branch states remain owned and are not touched.
+    """
+    gc.collect()
+    if sys.platform.startswith('linux'):
+        import ctypes
+        trim = getattr(ctypes.CDLL(None), 'malloc_trim', None)
+        if trim is not None: trim(0)
+
+
 def reuse_world(backend):
     """Cache two immutable model layouts, including their pristine initial state.
 
@@ -50,13 +63,7 @@ def reuse_world(backend):
                 # layout, release unrelated cached geometry before compilation.
                 if len(_compiled) >= 2:
                     _compiled.clear()
-                gc.collect()
-                if sys.platform.startswith('linux'):
-                    import ctypes
-                    libc = ctypes.CDLL(None)
-                    trim = getattr(libc, 'malloc_trim', None)
-                    if trim is not None:
-                        trim(0)
+                release_unused_memory()
                 world = create(self, config, seed, *args, **kwargs)
                 import numpy as np
                 initial = np.empty(mj.mj_stateSize(world.model, mj.mjtState.mjSTATE_INTEGRATION))
