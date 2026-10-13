@@ -48,6 +48,10 @@ def test_import_mapping_uses_actual_uploaded_geometry_and_capability(tmp_path):
         record=client.post('/v1/workspace/imports?filename=triangle.obj',headers=OWNER,content=obj)
         assert record.status_code==201,record.text
         identifier=record.json()['id']
+        legacy=client.app.state.imports._load(identifier)
+        legacy['preview']['indices']=[[0,1,2]]
+        legacy['preview'].pop('coordinate_system')
+        client.app.state.imports._save(legacy)
         assert client.get('/v1/imports/'+identifier,headers=OTHER).status_code==403
         assert client.get('/v1/imports/'+identifier,headers=OWNER).status_code==200
         assert client.post('/v1/workspace/imports/'+identifier+'/map',headers=OTHER,json={'name':'Private triangle'}).status_code==404
@@ -55,6 +59,7 @@ def test_import_mapping_uses_actual_uploaded_geometry_and_capability(tmp_path):
         assert mapped.status_code==201,mapped.text
         world=mapped.json();preview=client.get('/v1/workspace/worlds/'+world['id']+'/preview',headers=OWNER).json()
         assert preview['vertex_count']==3 and preview['triangle_count']==1
+        assert preview['indices']==[0,1,2] and preview['coordinate_system']
         assert world['spec']['geometries'][0]['size']==[.25,.005,.25]
         assert world['mapping']['source_sha256']==record.json()['sha256']
         copied=client.post('/v1/workspace/worlds',headers=OWNER,json={'source_id':world['id']}).json()
@@ -138,6 +143,8 @@ def test_provider_preview_reduction_preserves_full_collision_bounds():
     content=struct.pack('<4sII',b'glTF',2,28+len(metadata)+len(raw))+struct.pack('<II',len(metadata),0x4e4f534a)+metadata+struct.pack('<II',len(raw),0x004e4942)+raw
     preview,_=gltf_preview(content,'.glb',{},reduce_preview=True)
     assert preview['triangle_count']<=25000
+    assert all(type(index) is int for index in preview['indices'])
+    assert len(preview['indices'])==preview['triangle_count']*3
     assert preview['source_bounds_m']==[[0,0,0],[9,4,2]]
 
 

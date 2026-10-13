@@ -169,7 +169,7 @@ def gltf_preview(data,extension,files,reduce_preview=False):
                     remaining=max(1,25000-triangle_count)
                     triangles=triangles[::max(1,int(np.ceil(len(triangles)/remaining)))]
                     used,remapped=np.unique(triangles,return_inverse=True)
-                    transformed=transformed[used];p=transformed;ind=remapped
+                    transformed=transformed[used];p=transformed;ind=remapped.reshape(-1)
                 vertex_count+=len(p);triangle_count+=len(ind)//3
                 if vertex_count>MAX_VERTICES or triangle_count>MAX_VERTICES:raise ValueError('decoded preview exceeds geometry limit')
                 positions.extend(transformed.tolist());indices.extend((ind+vertex_count-len(p)).tolist())
@@ -258,7 +258,8 @@ def triangle_preview(content, extension):
         if len(positions)%3:raise ValueError('incomplete STL facet')
         indices=list(range(len(positions)))
     if not positions or not indices:raise ValueError('no supported triangles found')
-    return {'positions':positions,'indices':indices,'vertex_count':len(positions),'triangle_count':len(indices)//3}, ['Static uploaded triangles decoded; materials/textures and physics are not inferred.']
+    return {'positions':positions,'indices':indices,'vertex_count':len(positions),'triangle_count':len(indices)//3,
+            'coordinate_system':'Original static mesh coordinates; scale and source up axis are selected during mapping.'}, ['Static uploaded triangles decoded; materials/textures and physics are not inferred.']
 
 
 class ImportService:
@@ -347,7 +348,18 @@ class ImportService:
         return record
 
     def get(self,identifier,preview=False):
-        result=self._load(identifier);value=result['preview' if preview else 'record']
+        result=self._load(identifier)
+        geometry=result.get('preview')
+        if geometry:geometry.setdefault('coordinate_system','Original static mesh coordinates; scale and source up axis are selected during mapping.')
+        # NumPy 2.x can retain the triangle matrix shape in return_inverse.
+        # Normalize early provider previews as well as the corrected producer.
+        if geometry and geometry['indices'] and isinstance(geometry['indices'][0],list):
+            if any(len(row)!=3 or any(type(v) is not int for v in row) for row in geometry['indices']):
+                raise ValueError('stored preview has malformed triangle rows')
+            geometry['indices']=[v for row in geometry['indices'] for v in row]
+            geometry['triangle_count']=len(geometry['indices'])//3
+            result['record']['summary']['triangles']=geometry['triangle_count']
+        value=result['preview' if preview else 'record']
         if value is None:raise ValueError('this description has no supported triangle preview')
         return value
 
