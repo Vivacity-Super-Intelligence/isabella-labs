@@ -32,7 +32,7 @@ class NativePickup:
         trace=[b.observe(w)|{'phase':'initializing'}];steps=0
         failure='planning_failure' if not action['stages'] and not action['planning_feasible'] else None
         violations=[];milestones=[]
-        lifted=False;retention=True;max_height=float(d.qpos[cube_z]);tracking=0.
+        lifted=False;retention=True;max_height=float(d.qpos[cube_z]);tracking=0.;linear_tracking=0.
         state=np.empty(mj.mj_stateSize(m,mj.mjtState.mjSTATE_FULLPHYSICS))
         user=np.empty(mj.mj_stateSize(m,mj.mjtState.mjSTATE_USER))
         sensor=lambda name: int(m.sensor_adr[m.sensor(name).id])
@@ -56,7 +56,8 @@ class NativePickup:
                     # Rollout fills stalled output after a native numerical warning.
                     advanced=int(np.count_nonzero(np.diff(np.r_[state[0],states[:,0]])>0));steps+=advanced
                     q=states[:,1:1+m.nq];height=q[:,cube_z];max_height=max(max_height,float(height.max()))
-                    tracking=max(tracking,float(np.max(np.abs(q[:,:arm_dof]-commands[:,:arm_dof]))))
+                    angular,linear=b.tracking_errors(w,q,commands)
+                    tracking=max(tracking,angular);linear_tracking=max(linear_tracking,linear)
                     left=sensors[:,ids['left_grasp']+1]>.01;right=sensors[:,ids['right_grasp']+1]>.01
                     if phase in ('lift','transport','lower'):
                         raised=height>.075;lifted|=bool(raised.any())
@@ -69,7 +70,7 @@ class NativePickup:
                             'bodies':[],'geoms':[],'first_step':steps-length+int(np.flatnonzero(collision)[0])+1,
                             'scope':'Aggregated prohibited-contact sensors; pair names are not inferred.'})
                     if np.any((q[:,:arm_dof]<m.jnt_range[:arm_dof,0]-.002)&m.jnt_limited[:arm_dof]) or np.any((q[:,:arm_dof]>m.jnt_range[:arm_dof,1]+.002)&m.jnt_limited[:arm_dof]):failure='joint_limit_failure'
-                    if advanced!=length or not np.isfinite(states).all() or tracking>.35:failure='controller_failure'
+                    if advanced!=length or not np.isfinite(states).all() or tracking>.35 or linear_tracking>.035:failure='controller_failure'
                     elapsed=time.perf_counter()-tic-(limits.get('pause_seconds',lambda:0.)()-pause_start)
                     if d.time-start>=limits['max_simulation_seconds'] or elapsed>limits.get('max_wall_seconds',120):failure='timeout'
                     frame=b.observe(w)|{'phase':phase};trace.append(frame)
@@ -80,10 +81,11 @@ class NativePickup:
                 if phase=='close' and not evidence['bilateral_grasp'] and not failure:failure='grasp_failure'
         if not failure:
             from .scene import finish_task
-            steps+=finish_task(w,limits,trace)
+            extra,failure,contacts=finish_task(w,limits,trace,b,start,tic,pause_start)
+            steps+=extra;violations.extend(contacts)
         trace.append(b.observe(w)|{'phase':'evaluating'})
         result={'trace':trace,'failure':failure,'contact_violations':violations,'milestones':milestones,'lifted':lifted,
-                'retained_during_transport':retention and lifted,'max_cube_height_m':max_height,'max_tracking_error_rad':tracking,
+                'retained_during_transport':retention and lifted,'max_cube_height_m':max_height,'max_tracking_error_rad':tracking,'max_tracking_error_m':linear_tracking,
                 'simulation_steps':steps,'execution_duration_s':float(d.time-start),'physics_wall_seconds':time.perf_counter()-tic,
                 'engine':self.engine,'contact_measurement':'native per-step force sensors; forces precede integration by one timestep'}
         return result,b.evaluate(w,result),b.snapshot(w)

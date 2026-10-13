@@ -320,12 +320,19 @@ class PickPlaceBackend(RoboticsBackend):
         emit(summary|{'stage':'screening_complete','message':f'{len(eligible):,} screened plans eligible; {len(actions)} promoted to actual physics.'})
         return actions,time.perf_counter()-tic,summary
 
+    def tracking_errors(self,world,qpos,commands):
+        error=np.abs(np.asarray(qpos)[...,:self.arm_dof]-np.asarray(commands)[...,:self.arm_dof])
+        slide=world.model.jnt_type[:self.arm_dof]==mj.mjtJoint.mjJNT_SLIDE
+        angular=float(np.max(error[...,~slide])) if (~slide).any() else 0.
+        linear=float(np.max(error[...,slide])) if slide.any() else 0.
+        return angular,linear
+
     def simulate(self, world, limits):
         tic = time.perf_counter(); d, m = world.data, world.model
         paused_start=limits.get('pause_seconds',lambda:0.)()
         start_time = float(d.time); trace = [self.observe(world) | {'phase': 'initializing'}]
         failure = None; violations = []; steps = 0; milestones = []; retention = True; lifted = False
-        max_height = float(d.body('target').xpos[2]); max_tracking = 0.
+        max_height = float(d.body('target').xpos[2]); max_tracking = 0.;max_linear_tracking=0.
         if not world.action['planning_feasible']:
             failure = 'planning_failure'
         for stage in world.action['stages']:
@@ -340,7 +347,8 @@ class PickPlaceBackend(RoboticsBackend):
                 d.ctrl[:self.arm_dof] = stage_commands(stage,[alpha])[0]
                 d.ctrl[self.arm_dof] = stage['gripper']
                 mj.mj_step(m, d); mj.mj_forward(m, d); steps += 1
-                max_tracking = max(max_tracking, float(np.max(np.abs(d.qpos[:self.arm_dof]-d.ctrl[:self.arm_dof]))))
+                angular,linear=self.tracking_errors(world,d.qpos,d.ctrl)
+                max_tracking=max(max_tracking,angular);max_linear_tracking=max(max_linear_tracking,linear)
                 evidence = self.contact_evidence(world)
                 height = float(d.body('target').xpos[2]); max_height = max(max_height, height)
                 if phase in ('lift', 'transport', 'lower') and height > .075:
@@ -352,7 +360,7 @@ class PickPlaceBackend(RoboticsBackend):
                 contacts = self.contacts(world)
                 if contacts:
                     failure = 'collision_failure'; violations.extend(contacts)
-                if not np.isfinite(d.qpos).all() or np.any(d.warning.number) or max_tracking > .35:
+                if not np.isfinite(d.qpos).all() or np.any(d.warning.number) or max_tracking > .35 or max_linear_tracking > .035:
                     failure = 'controller_failure'
                 if np.any((d.qpos[:self.arm_dof] < m.jnt_range[:self.arm_dof, 0]-.002)&m.jnt_limited[:self.arm_dof]) or np.any((d.qpos[:self.arm_dof] > m.jnt_range[:self.arm_dof, 1]+.002)&m.jnt_limited[:self.arm_dof]):
                     failure = 'joint_limit_failure'
@@ -374,11 +382,12 @@ class PickPlaceBackend(RoboticsBackend):
                 failure = 'grasp_failure'
         if not failure:
             from .scene import finish_task
-            steps+=finish_task(world,limits,trace)
+            extra,failure,contacts=finish_task(world,limits,trace,self,start_time,tic,paused_start)
+            steps+=extra;violations.extend(contacts)
         trace.append(self.observe(world) | {'phase': 'evaluating'})
         return {'trace': trace, 'failure': failure, 'contact_violations': violations, 'milestones': milestones,
                 'lifted': lifted, 'retained_during_transport': retention and lifted,
-                'max_cube_height_m': max_height, 'max_tracking_error_rad': max_tracking,
+                'max_cube_height_m': max_height, 'max_tracking_error_rad': max_tracking,'max_tracking_error_m':max_linear_tracking,
                 'simulation_steps': steps, 'execution_duration_s': float(d.time-start_time),
                 'physics_wall_seconds': time.perf_counter()-tic}
 
@@ -400,7 +409,7 @@ class PickPlaceBackend(RoboticsBackend):
                 'lifted': result['lifted'], 'retained_during_transport': result['retained_during_transport'],
                 'released': bool(not evidence['bilateral_grasp'] and world.data.ctrl[self.arm_dof] >= 200),
                 'table_supported': evidence['table_support'], 'max_cube_height_m': result['max_cube_height_m'],
-                'max_tracking_error_rad': result['max_tracking_error_rad'], 'contact_violations': result['contact_violations'],
+                'max_tracking_error_rad': result['max_tracking_error_rad'],'max_tracking_error_m':result.get('max_tracking_error_m',0.), 'contact_violations': result['contact_violations'],
                 'phase_evidence': result['milestones'], 'execution_duration_s': result['execution_duration_s']}
         from .operation_evaluation import evaluate_operation
         return evaluate_operation(world,evaluation)

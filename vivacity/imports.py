@@ -20,6 +20,7 @@ from xml.etree import ElementTree as ET
 import numpy as np
 
 MAX_UPLOAD=16*1024*1024
+MAX_PROVIDER_ASSET=64*1024*1024
 MAX_EXPANDED=32*1024*1024
 MAX_VERTICES=100000
 EXTENSIONS={'.glb','.gltf','.bin','.xml','.mjcf','.urdf','.png','.jpg','.jpeg','.json','.obj','.stl'}
@@ -120,17 +121,17 @@ def gltf_preview(data,extension,files,reduce_preview=False):
     buffers=[]
     for i,b in enumerate(doc.get('buffers',[])):
         raw=resource(b['uri'],files) if 'uri' in b else binary if i==0 else None
-        length=integer(b.get('byteLength'),MAX_UPLOAD)
+        length=integer(b.get('byteLength'),MAX_PROVIDER_ASSET if reduce_preview else MAX_UPLOAD)
         if raw is None or length>len(raw) or len(raw)-length>3:raise ValueError('invalid glTF buffer length')
         buffers.append(raw[:length])
-    if sum(map(len,buffers))>MAX_EXPANDED:raise ValueError('buffer memory limit exceeded')
+    if sum(map(len,buffers))>(MAX_PROVIDER_ASSET if reduce_preview else MAX_EXPANDED):raise ValueError('buffer memory limit exceeded')
     accessors=doc.get('accessors',[]);views=doc.get('bufferViews',[])
     if len(accessors)>1024 or len(views)>1024:raise ValueError('accessor limit exceeded')
     def read(index,positions=False):
         a=accessors[integer(index,len(accessors)-1)]
         if 'sparse' in a or a.get('normalized'):raise ValueError('sparse/normalized geometry unsupported')
-        source_limit=500000 if reduce_preview else MAX_VERTICES
-        count=integer(a['count'],source_limit if positions else source_limit*3)
+        source_limit=1000000 if reduce_preview else MAX_VERTICES
+        count=integer(a['count'],source_limit if positions else source_limit*6)
         if positions and (a['componentType']!=5126 or a['type']!='VEC3'):raise ValueError('positions must be float32 VEC3')
         if not positions and (a['componentType'] not in (5121,5123,5125) or a['type']!='SCALAR'):raise ValueError('indices must be unsigned scalar')
         dtype={5126:'<f4',5121:'u1',5123:'<u2',5125:'<u4'}[a['componentType']];width=3 if positions else 1;item=np.dtype(dtype).itemsize
@@ -140,7 +141,7 @@ def gltf_preview(data,extension,files,reduce_preview=False):
         return np.ndarray((count,width),dtype=dtype,buffer=raw,offset=start+inner,strides=(stride,item)).copy()
     nodes=doc.get('nodes',[]);meshes=doc.get('meshes',[])
     if len(nodes)>512 or len(meshes)>256:raise ValueError('scene complexity limit exceeded')
-    positions=[];indices=[];visited=set();active=set();vertex_count=0;triangle_count=0
+    positions=[];indices=[];visited=set();active=set();vertex_count=0;triangle_count=0;source_bounds=[]
     def walk(index,parent,depth=0):
         nonlocal vertex_count,triangle_count
         index=integer(index,len(nodes)-1)
@@ -162,6 +163,7 @@ def gltf_preview(data,extension,files,reduce_preview=False):
                 if len(ind)%3 or len(ind) and int(ind.max())>=len(p):raise ValueError('invalid triangle indices')
                 transformed=p@matrix[:3,:3].T+matrix[:3,3]
                 if not np.isfinite(transformed).all() or transformed.size and np.max(np.abs(transformed))>1e5:raise ValueError('invalid transformed vertices')
+                if len(transformed):source_bounds.extend([transformed.min(axis=0),transformed.max(axis=0)])
                 if reduce_preview:
                     triangles=ind.reshape(-1,3)
                     remaining=max(1,25000-triangle_count)
@@ -177,7 +179,7 @@ def gltf_preview(data,extension,files,reduce_preview=False):
     if not scenes:raise ValueError('glTF scene is required')
     for root in scenes[integer(doc.get('scene',0),len(scenes)-1)].get('nodes',[]):walk(root,np.eye(4))
     if not indices:raise ValueError('scene contains no supported triangles')
-    return {'positions':positions,'indices':indices,'vertex_count':vertex_count,'triangle_count':triangle_count,'coordinate_system':'glTF Y-up; original scene transforms applied; camera framing is display-only'},['Static triangles only. Materials, textures, animation and physical properties are not imported.']
+    return {'positions':positions,'indices':indices,'vertex_count':vertex_count,'triangle_count':triangle_count,'source_bounds_m':[np.min(source_bounds,axis=0).tolist(),np.max(source_bounds,axis=0).tolist()], 'coordinate_system':'glTF Y-up; original scene transforms applied; camera framing is display-only'},['Static triangles only. Materials, textures, animation and physical properties are not imported.']
 
 
 def inspect_xml(data,extension,files):
@@ -318,7 +320,8 @@ class ImportService:
     def create(self,filename,data,reduce_preview=False):
         name=safe_name(filename)
         if '/' in name:raise ValueError('upload filename must be a basename')
-        if not data or len(data)>MAX_UPLOAD:raise ValueError('upload must be 1 byte..16 MiB')
+        limit=MAX_PROVIDER_ASSET if reduce_preview and name.endswith('.glb') else MAX_UPLOAD
+        if not data or len(data)>limit:raise ValueError('scene asset exceeds its bounded byte limit')
         ext=PurePosixPath(name).suffix.lower();files={};bundle={}
         if ext=='.zip':name,content,files,bundle=unpack(data);ext=PurePosixPath(name).suffix.lower()
         else:content=data

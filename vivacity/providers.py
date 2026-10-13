@@ -8,7 +8,7 @@ from urllib.parse import urlparse, quote
 import httpx
 
 from .workspace_schemas import EnvironmentSpec, OperationProposal
-from .imports import MAX_UPLOAD
+from .imports import MAX_PROVIDER_ASSET
 
 WORLD_API = 'https://api.worldlabs.ai/marble/v1'
 OPENAI_API = 'https://api.openai.com/v1'
@@ -71,7 +71,7 @@ class OpenAIInterpreter:
 
     def operation(self,prompt,environment_id):
         specification,provenance=self.structured(prompt,OperationProposal,
-            'Translate a requested operation into a supported bounded robotics configuration. Panda parallel gripper only. Supported: pick_place, object_transfer, reach, randomized_manipulation, cloth_fold (fixture). Do not relabel assembly, insertion, sorting or stacking as implemented. Unsupported requests must have supported=false, an honest explanation, and an unused default pick_place configuration. Object half sizes .02..03 m, mass .02...15 kg, friction .05..1.5. Pick/place centers at half-size Z+.001 and at least .1 m apart; default [.5,-.15,.026] and [.5,.18,.026]. Validation trials 3..8. Seed 7. Robot panda. World id: '+environment_id)
+            'Translate a requested operation into a supported bounded robotics configuration. Default Panda parallel gripper. Supported: pick_place, object_transfer, reach, randomized_manipulation, cloth_fold (Panda fixture), sorting (one supplied mass or width threshold; sorting_rule required), assembly (single-component passive fixture seating; no fastening), stacking (one component on one dynamic base), insertion (gravity-assisted passive receptacle; no tight force-guided insertion), machine_tending (single part loading and actuated door closure; no machining). Unsupported: multi-object vision, arbitrary assembly and autonomous coordinated bimanual tasks. Unsupported requests must have supported=false, an honest explanation, and an unused default pick_place configuration. Object half sizes .02..03 m, mass .02...15 kg, friction .05..1.5. Pick/place centers at half-size Z+.001 and at least .1 m apart; default [.5,-.15,.026] and [.5,.18,.026]. Validation trials 3..8. Seed 7. Robot panda. World id: '+environment_id)
         if specification.configuration.environment_id!=environment_id:raise ProviderError('The proposed operation changed the selected environment.')
         return specification,provenance
 
@@ -128,6 +128,6 @@ def download_asset(url):
                 content=bytearray()
                 for chunk in response.iter_bytes():
                     content.extend(chunk)
-                    if len(content)>MAX_UPLOAD:raise ProviderError('Generated mesh exceeds the 16 MiB import limit; use a smaller collider export.')
+                    if len(content)>MAX_PROVIDER_ASSET:raise ProviderError('Generated collider exceeds the 64 MiB provider asset limit; the operation is retained for retrieval.')
                 return bytes(content)
     except httpx.HTTPError:raise ProviderError('Generated mesh download could not complete.') from None

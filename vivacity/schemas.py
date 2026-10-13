@@ -183,6 +183,7 @@ class ImportResponse(Schema):
 
 
 class ImportPreview(Schema):
+    source_bounds_m: list[Vec3] | None = None
     positions: list[Vec3]
     indices: list[int]
     vertex_count: int

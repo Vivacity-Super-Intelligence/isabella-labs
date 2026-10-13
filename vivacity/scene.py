@@ -40,18 +40,26 @@ def initialize_task(model,data,config):
         data.ctrl[model.actuator('machine_door_motor').id]=1.5707963
 
 
-def finish_task(world,limits,trace):
-    if world.config.get('physical_operation')!='machine_tending':return 0
+def finish_task(world,limits,trace,backend,start_time,wall_start,pause_start):
+    if world.config.get('physical_operation')!='machine_tending':return 0,None,[]
+    import time
     world.data.ctrl[world.model.actuator('machine_door_motor').id]=0
+    steps=0;failure=None;violations=[]
     for step in range(750):
-        if limits.get('checkpoint') and not limits['checkpoint']():raise InterruptedError('machine closure cancelled')
-        mj.mj_step(world.model,world.data)
-        if step%25==0:
-            from .pick_place import RobotAdapter
-            frame=RobotAdapter().observe(world)|{'phase':'closing_machine_fixture'}
+        if limits.get('checkpoint') and not limits['checkpoint']():failure='cancelled';break
+        if limits.get('cancel_event') and limits['cancel_event'].is_set():failure='cancelled';break
+        mj.mj_step(world.model,world.data);mj.mj_forward(world.model,world.data);steps+=1
+        contacts=backend.contacts(world)
+        if contacts:failure='collision_failure';violations.extend(contacts)
+        if any(world.data.warning.number):failure='controller_failure'
+        elapsed=time.perf_counter()-wall_start-(limits.get('pause_seconds',lambda:0.)()-pause_start)
+        if world.data.time-start_time>=limits['max_simulation_seconds'] or elapsed>limits.get('max_wall_seconds',120):failure='timeout'
+        if step%25==0 or failure:
+            frame=backend.observe(world)|{'phase':'closing_machine_fixture'}
             trace.append(frame)
             if limits.get('on_frame'):limits['on_frame'](frame)
-    return 750
+        if failure:break
+    return steps,failure,violations
 
 
 def observed_scene(world):

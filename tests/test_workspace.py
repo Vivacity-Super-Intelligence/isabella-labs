@@ -120,6 +120,34 @@ def test_provider_asset_fetch_does_not_accept_arbitrary_urls(url):
     with pytest.raises(ProviderError):asset_url(url)
 
 
+def test_provider_preview_reduction_preserves_full_collision_bounds():
+    import struct
+    from vivacity.imports import gltf_preview
+    # An extreme vertex on a discarded triangle must still bound the solid proxy.
+    positions=np.zeros((75006,3),dtype='<f4');positions[-1]=[9,4,2]
+    raw=positions.tobytes()
+    doc={'asset':{'version':'2.0'},'buffers':[{'byteLength':len(raw)}],
+         'bufferViews':[{'buffer':0,'byteLength':len(raw)}],
+         'accessors':[{'bufferView':0,'componentType':5126,'count':len(positions),'type':'VEC3'}],
+         'meshes':[{'primitives':[{'attributes':{'POSITION':0}}]}],
+         'nodes':[{'mesh':0}],'scenes':[{'nodes':[0]}]}
+    metadata=json.dumps(doc).encode();metadata+=b' '*((-len(metadata))%4)
+    content=struct.pack('<4sII',b'glTF',2,28+len(metadata)+len(raw))+struct.pack('<II',len(metadata),0x4e4f534a)+metadata+struct.pack('<II',len(raw),0x004e4942)+raw
+    preview,_=gltf_preview(content,'.glb',{},reduce_preview=True)
+    assert preview['triangle_count']<=25000
+    assert preview['source_bounds_m']==[[0,0,0],[9,4,2]]
+
+
+def test_machine_closure_respects_timeout_and_cancellation():
+    from vivacity.scene import finish_task
+    backend=PickPlaceBackend()
+    world=backend.create_world(RoboticsConfig(task='pick_place',physical_operation='machine_tending',obstacle_enabled=False).model_dump(),7)
+    steps,failure,_=finish_task(world,{'max_simulation_seconds':.001},[],backend,0,time.perf_counter(),0)
+    assert steps==1 and failure=='timeout'
+    steps,failure,_=finish_task(world,{'max_simulation_seconds':40,'checkpoint':lambda:False},[],backend,0,time.perf_counter(),0)
+    assert steps==0 and failure=='cancelled'
+
+
 @pytest.mark.parametrize('arm',['panda',*MODELS])
 def test_real_models_controller_forks_and_measured_pickup(arm,monkeypatch):
     monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS','1')

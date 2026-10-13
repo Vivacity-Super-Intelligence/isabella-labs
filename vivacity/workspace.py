@@ -90,7 +90,7 @@ class WorkspaceService:
             preview_available=original['preview_available'],physics_scope=original['physics_scope'])
 
     def map_import(self,record,preview,mapping,token,source='imported',**fields):
-        vertices=np.asarray(preview['positions'],dtype=float)*mapping.scale
+        vertices=np.asarray(preview.get('source_bounds_m') or preview['positions'],dtype=float)*mapping.scale
         if mapping.up_axis=='y':vertices=vertices[:,[0,2,1]]*np.array([1,-1,1])
         lo,hi=vertices.min(axis=0),vertices.max(axis=0)
         half=np.maximum((hi-lo)/2,.005);center=np.asarray(mapping.position_m)
@@ -264,7 +264,7 @@ class WorkspaceService:
                 record=self.runtime.imports.create('worldlabs-collider.glb',content,reduce_preview=True)
                 preview=self.runtime.imports.get(record['id'],preview=True)
                 from .workspace_schemas import ImportMapping
-                span=np.ptp(np.asarray(preview['positions'],dtype=float),axis=0)
+                span=np.ptp(np.asarray(preview.get('source_bounds_m') or preview['positions'],dtype=float),axis=0)
                 scale=min(1.,2./max(float(np.max(span)),.001))
                 library=self.map_import(record,preview,ImportMapping(name=world.get('display_name') or job['interpretation']['name'],scale=scale),job['_token'],'worldlabs',
                     provider_world_id=world_id,provider_url=world.get('world_marble_url'))
