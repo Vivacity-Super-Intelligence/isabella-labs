@@ -8,7 +8,7 @@ browser chart, model switching, saved-run comparison, CSV and Desmos-ready JSON
 export; optional official Desmos Graphing Calculator adapter. A joint-torque
 association is reported only when acceleration and torque vary sufficiently.
 
-Focused numerical/API tests: 6 passed. Frontend API/analysis checks: 24 passed.
+Focused numerical/API tests: 7 passed. Frontend API/analysis checks: 31 passed.
 TypeScript and production Vite build passed. A local browser observed two real
 conveyor conditions (174 and 236 samples), a 25-sample provisional checkpoint,
 eight final series, a validated carton-Y fit (held-out R² 0.9504), a correctly

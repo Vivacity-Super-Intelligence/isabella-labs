@@ -38,6 +38,14 @@ def test_unpredictable_future_is_not_called_validated():
     assert all(model['validation_status'] == 'poor_fit' for model in result['models'])
 
 
+def test_nearly_flat_heldout_interval_has_no_misleading_r_squared():
+    values=[(i*.1,math.sin(i*.1) if i<80 else .01+1e-12*i) for i in range(100)]
+    result=discover(values,'flat-future','power')
+    assert result['models']
+    assert all(model['validation']['r2'] is None for model in result['models'])
+    assert all(math.isfinite(model['validation']['rmse']) for model in result['models'])
+
+
 def test_missing_values_are_not_invented():
     assert scalar({'cartons': [], 'measurements': {}}, 'z') is None
     assert scalar({'cartons': [], 'measurements': {}}, 'work') is None
