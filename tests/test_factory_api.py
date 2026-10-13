@@ -38,6 +38,12 @@ def test_transport_controls_ownership_and_persistence(tmp_path):
         assert times==sorted(set(times)) and len(times)>10
         assert record['initial_state']!=record['final_state']
         assert record['events'][-1]['kind']=='station_arrival'
+        assert c.get('/v1/factory/runs/'+identifier+'/samples',headers=OTHER).status_code==404
+        assert c.get('/v1/factory/runs/'+identifier+'/samples?limit=1001',headers=OWNER).status_code==422
+        page=c.get('/v1/factory/runs/'+identifier+'/samples?limit=10',headers=OWNER).json()
+        next_page=c.get('/v1/factory/runs/'+identifier+'/samples?after=9&limit=10',headers=OWNER).json()
+        assert page['frames']+next_page['frames']==record['trace'][:20]
+        assert page['next_index']==9 and next_page['next_index']==19
     with TestClient(create_app(path)) as c:
         assert c.get('/v1/factory/runs/'+identifier+'/record',headers=OWNER).json()==record
 
@@ -63,3 +69,15 @@ def test_camera_http_ownership_and_changed_initial_conditions(tmp_path):
         assert value['camera']['time_s']==value['ground_truth']['time']==0
         assert abs(value['camera']['detections'][0]['estimated_center_m'][1]+.4)<.01
         assert c.get('/v1/factory/cells/'+cell['id'],headers=OWNER).json()['initial_state']==cell['initial_state']
+
+def test_production_records_exact_event_time_samples(tmp_path):
+    with TestClient(create_app(tmp_path/'factory.sqlite3')) as c:
+        cell=c.post('/v1/factory/cells',headers=OWNER,json={'carton_count':1,'carton_start_y_m':-.4,'realtime_speed':8}).json()
+        response=c.post('/v1/factory/cells/'+cell['id']+'/runs',headers=OWNER,json={'mode':'production'})
+        assert response.status_code==202
+        row=wait(c,response.json()['id'],{'completed','failed'})
+        assert row['status']=='completed',row.get('error')
+        record=c.get('/v1/factory/runs/'+row['id']+'/record',headers=OWNER).json()
+        timestamps={f['time'] for f in record['trace']}
+        assert all(event['time_s'] in timestamps for event in record['events'])
+        assert row['metrics']['cartons_sorted']==1

@@ -1,5 +1,5 @@
 from typing import Literal
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Query
 from pydantic import BaseModel,ConfigDict
 from .factory import FactorySettings
 from .workspace_api import Token
@@ -37,6 +37,10 @@ def run(identifier:str,request:Request,x_workspace_token:Token):
 @router.get('/runs/{identifier}/record')
 def record(identifier:str,request:Request,x_workspace_token:Token):
     return request.app.state.factory.get(identifier,x_workspace_token,full=True)
+
+@router.get('/runs/{identifier}/samples')
+def samples(identifier:str,request:Request,x_workspace_token:Token,after:int=Query(-1,ge=-1),limit:int=Query(400,ge=1,le=1000)):
+    return request.app.state.factory.samples(identifier,x_workspace_token,after,limit)
 
 @router.post('/runs/{identifier}/control')
 def control(identifier:str,body:Command,request:Request,x_workspace_token:Token):

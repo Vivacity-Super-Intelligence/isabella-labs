@@ -14,6 +14,7 @@ async function request<T>(path:string,method='GET',body?:unknown):Promise<T>{
  return await readAPIResponse(response) as T;
 }
 export const factoryApi={
+ samples:(id:string,after=-1)=>request<{frames:FactoryFrame[];next_index:number;total_samples:number;status:string}>(`/runs/${encodeURIComponent(id)}/samples?after=${after}`),
  observation:(id:string)=>request<FactoryObservationRecord>(`/cells/${encodeURIComponent(id)}/observation`),
  create:(settings:FactorySettings)=>request<FactoryCell>('/cells','POST',settings),
  cell:(id:string)=>request<FactoryCell>('/cells/'+encodeURIComponent(id)),

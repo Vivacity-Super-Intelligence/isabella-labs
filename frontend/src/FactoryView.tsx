@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {Canvas,useThree} from '@react-three/fiber';
-import {OrbitControls,RoundedBox} from '@react-three/drei';
+import {OrbitControls,RoundedBox,Line} from '@react-three/drei';
 import {Group,Quaternion,Vector3,PCFSoftShadowMap,ACESFilmicToneMapping,ExtrudeGeometry,Shape} from 'three';
 import type {OrbitControls as Controls} from 'three-stdlib';
 import {loadAssets,GeomMesh,type Assets} from './RobotAssets';
@@ -86,7 +86,7 @@ function Camera({command}:{command:{name:string;seq:number}}){
 }
 function Refresh({revision}:{revision:unknown}){const invalidate=useThree(s=>s.invalidate);useEffect(()=>invalidate(),[revision,invalidate]);return null;}
 
-export default function FactoryView({frame,mode='fidelity',status='idle',geometry=[]}:{frame:FactoryVisualState|null;mode?:FactoryViewMode;status?:string;geometry?:FactoryGeometry[]}){
+export default function FactoryView({frame,mode='fidelity',status='idle',geometry=[],trajectory=[]}:{frame:FactoryVisualState|null;mode?:FactoryViewMode;status?:string;geometry?:FactoryGeometry[];trajectory?:Vec3[]}){
  const [assets,setAssets]=useState<Assets|null>(null),[error,setError]=useState<string|null>(null),[camera,setCamera]=useState({name:'overview',seq:0});
  useEffect(()=>{let active=true;loadAssets().then(v=>active&&setAssets(v)).catch(e=>active&&setError(String(e)));return()=>{active=false;};},[]);
  const detailed=mode==='fidelity';
@@ -107,6 +107,7 @@ export default function FactoryView({frame,mode='fidelity',status='idle',geometr
    {detailed&&<><Profile position={[.78,-.24,-.8]} length={1.95}/><Tube a={[.78,-.24,1.15]} b={[.5,-.24,1.15]} r={.016}/><Plate position={[.5,-.24,1.14]} size={[.085,.07,.07]} color="#35464d"/><mesh position={[.5,-.24,1.09]}><cylinderGeometry args={[.019,.019,.025,20]}/><meshStandardMaterial color="#15242c" metalness={.65} roughness={.12}/></mesh><Profile position={[-.2,.25,-.8]} length={1.45}/>{['#845b4d','#be9444','#4d857a'].map((c,i)=><mesh key={c} position={[-.2,.25,.49+i*.043]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.023,.023,.037,20]}/><meshStandardMaterial color={c} emissive={status==='running'&&i===2?c:'#000000'} emissiveIntensity={.6}/></mesh>)}</>}
    {frame&&assets&&<FactoryRobot assets={assets} frame={frame} engineering={mode==='engineering'}/>}
    {cartons.map(cube=><group key={cube.name} scale={(frame?.carton_half_size_m??.025)/.025} position={cube.position} quaternion={new Quaternion(cube.quaternion_wxyz[1],cube.quaternion_wxyz[2],cube.quaternion_wxyz[3],cube.quaternion_wxyz[0])}><Plate position={[0,0,0]} size={[.05,.05,.05]} color={colors.carton} metal={0}/>{detailed&&<><Plate position={[0,0,.02515]} size={[.012,.0502,.0004]} color="#ccba87" metal={0}/><Plate position={[.0251,0,0]} size={[.0004,.024,.019]} color="#ede6cf" metal={0}/></>}</group>)}
+   {mode==='engineering'&&trajectory.length>1&&<Line points={trajectory} color="#a6cec0" lineWidth={1.5}/>}
    <Camera command={camera}/><Refresh revision={[frame,mode,status]}/>
   </Canvas></SceneBoundary>{error&&<p role="alert">{error}</p>}</div>
   <div className="factory-view-tools"><span>Sorting cell 01 <small>· Panda / Z-up / metres</small></span>{mode==='engineering'&&<small>Collision surfaces · body axes · force on geom 2 (2 mm/N, capped at 0.15 m)</small>}<div>{[['overview','Overview'],['station','Robot station'],['top','Plan']].map(([id,label])=><button key={id} aria-pressed={camera.name===id} onClick={()=>setCamera(c=>({name:id,seq:c.seq+1}))}>{label}</button>)}</div></div>

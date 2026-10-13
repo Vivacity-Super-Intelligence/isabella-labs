@@ -83,6 +83,14 @@ class FactoryService:
             else:raise ValueError('unknown factory control')
             return self._summary(row)
 
+    def samples(self,identifier,token,after=-1,limit=400):
+        stored=self.workspace._get(identifier,token,'factory_run')
+        with self.lock:
+            row=self.live.get(identifier,stored);trace=row['trace'];end=min(len(trace),after+1+limit)
+            frames=deepcopy(trace[after+1:end])
+            return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':frames,
+                    'next_index':end-1,'total_samples':len(trace),'status':row['status']}
+
     def _checkpoint(self,row,c):
         if c['stop'].is_set():return False
         if c['paused']:
@@ -132,6 +140,7 @@ class FactoryService:
         row=self.live[identifier];wall=time.perf_counter();w=None;controller=None
         def event(value):
             with self.lock:row['events'].append(value)
+            if w is not None:self._frame(row,w,value['kind'])
         try:
             w=self.backend.fork(row['initial_state'])
             with self.lock:row.update(status='running',phase='initializing')

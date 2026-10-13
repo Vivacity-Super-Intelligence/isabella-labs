@@ -1,12 +1,14 @@
 import {useEffect,useState} from 'react';
 import FactoryView,{type FactoryViewMode} from './FactoryView';
-import {factoryApi,factoryDefaults,type FactoryCell,type FactoryRun,type FactorySettings} from './factoryApi';
+import {factoryApi,factoryDefaults,type FactoryCell,type FactoryRun,type FactorySettings,type FactoryFrame} from './factoryApi';
 import {APIError,errorMessage} from './api';
 import FactoryObservation from './FactoryObservation';
+import FactoryAnalysis from './FactoryAnalysis';
+import type {Vec3} from './domain';
 import './factory.css';
 
 export default function FactoryWorkspace(){
- const [mode,setMode]=useState<FactoryViewMode>('fidelity'),[cell,setCell]=useState<FactoryCell|null>(null),[run,setRun]=useState<FactoryRun|null>(null),[error,setError]=useState<string|null>(null),[busy,setBusy]=useState(false),[draft,setDraft]=useState<FactorySettings>(factoryDefaults);
+ const [mode,setMode]=useState<FactoryViewMode>('fidelity'),[cell,setCell]=useState<FactoryCell|null>(null),[run,setRun]=useState<FactoryRun|null>(null),[error,setError]=useState<string|null>(null),[busy,setBusy]=useState(false),[draft,setDraft]=useState<FactorySettings>(factoryDefaults),[inspected,setInspected]=useState<FactoryFrame|null>(null),[trajectory,setTrajectory]=useState<Vec3[]>([]);
  const active=!!run&&['queued','running','paused'].includes(run.status);
  async function load(){
   const id=localStorage.getItem('vivacity:factory-cell');let value:FactoryCell;
@@ -25,7 +27,8 @@ export default function FactoryWorkspace(){
  return <section className="factory-workspace">
   <header className="factory-heading"><div><span className="factory-eyebrow">Production research / Cell 01</span><h1>Carton sorting</h1></div><label>View<select value={mode} onChange={e=>setMode(e.target.value as FactoryViewMode)}><option value="fidelity">High fidelity</option><option value="performance">Performance</option><option value="engineering">Engineering</option></select></label></header>
   {error&&<div role="alert" className="notice">{error} <button onClick={()=>action(load)}>Reconnect</button></div>}
-  <FactoryView frame={frame} mode={mode} geometry={cell?.collision_geometry} status={run?.status??'idle'}/>
+  {inspected&&<p className="factory-stage-note" role="status">Viewport: recorded sample at {inspected.time.toFixed(3)} s. {active?'Production continues on the backend.':''}Use “Return to latest” in the analysis controls to leave inspection.</p>}
+  <FactoryView frame={inspected??frame} mode={mode} geometry={cell?.collision_geometry} trajectory={trajectory} status={run?.status??'idle'}/>
   <div className="factory-control-bar"><div><strong role="status">{run?run.status.replaceAll('_',' ')+' · '+run.phase.replaceAll('_',' '):(cell?'Ready':'Connecting')}</strong><span data-testid="factory-clock">{(frame?.time??0).toFixed(3)} s · MuJoCo simulation time</span></div><div className="factory-actions">
    <button className="primary" disabled={!cell||active||busy} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id));})}>Start production</button>
    <button disabled={!active||busy} onClick={()=>command(run?.status==='paused'?'resume':'pause')}>{run?.status==='paused'?'Resume':'Pause'}</button>
@@ -43,6 +46,7 @@ export default function FactoryWorkspace(){
    <button disabled={!cell} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id,'conveyor'));})}>Test conveyor only</button>
   </fieldset><p className="factory-stage-note">Later cartons have seeded mass variation (0.7–1.6 × reference, limited to 20–150 g). A finite batch is integrated continuously; cartons are not teleported or respawned. Arrival spacing is a minimum because this cell handles one carton at a time.</p></details>
   <details className="factory-readout"><summary>Measured transport and event log</summary><dl>{Object.entries(frame?.conveyors??{}).map(([name,value])=><div key={name}><dt>{name.replaceAll('_',' ')}</dt><dd>{value.surface_speed_m_s.toFixed(3)} m/s</dd></div>)}</dl><ol>{run?.events.map((event,i)=><li key={i}>{event.time_s.toFixed(3)} s · {event.kind.replaceAll('_',' ')}</li>)}</ol></details>
-  {cell&&<FactoryObservation key={cell.id} cellId={cell.id} frame={frame}/>}
+  {run&&<FactoryAnalysis key={run.id} run={run} onInspect={setInspected} onTrajectory={setTrajectory}/>}
+  {cell&&<FactoryObservation key={cell.id} cellId={cell.id} frame={inspected??frame} label={inspected?"Recorded":"Live"}/>}
  </section>;
 }
