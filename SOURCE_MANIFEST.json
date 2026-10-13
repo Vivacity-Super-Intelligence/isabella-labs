@@ -196,7 +196,7 @@
   "tests/test_reliability.py": "5e78877f7272de0f839f9784f6ae10e6be00197442d77ffe30fefa4da85cd11c",
   "tests/test_robotics.py": "f688c1a45327bdb8e023c2a3daba9839ac676dae44a67feabebb946a0170d4f1",
   "tests/test_runtime.py": "3b2c94873a813edd96c7e029e97f4146af0fcdb3dbec26d54f31b19b5fdb9766",
-  "tests/test_supervisor.py": "c3478bbcfa5f7b35307abb5599ebd4fddf20dfd696c9483ed7f82642711cd0e9",
+  "tests/test_supervisor.py": "ac13f6b59c28b34933cc0cb25a645ad17ad198345ca33eb85e5f5a2c8652e77e",
   "tests/test_templates.py": "1b5a4619d0ea557b62416c0a525af21c6e5db7ec1d229fe3478a5246545671b9",
   "tests/test_workspace.py": "80bbbe661ffd37eed2a8c666c594b2f8eecb24e780b73c406da5770355622497",
   "vivacity/__init__.py": "03b254be2b319a71cfd9779832de62dfb63dfb238cef8c5a3e85b74da858ae1e",
