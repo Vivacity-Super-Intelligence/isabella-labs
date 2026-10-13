@@ -252,8 +252,8 @@ class PickPlaceBackend(RoboticsBackend):
             for key in ('start', 'goal'):
                 q = np.asarray(stage[key])
                 if q.shape != (self.arm_dof,) or not np.isfinite(q).all():
-                    raise ValueError('finite seven-joint targets required')
-            if not (0 <= stage['duration_s'] <= 20 and 0 <= stage['dwell_s'] <= 2 and 0 <= stage['gripper'] <= 255):
+                    raise ValueError(f'finite {self.arm_dof}-coordinate joint targets required')
+            if not (0 <= stage['duration_s'] <= 60 and 0 <= stage['dwell_s'] <= 2 and 0 <= stage['gripper'] <= 255):
                 raise ValueError('stage command outside resource limits')
             if stage.get('waypoints'):
                 path = np.asarray(stage['waypoints'])
