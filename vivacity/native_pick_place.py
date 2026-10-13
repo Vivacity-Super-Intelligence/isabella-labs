@@ -21,7 +21,9 @@ class NativePickup:
     def __init__(self, backend, snapshot):
         self.backend=backend
         self.snapshot=deepcopy(snapshot)
-        self.template=backend.create_world(snapshot['config'],snapshot['seed'],diagnostics=True)
+        # Contact diagnostics exist on the immutable normal model. Fork its data
+        # instead of compiling a second copy of every high-resolution mesh.
+        self.template=backend.fork(snapshot)
         backend.restore(self.template,snapshot)
 
     def simulate(self, action, limits):
