@@ -13,9 +13,14 @@ The public OpenAPI matches both exported files. Real WSS delivered eight events
 for a deliberate 100 ms timeout diagnostic with 50 integrated steps and matching
 replay. This diagnostic is not a successful pickup claim.
 
-Vercel production `dpl_7xYiCA4UA2ntSQvLXqBdXAU7kRQs` serves
-https://demo.tryvivacity.com/ from frontend source `0bb0b9a`. Its actual
-TypeScript/Vite build passed. Public warehouse loading stayed idle; its five
+Vercel production `dpl_8NukzFtw5CvbBjm6rtGPgXN6CWgV` serves
+https://demo.tryvivacity.com/ from frontend source `12ee3aa`. The picker fix
+disables unsupported hardware/tasks and selects compatible pairings. Five
+selection tests, two catalog tests, live world loading, persisted mass changes,
+390 px reflow and a fresh public HTTP/WSS timeout/replay diagnostic passed.
+The backend source and hosting tier are unchanged. The frontend's actual
+TypeScript/Vite build passed. In the earlier template-release verification,
+public warehouse loading stayed idle; its five
 validation trials succeeded, followed by a freshly measured physical execution.
 Backend pause/resume and JSON download were tested, with no captured public
 browser errors. Selected validation: 6,055 steps, 12.11 simulated seconds,

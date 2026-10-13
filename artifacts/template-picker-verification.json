@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-13",
+  "frontend_source": "12ee3aa",
+  "deployment": "dpl_8NukzFtw5CvbBjm6rtGPgXN6CWgV",
+  "url": "https://demo.tryvivacity.com/",
+  "backend_changed": false,
+  "selection_tests": {"passed": 5, "failed": 0, "catalog_interactions": 135},
+  "backend_catalog_tests": {"passed": 2, "failed": 0, "seconds": 10.98, "warnings": 1},
+  "build": {"typescript": "passed", "vite": "passed", "production": "READY", "existing_three_chunk_warning": true},
+  "public_browser": {
+    "loaded": ["panda:warehouse:pick_place", "panda:textile:cloth_fold", "panda:inspection:pick_place"],
+    "cloth_auto_pairing": true,
+    "rigid_auto_pairing": true,
+    "mass_persisted_on_apply_and_reopen_kg": 0.025,
+    "mass_restored_kg": 0.02,
+    "unavailable_inputs": ["ur5e", "iiwa", "scara", "dual_arm", "machine_tending", "assembly"],
+    "keyboard_skips_unavailable_arms": true,
+    "mobile_viewport_px": 390,
+    "mobile_content_width_px": 375,
+    "old_adapter_message_visible": false,
+    "captured_console_errors": [],
+    "final_status": "Ready to start"
+  },
+  "boundary_evidence": "template-picker-public-boundary.json",
+  "boundary_scope": "New real 50-step MuJoCo timeout diagnostic with eight WebSocket messages and matching replay. Not a successful pickup assertion.",
+  "limitations": "Panda only; other arms and two advanced tasks remain unimplemented. Previous full backend suite not repeated for this frontend correction."
+}

@@ -2,8 +2,13 @@
 
 Verified release: backend source `2bf89e7`, Render deploy
 `dep-db6me8e7bikc73ai2g50`, Vercel production
-`dpl_7xYiCA4UA2ntSQvLXqBdXAU7kRQs` (frontend source `0bb0b9a`).
-All 156 Linux tests passed in 930.151 s; the 512 MB check passed in 52.580 s.
+`dpl_8NukzFtw5CvbBjm6rtGPgXN6CWgV` (frontend source `12ee3aa`).
+The latest frontend correction disables unsupported choices and pairs compatible
+worlds/tasks automatically. Five selection tests passed (135 interactions), two
+backend catalog tests passed, and build/live desktop/mobile loading checks
+passed. Public mass customization persisted and was restored; HTTP/WSS replay
+was verified with a genuine timeout diagnostic. Backend code is unchanged.
+Its prior 156 Linux tests passed in 930.151 s; the 512 MB check passed in 52.580 s.
 Each UI Start uses one cycle and retains the chosen conditions. Public pickup,
 pause/resume, capability gating, idle loading, REST/WSS and OpenAPI matching were
 exercised; final cloth and responsive results are in IMPLEMENTATION_STATUS.md.
@@ -20,8 +25,10 @@ request without starting an experiment.
 Example selection: `{"arm":"panda","world":"warehouse","task":"pick_place","seed":7}`.
 Pass the response to POST `/v1/worlds`, or its backend/config to POST
 `/v1/sessions` on explicit Start. Unsupported adapters/tasks return 422.
-Do not silently substitute Panda for another robot. Reference templates
-explain intended business use and missing physical capabilities.
+Do not silently substitute Panda for another robot. Reference arms/tasks stay
+visible but disabled. Choosing textile or cloth folding pairs both; leaving
+textile selects a compatible rigid handling configuration. Regression command:
+`npm --prefix frontend run test:templates` (Node 22.6+ with type stripping).
 
 Frontend: `https://demo.tryvivacity.com/`; backend:
 `https://vivacity-runtime.onrender.com`. Release proof and hosting limitations

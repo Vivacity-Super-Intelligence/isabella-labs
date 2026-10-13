@@ -1,3 +1,36 @@
+# Template picker usability fix (2026-10-13)
+
+Frontend source `12ee3aa` is deployed as Vercel
+`dpl_8NukzFtw5CvbBjm6rtGPgXN6CWgV` at https://demo.tryvivacity.com/.
+The backend remains on verified source `2bf89e7`; no physics or controller code
+was changed. Planned arms and tasks are disabled and labeled Not available yet.
+World/task selection now maintains a compatible combination, eliminating the
+user-facing robot/gripper/controller-adapter dead end. Panda remains the only
+implemented arm; no additional hardware support is claimed.
+
+Executed for this correction: five Node selection tests passed, covering all
+135 catalog interactions from the nine runnable combinations. Two backend
+catalog/rejection tests passed in 10.98 s with the existing Starlette warning.
+TypeScript/Vite and Vercel production builds passed; the existing 913 kB Three.js
+chunk warning remains. The full 156-test backend suite was not repeated for this
+frontend-only change; its previous verified results are recorded below.
+
+Public browser verification: warehouse, textile/cloth and inspection workcells
+loaded through the real backend; cloth pairing and leaving cloth for rigid
+handling worked; the inspection world stayed idle. The mass setting persisted
+from 20 g to 25 g on apply/reopen, then was restored to 20 g. Keyboard arrows
+skip unavailable arms. At 390 px, content width was 375 px with no horizontal
+overflow. Six unimplemented choices were disabled, the old adapter message was
+absent, and no public console errors were captured. Local 5174 verified picker
+interaction only; that origin is not allowed by public-backend CORS.
+
+A fresh public HTTP/WSS diagnostic passed in 11.078 s: eight WebSocket messages,
+50 real MuJoCo integration steps, honest timeout, no selected successful branch,
+and replay matching the executed trace. This deliberately short diagnostic is
+not a new successful pickup claim. Evidence in artifacts/:
+template-picker-public-boundary.json and template-picker-public-desktop.jpg,
+template-picker-public-mobile.jpg.
+
 # Robotics template release verification (2026-10-13)
 
 This release retires Scientific Discovery from the public UI, schemas and runtime.
