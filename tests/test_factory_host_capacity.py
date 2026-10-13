@@ -23,13 +23,19 @@ def test_factory_camera_three_cartons_history_and_report_with_host_limit(tmp_pat
         assert camera.json()['camera']['image_data_url'].startswith('data:image/png;base64,')
         memory('camera captured')
         run=c.post('/v1/factory/cells/'+cell['id']+'/runs',headers=headers,json={'mode':'production'}).json()
+        captured_during_run=False
         deadline=time.monotonic()+180
         while time.monotonic()<deadline:
             row=c.get('/v1/factory/runs/'+run['id'],headers=headers).json()
             assert c.get('/health').status_code==200
+            if row['status']=='running' and row['frame']['time']>60 and not captured_during_run:
+                assert c.get('/v1/factory/cells/'+cell['id']+'/observation',headers=headers).status_code==200
+                captured_during_run=True
+                memory('camera during production')
             if row['status'] not in ('queued','running','paused'):break
             time.sleep(.3)
         assert row['status']=='completed' and row['metrics']['cartons_sorted']==3,row
+        assert captured_during_run
         memory('three cartons delivered')
         assert c.get('/v1/factory/runs',headers=headers).status_code==200
         assert len(c.get('/v1/factory/runs/'+run['id']+'/samples?limit=50',headers=headers).json()['frames'])==50

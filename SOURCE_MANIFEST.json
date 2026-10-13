@@ -184,7 +184,7 @@
   "tests/test_factory_api.py": "00cd98cec7ac3a6b2d8eb5c0fa5bd7b33ae8a55ba0bfc078cab9e5674478ad4f",
   "tests/test_factory_benchmark.py": "5a9a69a942eac257dbdc639fabd2e499886d45da1bf997b457edfd30488d53cd",
   "tests/test_factory_exchange.py": "c249334ad6e8de581d5b240253cc5494004ee14b08ca88cd7829d4c1c935c8aa",
-  "tests/test_factory_host_capacity.py": "9c70353960fa7e7babcef4b6b72faece378d43007223a75007c7fa9341f7ee31",
+  "tests/test_factory_host_capacity.py": "71d6b6dab83563f7af5205065c327770ace928846851562b311f3b2ae0bff97f",
   "tests/test_factory_measurements.py": "e1ceb1fb290d2f144932f375bca4b73866aff8a6b820fb43a8b6b45f68eaa71f",
   "tests/test_factory_production.py": "b042a1ac96ce3b3e3c36392fc00127bd3f05b2c00708f1bc8e0349ce5f36aec3",
   "tests/test_factory_projects.py": "4d2599d7c711e0d0e4bd290164b221af002bca23b852fc85e5bcd07c6237261f",
