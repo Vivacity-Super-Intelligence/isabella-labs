@@ -15,12 +15,17 @@ from .templates import TemplateSelection, TemplateCatalog, catalog, resolve
 
 
 def create_app(database=None):
+    from .credentials import load_host_credentials
+    load_host_credentials()
     @asynccontextmanager
     async def lifespan(app):
         path=database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3')
         app.state.runtime = Runtime(path)
         app.state.imports = app.state.runtime.imports
+        from .workspace import WorkspaceService
+        app.state.workspace = WorkspaceService(app.state.runtime)
         yield
+        await asyncio.to_thread(app.state.workspace.close)
         await asyncio.to_thread(app.state.runtime.close)
 
     def authorize_request(request:HTTPConnection):
@@ -32,6 +37,13 @@ def create_app(database=None):
             world_id=parts[2]
         elif parts[1]=='experiments':
             world_id=runtime.get_experiment(parts[2])['world_id']
+        elif parts[1]=='imports':
+            from .workspace import owner
+            with runtime.store.connect() as db:
+                owners=db.execute("SELECT DISTINCT owner FROM library_items WHERE (kind='staged_import' AND id=?) OR (kind='world' AND json_extract(payload,'$.import_id')=?)",(parts[2],parts[2])).fetchall()
+            if owners and owner(request.headers.get('x-workspace-token','')) not in {r[0] for r in owners}:
+                raise HTTPException(403,'workspace capability required for this imported asset')
+            return
         else:return
         try:runtime.supervisor.authorize_world(world_id,request.headers.get('x-session-token'))
         except PermissionError:raise HTTPException(403,'session capability required')
@@ -40,7 +52,9 @@ def create_app(database=None):
                   dependencies=[Depends(authorize_request)],
                   description='Robotics-only runtime: measured Panda manipulation, reaching and experimental fixture-assisted flex folding. Public scenario templates declare readiness and reject unsupported combinations. Single-process demo.')
     origins = [o.strip() for o in os.getenv('VIVACITY_CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if o.strip()]
-    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token'])
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token','X-Workspace-Token'])
+    from .workspace_api import router
+    app.include_router(router)
 
     @app.exception_handler(PermissionError)
     async def permission(request,exc):

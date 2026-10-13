@@ -38,15 +38,14 @@ def test_catalog_public_contract_and_retired_discovery(tmp_path):
         public = client.get('/v1/templates').json()
         assert public==catalog()
         assert all(len(public[key])==5 for key in ('arms','worlds','tasks'))
-        assert [o['id'] for o in public['arms'] if o['status']!='reference']==['panda']
+        assert [o['id'] for o in public['arms'] if o['status']!='reference']==['panda','ur5e','iiwa','scara','dual_arm']
         assert set(client.get('/health').json()['backends'])=={'mujoco','cloth'}
         for endpoint in ('worlds','sessions'):
             assert client.post('/v1/'+endpoint,json={'backend':'scipy'},headers={'X-Session-Token':'x'*40}).status_code==422
         spec=client.get('/openapi.json').json()
         assert 'ScienceConfig' not in spec['components']['schemas']
         assert spec['components']['schemas']['CreateWorld']['properties']['backend']['enum']==['mujoco','cloth']
-        for body in ({'arm':'ur5e'},{'arm':'iiwa'},{'arm':'scara'},{'arm':'dual_arm'},
-                     {'task':'assembly'},{'task':'machine_tending'},
+        for body in ({'arm':'missing'},{'task':'missing'},{'arm':'ur5e','task':'cloth_fold','world':'textile'},
                      {'task':'cloth_fold'},{'world':'textile'},{'world':'missing'}):
             response=client.post('/v1/templates/resolve',json=body)
             assert response.status_code==422, response.text
@@ -57,5 +56,5 @@ def test_catalog_public_contract_and_retired_discovery(tmp_path):
 
 
 def test_catalog_does_not_share_mutable_readiness():
-    edited=catalog();edited['arms'][1]['status']='available'
-    assert catalog()['arms'][1]['status']=='reference'
+    edited=catalog();edited['arms'][1]['status']='reference'
+    assert catalog()['arms'][1]['status']=='available'

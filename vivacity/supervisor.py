@@ -141,7 +141,7 @@ class Supervisor:
                     if cycle:
                         rng=np.random.default_rng(seed)
                         if s['backend']=='mujoco' and config.get('task')=='pick_place':
-                            center_z=config.get('cube_half_size',.025)+.001
+                            center_z=(config.get('cube_half_sizes') or [config.get('cube_half_size',.025)]*3)[2]+.001
                             config['cube_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(-.2,-.1)),center_z]
                             config['placement_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(.12,.23)),center_z]
                         elif s['backend']=='cloth':
@@ -157,7 +157,7 @@ class Supervisor:
                                             'configuration_sha256':hashlib.sha256(str(w['config']).encode()).hexdigest()})
                     settings=ExperimentRequest(candidates=3,max_simulation_seconds=40,physics_trials=request.get('physics_trials',0),
                         adaptive_trials=request.get('adaptive_trials',False),
-                        execute_selected=s['backend'] in ('mujoco','cloth'),realtime_execution=request['realtime_execution'],
+                        execute_selected=s['backend'] in ('mujoco','cloth'),realtime_execution=request['realtime_execution'],realtime_speed=request.get('realtime_speed',1.),
                         search_candidates=request['search_candidates'],physics_budget=request['physics_budget'])
                     e=r.submit(w['id'],settings,idempotency_key=f'session-{sid}-cycle-{cycle}',control=control)
                     s['experiment_id']=e['id'];s['experiments'].append(e['id']);r.store.put('sessions',s)

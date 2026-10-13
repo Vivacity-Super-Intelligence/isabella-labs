@@ -65,21 +65,27 @@ CATALOG = {
 
 
 def catalog():
-    return deepcopy(CATALOG)
+    result=deepcopy(CATALOG)
+    for arm in result['arms']:
+        arm['status']='available'
+        arm['scope']='Actuated MuJoCo model, modeled parallel gripper, independent state and measured dynamics. Dual Panda uses its primary arm; SCARA is an analytical educational model.'
+    for task in result['tasks']:
+        if task['id'] in ('machine_tending','assembly'):
+            task['status']='available'
+            task['scope']='Single-part fixture seating or loading a modeled bay with an actuated door. No fastening, production machining or hardware interlocks.'
+    return result
 
 
 def resolve(selection: TemplateSelection) -> CreateWorld:
-    if selection.arm != 'panda':
-        raise ValueError('This arm is a reference template. Its physical adapter is not implemented.')
-    if selection.task in ('machine_tending', 'assembly'):
-        raise ValueError('This task is a reference template. Its controller and validation are not implemented.')
     if selection.task == 'cloth_fold':
+        if selection.arm!='panda':raise ValueError('The textile fixture currently uses Panda.')
         if selection.world != 'textile':
             raise ValueError('Cloth folding requires the textile folding fixture.')
         return CreateWorld(backend='cloth', seed=selection.seed, config={'side_length': .4, 'mass': .08, 'friction': .6})
     if selection.world == 'textile':
         raise ValueError('The textile station currently supports the constrained cloth fold only.')
-    config = dict(task='pick_place', obstacle_enabled=False,
+    config = dict(task='pick_place', robot_model=selection.arm,
+                  physical_operation=selection.task if selection.task in ('assembly','machine_tending') else 'pick_place',obstacle_enabled=False,
                   obstacle_position=[.75, -.4, .22])
     presets = {
         'manufacturing': {},

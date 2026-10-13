@@ -383,7 +383,7 @@ class Runtime:
 
     def _bulk_trials(self, e, actions, settings, search, reference, cancellation):
         from .native_pick_place import NativePickup
-        engine=NativePickup(self.backends['mujoco'].pick_place,e['snapshot'])
+        engine=NativePickup(self.backends['mujoco'].backend(e['config']),e['snapshot'])
         best=[];simulated=0;attempts=0;feasible=0;steps=0;physics=0.;last_frame=[0.]
         best_duration=float('inf');no_improvement=0;stopping_reason='candidate_exhausted'
         objective=lambda b:(not b['evaluation']['success'],b['evaluation'].get('execution_duration_s',float('inf')),

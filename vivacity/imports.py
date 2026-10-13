@@ -90,7 +90,7 @@ def unpack(data):
     except (zipfile.BadZipFile,RuntimeError) as exc:raise ValueError('malformed ZIP bundle') from exc
 
 
-def gltf_preview(data,extension,files):
+def gltf_preview(data,extension,files,reduce_preview=False):
     binary=None
     if extension=='.glb':
         if len(data)<20:raise ValueError('truncated GLB')
@@ -129,7 +129,8 @@ def gltf_preview(data,extension,files):
     def read(index,positions=False):
         a=accessors[integer(index,len(accessors)-1)]
         if 'sparse' in a or a.get('normalized'):raise ValueError('sparse/normalized geometry unsupported')
-        count=integer(a['count'],MAX_VERTICES if positions else MAX_VERTICES*3)
+        source_limit=500000 if reduce_preview else MAX_VERTICES
+        count=integer(a['count'],source_limit if positions else source_limit*3)
         if positions and (a['componentType']!=5126 or a['type']!='VEC3'):raise ValueError('positions must be float32 VEC3')
         if not positions and (a['componentType'] not in (5121,5123,5125) or a['type']!='SCALAR'):raise ValueError('indices must be unsigned scalar')
         dtype={5126:'<f4',5121:'u1',5123:'<u2',5125:'<u4'}[a['componentType']];width=3 if positions else 1;item=np.dtype(dtype).itemsize
@@ -161,6 +162,12 @@ def gltf_preview(data,extension,files):
                 if len(ind)%3 or len(ind) and int(ind.max())>=len(p):raise ValueError('invalid triangle indices')
                 transformed=p@matrix[:3,:3].T+matrix[:3,3]
                 if not np.isfinite(transformed).all() or transformed.size and np.max(np.abs(transformed))>1e5:raise ValueError('invalid transformed vertices')
+                if reduce_preview:
+                    triangles=ind.reshape(-1,3)
+                    remaining=max(1,25000-triangle_count)
+                    triangles=triangles[::max(1,int(np.ceil(len(triangles)/remaining)))]
+                    used,remapped=np.unique(triangles,return_inverse=True)
+                    transformed=transformed[used];p=transformed;ind=remapped
                 vertex_count+=len(p);triangle_count+=len(ind)//3
                 if vertex_count>MAX_VERTICES or triangle_count>MAX_VERTICES:raise ValueError('decoded preview exceeds geometry limit')
                 positions.extend(transformed.tolist());indices.extend((ind+vertex_count-len(p)).tolist())
@@ -206,6 +213,50 @@ def inspect_xml(data,extension,files):
     counts={k:sum(n.tag==k for n in elements) for k in ('body','link','joint','geom','collision','actuator')}
     if counts['joint']>128 or counts['geom']>512:raise ValueError('robot description complexity exceeds limit')
     return counts,['Description structurally inspected; not compiled or executed.','Configure an isolated native worker, validated inertia/collisions, controller and task criteria before simulation.']
+
+
+def triangle_preview(content, extension):
+    """Bounded OBJ/STL geometry only; materials and external resources are ignored."""
+    positions=[];indices=[]
+    if extension=='.obj':
+        try:lines=content.decode('utf-8-sig').splitlines()
+        except UnicodeError:raise ValueError('OBJ must be UTF-8 text') from None
+        for line in lines:
+            parts=line.split()
+            if not parts or parts[0].startswith('#'):continue
+            if parts[0]=='v':
+                if len(parts)<4:raise ValueError('invalid OBJ vertex')
+                positions.append(vector([float(v) for v in parts[1:4]],3).tolist())
+                if len(positions)>MAX_VERTICES:raise ValueError('OBJ vertex limit exceeded')
+            elif parts[0]=='f':
+                if not 4<=len(parts)<=66:raise ValueError('OBJ face exceeds bounds')
+                face=[]
+                for entry in parts[1:]:
+                    value=int(entry.split('/')[0]);index=value-1 if value>0 else len(positions)+value
+                    if not 0<=index<len(positions):raise ValueError('OBJ face references a missing vertex')
+                    face.append(index)
+                for i in range(1,len(face)-1):indices.extend([face[0],face[i],face[i+1]])
+            if len(indices)>MAX_VERTICES*3:raise ValueError('OBJ triangle limit exceeded')
+    elif len(content)>=84 and len(content)==84+50*struct.unpack_from('<I',content,80)[0]:
+        count=struct.unpack_from('<I',content,80)[0]
+        if count*3>MAX_VERTICES:raise ValueError('STL triangle limit exceeded')
+        for i in range(count):
+            values=struct.unpack_from('<9f',content,84+50*i+12)
+            for j in range(3):positions.append(vector(list(values[j*3:j*3+3]),3).tolist())
+        indices=list(range(len(positions)))
+    else:
+        try:lines=content.decode('ascii').splitlines()
+        except UnicodeError:raise ValueError('invalid binary or ASCII STL') from None
+        for line in lines:
+            parts=line.split()
+            if parts and parts[0]=='vertex':
+                if len(parts)!=4:raise ValueError('invalid STL vertex')
+                positions.append(vector([float(v) for v in parts[1:]],3).tolist())
+                if len(positions)>MAX_VERTICES:raise ValueError('STL vertex limit exceeded')
+        if len(positions)%3:raise ValueError('incomplete STL facet')
+        indices=list(range(len(positions)))
+    if not positions or not indices:raise ValueError('no supported triangles found')
+    return {'positions':positions,'indices':indices,'vertex_count':len(positions),'triangle_count':len(indices)//3}, ['Static uploaded triangles decoded; materials/textures and physics are not inferred.']
 
 
 class ImportService:
@@ -264,7 +315,7 @@ class ImportService:
             with self.lock:
                 self.verifying=None;self._save(payload)
 
-    def create(self,filename,data):
+    def create(self,filename,data,reduce_preview=False):
         name=safe_name(filename)
         if '/' in name:raise ValueError('upload filename must be a basename')
         if not data or len(data)>MAX_UPLOAD:raise ValueError('upload must be 1 byte..16 MiB')
@@ -273,7 +324,10 @@ class ImportService:
         else:content=data
         preview=None
         try:
-            if ext in ('.glb','.gltf'):preview,diagnostics=gltf_preview(content,ext,files);status='visual_only';summary={'vertices':preview['vertex_count'],'triangles':preview['triangle_count']}
+            if ext in ('.glb','.gltf'):
+                preview,diagnostics=gltf_preview(content,ext,files,reduce_preview);status='visual_only';summary={'vertices':preview['vertex_count'],'triangles':preview['triangle_count']}
+                if reduce_preview:diagnostics.append('Display triangles were deterministically subsampled to a bounded preview; this is not a faithful concave collision reconstruction.')
+            elif ext in ('.obj','.stl'):preview,diagnostics=triangle_preview(content,ext);status='visual_only';summary={'vertices':preview['vertex_count'],'triangles':preview['triangle_count']}
             elif ext in ('.xml','.mjcf','.urdf'):summary,diagnostics=inspect_xml(content,ext,files);status='configuration_required'
             else:raise ValueError('unsupported entrypoint format')
         except (KeyError,TypeError,IndexError,OverflowError,RecursionError,struct.error) as exc:raise ValueError('malformed or unsupported scene content') from exc

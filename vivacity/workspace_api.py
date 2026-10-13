@@ -1,0 +1,141 @@
+"""Workspace transport; simulator jobs remain owned by Runtime/Supervisor."""
+from typing import Annotated
+import os
+import asyncio
+from fastapi import APIRouter, Header, Request, Query, HTTPException
+
+from .workspace_schemas import (LibraryWorld, RenameRequest, GenerationRequest, GenerationResponse, ImportMapping,
+    ExperimentConfiguration, ConfigurationResponse, ResolvedConfiguration, CustomOperationRequest, RunOverrides)
+from .registry import registry
+from .workspace import owner
+from .providers import ProviderError
+from .imports import MAX_UPLOAD
+
+Token=Annotated[str,Header(alias='X-Workspace-Token',min_length=32,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
+Key=Annotated[str,Header(alias='Idempotency-Key',min_length=8,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
+router=APIRouter(prefix='/v1/workspace',tags=['Worlds and experiment workspace'])
+
+
+@router.get('/capabilities')
+def capabilities(request:Request):
+    return {'schema_version':'vivacity.workspace/1.0','openai_configured':bool(os.getenv('OPENAI_API_KEY')),
+            'worldlabs_configured':bool(os.getenv('WORLDLABS_API_KEY')),'registry':registry(),
+            'formats':['glb','gltf','obj','stl','mjcf','xml','urdf','manifest_zip'],
+            'max_upload_bytes':MAX_UPLOAD,'max_physics_trials':request.app.state.runtime.max_physics_trials,
+            'generations_per_day':int(os.getenv('VIVACITY_GENERATIONS_PER_DAY','4')),
+            'scope':'Library ownership uses a browser capability, not user accounts. Rendering and physical simulation remain separate.'}
+
+
+@router.get('/worlds',response_model=list[LibraryWorld])
+def worlds(request:Request,x_workspace_token:Token):return request.app.state.workspace.worlds(x_workspace_token)
+
+
+@router.get('/worlds/{identifier}',response_model=LibraryWorld)
+def world(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.world(identifier,x_workspace_token)
+
+
+@router.post('/worlds',response_model=LibraryWorld,status_code=201)
+def duplicate_world(body:dict,request:Request,x_workspace_token:Token):
+    if set(body)!={'source_id'} or not isinstance(body['source_id'],str):raise ValueError('supply a source_id to duplicate')
+    return request.app.state.workspace.duplicate(body['source_id'],x_workspace_token)
+
+
+@router.patch('/worlds/{identifier}',response_model=LibraryWorld)
+def rename(identifier:str,body:RenameRequest,request:Request,x_workspace_token:Token):return request.app.state.workspace.rename(identifier,x_workspace_token,body.name)
+
+
+@router.post('/worlds/{identifier}/archive',response_model=LibraryWorld)
+def archive(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.set_deleted(identifier,x_workspace_token,True)
+
+
+@router.post('/worlds/{identifier}/restore',response_model=LibraryWorld)
+def restore(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.set_deleted(identifier,x_workspace_token,False)
+
+
+@router.get('/worlds/{identifier}/preview')
+def preview(identifier:str,request:Request,x_workspace_token:Token):
+    record=request.app.state.workspace.world(identifier,x_workspace_token)
+    if not record.get('import_id'):raise ValueError('primitive scenes use their typed scene specification for preview')
+    return request.app.state.imports.get(record['import_id'],preview=True)
+
+
+@router.post('/imports',status_code=201)
+async def upload(request:Request,x_workspace_token:Token,filename:str=Query(min_length=1,max_length=180)):
+    content=bytearray()
+    async for chunk in request.stream():
+        content.extend(chunk)
+        if len(content)>MAX_UPLOAD:raise ValueError('upload exceeds 16 MiB')
+    record=await asyncio.to_thread(request.app.state.imports.create,filename,bytes(content))
+    request.app.state.workspace._put('staged_import',owner(x_workspace_token),record)
+    return record
+
+
+@router.post('/imports/{identifier}/map',response_model=LibraryWorld,status_code=201)
+def map_import(identifier:str,body:ImportMapping,request:Request,x_workspace_token:Token):
+    record=request.app.state.workspace._get(identifier,x_workspace_token,'staged_import')
+    preview=request.app.state.imports.get(identifier,preview=True)
+    return request.app.state.workspace.map_import(record,preview,body,x_workspace_token)
+
+
+@router.post('/generations',response_model=GenerationResponse,status_code=202)
+def generate(body:GenerationRequest,request:Request,x_workspace_token:Token,idempotency_key:Key):
+    try:return request.app.state.workspace.generate(body,x_workspace_token,idempotency_key)
+    except ProviderError as error:raise HTTPException(503,str(error)) from None
+
+
+@router.get('/generations/{identifier}',response_model=GenerationResponse)
+def generation(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.generation(identifier,x_workspace_token)
+
+
+@router.get('/generations',response_model=list[GenerationResponse])
+def generations(request:Request,x_workspace_token:Token):
+    workspace=request.app.state.workspace
+    return [workspace.generation(j['id'],x_workspace_token) for j in workspace.list(x_workspace_token,'generation')]
+
+
+@router.post('/generations/{identifier}/retry-retrieval',response_model=GenerationResponse,status_code=202)
+def retry_retrieval(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.retry_retrieval(identifier,x_workspace_token)
+
+
+@router.post('/configurations/resolve',response_model=ResolvedConfiguration)
+def resolve(body:ExperimentConfiguration,request:Request,x_workspace_token:Token):return request.app.state.workspace.resolve(body,x_workspace_token)
+
+
+@router.post('/configurations',response_model=ConfigurationResponse,status_code=201)
+def save(body:ExperimentConfiguration,request:Request,x_workspace_token:Token):return request.app.state.workspace.save_configuration(body,x_workspace_token)
+
+
+@router.get('/configurations',response_model=list[ConfigurationResponse])
+def configurations(request:Request,x_workspace_token:Token):return request.app.state.workspace.list(x_workspace_token,'configuration')
+
+
+@router.get('/configurations/{identifier}',response_model=ConfigurationResponse)
+def configuration(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.configuration(identifier,x_workspace_token)
+
+
+@router.post('/configurations/{identifier}/runs',status_code=201)
+def run(identifier:str,body:RunOverrides,request:Request,x_workspace_token:Token):return request.app.state.workspace.start_run(identifier,x_workspace_token,body.config)
+
+
+@router.get('/runs')
+def runs(request:Request,x_workspace_token:Token):return request.app.state.workspace.runs(x_workspace_token)
+
+
+@router.post('/operations/interpret')
+def operation(body:CustomOperationRequest,request:Request,x_workspace_token:Token):
+    workspace=request.app.state.workspace
+    workspace.world(body.environment_id,x_workspace_token)
+    # Count the call against the same bounded global budget, rather than exposing
+    # an unlimited public paid inference endpoint.
+    with workspace.store.connect() as db:
+        db.execute('CREATE TABLE IF NOT EXISTS operation_calls(created REAL)')
+        import time
+        db.execute('BEGIN IMMEDIATE')
+        if db.execute('SELECT COUNT(*) FROM operation_calls WHERE created>?',(time.time()-86400,)).fetchone()[0]>=20:
+            raise HTTPException(429,'daily interpretation budget reached')
+        db.execute('INSERT INTO operation_calls VALUES(?)',(time.time(),))
+    try:
+        proposal,provenance=workspace.interpreter.operation(body.prompt,body.environment_id)
+        if proposal.supported:workspace.resolve(proposal.configuration,x_workspace_token)
+        return {'proposal':proposal.model_dump(),'provenance':provenance}
+    except ProviderError as error:raise HTTPException(503,str(error)) from None

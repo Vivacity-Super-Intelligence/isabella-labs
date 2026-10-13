@@ -36,6 +36,7 @@ class RobotWorld:
 
 
 class RoboticsBackend:
+    arm_dof = 7
     version = mj.__version__
     action_schema = {'type': 'joint_trajectory', 'joints': 7, 'units': 'radians', 'planner': 'DLS pose IK + seeded joint-space RRT', 'milestone': 'reach_only'}
 
@@ -54,6 +55,8 @@ class RoboticsBackend:
         ET.SubElement(wb[-1], 'geom', name='cube', type='box', size='0.025 0.025 0.025', rgba='0.05 0.35 0.9 1')
         ET.SubElement(wb, 'body', name='obstacle', pos=' '.join(map(str, config['obstacle_position'])))
         ET.SubElement(wb[-1], 'geom', name='obstacle_geom', type='box', size=' '.join(map(str, config['obstacle_size'])), rgba='0.8 0.3 0.2 1')
+        from .scene import append_scene
+        append_scene(wb, config, root)
         xml = ET.tostring(root, encoding='unicode')
         model = mj.MjModel.from_xml_string(xml)
         data = mj.MjData(model)
@@ -112,7 +115,7 @@ class RoboticsBackend:
         d = mj.MjData(m)
         d.qpos[:] = world.data.qpos
         if start is not None:
-            d.qpos[:7] = start
+            d.qpos[:self.arm_dof] = start
         sid = mj.mj_name2id(m, mj.mjtObj.mjOBJ_SITE, 'pregrasp')
         jp, jr = np.zeros((3, m.nv)), np.zeros((3, m.nv))
         goal = np.asarray(world.config['target_position'])
@@ -122,23 +125,23 @@ class RoboticsBackend:
             dr = Rotation.from_matrix(DOWN @ d.site_xmat[sid].reshape(3, 3).T).as_rotvec()
             error = np.r_[dp, dr * 0.35]
             if np.linalg.norm(dp) < 0.001 and np.linalg.norm(dr) < 0.01:
-                return d.qpos[:7].copy(), {'position_error_m': float(np.linalg.norm(dp)), 'orientation_error_rad': float(np.linalg.norm(dr)), 'converged': True}
+                return d.qpos[:self.arm_dof].copy(), {'position_error_m': float(np.linalg.norm(dp)), 'orientation_error_rad': float(np.linalg.norm(dr)), 'converged': True}
             mj.mj_jacSite(m, d, jp, jr, sid)
-            jac = np.vstack([jp[:, :7], jr[:, :7] * 0.35])
+            jac = np.vstack([jp[:, :self.arm_dof], jr[:, :self.arm_dof] * 0.35])
             step = jac.T @ np.linalg.solve(jac @ jac.T + 0.003**2 * np.eye(6), error)
             step *= min(1., 0.15 / max(np.linalg.norm(step), 1e-9))
-            d.qpos[:7] = np.clip(d.qpos[:7] + step, m.jnt_range[:7, 0] + 0.005, m.jnt_range[:7, 1] - 0.005)
-        return d.qpos[:7].copy(), {'position_error_m': float(np.linalg.norm(dp)), 'orientation_error_rad': float(np.linalg.norm(dr)), 'converged': False}
+            d.qpos[:self.arm_dof] = np.clip(d.qpos[:self.arm_dof] + step, m.jnt_range[:self.arm_dof, 0] + 0.005, m.jnt_range[:self.arm_dof, 1] - 0.005)
+        return d.qpos[:self.arm_dof].copy(), {'position_error_m': float(np.linalg.norm(dp)), 'orientation_error_rad': float(np.linalg.norm(dr)), 'converged': False}
 
     def candidates(self, world, count, iterations):
         tic = time.perf_counter()
-        start = world.data.qpos[:7].copy()
+        start = world.data.qpos[:self.arm_dof].copy()
         goal, ik = self.ik(world)
         scratch = RobotWorld(world.model, mj.MjData(world.model), world.config, world.seed, world.model_hash)
         scratch.data.qpos[:] = world.data.qpos
 
         def valid(q):
-            scratch.data.qpos[:7] = q
+            scratch.data.qpos[:self.arm_dof] = q
             mj.mj_forward(scratch.model, scratch.data)
             return not self.contacts(scratch)
 
@@ -153,7 +156,7 @@ class RoboticsBackend:
             found = None
             if ik['converged'] and valid(start) and valid(goal):
                 for _ in range(iterations):
-                    sample = goal if rng.random() < 0.2 else rng.uniform(world.model.jnt_range[:7, 0]+0.03, world.model.jnt_range[:7, 1]-0.03)
+                    sample = goal if rng.random() < 0.2 else rng.uniform(world.model.jnt_range[:self.arm_dof, 0]+0.03, world.model.jnt_range[:self.arm_dof, 1]-0.03)
                     idx = int(np.argmin([np.linalg.norm(n-sample) for n in nodes]))
                     diff = sample-nodes[idx]
                     q = nodes[idx] + diff*min(1., 0.3/max(np.linalg.norm(diff), 1e-9))
@@ -180,13 +183,13 @@ class RoboticsBackend:
 
     def apply_action(self, world, action):
         waypoints = np.asarray(action['waypoints'])
-        if len(waypoints) and (waypoints.ndim != 2 or waypoints.shape[1] != 7 or not np.isfinite(waypoints).all()):
-            raise ValueError('trajectory must contain finite 7-joint waypoints')
+        if len(waypoints) and (waypoints.ndim != 2 or waypoints.shape[1] != self.arm_dof or not np.isfinite(waypoints).all()):
+            raise ValueError('trajectory joint count must match the selected model')
         if action.get('kind')!='joint_trajectory':
             raise ValueError('unsupported robot action')
         if len(waypoints)>2048:
             raise ValueError('trajectory exceeds waypoint limit')
-        if len(waypoints) and not np.allclose(waypoints[0],world.data.qpos[:7],rtol=0,atol=1e-6):
+        if len(waypoints) and not np.allclose(waypoints[0],world.data.qpos[:self.arm_dof],rtol=0,atol=1e-6):
             raise ValueError('trajectory must start from its independently restored parent')
         world.action = deepcopy(action)
 
@@ -209,7 +212,7 @@ class RoboticsBackend:
                     alpha = min(1., (i+1)*m.opt.timestep/duration)
                     # Smooth interpolation reduces actuator tracking transients.
                     blend = alpha*alpha*(3-2*alpha)
-                    d.ctrl[:7] = a + (b-a)*blend
+                    d.ctrl[:self.arm_dof] = a + (b-a)*blend
                     failure, contacts = self.step(world, start_time, limits)
                     steps += 1
                     if steps % 25 == 0 or failure:
@@ -217,7 +220,7 @@ class RoboticsBackend:
                     if failure:
                         violations.extend(contacts); break
             if not failure:
-                d.ctrl[:7] = path[-1]
+                d.ctrl[:self.arm_dof] = path[-1]
                 for _ in range(500):
                     failure, contacts = self.step(world, start_time, limits); steps += 1
                     if steps % 25 == 0 or failure:
@@ -236,7 +239,7 @@ class RoboticsBackend:
         mj.mj_step(m, d)
         if not np.isfinite(d.qpos).all() or not np.isfinite(d.qvel).all() or np.max(np.abs(d.qvel)) > 100 or np.any(d.warning.number):
             return 'controller_failure', []
-        if np.any(d.qpos[:7] < m.jnt_range[:7, 0]-0.002) or np.any(d.qpos[:7] > m.jnt_range[:7, 1]+0.002):
+        if np.any((d.qpos[:self.arm_dof] < m.jnt_range[:self.arm_dof, 0]-0.002)&m.jnt_limited[:self.arm_dof]) or np.any((d.qpos[:self.arm_dof] > m.jnt_range[:self.arm_dof, 1]+0.002)&m.jnt_limited[:self.arm_dof]):
             return 'joint_limit_failure', []
         mj.mj_forward(m, d)
         contacts = self.contacts(world)
@@ -255,7 +258,7 @@ class RoboticsBackend:
         if not failure and (error > 0.02 or orientation > 0.08):
             failure = 'controller_failure'
         trace=result['trace']
-        path_length=float(sum(np.linalg.norm(np.asarray(b['qpos'][:7])-a['qpos'][:7]) for a,b in zip(trace[:-1],trace[1:])))
+        path_length=float(sum(np.linalg.norm(np.asarray(b['qpos'][:self.arm_dof])-a['qpos'][:self.arm_dof]) for a,b in zip(trace[:-1],trace[1:])))
         return {'success': failure is None, 'status': failure or 'execution_success', 'planning_feasible': world.action['planning_feasible'], 'goal_error_m': error, 'orientation_error_rad': orientation, 'contact_violations': result['contact_violations'], 'execution_duration_s': result['execution_duration_s'], 'joint_path_length_rad':path_length, 'milestone': 'collision_free_reach'}
 
     def commit(self, state):
