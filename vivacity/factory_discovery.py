@@ -20,7 +20,7 @@ def _metrics(actual, predicted, reference_variation=0.):
     total = float(np.sum((actual - np.mean(actual)) ** 2))
     # A nearly flat future window has no useful variance denominator. Keep
     # residual errors, but do not display an arbitrarily huge R² quotient.
-    meaningful = total > max(1e-20, len(actual) * (reference_variation * 1e-3) ** 2)
+    meaningful = total > max(1e-20, len(actual) * (reference_variation * .05) ** 2)
     return {'rmse': rmse, 'mae': mae, 'r2': 1 - float(np.sum(residual * residual)) / total if meaningful else None}
 
 

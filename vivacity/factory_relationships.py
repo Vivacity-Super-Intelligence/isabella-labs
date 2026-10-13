@@ -14,7 +14,7 @@ def _scores(actual,predicted,reference_variation=0.):
     mse=float(np.mean(residual*residual))
     total=float(np.sum((actual-np.mean(actual))**2))
     return {'rmse':math.sqrt(mse),'mae':float(np.mean(np.abs(residual))),
-            'r2':1-float(np.sum(residual*residual))/total if total>max(1e-20,len(actual)*(reference_variation*1e-3)**2) else None}
+            'r2':1-float(np.sum(residual*residual))/total if total>max(1e-20,len(actual)*(reference_variation*.05)**2) else None}
 
 
 def infer_joint_torque(rows,run_id):
