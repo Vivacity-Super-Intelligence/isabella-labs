@@ -1,0 +1,475 @@
+{
+  "base_url": "https://demo.tryvivacity.com/runtime",
+  "robot": "panda",
+  "available_robots": [
+    "panda",
+    "ur5e",
+    "iiwa",
+    "gen3",
+    "scara",
+    "dual_arm",
+    "xarm7"
+  ],
+  "prebuilt_world_count": 13,
+  "provider_configuration": {
+    "openai_configured": true,
+    "worldlabs_configured": true
+  },
+  "experiment_id": "c9cec373-2cb3-4672-b1c6-113f888a0897",
+  "validation_trials": 3,
+  "fresh_execution": {
+    "success": true,
+    "status": "execution_success",
+    "milestone": "physical_pick_and_place",
+    "planning_feasible": true,
+    "goal_error_m": 0.001062111779996987,
+    "final_cube_position": [
+      0.49965765546339236,
+      0.17995397262704055,
+      0.024995627991030358
+    ],
+    "grasp_established": true,
+    "lifted": true,
+    "retained_during_transport": true,
+    "released": true,
+    "table_supported": true,
+    "max_cube_height_m": 0.17674349733051434,
+    "max_tracking_error_rad": 0.04807929042322409,
+    "max_tracking_error_m": 0.0,
+    "contact_violations": [],
+    "phase_evidence": [
+      {
+        "phase": "approach",
+        "time": 4.179999999999762,
+        "cube_position": [
+          0.5,
+          -0.15,
+          0.024995627990993547
+        ],
+        "finger_contacts": [],
+        "bilateral_grasp": false,
+        "cube_contact_normal_force_n": 0.5885999994782642,
+        "table_support": true
+      },
+      {
+        "phase": "descend",
+        "time": 5.567999999999609,
+        "cube_position": [
+          0.5,
+          -0.15,
+          0.024995627991027617
+        ],
+        "finger_contacts": [],
+        "bilateral_grasp": false,
+        "cube_contact_normal_force_n": 0.5886000000097041,
+        "table_support": true
+      },
+      {
+        "phase": "close",
+        "time": 6.437999999999513,
+        "cube_position": [
+          0.5000903463224607,
+          -0.14864925336213186,
+          0.024986415651367583
+        ],
+        "finger_contacts": [
+          "left_finger",
+          "right_finger"
+        ],
+        "bilateral_grasp": true,
+        "cube_contact_normal_force_n": 4.324964149136551,
+        "table_support": true
+      },
+      {
+        "phase": "lift",
+        "time": 7.82399999999936,
+        "cube_position": [
+          0.5001219909494772,
+          -0.14857779141425279,
+          0.17657882276137
+        ],
+        "finger_contacts": [
+          "left_finger",
+          "right_finger"
+        ],
+        "bilateral_grasp": true,
+        "cube_contact_normal_force_n": 2.499716912426072,
+        "table_support": false
+      },
+      {
+        "phase": "transport",
+        "time": 10.196000000000074,
+        "cube_position": [
+          0.49960899552397886,
+          0.1798405674394362,
+          0.1767166359750364
+        ],
+        "finger_contacts": [
+          "left_finger",
+          "right_finger"
+        ],
+        "bilateral_grasp": true,
+        "cube_contact_normal_force_n": 2.499114123332222,
+        "table_support": false
+      },
+      {
+        "phase": "lower",
+        "time": 11.56200000000053,
+        "cube_position": [
+          0.49966662705580556,
+          0.1799573748280017,
+          0.024980299431084974
+        ],
+        "finger_contacts": [
+          "left_finger",
+          "right_finger"
+        ],
+        "bilateral_grasp": true,
+        "cube_contact_normal_force_n": 5.324701781273366,
+        "table_support": true
+      },
+      {
+        "phase": "release",
+        "time": 12.296000000000776,
+        "cube_position": [
+          0.49965765546419577,
+          0.17995397262734558,
+          0.024995627991030292
+        ],
+        "finger_contacts": [],
+        "bilateral_grasp": false,
+        "cube_contact_normal_force_n": 0.5886000000000084,
+        "table_support": true
+      },
+      {
+        "phase": "retract",
+        "time": 14.062000000001365,
+        "cube_position": [
+          0.49965765546339236,
+          0.17995397262704055,
+          0.024995627991030358
+        ],
+        "finger_contacts": [],
+        "bilateral_grasp": false,
+        "cube_contact_normal_force_n": 0.5886000000001574,
+        "table_support": true
+      }
+    ],
+    "execution_duration_s": 14.062000000001365
+  },
+  "performance": {
+    "job_wall_seconds": 28.387546812184155,
+    "process_cpu_seconds": 4.219637513000009,
+    "queue_wait_seconds": 0.0059246039018034935,
+    "planning_wall_seconds": 7.80168154463172,
+    "physics_wall_seconds": 25.541006189770997,
+    "candidate_count": 4,
+    "simulation_steps": 28941,
+    "integration_calls": 242,
+    "replay_payload_bytes": 2186475,
+    "branch_failure_rate": 0.0,
+    "adapter_error_count": 0,
+    "measurement_complete": true,
+    "job_error_rate": 0.0,
+    "compute": "CPU; one worker; process CPU time includes concurrent API activity; no billed model calls under deterministic policy",
+    "trial_count": 3,
+    "integrated_trial_count": 3,
+    "trial_simulation_steps": 21910,
+    "trial_integration_calls": 183,
+    "trial_physics_wall_seconds": 20.249413578771055,
+    "trial_failure_rate": 0.0,
+    "trial_engine": "mujoco.rollout/contact-sensors-v1",
+    "stopping_reason": "candidate_exhausted",
+    "physics_trial_workers": 2,
+    "peak_parallel_trials": 2
+  },
+  "replay_bytes": 2324377,
+  "event_count": 12,
+  "live_sequence": 155,
+  "live_simulation_time": 14.062000000001365,
+  "invalidation_verified": true,
+  "new_experiment_id": "85a8f41c-5545-4ada-b019-9ff30da186e9",
+  "new_branch_evaluations": [
+    {
+      "success": true,
+      "status": "execution_success",
+      "milestone": "physical_pick_and_place",
+      "planning_feasible": true,
+      "goal_error_m": 0.0010217163941126037,
+      "final_cube_position": [
+        0.4998166453343084,
+        0.17996098302721553,
+        0.024995627991030056
+      ],
+      "grasp_established": true,
+      "lifted": true,
+      "retained_during_transport": true,
+      "released": true,
+      "table_supported": true,
+      "max_cube_height_m": 0.17686813926228914,
+      "max_tracking_error_rad": 0.04802482735970115,
+      "max_tracking_error_m": 0.0,
+      "contact_violations": [],
+      "phase_evidence": [
+        {
+          "phase": "approach",
+          "time": 3.537999999999832,
+          "cube_position": [
+            0.4999999999999396,
+            -0.2500000000000974,
+            0.024995627991030264
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5885999999999998,
+          "table_support": true
+        },
+        {
+          "phase": "descend",
+          "time": 4.8439999999996886,
+          "cube_position": [
+            0.4999999999999396,
+            -0.2500000000000974,
+            0.024995627991030264
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.588600000000053,
+          "table_support": true
+        },
+        {
+          "phase": "close",
+          "time": 5.713999999999593,
+          "cube_position": [
+            0.5000877982274597,
+            -0.25059957515325015,
+            0.024989066092436302
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 3.9682708461224623,
+          "table_support": true
+        },
+        {
+          "phase": "lift",
+          "time": 7.017999999999449,
+          "cube_position": [
+            0.5002748879028327,
+            -0.2507305051799056,
+            0.17669719144689278
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 2.4996966963986442,
+          "table_support": false
+        },
+        {
+          "phase": "transport",
+          "time": 10.016000000000014,
+          "cube_position": [
+            0.4997810043415815,
+            0.17987166316391817,
+            0.17684589474583845
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 2.4991475689288665,
+          "table_support": false
+        },
+        {
+          "phase": "lower",
+          "time": 11.38000000000047,
+          "cube_position": [
+            0.4998192664875325,
+            0.17996454762013142,
+            0.025069700359035732
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 2.4998577183500057,
+          "table_support": false
+        },
+        {
+          "phase": "release",
+          "time": 12.114000000000715,
+          "cube_position": [
+            0.49981664533410625,
+            0.17996098302658078,
+            0.024995627991030306
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5885999999999062,
+          "table_support": true
+        },
+        {
+          "phase": "retract",
+          "time": 13.878000000001304,
+          "cube_position": [
+            0.4998166453343084,
+            0.17996098302721553,
+            0.024995627991030056
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5886000000047775,
+          "table_support": true
+        }
+      ],
+      "execution_duration_s": 13.878000000001304
+    },
+    {
+      "success": true,
+      "status": "execution_success",
+      "milestone": "physical_pick_and_place",
+      "planning_feasible": true,
+      "goal_error_m": 0.0010679785943196057,
+      "final_cube_position": [
+        0.5002946478587861,
+        0.18021212681309945,
+        0.024995627991030254
+      ],
+      "grasp_established": true,
+      "lifted": true,
+      "retained_during_transport": true,
+      "released": true,
+      "table_supported": true,
+      "max_cube_height_m": 0.20656576303182825,
+      "max_tracking_error_rad": 0.042696874611611424,
+      "max_tracking_error_m": 0.0,
+      "contact_violations": [],
+      "phase_evidence": [
+        {
+          "phase": "approach",
+          "time": 2.873999999999905,
+          "cube_position": [
+            0.4999999999999396,
+            -0.2500000000000974,
+            0.024995627991030264
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5885999999999959,
+          "table_support": true
+        },
+        {
+          "phase": "descend",
+          "time": 4.481999999999728,
+          "cube_position": [
+            0.4999999999999396,
+            -0.2500000000000974,
+            0.024995627991030264
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5886,
+          "table_support": true
+        },
+        {
+          "phase": "close",
+          "time": 5.173999999999652,
+          "cube_position": [
+            0.5006952513431144,
+            -0.25068238643014645,
+            0.024993376648575174
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 4.276337937266204,
+          "table_support": true
+        },
+        {
+          "phase": "lift",
+          "time": 6.7779999999994756,
+          "cube_position": [
+            0.5007522039526947,
+            -0.25062683723821394,
+            0.20645552042051224
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 3.3822880071431136,
+          "table_support": false
+        },
+        {
+          "phase": "transport",
+          "time": 10.050000000000026,
+          "cube_position": [
+            0.5001745880005413,
+            0.18007369956456734,
+            0.20623513596593687
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 3.382569502781874,
+          "table_support": false
+        },
+        {
+          "phase": "lower",
+          "time": 11.748000000000593,
+          "cube_position": [
+            0.5002981634680922,
+            0.18021864250380032,
+            0.02497141150174257
+          ],
+          "finger_contacts": [
+            "left_finger",
+            "right_finger"
+          ],
+          "bilateral_grasp": true,
+          "cube_contact_normal_force_n": 6.925932922657116,
+          "table_support": true
+        },
+        {
+          "phase": "release",
+          "time": 12.512000000000848,
+          "cube_position": [
+            0.5002946478586878,
+            0.1802121268129371,
+            0.024995627991030264
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.588600000000052,
+          "table_support": true
+        },
+        {
+          "phase": "retract",
+          "time": 14.610000000001548,
+          "cube_position": [
+            0.5002946478587861,
+            0.18021212681309945,
+            0.024995627991030254
+          ],
+          "finger_contacts": [],
+          "bilateral_grasp": false,
+          "cube_contact_normal_force_n": 0.5885999999999999,
+          "table_support": true
+        }
+      ],
+      "execution_duration_s": 14.610000000001548
+    }
+  ],
+  "wall_seconds": 59.68480170000112
+}

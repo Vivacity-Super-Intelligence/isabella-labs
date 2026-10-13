@@ -23,7 +23,7 @@ The API and reproduction commands are in [FACTORY_RUNTIME_HANDOFF.md](FACTORY_RU
 | Projects | Append-only configuration versions, owned result attachments, comparison and declared creator/team labels | File-based sharing; no authenticated accounts, invitations, roles or live multi-user editing |
 | Legacy workcells | Existing seven robot adapters, constrained operations, native parallel trials and REST/WSS retained | Existing declared controller/fixture limits remain; primary-arm dual model is not bimanual control |
 | World Labs | Existing owned generation and real spatial assets retained separately from collision/physics | No new live generation is needed for factory acceptance; previous provider evidence is in the spatial release report; no Atlas access claim |
-| Hosting | Existing Vercel frontend and Render Docker deployment target; 512 MiB acceptance gate | Free service sleeps; no paid uptime guarantee/disk was activated; deployment must be verified before marked released |
+| Hosting | Vercel frontend and Render Docker deployed; real public HTTP/WSS/browser acceptance; two passing 512 MiB runs | Free service sleeps; persistence is ephemeral; exports reach the memory limit; no paid uptime guarantee/disk was activated |
 
 ## Evidence mapping
 
@@ -48,3 +48,6 @@ Priority follow-ups: durable managed persistence and authenticated ownership;
 long-duration bounded batch execution; hardware/calibration validation; a trained
 perception pipeline evaluated separately from simulator annotations. None of these
 is required to inspect the currently implemented native simulation evidence.
+
+Final release identities, actual test totals, public timings and corrected gate
+failures are in [FACTORY_RELEASE.md](FACTORY_RELEASE.md).

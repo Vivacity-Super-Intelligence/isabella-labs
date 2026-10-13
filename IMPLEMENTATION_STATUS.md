@@ -1,3 +1,43 @@
+# Autonomous factory release — 2026-10-14
+
+Deployed and verified at https://demo.tryvivacity.com/. Built as P0–P10 slices,
+then checked through the P11 release gate; each stage has its own test/browser
+evidence in [FACTORY_STAGE_GATES.md](docs/FACTORY_STAGE_GATES.md).
+
+Working: physical conveyor transport, native Panda contact grasp/lift/transfer,
+shuttle routing and verified bin delivery; explicit Start/Pause/Resume/Reset;
+real MuJoCo camera/depth/semantic observations; measured SI telemetry; synchronized
+charts/replay; repeated training/held-out comparisons; strict idle JSON import;
+complete exports; saved-data PDF/ZIP; versioned project notebooks. Existing
+workcells, spatial assets and REST/WSS remain available.
+
+Executed results: **289/289 Linux tests**, zero failures/errors/skips; **4/4 hard
+512 MiB tests twice**; **31/31 frontend checks**; TypeScript, Vite and Vercel builds
+passed. Public HTTP completed successful and failed contact runs and all six
+benchmark trials (three baseline successes, three weak-grip failures). Public WSS,
+replay and geometry invalidation passed. The deployed browser completed a physical
+delivery, froze/resumed at 7.000 s, replayed 9.188 s, captured an actual camera,
+imported without starting, downloaded a PDF and passed narrow-layout inspection.
+
+Actual public measurements: one delivery used 17,080 integration steps, 34.160
+simulated seconds, 125.402 wall seconds and 17.244 worker CPU seconds. The six-trial
+benchmark used 65,145 steps and 482.340 wall seconds. Both hard-limit tests reached
+512 MiB peak during archives with zero OOM kills; unrestricted concurrency is not
+validated. Initial OOM failures and a Vercel packaging failure were fixed and the
+corresponding gates rerun. All six public PDF pages were visually inspected.
+
+Limits: 1–3 cartons, one tested factory Panda controller, 6–10 serial comparison
+trials; semantic camera labels are simulator annotations, not learned perception;
+no hardware calibration, electrical-consumption model, authenticated team roles
+or live collaboration. Render Free sleeps and uses ephemeral storage. A paid,
+durable always-on deployment was not activated. Export important experiments.
+
+[FACTORY_RELEASE.md](docs/FACTORY_RELEASE.md) records exact source/deployment IDs,
+tests, public performance, corrected failures and remaining risks.
+[FACTORY_CAPABILITIES.md](docs/FACTORY_CAPABILITIES.md) lists implemented versus
+incomplete functionality. [FACTORY_RUNTIME_HANDOFF.md](docs/FACTORY_RUNTIME_HANDOFF.md)
+contains exact APIs, frontend files, examples and reproduction commands.
+
 # Spatial world pipeline — 2026-10-13
 
 Deployed owned image/multi-image/panorama/video capture contracts, actual asynchronous World Labs generation, preserved original collider/thumbnail assets, separated representation/readiness evidence, streamed SPZ decoding with view-dependent Spark LoD, three rendering quality levels and seeded physical condition/held-out reports. Added persisted object-trajectory measurement comparison. Physics remains real MuJoCo and the current interface/runtime are preserved.

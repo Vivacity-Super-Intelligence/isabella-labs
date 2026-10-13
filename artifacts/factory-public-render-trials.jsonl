@@ -1,0 +1,6 @@
+{"benchmark_id":"e0d968ad-1c93-4930-bf06-0e1b14d15f70","run_id":"3338ed69-e37d-4536-b54a-bf7a6d28f480","partition":"training","condition":"baseline","status":"completed","simulation_steps":17080}
+{"benchmark_id":"e0d968ad-1c93-4930-bf06-0e1b14d15f70","run_id":"46eabbde-a8b1-4f9b-a11a-fbbc9b314fd7","partition":"training","condition":"candidate","status":"failed","simulation_steps":4636}
+{"benchmark_id":"e0d968ad-1c93-4930-bf06-0e1b14d15f70","run_id":"7e44e864-8d20-45d5-a147-ebbba21e669a","partition":"training","condition":"baseline","status":"completed","simulation_steps":17080}
+{"benchmark_id":"e0d968ad-1c93-4930-bf06-0e1b14d15f70","run_id":"3dd92bf3-fa51-497e-b0b8-39478af60be1","partition":"training","condition":"candidate","status":"failed","simulation_steps":4636}
+{"benchmark_id":"e0d968ad-1c93-4930-bf06-0e1b14d15f70","run_id":"9be63040-5f10-4c1a-959a-06590ef41dfb","partition":"held_out","condition":"baseline","status":"completed","simulation_steps":17088}
+{"benchmark_id":"e0d968ad-1c93-4930-bf06-0e1b14d15f70","run_id":"a61700c8-337a-4ef4-99d8-1e3c18c56f7b","partition":"held_out","condition":"candidate","status":"failed","simulation_steps":4625}

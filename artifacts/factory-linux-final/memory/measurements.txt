@@ -1,0 +1,51 @@
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.1118988Z tests/test_factory_host_capacity.py::test_factory_camera_three_cartons_history_and_report_with_host_limit factory app ready ['VmHWM:\t  369736 kB', 'VmRSS:\t  294776 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.1120405Z memory.current 289132544
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.1120866Z memory.peak 315584512
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.1122764Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.1123032Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.2522608Z factory cell ready ['VmHWM:\t  369736 kB', 'VmRSS:\t  284908 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.2529669Z memory.current 278786048
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.2532930Z memory.peak 315584512
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.2534631Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.2534898Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.8886642Z camera captured ['VmHWM:\t  379320 kB', 'VmRSS:\t  312704 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.8887491Z memory.current 283746304
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.8890132Z memory.peak 350044160
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.8891451Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:50:47.8891714Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:15.9304868Z camera during production ['VmHWM:\t  385128 kB', 'VmRSS:\t  319268 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:15.9313565Z memory.current 319815680
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:15.9314777Z memory.peak 381145088
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:15.9316043Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:15.9316361Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:36.9723825Z three cartons delivered ['VmHWM:\t  385128 kB', 'VmRSS:\t  322396 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:36.9724925Z memory.current 345464832
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:36.9732304Z memory.peak 381145088
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:36.9734511Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:36.9734972Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.1049559Z history and replay queried ['VmHWM:\t  385128 kB', 'VmRSS:\t  329780 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.1051831Z memory.current 352968704
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.1052268Z memory.peak 381145088
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.1059320Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.1059555Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.2078369Z complete JSON exported ['VmHWM:\t  461360 kB', 'VmRSS:\t  461360 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.2079534Z memory.current 487837696
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.2079900Z memory.peak 487837696
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.2082401Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:37.2082665Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:42.2732220Z PDF prepared ['VmHWM:\t  501792 kB', 'VmRSS:\t  501792 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:42.2733139Z memory.current 526016512
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:42.2737688Z memory.peak 526016512
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:42.2738936Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:42.2739190Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.7027751Z ZIP prepared ['VmHWM:\t  518192 kB', 'VmRSS:\t  427124 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.7029954Z memory.current 434814976
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.7032356Z memory.peak 536870912
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.7033831Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.7034101Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.9238896Z final camera captured ['VmHWM:\t  518192 kB', 'VmRSS:\t  367432 kB']
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.9240727Z memory.current 377602048
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.9241943Z memory.peak 536870912
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.9244912Z oom 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.9245399Z oom_kill 0
+backend (0)	Execute all labs within the free host memory limit	2026-10-13T19:51:57.9347983Z =================== 4 passed, 1 warning in 140.23s (0:02:20) ===================

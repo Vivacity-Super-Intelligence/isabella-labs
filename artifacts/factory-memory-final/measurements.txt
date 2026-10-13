@@ -1,0 +1,55 @@
+memory	Execute every model under the host memory limit	2026-10-13T19:43:47.5928034Z tests/test_host_capacity.py::test_all_labs_execute_sequentially_in_host_container PASSED
+memory	Execute every model under the host memory limit	2026-10-13T19:44:01.3963233Z PASSED
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.1360563Z tests/test_host_capacity.py::test_parallel_trials_with_world_creation_and_concurrent_reads PASSED
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.1722822Z tests/test_factory_host_capacity.py::test_factory_camera_three_cartons_history_and_report_with_host_limit factory app ready ['VmHWM:\t  375608 kB', 'VmRSS:\t  296852 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.1723848Z memory.current 286146560
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.1724333Z memory.peak 319168512
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.1725424Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.1725716Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.2872596Z factory cell ready ['VmHWM:\t  375608 kB', 'VmRSS:\t  281232 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.2880565Z memory.current 270254080
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.2881174Z memory.peak 319168512
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.2882168Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.2882377Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.7619079Z camera captured ['VmHWM:\t  382500 kB', 'VmRSS:\t  312788 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.7620733Z memory.current 290918400
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.7621455Z memory.peak 348602368
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.7622371Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:07.7622575Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:29.7824872Z camera during production ['VmHWM:\t  383504 kB', 'VmRSS:\t  317456 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:44:29.7840436Z memory.current 331292672
+memory	Execute every model under the host memory limit	2026-10-13T19:44:29.7867772Z memory.peak 388640768
+memory	Execute every model under the host memory limit	2026-10-13T19:44:29.7879994Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:29.7880359Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.5141676Z memory.current 359534592
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.5142266Z memory.peak 388640768
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.5143307Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.5143531Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.6203001Z memory.current 368349184
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.6206132Z memory.peak 388640768
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.6210914Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.6211410Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.7049414Z complete JSON exported ['VmHWM:\t  484356 kB', 'VmRSS:\t  440112 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.7050650Z memory.current 481509376
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.7056511Z memory.peak 526815232
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.7058273Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:46.7058790Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:50.6968123Z PDF prepared ['VmHWM:\t  484356 kB', 'VmRSS:\t  464736 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:44:50.6968962Z memory.current 503369728
+memory	Execute every model under the host memory limit	2026-10-13T19:44:50.6969250Z memory.peak 526815232
+memory	Execute every model under the host memory limit	2026-10-13T19:44:50.6970080Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:44:50.6970221Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.4999872Z ZIP prepared ['VmHWM:\t  517712 kB', 'VmRSS:\t  517712 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.5000618Z memory.current 536715264
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.5000941Z memory.peak 536870912
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.5002884Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.5003108Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.7562309Z final camera captured ['VmHWM:\t  517692 kB', 'VmRSS:\t  330852 kB']
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.7563215Z memory.current 347369472
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.7563683Z memory.peak 536870912
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.7564635Z oom 0
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.7564845Z oom_kill 0
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.7611908Z PASSED
+memory	Execute every model under the host memory limit	2026-10-13T19:45:02.7625346Z =================== 4 passed, 1 warning in 115.86s (0:01:55) ===================
+memory	Run actions/upload-artifact@v4	2026-10-13T19:45:04.0050361Z SHA256 digest of uploaded artifact zip is 03bba56008676fb348db967946bfa9426658226652189fd534588f82ca830105
+memory	Run actions/upload-artifact@v4	2026-10-13T19:45:04.2640861Z Artifact host-memory-verification.zip successfully finalized. Artifact ID 11842537650

@@ -1,0 +1,463 @@
+{
+  "id": "e0d968ad-1c93-4930-bf06-0e1b14d15f70",
+  "schema_version": "vivacity.factory-benchmark-record/1.0",
+  "created_at": 1791921419.5288405,
+  "name": "Contact robustness verification",
+  "status": "completed",
+  "phase": "finished",
+  "cell_id": "c450c8c0-c3fb-443f-a60e-fc384167e434",
+  "software": {
+    "engine": "MuJoCo",
+    "engine_version": "3.15.0",
+    "numpy_version": "2.5.3",
+    "scipy_version": "1.18.1",
+    "python_version": "3.12",
+    "controller_sha256": "267b13ec7fcc9e578fb1ef7c8518c06d197916b2c3358135b2595563b2834271",
+    "robot_assets_sha256": "6d066a44c71a13028bd8b0c91cb7d960c3fdd681709a0d19cd2cbe7db4be9899",
+    "world_sha256": "ef35b982a18faea88a5bffa1c28f28125ac1e3718bad88d6b696203c5870fb23"
+  },
+  "definition": {
+    "schema_version": "vivacity.factory-benchmark/1.0",
+    "task": "small_carton_grip_transfer_and_mass_sort",
+    "world_version": "vivacity.sorting-cell/1.0",
+    "robot": "MuJoCo Menagerie Franka Panda",
+    "physics_timestep_s": 0.002,
+    "trial_configurations": [
+      {
+        "partition": "training",
+        "repeat": 0,
+        "condition": "baseline",
+        "config": {
+          "schema_version": "vivacity.factory-settings/1.0",
+          "name": "Carton sorting baseline",
+          "seed": 19,
+          "carton_count": 1,
+          "carton_mass_kg": 0.06,
+          "carton_friction": 0.8,
+          "carton_half_size_m": 0.025,
+          "carton_start_x_m": 0.5,
+          "carton_start_y_m": -0.4,
+          "conveyor_speed_m_s": 0.09,
+          "arrival_interval_s": 18.0,
+          "realtime_speed": 8.0,
+          "sort_threshold_kg": 0.07,
+          "gripper_force_scale": 1.0
+        }
+      },
+      {
+        "partition": "training",
+        "repeat": 0,
+        "condition": "candidate",
+        "config": {
+          "schema_version": "vivacity.factory-settings/1.0",
+          "name": "Carton sorting baseline",
+          "seed": 19,
+          "carton_count": 1,
+          "carton_mass_kg": 0.15,
+          "carton_friction": 0.05,
+          "carton_half_size_m": 0.025,
+          "carton_start_x_m": 0.5,
+          "carton_start_y_m": -0.4,
+          "conveyor_speed_m_s": 0.09,
+          "arrival_interval_s": 18.0,
+          "realtime_speed": 8.0,
+          "sort_threshold_kg": 0.07,
+          "gripper_force_scale": 0.005
+        }
+      },
+      {
+        "partition": "training",
+        "repeat": 1,
+        "condition": "baseline",
+        "config": {
+          "schema_version": "vivacity.factory-settings/1.0",
+          "name": "Carton sorting baseline",
+          "seed": 20,
+          "carton_count": 1,
+          "carton_mass_kg": 0.06,
+          "carton_friction": 0.8,
+          "carton_half_size_m": 0.025,
+          "carton_start_x_m": 0.5,
+          "carton_start_y_m": -0.4,
+          "conveyor_speed_m_s": 0.09,
+          "arrival_interval_s": 18.0,
+          "realtime_speed": 8.0,
+          "sort_threshold_kg": 0.07,
+          "gripper_force_scale": 1.0
+        }
+      },
+      {
+        "partition": "training",
+        "repeat": 1,
+        "condition": "candidate",
+        "config": {
+          "schema_version": "vivacity.factory-settings/1.0",
+          "name": "Carton sorting baseline",
+          "seed": 20,
+          "carton_count": 1,
+          "carton_mass_kg": 0.15,
+          "carton_friction": 0.05,
+          "carton_half_size_m": 0.025,
+          "carton_start_x_m": 0.5,
+          "carton_start_y_m": -0.4,
+          "conveyor_speed_m_s": 0.09,
+          "arrival_interval_s": 18.0,
+          "realtime_speed": 8.0,
+          "sort_threshold_kg": 0.07,
+          "gripper_force_scale": 0.005
+        }
+      },
+      {
+        "partition": "held_out",
+        "repeat": 0,
+        "condition": "baseline",
+        "config": {
+          "schema_version": "vivacity.factory-settings/1.0",
+          "name": "Carton sorting baseline",
+          "seed": 100022,
+          "carton_count": 1,
+          "carton_mass_kg": 0.06,
+          "carton_friction": 0.8,
+          "carton_half_size_m": 0.025,
+          "carton_start_x_m": 0.49567366460473783,
+          "carton_start_y_m": -0.3998610375291668,
+          "conveyor_speed_m_s": 0.09,
+          "arrival_interval_s": 18.0,
+          "realtime_speed": 8.0,
+          "sort_threshold_kg": 0.07,
+          "gripper_force_scale": 1.0
+        }
+      },
+      {
+        "partition": "held_out",
+        "repeat": 0,
+        "condition": "candidate",
+        "config": {
+          "schema_version": "vivacity.factory-settings/1.0",
+          "name": "Carton sorting baseline",
+          "seed": 100022,
+          "carton_count": 1,
+          "carton_mass_kg": 0.15,
+          "carton_friction": 0.05,
+          "carton_half_size_m": 0.025,
+          "carton_start_x_m": 0.49567366460473783,
+          "carton_start_y_m": -0.3998610375291668,
+          "conveyor_speed_m_s": 0.09,
+          "arrival_interval_s": 18.0,
+          "realtime_speed": 8.0,
+          "sort_threshold_kg": 0.07,
+          "gripper_force_scale": 0.005
+        }
+      }
+    ],
+    "success_criterion": "Every configured carton has bilateral grip, retained lift/transfer, release onto transfer rollers and contact with its mass-selected bin floor; no prohibited robot contact, controller, joint-limit or timeout failure.",
+    "selection_criterion": "Training full-batch success rate, then mean successful simulation duration. Ties remain ties; no successes means no selected condition.",
+    "held_out_protocol": "Seed offset 100003; matched unseen starting X/Y perturbations up to 15/35 mm, clipped to the supported infeed. Settings frozen before any trial.",
+    "definition_sha256": "c35a9210c6a024807a0750a61eb57a30e79c6a4a23862f6e8740d3db05bce852"
+  },
+  "request": {
+    "schema_version": "vivacity.factory-benchmark-request/1.0",
+    "name": "Contact robustness verification",
+    "repeats": 2,
+    "held_out_repeats": 1,
+    "changes": {
+      "carton_mass_kg": 0.15,
+      "carton_friction": 0.05,
+      "conveyor_speed_m_s": null,
+      "gripper_force_scale": 0.005
+    }
+  },
+  "engine": {
+    "name": "MuJoCo",
+    "version": "3.15.0"
+  },
+  "controller_version": "factory-1",
+  "trials": [
+    {
+      "partition": "training",
+      "repeat": 0,
+      "condition": "baseline",
+      "config": {
+        "schema_version": "vivacity.factory-settings/1.0",
+        "name": "Carton sorting baseline",
+        "seed": 19,
+        "carton_count": 1,
+        "carton_mass_kg": 0.06,
+        "carton_friction": 0.8,
+        "carton_half_size_m": 0.025,
+        "carton_start_x_m": 0.5,
+        "carton_start_y_m": -0.4,
+        "conveyor_speed_m_s": 0.09,
+        "arrival_interval_s": 18.0,
+        "realtime_speed": 8.0,
+        "sort_threshold_kg": 0.07,
+        "gripper_force_scale": 1.0
+      },
+      "run_id": "3338ed69-e37d-4536-b54a-bf7a6d28f480",
+      "status": "completed",
+      "failure_kind": null,
+      "metrics": {
+        "cartons_sorted": 1,
+        "station_arrivals": 1,
+        "simulation_steps": 17080,
+        "simulation_time_s": 34.15999999999578,
+        "max_tracking_error_rad": 0.047111115329201425,
+        "sorting_accuracy": 1.0,
+        "scope": "small-carton contact sorting; simulator mass classification",
+        "wall_time_s": 124.70516047533602,
+        "worker_cpu_time_s": 16.816212648,
+        "integration_wall_time_s": 39.54888512287289,
+        "planning_wall_time_s": 0.4904748583212495,
+        "candidate_plans_considered": 1,
+        "recorded_sample_count": 695
+      },
+      "error": null
+    },
+    {
+      "partition": "training",
+      "repeat": 0,
+      "condition": "candidate",
+      "config": {
+        "schema_version": "vivacity.factory-settings/1.0",
+        "name": "Carton sorting baseline",
+        "seed": 19,
+        "carton_count": 1,
+        "carton_mass_kg": 0.15,
+        "carton_friction": 0.05,
+        "carton_half_size_m": 0.025,
+        "carton_start_x_m": 0.5,
+        "carton_start_y_m": -0.4,
+        "conveyor_speed_m_s": 0.09,
+        "arrival_interval_s": 18.0,
+        "realtime_speed": 8.0,
+        "sort_threshold_kg": 0.07,
+        "gripper_force_scale": 0.005
+      },
+      "run_id": "46eabbde-a8b1-4f9b-a11a-fbbc9b314fd7",
+      "status": "failed",
+      "failure_kind": "lift_failure",
+      "metrics": {
+        "cartons_sorted": 0,
+        "station_arrivals": 1,
+        "simulation_steps": 4636,
+        "simulation_time_s": 9.271999999999766,
+        "wall_time_s": 30.100987557321787,
+        "worker_cpu_time_s": 4.099710477000002,
+        "integration_wall_time_s": 9.387065633200109,
+        "planning_wall_time_s": 0.5048943618312478,
+        "candidate_plans_considered": 1,
+        "recorded_sample_count": 192
+      },
+      "error": "The carton did not clear the conveyor"
+    },
+    {
+      "partition": "training",
+      "repeat": 1,
+      "condition": "baseline",
+      "config": {
+        "schema_version": "vivacity.factory-settings/1.0",
+        "name": "Carton sorting baseline",
+        "seed": 20,
+        "carton_count": 1,
+        "carton_mass_kg": 0.06,
+        "carton_friction": 0.8,
+        "carton_half_size_m": 0.025,
+        "carton_start_x_m": 0.5,
+        "carton_start_y_m": -0.4,
+        "conveyor_speed_m_s": 0.09,
+        "arrival_interval_s": 18.0,
+        "realtime_speed": 8.0,
+        "sort_threshold_kg": 0.07,
+        "gripper_force_scale": 1.0
+      },
+      "run_id": "7e44e864-8d20-45d5-a147-ebbba21e669a",
+      "status": "completed",
+      "failure_kind": null,
+      "metrics": {
+        "cartons_sorted": 1,
+        "station_arrivals": 1,
+        "simulation_steps": 17080,
+        "simulation_time_s": 34.15999999999578,
+        "max_tracking_error_rad": 0.047111115329201425,
+        "sorting_accuracy": 1.0,
+        "scope": "small-carton contact sorting; simulator mass classification",
+        "wall_time_s": 125.90891688130796,
+        "worker_cpu_time_s": 17.079067780000003,
+        "integration_wall_time_s": 40.158211399801075,
+        "planning_wall_time_s": 0.7087382804602385,
+        "candidate_plans_considered": 1,
+        "recorded_sample_count": 695
+      },
+      "error": null
+    },
+    {
+      "partition": "training",
+      "repeat": 1,
+      "condition": "candidate",
+      "config": {
+        "schema_version": "vivacity.factory-settings/1.0",
+        "name": "Carton sorting baseline",
+        "seed": 20,
+        "carton_count": 1,
+        "carton_mass_kg": 0.15,
+        "carton_friction": 0.05,
+        "carton_half_size_m": 0.025,
+        "carton_start_x_m": 0.5,
+        "carton_start_y_m": -0.4,
+        "conveyor_speed_m_s": 0.09,
+        "arrival_interval_s": 18.0,
+        "realtime_speed": 8.0,
+        "sort_threshold_kg": 0.07,
+        "gripper_force_scale": 0.005
+      },
+      "run_id": "3dd92bf3-fa51-497e-b0b8-39478af60be1",
+      "status": "failed",
+      "failure_kind": "lift_failure",
+      "metrics": {
+        "cartons_sorted": 0,
+        "station_arrivals": 1,
+        "simulation_steps": 4636,
+        "simulation_time_s": 9.271999999999766,
+        "wall_time_s": 32.68779191095382,
+        "worker_cpu_time_s": 4.442424087999996,
+        "integration_wall_time_s": 10.304614827036858,
+        "planning_wall_time_s": 0.6984246913343668,
+        "candidate_plans_considered": 1,
+        "recorded_sample_count": 192
+      },
+      "error": "The carton did not clear the conveyor"
+    },
+    {
+      "partition": "held_out",
+      "repeat": 0,
+      "condition": "baseline",
+      "config": {
+        "schema_version": "vivacity.factory-settings/1.0",
+        "name": "Carton sorting baseline",
+        "seed": 100022,
+        "carton_count": 1,
+        "carton_mass_kg": 0.06,
+        "carton_friction": 0.8,
+        "carton_half_size_m": 0.025,
+        "carton_start_x_m": 0.49567366460473783,
+        "carton_start_y_m": -0.3998610375291668,
+        "conveyor_speed_m_s": 0.09,
+        "arrival_interval_s": 18.0,
+        "realtime_speed": 8.0,
+        "sort_threshold_kg": 0.07,
+        "gripper_force_scale": 1.0
+      },
+      "run_id": "9be63040-5f10-4c1a-959a-06590ef41dfb",
+      "status": "completed",
+      "failure_kind": null,
+      "metrics": {
+        "cartons_sorted": 1,
+        "station_arrivals": 1,
+        "simulation_steps": 17088,
+        "simulation_time_s": 34.1759999999958,
+        "max_tracking_error_rad": 0.04711199216650397,
+        "sorting_accuracy": 1.0,
+        "scope": "small-carton contact sorting; simulator mass classification",
+        "wall_time_s": 127.70974363666028,
+        "worker_cpu_time_s": 16.874539274,
+        "integration_wall_time_s": 39.304478377103806,
+        "planning_wall_time_s": 0.6013531582430005,
+        "candidate_plans_considered": 1,
+        "recorded_sample_count": 695
+      },
+      "error": null
+    },
+    {
+      "partition": "held_out",
+      "repeat": 0,
+      "condition": "candidate",
+      "config": {
+        "schema_version": "vivacity.factory-settings/1.0",
+        "name": "Carton sorting baseline",
+        "seed": 100022,
+        "carton_count": 1,
+        "carton_mass_kg": 0.15,
+        "carton_friction": 0.05,
+        "carton_half_size_m": 0.025,
+        "carton_start_x_m": 0.49567366460473783,
+        "carton_start_y_m": -0.3998610375291668,
+        "conveyor_speed_m_s": 0.09,
+        "arrival_interval_s": 18.0,
+        "realtime_speed": 8.0,
+        "sort_threshold_kg": 0.07,
+        "gripper_force_scale": 0.005
+      },
+      "run_id": "a61700c8-337a-4ef4-99d8-1e3c18c56f7b",
+      "status": "failed",
+      "failure_kind": "lift_failure",
+      "metrics": {
+        "cartons_sorted": 0,
+        "station_arrivals": 1,
+        "simulation_steps": 4625,
+        "simulation_time_s": 9.249999999999758,
+        "wall_time_s": 31.00032631121576,
+        "worker_cpu_time_s": 4.230511073000002,
+        "integration_wall_time_s": 8.955983320251107,
+        "planning_wall_time_s": 0.6044137021526694,
+        "candidate_plans_considered": 1,
+        "recorded_sample_count": 191
+      },
+      "error": "The carton did not clear the conveyor"
+    }
+  ],
+  "comparison": {
+    "partitions": {
+      "training": {
+        "baseline": {
+          "trials": 2,
+          "successes": 2,
+          "success_rate": 1.0,
+          "successful_duration_mean_s": 34.15999999999578,
+          "successful_duration_variance_s2": 0.0,
+          "failures": {}
+        },
+        "candidate": {
+          "trials": 2,
+          "successes": 0,
+          "success_rate": 0.0,
+          "successful_duration_mean_s": null,
+          "successful_duration_variance_s2": null,
+          "failures": {
+            "lift_failure": 2
+          }
+        }
+      },
+      "held_out": {
+        "baseline": {
+          "trials": 1,
+          "successes": 1,
+          "success_rate": 1.0,
+          "successful_duration_mean_s": 34.1759999999958,
+          "successful_duration_variance_s2": null,
+          "failures": {}
+        },
+        "candidate": {
+          "trials": 1,
+          "successes": 0,
+          "success_rate": 0.0,
+          "successful_duration_mean_s": null,
+          "successful_duration_variance_s2": null,
+          "failures": {
+            "lift_failure": 1
+          }
+        }
+      }
+    },
+    "selected_condition": "baseline",
+    "selection_reason": "Higher training success rate, then shorter mean successful simulation duration.",
+    "scope": "Small seeded simulation sample. Held-out trials do not change selection. No hardware reliability or statistical significance is inferred."
+  },
+  "error": null,
+  "total_trials": 6,
+  "active_run_id": null,
+  "active_phase": "lift_failure",
+  "active_time_s": 9.249999999999758,
+  "active_frame": null,
+  "wall_time_s": 482.3402060903609,
+  "worker_cpu_time_s": 64.946927853
+}

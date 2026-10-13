@@ -1,0 +1,34 @@
+{
+  "backend_source_commit": "d94a401858fffd3b54a1bbae53f7b6cc634a834f",
+  "full_regression_run": "https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38456925509",
+  "shards": [
+    {
+      "file": "artifacts/factory-linux-final/shard0/backend-linux-0.xml",
+      "tests": 112,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 398.867
+    },
+    {
+      "file": "artifacts/factory-linux-final/shard1/backend-linux-1.xml",
+      "tests": 108,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 331.729
+    },
+    {
+      "file": "artifacts/factory-linux-final/shard2/backend-linux-2.xml",
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 198.601
+    }
+  ],
+  "total_tests": 289,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0
+}

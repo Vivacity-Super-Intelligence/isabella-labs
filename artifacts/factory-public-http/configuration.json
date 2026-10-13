@@ -1,0 +1,54 @@
+{
+  "schema_version": "vivacity.factory-exchange/1.0",
+  "kind": "configuration",
+  "units": {
+    "length": "m",
+    "time": "s",
+    "mass": "kg",
+    "angle": "rad",
+    "force": "N",
+    "torque": "N m",
+    "energy": "J",
+    "power": "W"
+  },
+  "coordinates": "right-handed Z-up; XY horizontal; quaternion wxyz",
+  "software": {
+    "engine": "MuJoCo",
+    "engine_version": "3.15.0",
+    "numpy_version": "2.5.3",
+    "scipy_version": "1.18.1",
+    "python_version": "3.12",
+    "controller_sha256": "267b13ec7fcc9e578fb1ef7c8518c06d197916b2c3358135b2595563b2834271",
+    "robot_assets_sha256": "6d066a44c71a13028bd8b0c91cb7d960c3fdd681709a0d19cd2cbe7db4be9899",
+    "world_sha256": "ef35b982a18faea88a5bffa1c28f28125ac1e3718bad88d6b696203c5870fb23"
+  },
+  "world_version": "vivacity.sorting-cell/1.0",
+  "robot": "MuJoCo Menagerie Franka Panda",
+  "provenance": {
+    "exported_at": "2026-10-13T19:56:25.666089Z",
+    "source_record_id": "c450c8c0-c3fb-443f-a60e-fc384167e434",
+    "source": "vivacity_backend",
+    "platform": "Linux x86_64"
+  },
+  "configuration": {
+    "schema_version": "vivacity.factory-settings/1.0",
+    "name": "Carton sorting baseline",
+    "seed": 19,
+    "carton_count": 1,
+    "carton_mass_kg": 0.06,
+    "carton_friction": 0.8,
+    "carton_half_size_m": 0.025,
+    "carton_start_x_m": 0.5,
+    "carton_start_y_m": -0.4,
+    "conveyor_speed_m_s": 0.09,
+    "arrival_interval_s": 18.0,
+    "realtime_speed": 8.0,
+    "sort_threshold_kg": 0.07,
+    "gripper_force_scale": 1.0
+  },
+  "initial_state_sha256": "ec9c829b4eabab68ec4071403cd2c5d5148102ed426247a4411c52287ea88fac",
+  "model_sha256": "0f1f8377bde012c292b9be40262014e20033aee84d8f2b4511349a6831e2966c",
+  "benchmark_request": null,
+  "benchmark_definition_sha256": null,
+  "content_sha256": "cc80db044c160cfe1d601ec1bfa3de0d847fef15f8c540358a138ed6bf901593"
+}
