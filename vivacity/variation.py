@@ -29,7 +29,8 @@ def report(experiments, recorded_conditions):
     for experiment,branches in experiments:
         metadata=next((c for c in recorded_conditions if c['world_id']==experiment['world_id']),{})
         selected=next((b for b in branches if b['id']==experiment.get('selected_branch_id')),None)
-        evaluation=experiment.get('result',{}).get('execution_evaluation') or (selected or {}).get('evaluation')
+        fresh=experiment.get('result',{}).get('execution_evaluation')
+        evaluation=fresh or (selected or {}).get('evaluation') or (branches[0].get('evaluation') if branches else None)
         if not evaluation or experiment['status']!='completed':continue
         config=experiment['config']
         rows.append({'experiment_id':experiment['id'],'world_id':experiment['world_id'],'seed':metadata.get('seed'),
@@ -39,7 +40,7 @@ def report(experiments, recorded_conditions):
             'success':bool(evaluation.get('success')),'status':evaluation.get('status'),
             'goal_error_m':evaluation.get('goal_error_m'),'execution_duration_s':evaluation.get('execution_duration_s'),
             'collision_events':len(evaluation.get('contact_violations',[])),
-            'evaluation_source':'fresh authoritative execution' if experiment.get('result',{}).get('execution_evaluation') else 'selected validation branch'})
+            'evaluation_source':'fresh authoritative execution' if fresh else 'selected validation branch' if selected else 'failed validation branch; no feasible selection'})
     partitions={}
     for name in ('baseline','training','held_out','unpartitioned'):
         subset=[row for row in rows if row['partition']==name]

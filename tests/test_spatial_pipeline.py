@@ -197,6 +197,10 @@ def test_robustness_rates_only_include_measured_completed_configurations():
     value=report(experiments,metadata)
     assert value['partitions']['training']['success_rate']==0 and value['partitions']['held_out']['success_rate']==1
     assert len(value['failure_regions'])==1 and len(value['configurations'])==3 and value['hardware_validation']=='not performed'
+    experiment=experiments[0][0]|{'id':'all-failed','selected_branch_id':None,'result':{}}
+    measured=report([(experiment,[{'id':'failed','evaluation':{'success':False,'status':'dropped_object','goal_error_m':.4}}])],metadata)
+    assert measured['configurations'][0]['success'] is False and measured['partitions']['baseline']['failures']==1
+    assert measured['configurations'][0]['evaluation_source']=='failed validation branch; no feasible selection'
 
 
 def test_measurement_schema_rejects_unordered_or_nonfinite_values():
