@@ -183,7 +183,7 @@
   "tests/test_compiled_forks.py": "494b2c272415d3a1e844a2f7bdaca97f51d87c82b1e79c8ff9aa6d17a9b3b9d7",
   "tests/test_event_history.py": "9f3e58736e3f6a4de3e7597b3af2fb65b7d78484b3fa98127516736522595dd9",
   "tests/test_hierarchical_search.py": "88f1670e171c6a5bb685e5b3466cefdf65f2a3284f45affa44467843579deb4c",
-  "tests/test_host_capacity.py": "0d022dd37c2e21cc5b607553a19e8c0b764fcbe15f81b902dc6d325c81e51d84",
+  "tests/test_host_capacity.py": "9e64ee5a662f6b78879e6f55364b0d843f7affa3170586a3508f4feb40a1227d",
   "tests/test_host_limits.py": "9fbddd6649675161571363654683d260f4b037ac90e846417f3164e70937641f",
   "tests/test_import_physics.py": "4c392d1fd7d2b2f992f8f4d82965ada232a375f4a0ee1696aa3f1c2950d24b7a",
   "tests/test_imports.py": "e35e8af9728cba3496adfcba2d451d359830fe2b8cefd32c9ceb8d53235517d2",
@@ -231,5 +231,6 @@
   "vivacity/workspace.py": "9300dabbef58e8f1b4ccbd50912b09e67dfe05a0d26240bb6ce84771a05f1bb3",
   "vivacity/workspace_api.py": "5b2d0369d001bca6b21caded006cd56d2884bf0f1085221d097771e6e2ea41c8",
   "vivacity/workspace_schemas.py": "b04966e62746d2f3778668093a9d276099e3d599909665ba7a3bf51a03f74686",
-  "vivacity/world_presets.py": "bbaea81e34e7618d0c55a90c25e6d48a04e356dbf8dec367a3fb95f1825c2647"
+  "vivacity/world_presets.py": "bbaea81e34e7618d0c55a90c25e6d48a04e356dbf8dec367a3fb95f1825c2647",
+  ".github/workflows/backend-host-memory.yml": "b7757c00c074e880c4ca1fee0d9f0ac1615e87eb9bea6927069c0e2962970197"
 }

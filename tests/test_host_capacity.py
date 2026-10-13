@@ -47,8 +47,15 @@ def test_every_available_arm_executes_in_host_container(tmp_path,monkeypatch):
     monkeypatch.setenv('VIVACITY_MAX_PICKUP_WALL_SECONDS','300')
     with TestClient(create_app(tmp_path/'arms.sqlite')) as client:
         for arm in ('panda','ur5e','iiwa','gen3','xarm7','scara','dual_arm'):
+            from pathlib import Path
+            def memory_stage(stage):
+                status=Path('/proc/self/status')
+                memory=[line for line in status.read_text().splitlines() if line.startswith(('VmRSS:','VmHWM:'))] if status.exists() else []
+                print(arm,stage,memory,flush=True)
+            memory_stage('initializing')
             response=client.post('/v1/worlds',json={'backend':'mujoco','seed':7,'config':{'task':'pick_place','robot_model':arm,'obstacle_enabled':False}})
             assert response.status_code==201,response.text
+            memory_stage('world initialized')
             eid=client.post(f"/v1/worlds/{response.json()['id']}/experiments",json={'physics_trials':3,'search_candidates':3,'max_simulation_seconds':40}).json()['id']
             deadline=time.monotonic()+120
             while True:
@@ -58,3 +65,4 @@ def test_every_available_arm_executes_in_host_container(tmp_path,monkeypatch):
                 time.sleep(.05)
             assert experiment['status']=='completed' and experiment['selected_branch_id'],(arm,experiment)
             assert experiment['performance']['trial_count']==3
+            memory_stage('three native trials completed')
