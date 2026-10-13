@@ -5,6 +5,7 @@ import time
 import uuid
 import json
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 log=logging.getLogger('uvicorn.error')
 
@@ -13,6 +14,7 @@ from .workspace import owner
 from .runtime import Busy, Conflict
 from .factory_exchange import software,configuration_export,validate_import,METRICS
 from .compiled import release_unused_memory
+from .factory_discovery_data import QUANTITIES, scalar
 
 
 class FactoryService:
@@ -29,6 +31,10 @@ class FactoryService:
         self.latest_states={}
         self.camera_lock=threading.Lock()
         self.report_lock=threading.Lock()
+        # A single bounded numerical worker never runs on the native physics lane.
+        self.discovery_pool=ThreadPoolExecutor(max_workers=1,thread_name_prefix='factory-discovery')
+        self.discovery_targets={}
+        self.discovery_active=set()
         # Keep frequently polled metadata/pages separate from the full archive.
         # SQLite JSON traversal of a 27 MB trace can allocate hundreds of MiB.
         with workspace.store.connect() as db:
@@ -40,6 +46,15 @@ class FactoryService:
                 CREATE TABLE IF NOT EXISTS factory_samples(
                     run_id TEXT NOT NULL,sample_index INTEGER NOT NULL,payload TEXT NOT NULL,
                     PRIMARY KEY(run_id,sample_index));
+                CREATE TABLE IF NOT EXISTS factory_discovery_points(
+                    run_id TEXT NOT NULL,sample_index INTEGER NOT NULL,time_s REAL NOT NULL,values_json TEXT NOT NULL,
+                    PRIMARY KEY(run_id,sample_index));
+                CREATE TABLE IF NOT EXISTS factory_discoveries(
+                    run_id TEXT NOT NULL,quantity TEXT NOT NULL,payload TEXT NOT NULL,
+                    PRIMARY KEY(run_id,quantity));
+                CREATE TABLE IF NOT EXISTS factory_relationships(
+                    run_id TEXT NOT NULL,name TEXT NOT NULL,payload TEXT NOT NULL,
+                    PRIMARY KEY(run_id,name));
             ''')
         # A process restart cannot resume an unrecorded native worker.
         with workspace.store.connect() as db:
@@ -71,6 +86,9 @@ class FactoryService:
             db.execute('INSERT OR REPLACE INTO factory_run_index VALUES(?,?,?,?,?)',
                        (row['id'],owner_id,encode(self._summary(row)),row.get('_trace_offset',0),
                         encode(row['final_state']) if row.get('final_state') else None))
+        with self.lock:
+            if row.get('_trace_offset',0)>=25 and row['status'] not in ('queued','running','paused'):
+                self._schedule_discovery(row['id'],row['_trace_offset'],final=True)
 
     def _flush_trace(self,row):
         """Persist at most 100 pending frames; memory does not grow with a run."""
@@ -82,7 +100,82 @@ class FactoryService:
             with self.workspace.store.connect() as db:
                 db.executemany('INSERT OR REPLACE INTO factory_samples VALUES(?,?,?)',
                                ((row['id'],offset+i,encode(frame)) for i,frame in enumerate(frames)))
+                db.executemany('INSERT OR REPLACE INTO factory_discovery_points VALUES(?,?,?,?)',
+                               ((row['id'],offset+i,float(frame['time']),encode({name:scalar(frame,name) for name in (*QUANTITIES,'joint_acceleration','joint_velocity')}))
+                                for i,frame in enumerate(frames)))
             row['_trace_offset']=offset+len(frames);row['trace']=[]
+            total=row['_trace_offset']
+            if (total>=25 and (total-25)%100==0) or (total>=25 and row['status'] not in ('queued','running','paused')):
+                self._schedule_discovery(row['id'],total,final=row['status'] not in ('queued','running','paused'))
+
+    def _schedule_discovery(self,identifier,total,final=False):
+        """Coalesce arrivals: at most one pending target per run."""
+        self.discovery_targets[identifier]=(total,final)
+        if identifier not in self.discovery_active:
+            self.discovery_active.add(identifier)
+            self.discovery_pool.submit(self._discover_run,identifier)
+
+    def _discover_run(self,identifier):
+        from .factory_discovery import discover
+        from .storage import encode
+        try:
+            while True:
+                with self.lock:target,final=self.discovery_targets[identifier]
+                with self.workspace.store.connect() as db:
+                    rows=db.execute('SELECT time_s,values_json FROM factory_discovery_points WHERE run_id=? AND sample_index<? ORDER BY sample_index',(identifier,target)).fetchall()
+                parsed=[(stamp,json.loads(values)) for stamp,values in rows]
+                for quantity in QUANTITIES:
+                    points=[(stamp,values[quantity]) for stamp,values in parsed if values.get(quantity) is not None]
+                    try:
+                        fit_wall=time.perf_counter();fit_cpu=time.thread_time()
+                        result=discover(points,identifier,quantity,
+                            families=None if final else ('constant','linear','quadratic'))
+                        result['fit_stage']='final' if final else 'provisional'
+                        result['source_sample_count']=len(parsed)
+                        result['fit_wall_s']=time.perf_counter()-fit_wall
+                        result['fit_cpu_s']=time.thread_time()-fit_cpu
+                        result['updated_at']=time.time()
+                    except Exception:
+                        log.exception('factory_discovery_failed run_id=%s quantity=%s',identifier,quantity)
+                        continue
+                    with self.workspace.store.connect() as db:
+                        db.execute('INSERT OR REPLACE INTO factory_discoveries VALUES(?,?,?)',
+                                   (identifier,quantity,encode(result)))
+                if final:
+                    from .factory_relationships import infer_joint_torque
+                    relation=infer_joint_torque(parsed,identifier)
+                    with self.workspace.store.connect() as db:
+                        db.execute('INSERT OR REPLACE INTO factory_relationships VALUES(?,?,?)',
+                                   (identifier,relation['name'],encode(relation)))
+                with self.lock:
+                    if self.discovery_targets.get(identifier)==(target,final):
+                        self.discovery_active.discard(identifier)
+                        self.discovery_targets.pop(identifier,None)
+                        break
+        except Exception:
+            log.exception('factory_discovery_worker_failed run_id=%s',identifier)
+            with self.lock:
+                self.discovery_active.discard(identifier)
+                self.discovery_targets.pop(identifier,None)
+
+    def discovery(self,identifier,token):
+        self._authorize_run(identifier,token)
+        with self.workspace.store.connect() as db:
+            rows=db.execute('SELECT quantity,payload FROM factory_discoveries WHERE run_id=?',(identifier,)).fetchall()
+            count=db.execute('SELECT count(*) FROM factory_discovery_points WHERE run_id=?',(identifier,)).fetchone()[0]
+            indexed=db.execute('SELECT summary FROM factory_run_index WHERE run_id=?',(identifier,)).fetchone()
+            relationships=[json.loads(payload) for (payload,) in db.execute('SELECT payload FROM factory_relationships WHERE run_id=?',(identifier,))]
+        series={quantity:json.loads(payload) for quantity,payload in rows}
+        terminal=indexed is not None and json.loads(indexed[0])['status'] not in ('queued','running','paused')
+        with self.lock:
+            if count>=25 and terminal and (len(series)<len(QUANTITIES) or any(value.get('source_sample_count')!=count or value.get('fit_stage')!='final' for value in series.values())) and identifier not in self.discovery_active:
+                self._schedule_discovery(identifier,count,final=True)
+            processing=identifier in self.discovery_active
+        return {'schema_version':'vivacity.factory-discoveries/1.0','run_id':identifier,
+                'sample_count':count,'processing':processing,
+                'series':series,
+                'relationships':relationships,
+                'source':'Measured MuJoCo frames; fitted curves are descriptive approximations.'}
 
     def create(self,settings,token):
         return self._create_owned(settings,owner(token))
@@ -396,7 +489,8 @@ class FactoryService:
             if parent is not None:parent.update(active_phase=phase,active_time_s=frame['time'],active_frame=frame)
             if frame['time']>row.get('_last_sample_time',-1):
                 row['trace'].append(frame);row['_last_sample_time']=frame['time']
-            if len(row['trace'])>=100:self._flush_trace(row)
+            if len(row['trace'])>=100 or row.get('_trace_offset',0)==0 and len(row['trace'])>=25:
+                self._flush_trace(row)
 
     def observation(self,identifier,token,source='latest'):
         from .factory_vision import observe_camera
@@ -497,4 +591,5 @@ class FactoryService:
 
     def close(self):
         for control in self.controls.values():control['stop'].set();control['wake'].set()
+        self.discovery_pool.shutdown(wait=True,cancel_futures=False)
         # Runtime.close owns shutdown of the shared executor.

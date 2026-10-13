@@ -604,6 +604,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/factory/runs/{identifier}/discovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Discovery
+         * @description Latest persisted fits. Physics frames remain the immutable source data.
+         */
+        get: operations["discovery_v1_factory_runs__identifier__discovery_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/factory/runs/{identifier}/control": {
         parameters: {
             query?: never;
@@ -1632,6 +1652,105 @@ export interface components {
             /** Environment Id */
             environment_id: string;
         };
+        /** DiscoveryMetrics */
+        DiscoveryMetrics: {
+            /** Rmse */
+            rmse: number;
+            /** Mae */
+            mae: number;
+            /** R2 */
+            r2: number | null;
+        } & {
+            [key: string]: unknown;
+        };
+        /** DiscoveryModelResponse */
+        DiscoveryModelResponse: {
+            /**
+             * Model
+             * @enum {string}
+             */
+            model: "constant" | "linear" | "quadratic" | "cubic" | "exponential" | "sinusoidal" | "damped_sinusoidal" | "piecewise_linear";
+            /** Validation Status */
+            validation_status?: ("validated_approximation" | "poor_fit") | null;
+            /** Parameters */
+            parameters: number[];
+            /** Parameter Count */
+            parameter_count: number;
+            /** Equation Latex */
+            equation_latex: string;
+            /** Equation Text */
+            equation_text?: string | null;
+            /** Editable Latex */
+            editable_latex: string;
+            training: components["schemas"]["DiscoveryMetrics"];
+            validation: components["schemas"]["DiscoveryMetrics"];
+            /** Selection Score */
+            selection_score: number;
+            /** Predicted Curve */
+            predicted_curve: number[][];
+            /** Domain S */
+            domain_s: number[];
+            /** Origin S */
+            origin_s: number;
+            /** Scale S */
+            scale_s: number;
+        } & {
+            [key: string]: unknown;
+        };
+        /** DiscoverySeriesResponse */
+        DiscoverySeriesResponse: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-discovery/1.0";
+            /** Run Id */
+            run_id: string;
+            /** Quantity */
+            quantity: string;
+            /** Label */
+            label: string;
+            /** Unit */
+            unit: string;
+            /**
+             * X Unit
+             * @constant
+             */
+            x_unit: "s";
+            /** Sample Count */
+            sample_count: number;
+            /** Train Count */
+            train_count?: number | null;
+            /** Held Out Count */
+            held_out_count?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "insufficient_data" | "validated_approximation" | "poor_fit";
+            /** Fit Stage */
+            fit_stage?: ("provisional" | "final") | null;
+            /** Fit Wall S */
+            fit_wall_s?: number | null;
+            /** Fit Cpu S */
+            fit_cpu_s?: number | null;
+            /** Source Sample Count */
+            source_sample_count?: number | null;
+            /** Reason */
+            reason: string;
+            /** Models */
+            models: components["schemas"]["DiscoveryModelResponse"][];
+            /** Selected Model */
+            selected_model: string | null;
+            /** Updated At */
+            updated_at: number;
+            /** Provenance */
+            provenance?: {
+                [key: string]: components["schemas"]["JsonValue"];
+            } | null;
+        } & {
+            [key: string]: unknown;
+        };
         /** EnvironmentPatch */
         EnvironmentPatch: {
             /** Config */
@@ -2089,6 +2208,30 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** FactoryDiscoveryResponse */
+        FactoryDiscoveryResponse: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-discoveries/1.0";
+            /** Run Id */
+            run_id: string;
+            /** Sample Count */
+            sample_count: number;
+            /** Processing */
+            processing: boolean;
+            /** Series */
+            series: {
+                [key: string]: components["schemas"]["DiscoverySeriesResponse"];
+            };
+            /** Relationships */
+            relationships: components["schemas"]["FactoryRelationshipResponse"][];
+            /** Source */
+            source: string;
+        } & {
+            [key: string]: unknown;
+        };
         /** FactoryFrame */
         FactoryFrame: {
             /**
@@ -2133,6 +2276,57 @@ export interface components {
              * @constant
              */
             source: "mujoco";
+        } & {
+            [key: string]: unknown;
+        };
+        /** FactoryRelationshipResponse */
+        FactoryRelationshipResponse: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-relationship/1.0";
+            /** Name */
+            name: string;
+            /** Run Id */
+            run_id: string;
+            /** Sample Count */
+            sample_count: number;
+            /** Updated At */
+            updated_at: number;
+            /** Dependent */
+            dependent: {
+                [key: string]: string;
+            };
+            /** Independent */
+            independent: {
+                [key: string]: string;
+            }[];
+            /** Provenance */
+            provenance: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Scope */
+            scope: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "insufficient_signal" | "validated_association" | "poor_fit";
+            /** Reason */
+            reason: string;
+            /** Models */
+            models: {
+                [key: string]: components["schemas"]["JsonValue"];
+            }[];
+            /** Selected Model */
+            selected_model: string | null;
+            /** Train Count */
+            train_count?: number | null;
+            /** Held Out Count */
+            held_out_count?: number | null;
+            /** Baseline Validation Rmse */
+            baseline_validation_rmse?: number | null;
         } & {
             [key: string]: unknown;
         };
@@ -4727,6 +4921,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FactorySamplesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    discovery_v1_factory_runs__identifier__discovery_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryDiscoveryResponse"];
                 };
             };
             /** @description Validation Error */

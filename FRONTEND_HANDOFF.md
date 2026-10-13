@@ -1,3 +1,16 @@
+# Mathematical discovery update — 2026-10-14
+
+The factory now exposes `GET /v1/factory/runs/{run_id}/discovery`, returning
+persisted measured-series fits, chronological held-out metrics, validation
+status, Desmos-ready expressions, predicted curves and a joint-torque
+association when supported. It uses the same `X-Workspace-Token` as the run.
+See [FACTORY_DISCOVERY.md](docs/FACTORY_DISCOVERY.md) for exact polling,
+provenance, exports, comparison and optional Desmos setup. The React entry is
+[FactoryDiscovery.tsx](frontend/src/FactoryDiscovery.tsx), mounted in the
+existing analysis. Without an authorized Desmos browser key the local graph,
+equations and exports work, while the embedded calculator is explicitly
+unavailable. The Graphing Calculator integration is unverified without a key.
+
 # Autonomous factory contract update — 2026-10-14
 
 The new factory is implemented in individually verified stages. Current release

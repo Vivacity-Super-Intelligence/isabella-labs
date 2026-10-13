@@ -1,3 +1,29 @@
+# Mathematical discovery verification — 2026-10-14
+
+Implemented locally: MuJoCo-frame scalar projection; automatic 25-sample
+checkpoint and 100-sample numerical updates; final eight-family equation
+comparison with chronological held-out metrics and poor-fit reporting;
+SQLite persistence/restart; owner-scoped discovery API; measured-plus-fitted
+browser chart, model switching, saved-run comparison, CSV and Desmos-ready JSON
+export; optional official Desmos Graphing Calculator adapter. A joint-torque
+association is reported only when acceleration and torque vary sufficiently.
+
+Focused numerical/API tests: 6 passed. Frontend API/analysis checks: 24 passed.
+TypeScript and production Vite build passed. A local browser observed two real
+conveyor conditions (174 and 236 samples), a 25-sample provisional checkpoint,
+eight final series, a validated carton-Y fit (held-out R² 0.9504), a correctly
+rejected height fit, model switching, two-run overlay and measured CSV export.
+A one-pair 4,225-step local conveyor comparison measured 6.599 s without
+discovery and 6.606 s with it; this does not establish general throughput.
+
+Two pre-existing 60-second **Windows** factory production tests timed out
+while native MuJoCo was still running. A controlled earlier no-discovery run
+also timed out on this host, so attribution to discovery is unsupported.
+Linux container regression and hard 512 MiB host gate are pending for this
+revision. The optional Desmos embed has no licensed production key and has
+not been exercised. 5,000–6,000 experiment-definition campaigns are not
+implemented. See [FACTORY_DISCOVERY.md](docs/FACTORY_DISCOVERY.md) for details.
+
 # Autonomous factory release — 2026-10-14
 
 Deployed and verified at https://demo.tryvivacity.com/. Built as P0–P10 slices,

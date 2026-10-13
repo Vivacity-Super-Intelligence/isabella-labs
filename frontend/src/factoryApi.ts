@@ -8,7 +8,11 @@ export type FactorySettings={schema_version:string;name:string;seed:number;carto
 export const factoryDefaults:FactorySettings={schema_version:'vivacity.factory-settings/1.0',name:'Carton sorting baseline',seed:19,carton_count:3,carton_mass_kg:.06,carton_friction:.8,carton_half_size_m:.025,carton_start_x_m:.5,carton_start_y_m:-.94,conveyor_speed_m_s:.09,arrival_interval_s:18,realtime_speed:2,sort_threshold_kg:.07,gripper_force_scale:1};
 export type FactoryFrame=FactoryVisualState&{measurements:FactoryMeasurements;qvel:number[];end_effector:number[];cartons:{id:string;position_m:number[];quaternion_wxyz:number[];linear_velocity_m_s:number[];angular_velocity_rad_s:number[];mass_kg:number}[];conveyors:Record<string,{surface_speed_m_s:number;motor_torque_sum_nm:number}>};
 export type FactoryCell={id:string;config:FactorySettings;frame:FactoryFrame;collision_geometry:FactoryGeometry[];last_run_id:string|null};
-export type FactoryRun={id:string;cell_id:string;status:string;phase:string;frame:FactoryFrame;error:string|null;config:FactorySettings;events:{time_s:number;kind:string;carton_id?:string}[];metrics:Record<string,number|string>;trace?:FactoryFrame[]};
+export type FactoryRun={id:string;cell_id:string;created_at:number;status:string;phase:string;frame:FactoryFrame;error:string|null;config:FactorySettings;events:{time_s:number;kind:string;carton_id?:string}[];metrics:Record<string,number|string>;trace?:FactoryFrame[]};
+export type DiscoveryModel={model:string;validation_status?:'validated_approximation'|'poor_fit'|null;parameters:number[];equation_latex:string;equation_text?:string|null;editable_latex:string;training:{rmse:number;mae:number;r2:number|null};validation:{rmse:number;mae:number;r2:number|null};selection_score:number;domain_s:number[];predicted_curve:[number,number][]};
+export type DiscoverySeries={run_id:string;quantity:string;label:string;unit:string;x_unit:string;sample_count:number;train_count?:number;held_out_count?:number;status:string;fit_stage?:'provisional'|'final'|null;fit_wall_s?:number|null;fit_cpu_s?:number|null;reason:string;models:DiscoveryModel[];selected_model:string|null;updated_at:number;provenance?:Record<string,unknown>};
+export type FactoryRelationship={name:string;status:string;reason:string;sample_count:number;models:{model:string;equation_text:string;validation_status:string;validation:{rmse:number;r2:number|null}}[];selected_model:string|null;scope:string};
+export type FactoryDiscoveryRecord={schema_version:string;run_id:string;sample_count:number;processing:boolean;series:Record<string,DiscoverySeries>;relationships:FactoryRelationship[];source:string};
 async function request<T>(path:string,method='GET',body?:unknown):Promise<T>{
  const response=await fetchRuntime(API+'/v1/factory'+path,{method,headers:{'X-Workspace-Token':workspaceToken(),...(body===undefined?{}:{'Content-Type':'application/json'})},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(60000)});
  return await readAPIResponse(response) as T;
@@ -32,6 +36,7 @@ export const factoryApi={
  startBenchmark:(id:string,settings:{name:string;repeats:number;held_out_repeats:number;changes:Record<string,number>})=>request<FactoryBenchmarkRecord>(`/cells/${encodeURIComponent(id)}/benchmarks`,'POST',settings),
  benchmarkControl:(id:string,action:'pause'|'resume'|'stop')=>request<FactoryBenchmarkRecord>(`/benchmarks/${encodeURIComponent(id)}/control`,'POST',{action}),
  samples:(id:string,after=-1)=>request<{frames:FactoryFrame[];next_index:number;total_samples:number;status:string}>(`/runs/${encodeURIComponent(id)}/samples?after=${after}`),
+ discovery:(id:string)=>request<FactoryDiscoveryRecord>(`/runs/${encodeURIComponent(id)}/discovery`),
  observation:(id:string)=>request<FactoryObservationRecord>(`/cells/${encodeURIComponent(id)}/observation`),
  create:(settings:FactorySettings)=>request<FactoryCell>('/cells','POST',settings),
  cell:(id:string)=>request<FactoryCell>('/cells/'+encodeURIComponent(id)),

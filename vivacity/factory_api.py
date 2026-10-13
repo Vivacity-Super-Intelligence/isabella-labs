@@ -4,7 +4,7 @@ from pydantic import BaseModel,ConfigDict,Field
 from .factory import FactorySettings
 from .workspace_api import Token
 from .factory_benchmark import BenchmarkRequest
-from .factory_schemas import FactoryCellResponse,FactoryRunResponse,FactorySamplesResponse,FactoryBenchmarkResponse
+from .factory_schemas import FactoryCellResponse,FactoryRunResponse,FactorySamplesResponse,FactoryBenchmarkResponse,FactoryDiscoveryResponse
 
 router=APIRouter(prefix='/v1/factory',tags=['Factory production'])
 
@@ -49,6 +49,11 @@ def record(identifier:str,request:Request,x_workspace_token:Token):
 @router.get('/runs/{identifier}/samples',responses={200:{'model':FactorySamplesResponse}})
 def samples(identifier:str,request:Request,x_workspace_token:Token,after:int=Query(-1,ge=-1),limit:int=Query(400,ge=1,le=1000)):
     return request.app.state.factory.samples(identifier,x_workspace_token,after,limit)
+
+@router.get('/runs/{identifier}/discovery',response_model=FactoryDiscoveryResponse)
+def discovery(identifier:str,request:Request,x_workspace_token:Token):
+    """Latest persisted fits. Physics frames remain the immutable source data."""
+    return request.app.state.factory.discovery(identifier,x_workspace_token)
 
 @router.post('/runs/{identifier}/control',responses={200:{'model':FactoryRunResponse}})
 def control(identifier:str,body:Command,request:Request,x_workspace_token:Token):

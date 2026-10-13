@@ -2134,6 +2134,61 @@
         }
       }
     },
+    "/v1/factory/runs/{identifier}/discovery": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Discovery",
+        "description": "Latest persisted fits. Physics frames remain the immutable source data.",
+        "operationId": "discovery_v1_factory_runs__identifier__discovery_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryDiscoveryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/factory/runs/{identifier}/control": {
       "post": {
         "tags": [
@@ -5389,6 +5444,324 @@
         ],
         "title": "CustomOperationRequest"
       },
+      "DiscoveryMetrics": {
+        "properties": {
+          "rmse": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Rmse"
+          },
+          "mae": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Mae"
+          },
+          "r2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "R2"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "rmse",
+          "mae",
+          "r2"
+        ],
+        "title": "DiscoveryMetrics"
+      },
+      "DiscoveryModelResponse": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": [
+              "constant",
+              "linear",
+              "quadratic",
+              "cubic",
+              "exponential",
+              "sinusoidal",
+              "damped_sinusoidal",
+              "piecewise_linear"
+            ],
+            "title": "Model"
+          },
+          "validation_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "validated_approximation",
+                  "poor_fit"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Status"
+          },
+          "parameters": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Parameters"
+          },
+          "parameter_count": {
+            "type": "integer",
+            "title": "Parameter Count"
+          },
+          "equation_latex": {
+            "type": "string",
+            "title": "Equation Latex"
+          },
+          "equation_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equation Text"
+          },
+          "editable_latex": {
+            "type": "string",
+            "title": "Editable Latex"
+          },
+          "training": {
+            "$ref": "#/components/schemas/DiscoveryMetrics"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/DiscoveryMetrics"
+          },
+          "selection_score": {
+            "type": "number",
+            "title": "Selection Score"
+          },
+          "predicted_curve": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Predicted Curve"
+          },
+          "domain_s": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Domain S"
+          },
+          "origin_s": {
+            "type": "number",
+            "title": "Origin S"
+          },
+          "scale_s": {
+            "type": "number",
+            "title": "Scale S"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "model",
+          "parameters",
+          "parameter_count",
+          "equation_latex",
+          "editable_latex",
+          "training",
+          "validation",
+          "selection_score",
+          "predicted_curve",
+          "domain_s",
+          "origin_s",
+          "scale_s"
+        ],
+        "title": "DiscoveryModelResponse"
+      },
+      "DiscoverySeriesResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-discovery/1.0",
+            "title": "Schema Version"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "x_unit": {
+            "type": "string",
+            "const": "s",
+            "title": "X Unit"
+          },
+          "sample_count": {
+            "type": "integer",
+            "title": "Sample Count"
+          },
+          "train_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Train Count"
+          },
+          "held_out_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Held Out Count"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "insufficient_data",
+              "validated_approximation",
+              "poor_fit"
+            ],
+            "title": "Status"
+          },
+          "fit_stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "provisional",
+                  "final"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fit Stage"
+          },
+          "fit_wall_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fit Wall S"
+          },
+          "fit_cpu_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fit Cpu S"
+          },
+          "source_sample_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Sample Count"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryModelResponse"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "selected_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Model"
+          },
+          "updated_at": {
+            "type": "number",
+            "title": "Updated At"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provenance"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "run_id",
+          "quantity",
+          "label",
+          "unit",
+          "x_unit",
+          "sample_count",
+          "status",
+          "reason",
+          "models",
+          "selected_model",
+          "updated_at"
+        ],
+        "title": "DiscoverySeriesResponse"
+      },
       "EnvironmentPatch": {
         "properties": {
           "config": {
@@ -6239,6 +6612,57 @@
         ],
         "title": "FactoryCellResponse"
       },
+      "FactoryDiscoveryResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-discoveries/1.0",
+            "title": "Schema Version"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "sample_count": {
+            "type": "integer",
+            "title": "Sample Count"
+          },
+          "processing": {
+            "type": "boolean",
+            "title": "Processing"
+          },
+          "series": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DiscoverySeriesResponse"
+            },
+            "type": "object",
+            "title": "Series"
+          },
+          "relationships": {
+            "items": {
+              "$ref": "#/components/schemas/FactoryRelationshipResponse"
+            },
+            "type": "array",
+            "title": "Relationships"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "run_id",
+          "sample_count",
+          "processing",
+          "series",
+          "relationships",
+          "source"
+        ],
+        "title": "FactoryDiscoveryResponse"
+      },
       "FactoryFrame": {
         "properties": {
           "schema_version": {
@@ -6339,6 +6763,144 @@
           "source"
         ],
         "title": "FactoryFrame"
+      },
+      "FactoryRelationshipResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-relationship/1.0",
+            "title": "Schema Version"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "sample_count": {
+            "type": "integer",
+            "title": "Sample Count"
+          },
+          "updated_at": {
+            "type": "number",
+            "title": "Updated At"
+          },
+          "dependent": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Dependent"
+          },
+          "independent": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Independent"
+          },
+          "provenance": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Provenance"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "insufficient_signal",
+              "validated_association",
+              "poor_fit"
+            ],
+            "title": "Status"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "models": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "selected_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Model"
+          },
+          "train_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Train Count"
+          },
+          "held_out_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Held Out Count"
+          },
+          "baseline_validation_rmse": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Validation Rmse"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "name",
+          "run_id",
+          "sample_count",
+          "updated_at",
+          "dependent",
+          "independent",
+          "provenance",
+          "scope",
+          "status",
+          "reason",
+          "models",
+          "selected_model"
+        ],
+        "title": "FactoryRelationshipResponse"
       },
       "FactoryRunResponse": {
         "properties": {
