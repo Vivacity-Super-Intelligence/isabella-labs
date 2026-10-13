@@ -52,5 +52,5 @@ def test_benchmark_import_preserves_definition_without_starting_worker(tmp_path)
 def test_streamed_digest_keeps_the_canonical_archive_hash():
     import hashlib,json
     from vivacity.factory_exchange import digest
-    value={'unicode':'Carton â†’ bin','trace':[{'time':i*.002,'data':[None,True,1e-8,-0.0]} for i in range(1000)]}
+    value={'unicode':'Carton \u2192 bin','trace':[{'time':i*.002,'data':[None,True,1e-8,-0.0]} for i in range(1000)]}
     assert digest(value)==hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()

@@ -69,6 +69,75 @@ class FactorySamplesResponse(Wire):
     total_samples:int
     status:str
 
+class DiscoveryMetrics(Wire):
+    rmse:float=Field(ge=0)
+    mae:float=Field(ge=0)
+    r2:float|None
+
+class DiscoveryModelResponse(Wire):
+    model:Literal['constant','linear','quadratic','cubic','exponential','sinusoidal','damped_sinusoidal','piecewise_linear']
+    validation_status:Literal['validated_approximation','poor_fit']|None=None
+    parameters:list[float]
+    parameter_count:int
+    equation_latex:str
+    equation_text:str|None=None
+    editable_latex:str
+    training:DiscoveryMetrics
+    validation:DiscoveryMetrics
+    selection_score:float
+    predicted_curve:list[list[float]]
+    domain_s:list[float]
+    origin_s:float
+    scale_s:float
+
+class DiscoverySeriesResponse(Wire):
+    schema_version:Literal['vivacity.factory-discovery/1.0']
+    run_id:str
+    quantity:str
+    label:str
+    unit:str
+    x_unit:Literal['s']
+    sample_count:int
+    train_count:int|None=None
+    held_out_count:int|None=None
+    status:Literal['insufficient_data','validated_approximation','poor_fit']
+    fit_stage:Literal['provisional','final']|None=None
+    fit_wall_s:float|None=None
+    fit_cpu_s:float|None=None
+    source_sample_count:int|None=None
+    reason:str
+    models:list[DiscoveryModelResponse]
+    selected_model:str|None
+    updated_at:float
+    provenance:dict[str,JsonValue]|None=None
+
+class FactoryDiscoveryResponse(Wire):
+    schema_version:Literal['vivacity.factory-discoveries/1.0']
+    run_id:str
+    sample_count:int
+    processing:bool
+    series:dict[str,DiscoverySeriesResponse]
+    relationships:list['FactoryRelationshipResponse']
+    source:str
+
+class FactoryRelationshipResponse(Wire):
+    schema_version:Literal['vivacity.factory-relationship/1.0']
+    name:str
+    run_id:str
+    sample_count:int
+    updated_at:float
+    dependent:dict[str,str]
+    independent:list[dict[str,str]]
+    provenance:dict[str,JsonValue]
+    scope:str
+    status:Literal['insufficient_signal','validated_association','poor_fit']
+    reason:str
+    models:list[dict[str,JsonValue]]
+    selected_model:str|None
+    train_count:int|None=None
+    held_out_count:int|None=None
+    baseline_validation_rmse:float|None=None
+
 class FactoryBenchmarkResponse(Wire):
     schema_version:Literal['vivacity.factory-benchmark-record/1.0']
     id:str
