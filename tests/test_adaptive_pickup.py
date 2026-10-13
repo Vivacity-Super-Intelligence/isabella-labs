@@ -1,6 +1,7 @@
 """Measured adaptive pickup search, including a genuinely impossible scene."""
 
 import time
+import pytest
 
 from vivacity.runtime import Runtime
 from vivacity.schemas import CreateWorld, ExperimentRequest, RoboticsConfig
@@ -16,7 +17,9 @@ def _completed(runtime, experiment_id):
     raise AssertionError('adaptive experiment exceeded its test deadline')
 
 
-def test_adaptive_search_stops_from_measured_results(tmp_path):
+@pytest.mark.parametrize('workers',[1,2])
+def test_adaptive_search_stops_from_measured_results(tmp_path,monkeypatch,workers):
+    monkeypatch.setenv('VIVACITY_PHYSICS_TRIAL_WORKERS',str(workers))
     runtime = Runtime(tmp_path / 'adaptive.sqlite3')
     try:
         world = runtime.create_world(CreateWorld(backend='mujoco', config=RoboticsConfig(
