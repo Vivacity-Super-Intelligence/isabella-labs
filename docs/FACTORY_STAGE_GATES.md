@@ -1,0 +1,83 @@
+# Autonomous factory: staged delivery
+
+## Working brief
+
+Outcome: operate, inspect and reproduce a physically simulated carton-sorting cell.
+The flagship is one coordinated Panda cell with a real conveyor, real contact grasp,
+two destinations and traceable measurements. Existing workcell experiments and owned
+World Labs assets remain accessible. Nothing starts on page load.
+
+Visual direction: a quiet industrial workstation, warm graphite and aluminum,
+one amber operational accent, a large factory view and contextual instruments.
+Anti-references: a neon control-room dashboard; a grid of decorative product cards.
+
+## Current inventory and audit (source inspection, 2026-10-13)
+
+| Existing capability | Evidence / decision |
+|---|---|
+| MuJoCo native robot dynamics, contact pickup, full integration snapshots | Preserve `robotics.py`, `pick_place.py`, native execution and tests. |
+| Seven implemented robot adapters, specialized fixture operations | Preserve as advanced workcell choices. Do not present primary-arm dual Panda as bimanual control. |
+| Owned configuration history, real branches, exports, live controls | Preserve runtime/supervisor/workspace contracts and capability authorization. |
+| World Labs owned generation and SPZ/GLB assets | Preserve independent appearance and collision mappings. |
+| Actual state/contact/energy inspection | Extend sampled records rather than invent chart values. |
+| Overhead semantic ray scan | Working synthetic depth query, but not an RGB camera pipeline. Keep accurately labeled until the camera stage passes. |
+| Factory conveyor, arrival control, coordinated sorting | Missing. Existing sorting is one-part transfer based on simulator properties. |
+| Engineering time-series charts, benchmark interchange, PDF/ZIP | Missing as complete product journeys. |
+| Authenticated team membership | Missing. Browser capabilities are not user accounts. |
+
+### Redundant or misleading surfaces
+
+- Experiments and Results navigation mount the exact same component.
+- Standalone Robots and Operations repeat selections available in the experiment editor.
+- Legacy templates repeat the typed configuration workflow.
+- The default heading is generic, while the live task is specific.
+- The localization paragraph permanently occupies the result panel; it belongs in inspection.
+- Appearance quality settings change splat budgets, not the advertised engineering view.
+  Preserve their function in world preview; define distinct factory render modes later.
+- No evidence of fabricated numeric outputs found in the audited current paths. Missing
+  factory/vision/report functions must stay unavailable until their own acceptance gates pass.
+
+## Architecture
+
+FastAPI owns jobs and capability authorization. SQLite stores immutable experiment
+records and sampled traces. MuJoCo adapters own model/state/control; Three.js renders
+measured transforms. React owns operation controls and selection, not dynamics.
+The factory will extend this application with a bounded production controller and
+versioned factory records. Visual machine detailing stays separate from collision
+geometry. Sampled telemetry, charts, JSON and reports share the same saved data.
+
+## Stage gates
+
+| Stage | Acceptance | Status / evidence |
+|---|---|---|
+| P0 Focused interface | No duplicate destinations; useful existing selections remain reachable; keyboard/mobile and build pass | Passed: 26 frontend checks; TypeScript/Vite build; local browser navigation + keyboard selection; 390 px reflow without horizontal overflow. `artifacts/factory-p0-desktop.jpg` |
+| P1 Factory composition | Detailed existing robot, authored industrial machine assets, distinct render modes; no fake motion; browser review | Pending |
+| P2 Conveyor physics | Motor-driven contacts transport a free carton to station; pause/reset and state reproduction | Pending |
+| P3 Production workflow | Observe → plan → physical grip → transfer → route → destination events; counters match recorded events | Pending |
+| P4 Observations | Actual rendered camera, semantic detection/occlusion, world estimate compared to ground truth; no invented confidence | Pending |
+| P5 Physical records | Timestamped state, contacts, actuator outputs, derived work/power with equations and missing-data semantics | Pending |
+| P6 Analysis | Recorded graphs, units, cursor/range/zoom/export and synchronized replay; values match data | Pending |
+| P7 Benchmarks | Defined task, repeated seeded trials, controlled/held-out comparisons, failures preserved | Pending |
+| P8 Interchange | Strict versioned JSON round-trip, incompatible input rejection, reproducible configuration | Pending |
+| P9 Reports | Saved-data PDF/ZIP, legible charts/tables, matching metrics and inspected pages | Pending |
+| P10 Projects | Useful versioned organization and creator attribution; no false authenticated identity claims | Pending |
+| P11 Release | Full regression, browser journey, live deployment check and capability report | Pending |
+
+Each row advances only after its tests and actual browser boundary pass. A failure
+keeps that row open. Test fixtures may simplify conditions, but the UI must state
+the tested physical scope. A successful trial alone does not validate a benchmark.
+
+## Risks and constraints
+
+Current public Render Free host sleeps and has 512 MiB memory. Persistent local
+SQLite is not durable across deployment. Rendering cameras must fit that budget.
+The Panda gripper supports small cartons within its opening and tested payload;
+this is a tabletop sorting cell, not an uncalibrated claim about shipping cartons.
+No hardware performance, electrical consumption or production uptime is inferred.
+
+## Verification plan
+
+Run narrow tests at each gate, then integration checks against real HTTP and the
+actual local browser. Inspect desktop/narrow layouts, keyboard controls, faults,
+idle/restart behavior, assets and console errors. Save reports/screenshots under
+`artifacts/factory-*`. Run full regression and public acceptance before release.
