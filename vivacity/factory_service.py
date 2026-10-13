@@ -9,6 +9,7 @@ import json
 from .factory import FactoryBackend, FactorySettings, LAYOUT
 from .workspace import owner
 from .runtime import Busy, Conflict
+from .factory_exchange import software,configuration_export,validate_import,METRICS
 
 
 class FactoryService:
@@ -37,7 +38,7 @@ class FactoryService:
         settings=FactorySettings.model_validate(settings).model_dump()
         w=self.backend.create_world(settings)
         row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-cell/1.0','created_at':time.time(),
-             'config':settings,'world_version':LAYOUT['version'],'engine':{'name':'MuJoCo','version':self.backend.version},
+             'software':software(),'config':settings,'world_version':LAYOUT['version'],'engine':{'name':'MuJoCo','version':self.backend.version},
              'frame':self.backend.observe(w),'initial_state':self.backend.snapshot(w),'last_run_id':None,
              'collision_geometry':self.backend.machine_collision_geometry(w)}
         self.workspace._put('factory_cell',owner_id,row)
@@ -57,7 +58,7 @@ class FactoryService:
             self.latest_states.clear()
             row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-run/1.0','cell_id':identifier,
                  'created_at':time.time(),'status':'queued','phase':'queued','config':cell['config'],
-                 'world_version':cell['world_version'],'engine':cell['engine'],'initial_state':cell['initial_state'],
+                 'software':cell.get('software'),'world_version':cell['world_version'],'engine':cell['engine'],'initial_state':cell['initial_state'],
                  'frame':cell['frame'],'trace':[],'events':[],'metrics':{},'mode':mode,'error':None}
             control={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False}
             control['wake'].set()
@@ -197,7 +198,7 @@ class FactoryService:
             self.controls.clear();self.live.clear();self.latest_states.clear()
             row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-benchmark-record/1.0','created_at':time.time(),
                  'name':settings['name'],'status':'queued','phase':'queued','cell_id':identifier,
-                 'definition':spec,'request':settings,'engine':cell['engine'],'controller_version':'factory-1',
+                 'software':software(),'definition':spec,'request':settings,'engine':cell['engine'],'controller_version':'factory-1',
                  'trials':[],'comparison':{},'error':None,'total_trials':len(spec['trial_configurations'])}
             c={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False}
             c['wake'].set();self.controls[row['id']]=c;self.live[row['id']]=row
@@ -227,7 +228,7 @@ class FactoryService:
                 cell=self._create_owned(trial['config'],owner_id);identifier=str(uuid.uuid4())
                 run={'id':identifier,'schema_version':'vivacity.factory-run/1.0','cell_id':cell['id'],
                      'benchmark_id':row['id'],'created_at':time.time(),'status':'queued','phase':'queued','config':trial['config'],
-                     'world_version':row['definition']['world_version'],'engine':row['engine'],'initial_state':cell['initial_state'],
+                     'software':row.get('software'),'world_version':row['definition']['world_version'],'engine':row['engine'],'initial_state':cell['initial_state'],
                      'frame':cell['frame'],'trace':[],'events':[],'metrics':{},'mode':'production','error':None}
                 cell['last_run_id']=identifier;self.workspace._put('factory_cell',owner_id,cell)
                 with self.lock:
@@ -271,6 +272,30 @@ class FactoryService:
             w=self.backend.fork(state)
             return {'camera':observe_camera(w),'ground_truth':self.backend.observe(w)}
         finally:self.camera_lock.release()
+
+    def export_configuration(self,identifier,token,kind='configuration'):
+        benchmark=self.benchmark(identifier,token) if kind=='benchmark' else None
+        cell=self.cell(benchmark['cell_id'] if benchmark else identifier,token)
+        if not cell.get('software'):
+            raise Conflict('This record predates versioned interchange. Reset or apply its conditions to export a reproducible configuration; its recorded results remain available.')
+        return configuration_export(cell,benchmark)
+
+    def import_configuration(self,value,token):
+        value=validate_import(value,self.backend)
+        cell=self.create(value['configuration'],token)
+        receipt={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-import/1.0','created_at':time.time(),
+                 'cell_id':cell['id'],'source_file':value,'status':'configuration_imported_not_executed'}
+        self.workspace._put('factory_import',owner(token),receipt)
+        return {'cell':cell,'benchmark_request':value['benchmark_request'],'receipt_id':receipt['id'],
+                'message':'Compatible configuration imported. No experiment has started. Run it to produce new verified results.'}
+
+    def export_record(self,identifier,token):
+        row=self.get(identifier,token,full=True)
+        if row['status'] in ('running','paused','queued'):raise Conflict('Stop or finish the run before exporting its complete record.')
+        return {'schema_version':'vivacity.factory-record-export/1.0','units':'SI','coordinates':'right-handed Z-up; quaternion wxyz',
+                'metric_definitions':METRICS,'missing_data':'null means unavailable; missing fields were not measured.',
+                'provenance':'Saved backend MuJoCo execution; imported measurements are never accepted as a verified run.',
+                'record':row}
 
     def close(self):
         for control in self.controls.values():control['stop'].set();control['wake'].set()

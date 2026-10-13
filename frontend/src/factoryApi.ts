@@ -13,7 +13,13 @@ async function request<T>(path:string,method='GET',body?:unknown):Promise<T>{
  const response=await fetchRuntime(API+'/v1/factory'+path,{method,headers:{'X-Workspace-Token':workspaceToken(),...(body===undefined?{}:{'Content-Type':'application/json'})},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(60000)});
  return await readAPIResponse(response) as T;
 }
+export type BenchmarkInput={schema_version?:string;name:string;repeats:number;held_out_repeats:number;changes:{carton_mass_kg?:number;carton_friction?:number;gripper_force_scale?:number;conveyor_speed_m_s?:number}};
+export type FactoryImport={cell:FactoryCell;benchmark_request:BenchmarkInput|null;receipt_id:string;message:string};
 export const factoryApi={
+ exportConfiguration:(id:string)=>request<unknown>(`/cells/${encodeURIComponent(id)}/export`),
+ exportBenchmark:(id:string)=>request<unknown>(`/benchmarks/${encodeURIComponent(id)}/export`),
+ exportRecord:(id:string)=>request<unknown>(`/runs/${encodeURIComponent(id)}/export`),
+ importConfiguration:(value:unknown)=>request<FactoryImport>('/imports','POST',value),
  history:()=>request<FactoryRun[]>('/runs'),
  benchmarks:()=>request<FactoryBenchmarkRecord[]>('/benchmarks'),
  benchmark:(id:string)=>request<FactoryBenchmarkRecord>('/benchmarks/'+encodeURIComponent(id)),

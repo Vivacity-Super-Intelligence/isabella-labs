@@ -66,3 +66,33 @@ def benchmark(identifier:str,request:Request,x_workspace_token:Token):
 @router.post('/benchmarks/{identifier}/control')
 def benchmark_control(identifier:str,body:Command,request:Request,x_workspace_token:Token):
     return request.app.state.factory.command(identifier,x_workspace_token,body.action,kind='factory_benchmark')
+
+from .factory_exchange import Exchange
+
+@router.get('/cells/{identifier}/export',response_model=Exchange)
+def export_configuration(identifier:str,request:Request,x_workspace_token:Token):
+    return request.app.state.factory.export_configuration(identifier,x_workspace_token)
+
+@router.get('/benchmarks/{identifier}/export',response_model=Exchange)
+def export_benchmark(identifier:str,request:Request,x_workspace_token:Token):
+    return request.app.state.factory.export_configuration(identifier,x_workspace_token,'benchmark')
+
+@router.get('/runs/{identifier}/export')
+def export_record(identifier:str,request:Request,x_workspace_token:Token):
+    return request.app.state.factory.export_record(identifier,x_workspace_token)
+
+@router.post('/imports',status_code=201)
+async def import_configuration(request:Request,x_workspace_token:Token):
+    # Bound bytes before JSON decoding and Pydantic validation (including chunked uploads).
+    import asyncio
+    chunks=[];length=0
+    async for chunk in request.stream():
+        length+=len(chunk)
+        if length>262144:raise ValueError('Configuration interchange is limited to 256 KiB. Use a configuration or benchmark file, not a raw result archive.')
+        chunks.append(chunk)
+    from pydantic import ValidationError
+    try:body=Exchange.model_validate_json(b''.join(chunks))
+    except ValidationError as exc:
+        reasons=['.'.join(map(str,e['loc']))+': '+e['msg'] for e in exc.errors(include_input=False)[:5]]
+        raise ValueError('Incompatible interchange file. '+'; '.join(reasons)) from None
+    return await asyncio.to_thread(request.app.state.factory.import_configuration,body.model_dump(mode='json'),x_workspace_token)

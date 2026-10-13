@@ -1,0 +1,52 @@
+{
+  "schema_version": "vivacity.factory-exchange/1.0",
+  "kind": "configuration",
+  "units": {
+    "length": "cm",
+    "time": "s",
+    "mass": "kg",
+    "angle": "rad",
+    "force": "N",
+    "torque": "N m",
+    "energy": "J",
+    "power": "W"
+  },
+  "coordinates": "right-handed Z-up; XY horizontal; quaternion wxyz",
+  "software": {
+    "engine": "MuJoCo",
+    "engine_version": "3.15.0",
+    "numpy_version": "2.5.3",
+    "controller_sha256": "b23402f0927b4c2013031e79f8e2eca79d524c55c602cbdd1577e1b4279820b6",
+    "robot_assets_sha256": "6d066a44c71a13028bd8b0c91cb7d960c3fdd681709a0d19cd2cbe7db4be9899",
+    "world_sha256": "ef35b982a18faea88a5bffa1c28f28125ac1e3718bad88d6b696203c5870fb23"
+  },
+  "world_version": "vivacity.sorting-cell/1.0",
+  "robot": "MuJoCo Menagerie Franka Panda",
+  "provenance": {
+    "exported_at": "2026-10-13T18:43:13.179780Z",
+    "source_record_id": "d95d7b7e-98e6-4f66-a659-658b36c281a7",
+    "source": "vivacity_backend",
+    "platform": "Windows AMD64"
+  },
+  "configuration": {
+    "schema_version": "vivacity.factory-settings/1.0",
+    "name": "Carton sorting baseline",
+    "seed": 19,
+    "carton_count": 1,
+    "carton_mass_kg": 0.15,
+    "carton_friction": 0.05,
+    "carton_half_size_m": 0.025,
+    "carton_start_x_m": 0.5,
+    "carton_start_y_m": -0.4,
+    "conveyor_speed_m_s": 0.09,
+    "arrival_interval_s": 18,
+    "realtime_speed": 8,
+    "sort_threshold_kg": 0.07,
+    "gripper_force_scale": 0.005
+  },
+  "initial_state_sha256": "8674fd5a4a8261e6a25761bf345a6f06cdc0a17e061dc16fd066c287ed3de7a3",
+  "model_sha256": "67dbca413b586aa810b285bbba4338415e8689b0c0891d478f72ba19136d0d90",
+  "benchmark_request": null,
+  "benchmark_definition_sha256": null,
+  "content_sha256": "594577cf7fe3f1a94e455f07f748fe8a87ac34802d4be5727f43d0245dce3d69"
+}
