@@ -1,12 +1,14 @@
 import { Component, memo, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { BufferAttribute, BufferGeometry, Color, Group, Plane, Quaternion, Vector3, SRGBColorSpace } from 'three';
+import { BufferAttribute, BufferGeometry, Color, Group, Plane, Quaternion, Vector3, SRGBColorSpace, PCFShadowMap } from 'three';
 import { type Dict, type RobotFrame, type Vec3 } from './domain';
 import { clampPickupPosition, objectHalfSizes } from './pickupWorkspace';
 import {ImportedVisual} from './WorldPreview';
 import {workspaceApi,type LibraryWorld} from './workspaceApi';
 import type {components} from './generated/api';
+import EnvironmentAppearance,{appearanceFor} from './EnvironmentAppearance';
+import Workbench from './Workbench';
 
 type MeshSpec = { id: number; positions: { byte_offset: number; count: number }; indices: { byte_offset: number; count: number } };
 type Geom = { id: number; name: string; body_id: number; type: string; group: number; mesh_id: number | null; position: Vec3; quaternion_wxyz: number[]; size: Vec3; rgba: number[] };
@@ -37,17 +39,20 @@ export function loadAssets(robot='panda') {
 const quaternion = (q: number[]) => new Quaternion(q[1],q[2],q[3],q[0]);
 
 type CameraController={target:Vector3;getPolarAngle:()=>number;setPolarAngle:(n:number)=>void;getAzimuthalAngle:()=>number;setAzimuthalAngle:(n:number)=>void;update:()=>unknown};
-function CameraInteraction({command,enabled}:{command:{key:string;seq:number};enabled:boolean}){
+function CameraInteraction({command,enabled,catalog=false}:{command:{key:string;seq:number};enabled:boolean;catalog?:boolean}){
   const controls=useRef<CameraController|null>(null);
   const {camera,invalidate}=useThree();
+  const orbitTarget=useMemo(()=>catalog?[.12,0,.35] as Vec3:[.35,0,.3] as Vec3,[catalog]);
   useEffect(()=>{
-    const c=controls.current;if(!c||!command.key)return;
+    const c=controls.current;if(!c)return;
+    if(!command.key){camera.position.set(...(catalog?[1.1,-1.2,.9]:[1.8,-2.1,1.35]) as Vec3);c.target.set(...(catalog?[.12,0,.35]:[.35,0,.3]) as Vec3);c.update();invalidate();return;}
+    if(command.key.startsWith('Shift+Arrow')){const right=new Vector3(1,0,0).applyQuaternion(camera.quaternion),up=new Vector3(0,1,0).applyQuaternion(camera.quaternion);const delta=(command.key.includes('Left')||command.key.includes('Right')?right:up).multiplyScalar(command.key.includes('Left')||command.key.includes('Down')?-.08:.08);camera.position.add(delta);c.target.add(delta);c.update();invalidate();return;}
     if(command.key==='ArrowLeft'||command.key==='ArrowRight')c.setAzimuthalAngle(c.getAzimuthalAngle()+(command.key==='ArrowLeft'?.12:-.12));
     if(command.key==='ArrowUp'||command.key==='ArrowDown')c.setPolarAngle(Math.max(.1,Math.min(Math.PI*.49,c.getPolarAngle()+(command.key==='ArrowUp'?-.1:.1))));
     if(['+','=','-'].includes(command.key)){camera.position.sub(c.target).multiplyScalar(command.key==='-'?1.15:1/1.15).add(c.target);c.update();}
     invalidate();
-  },[command,camera,invalidate]);
-  return <OrbitControls ref={c=>{controls.current=c;}} enabled={enabled} makeDefault target={[.32,.08,.28]} minDistance={.7} maxDistance={4} maxPolarAngle={Math.PI*.49} enableDamping dampingFactor={.12} />;
+  },[command,camera,invalidate,catalog]);
+  return <OrbitControls ref={c=>{controls.current=c;}} enabled={enabled} makeDefault target={orbitTarget} minDistance={.7} maxDistance={4} maxPolarAngle={Math.PI*.49} enableDamping={false} />;
 }
 
 export function GeomMesh({ geom, assets, config }: { geom: Geom; assets: Assets; config: Dict }) {
@@ -56,6 +61,7 @@ export function GeomMesh({ geom, assets, config }: { geom: Geom; assets: Assets;
   const size = (geom.name === 'obstacle_geom' ? config.obstacle_size ?? geom.size : geom.name === 'cube' && config.task === 'pick_place'
     ? objectHalfSizes(config) : geom.size) as Vec3;
   const color = useMemo(() => new Color().setRGB(geom.rgba[0],geom.rgba[1],geom.rgba[2],SRGBColorSpace),[geom]);
+  if(geom.name==='table'&&geom.size.every((v,i)=>Math.abs(v-[.7,.65,.04][i])<1e-6)&&geom.position.every((v,i)=>Math.abs(v-[.4,0,-.04][i])<1e-6))return <Workbench/>;
   return <mesh position={geom.position} quaternion={q} geometry={geom.mesh_id !== null ? assets.geometry.get(geom.mesh_id) : undefined} castShadow={geom.type !== 'plane'} receiveShadow>
     {geom.type === 'box' && <boxGeometry args={[size[0]*2,size[1]*2,size[2]*2]} />}
     {geom.type === 'plane' && <planeGeometry args={[6,6]} />}
@@ -147,10 +153,10 @@ function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime, ca
       onPointerUp={body.name==='target'?pointerUp:undefined} onPointerCancel={body.name==='target'?pointerCancel:undefined}
       onPointerOver={body.name==='target'&&canMoveCube?()=>onHover(true):undefined}
       onPointerOut={body.name==='target'?()=>onHover(false):undefined}>
-      {assets.manifest.geoms.filter(g=>g.body_id === body.id && (g.group === 0 || g.group === 2) && !(g.name==='obstacle_geom'&&config.obstacle_enabled===false) && !last?.environment_geometries?.some(measured=>measured.name===g.name)).map(geom=><GeomMesh key={geom.id} geom={geom} assets={assets} config={config} />)}
+      {assets.manifest.geoms.filter(g=>g.body_id === body.id && !(config.catalog&&(g.body_id===0||body.name==='target')) && (g.group === 0 || g.group === 2) && !(config.show_environment_appearance&&g.type==='plane') && !(g.name==='obstacle_geom'&&config.obstacle_enabled===false) && !last?.environment_geometries?.some(measured=>measured.name===g.name)).map(geom=><GeomMesh key={geom.id} geom={geom} assets={assets} config={config} />)}
       {body.name==='target'&&canMoveCube&&<mesh><boxGeometry args={[.1,.1,.08]}/><meshBasicMaterial transparent opacity={0} depthWrite={false}/></mesh>}
     </group>)}
-    {last?.environment_geometries?.filter(geom=>!(config.show_imported_appearance&&geom.name==='environment_import_collision_proxy')).map((geom,i)=><GeomMesh key={geom.name} geom={{...geom,id:i,body_id:0,group:0,mesh_id:null}} assets={assets} config={{}} />)}
+    {last?.environment_geometries?.filter(geom=>!(config.show_imported_appearance&&geom.name==='environment_import_collision_proxy')&&!config.show_environment_appearance).map((geom,i)=><GeomMesh key={geom.name} geom={{...geom,id:i,body_id:0,group:0,mesh_id:null}} assets={assets} config={{}} />)}
   </group>;
 }
 
@@ -162,27 +168,31 @@ class SceneBoundary extends Component<{children: ReactNode;onError:()=>void}, { 
 }
 
 function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=false, onMoveCube=async()=>false,visualWorld }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean>;visualWorld?:LibraryWorld }) {
-  const [assets,setAssets] = useState<Assets | null>(null), [error,setError] = useState<string | null>(null), [cameraKey,setCameraKey] = useState(0);
+  const [assets,setAssets] = useState<Assets | null>(null), [error,setError] = useState<string | null>(null);
+  const [appearanceStatus,setAppearanceStatus]=useState(''),[appearanceError,setAppearanceError]=useState(false);
+  const appearance=appearanceFor(visualWorld);
   const [dragging,setDragging]=useState(false),[hovering,setHovering]=useState(false),[dragError,setDragError]=useState<string|null>(null);
   const [cameraCommand,setCameraCommand]=useState({key:'',seq:0});
   const [imported,setImported]=useState<components['schemas']['ImportPreview']|null>(null),[showImported,setShowImported]=useState(true);
-  useEffect(()=>{let active=true;setImported(null);if(visualWorld?.preview_available)workspaceApi.preview(visualWorld.id).then(p=>active&&setImported(p)).catch(()=>active&&setDragError('Imported appearance could not load. Physical collision geometry remains available.'));return()=>{active=false;};},[visualWorld?.id]);
-  const resetCamera=()=>{setCameraCommand(c=>({key:'',seq:c.seq+1}));setCameraKey(k=>k+1);};
+  useEffect(()=>{let active=true;setImported(null);setAppearanceError(false);if(visualWorld?.preview_available&&!appearance)workspaceApi.preview(visualWorld.id).then(p=>active&&setImported(p)).catch(()=>active&&setDragError('Imported appearance could not load. Physical collision geometry remains available.'));return()=>{active=false;};},[visualWorld?.id]);
+  const resetCamera=()=>setCameraCommand(c=>({key:'',seq:c.seq+1}));
   const robot=String(config.robot_model??'panda');
   useEffect(() => { let active = true;setAssets(null);setError(null);loadAssets(robot).then(a=>active&&setAssets(a)).catch(e=>active&&setError(String(e))); return ()=>{ active=false; }; },[robot]);
-  return <><div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label={`${robot==='panda'?'Franka Panda':robot} workcell. ${canMoveCube?'Drag the blue object on the supported table. Change conditions provides keyboard position controls. ':''}Arrow keys orbit, plus and minus zoom, R resets camera.`} onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
+  return <><div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label={`${robot==='panda'?'Franka Panda':robot} workcell. ${canMoveCube?'Drag the blue object on the supported table. Change conditions provides keyboard position controls. ':''}Arrow keys orbit, Shift and arrows pan, plus and minus zoom, R resets camera.`} onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.shiftKey?'Shift+'+e.key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
     {!error&&assets&&frames.length>0&&<SceneBoundary onError={()=>setError('3D rendering is unavailable. Your experiment data remains accessible in the inspector. Try a WebGL2-capable browser.')}>
-      <Canvas key={cameraKey} frameloop="demand" shadows dpr={[1,1.25]} style={{cursor:canMoveCube?(dragging?'grabbing':hovering?'grab':'auto'):'auto',touchAction:'none'}} camera={{ position: visualWorld?.preview_available?[4,-5,3]:config.scene_profile==='orbital_salvage'?[1.4,1.5,1.3]:[1.5,-1.6,1.25], fov: 38, near: .01, far: 30 }} gl={{ antialias: true, preserveDrawingBuffer: true }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#deddd4'); performance.mark('vivacity:robot-scene-ready'); }}>
+      <Canvas frameloop="demand" shadows={{type:PCFShadowMap}} dpr={[1,1.5]} style={{cursor:canMoveCube?(dragging?'grabbing':hovering?'grab':'auto'):'auto',touchAction:'none'}} camera={{ position:[1.8,-2.1,1.35], fov: 42, near: .015, far: 100 }} gl={{ antialias: false }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#262a2d'); performance.mark('vivacity:robot-scene-ready'); }}>
         <ambientLight intensity={visualWorld?.spec.lighting.ambient??.72} /><hemisphereLight args={['#ffffff','#6f706a',1.8]} />
         <directionalLight position={[1,-1.5,3]} intensity={visualWorld?.spec.lighting.key_intensity??3.2} castShadow shadow-mapSize={[1024,1024]} shadow-bias={-.00005} shadow-normalBias={.008} shadow-camera-left={-1.5} shadow-camera-right={1.5} shadow-camera-top={1.5} shadow-camera-bottom={-1.5} />
         <directionalLight position={[-2,1,1.5]} intensity={1.3} />
-        <MeasuredRobot assets={assets} frames={frames} cursor={cursor} config={{...config,show_imported_appearance:!!imported&&showImported}} playing={playing} renderTime={renderTime} canMoveCube={canMoveCube} onMoveCube={onMoveCube} onDragging={setDragging} onHover={setHovering} onDragError={setDragError} />
+        <MeasuredRobot assets={assets} frames={frames} cursor={cursor} config={{...config,show_imported_appearance:(!!imported||!!appearance)&&showImported,show_environment_appearance:!!appearance&&showImported}} playing={playing} renderTime={renderTime} canMoveCube={canMoveCube} onMoveCube={onMoveCube} onDragging={setDragging} onHover={setHovering} onDragError={setDragError} />
         {imported&&showImported&&visualWorld?.mapping&&<ImportedVisual preview={imported} mapping={visualWorld.mapping}/>}
-        <CameraInteraction command={cameraCommand} enabled={!dragging} />
+        {appearance&&showImported&&<EnvironmentAppearance world={visualWorld} appearance={appearance} onStatus={(message,failed=false)=>{setAppearanceStatus(message);setAppearanceError(failed);}}/>}
+        <CameraInteraction command={cameraCommand} enabled={!dragging} catalog={!!config.catalog} />
       </Canvas>
     </SceneBoundary>}
   </div>
-    {imported&&<label className="small"><input type="checkbox" checked={showImported} onChange={e=>setShowImported(e.target.checked)}/> Show imported appearance. Physics uses the declared conservative collision proxy; turn this off to inspect the actual collision box.</label>}
+    <div className="scene-toolbar"><span>{robot==='panda'?'Franka Panda':robot.toUpperCase()} · {visualWorld?.name??'Physical workcell'}</span><button type="button" onClick={resetCamera}>Reset camera</button>{(imported||appearance)&&<label><input type="checkbox" checked={showImported} onChange={e=>setShowImported(e.target.checked)}/> Environment</label>}</div>
+    {appearanceStatus&&<p className={appearanceError?'negative small':'small'} role={appearanceError?'alert':'status'}>{appearanceStatus}</p>}
     {(error||dragError)&&<p className="negative" role="alert">{error??dragError}</p>}
     {!error&&(!assets||!frames.length)&&<p className="small" role="status">{!assets?'Loading Panda geometry…':'Waiting for a measured world state…'}</p>}
   </>;

@@ -9,10 +9,11 @@ import ClothSettings from './ClothSettings';
 import TechnicalInspector from './TechnicalInspector';
 import ResultCard from './ResultCard';
 import Brand from './Brand';
-import TemplatePicker, { DEFAULT_SELECTION, DEFAULT_CONFIG, selectionKey, selectionNames, type Selection } from './TemplatePicker';
+import TemplatePicker, { DEFAULT_SELECTION, selectionKey, type Selection } from './TemplatePicker';
 import ExperimentSetup from './ExperimentSetup';
 import {workspaceApi,defaultConfiguration,type Configuration,type SavedConfiguration,type LibraryWorld,type Option} from './workspaceApi';
 import './studio.css';
+import defaultWorkcell from './generated/defaultWorkcell.json';
 
 const RobotView=lazy(()=>import('./RobotView'));
 const ClothView=lazy(()=>import('./ClothView'));
@@ -22,12 +23,15 @@ const RegistryView=lazy(()=>import('./RegistryView'));
 const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
 
 export default function App(){
-  const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:DEFAULT_CONFIG});
-  const [draft,setDraft]=useState<Configuration>(defaultConfiguration());
+  const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:defaultWorkcell,key:'curated-warehouse-v1',name:'Franka Panda / Industrial warehouse / Pick and place'});
+  const [draft,setDraft]=useState<Configuration>(defaultConfiguration('warehouse'));
   const [page,setPage]=useState<'workspace'|'worlds'|'robots'|'operations'|'experiments'|'settings'|'import'>('workspace');
   const setupSummary=useRef<HTMLElement>(null);
-  const [setupOpen,setSetupOpen]=useState(true);
+  const [setupOpen,setSetupOpen]=useState(false);
+  const [setupStep,setSetupStep]=useState(0);
+  const [preparing,setPreparing]=useState(false);
   const [visualWorld,setVisualWorld]=useState<LibraryWorld|undefined>();
+  useEffect(()=>{workspaceApi.world('warehouse').then(setVisualWorld).catch(()=>{});},[]);
   const backend=activeTemplate.backend,cloth=backend==='cloth';
   const rt=useRuntime(backend,activeTemplate.key??selectionKey(activeTemplate.selection),activeTemplate.config,activeTemplate.configurationId);
   const [branchId,setBranchId]=useState<string|null>(null),[editing,setEditing]=useState(false),[downloadError,setDownloadError]=useState<string|null>(null);
@@ -54,7 +58,7 @@ export default function App(){
     rt.experiment?.result.execution_evaluation&&!(rt.experiment.result.execution_evaluation as {success:boolean}).success?'Execution failed':
     terminal&&rt.experiment?.selected_branch_id?'Task verified':terminal?'No feasible result':'Ready to start';
   const counters=Object.assign({},...rt.events.filter(e=>e.kind==='progress').map(e=>e.details),rt.experiment?.result.search??{}) as Record<string,unknown>;
-  const disabled=rt.mutating||!compatible||!rt.online;
+  const disabled=preparing||rt.mutating||!compatible||!rt.online;
   const canMoveCube=backend==='mujoco'&&!disabled&&!rt.active&&!isBusy(rt.experiment)&&config.scene_profile!=='orbital_salvage';
   const moveCube=async(point:Vec3)=>{
     const sizes=objectHalfSizes(config),destination=placementAwayFrom(point,config.placement_position as Vec3,sizes);
@@ -76,13 +80,24 @@ export default function App(){
       name:`${saved.configuration.robot_id} / ${world.name} / ${saved.configuration.operation_id.replaceAll('_',' ')}`});
     setSetupOpen(false);setPage('workspace');setupSummary.current?.focus();
   };
-  const chooseWorld=(world:LibraryWorld)=>{setDraft(d=>({...d,environment_id:world.id,...(world.id==='textile_fixture'?{operation_id:'cloth_fold',gripper_id:'fold_fixture',robot_id:'panda'}:d.operation_id==='cloth_fold'?{operation_id:'pick_place',gripper_id:'panda_parallel'}:{})}));setSetupOpen(true);setPage('workspace');};
-  const chooseOption=(option:Option)=>{if(page==='robots')setDraft(d=>({...d,robot_id:option.id as Configuration['robot_id'],gripper_id:'panda_parallel',...(d.operation_id==='cloth_fold'?{operation_id:'pick_place',environment_id:'desktop'}:{})}));else if(option.id==='cloth_fold')setDraft(d=>({...d,operation_id:'cloth_fold',robot_id:'panda',gripper_id:'fold_fixture',environment_id:'textile_fixture'}));else setDraft(d=>({...d,operation_id:option.id as Configuration['operation_id'],gripper_id:'panda_parallel',...(d.environment_id==='textile_fixture'?{environment_id:'desktop'}:{})}));setSetupOpen(true);setPage('workspace');};
+  const prepare=async(configuration:Configuration,step:number)=>{
+    if(preparing)return;setPreparing(true);setDownloadError(null);setPage('workspace');setDraft(configuration);
+    try{const [saved,world]=await Promise.all([workspaceApi.save(configuration),workspaceApi.world(configuration.environment_id)]);await loadConfiguration(saved,world);setSetupStep(step);setSetupOpen(true);}
+    catch(e){setDownloadError(errorMessage(e));}finally{setPreparing(false);}
+  };
+  const chooseWorld=(world:LibraryWorld)=>prepare({...draft,environment_id:world.id,...(world.id==='textile_fixture'?{operation_id:'cloth_fold' as const,gripper_id:'fold_fixture' as const,robot_id:'panda' as const}:draft.operation_id==='cloth_fold'?{operation_id:'pick_place' as const,gripper_id:'panda_parallel' as const}:{})},0);
+  const chooseOption=(option:Option)=>{
+    if(page==='robots')return prepare({...draft,robot_id:option.id as Configuration['robot_id'],gripper_id:'panda_parallel',...(draft.operation_id==='cloth_fold'?{operation_id:'pick_place' as const,environment_id:'warehouse'}:{})},1);
+    if(option.id==='cloth_fold')return prepare({...draft,operation_id:'cloth_fold',robot_id:'panda',gripper_id:'fold_fixture',environment_id:'textile_fixture'},2);
+    return prepare({...draft,operation_id:option.id as Configuration['operation_id'],gripper_id:'panda_parallel',...(draft.environment_id==='textile_fixture'?{environment_id:'warehouse'}:{})},2);
+  };
 
   return <>
     <a className="skip-link" href="#workspace">Skip to workspace</a>
     <header className="site-header"><Brand/><nav className="main-nav" aria-label="Workspace navigation">
-      {(['workspace','worlds','robots','operations','experiments','settings'] as const).map(id=><button key={id} aria-pressed={page===id} disabled={rt.mutating} onClick={()=>setPage(id)}>{id[0].toUpperCase()+id.slice(1)}</button>)}
+      {(['workspace','worlds','robots','experiments'] as const).map(id=><button key={id} aria-pressed={page===id} disabled={rt.mutating} onClick={()=>setPage(id)}>{id[0].toUpperCase()+id.slice(1)}</button>)}
+      <button aria-pressed={page==='operations'} onClick={()=>setPage('operations')}>Operations</button>
+      <button className="nav-settings" aria-label="Runtime settings" onClick={()=>setPage('settings')}><SlidersHorizontal size={18}/></button>
     </nav></header>
     <main id="workspace" tabIndex={-1}>
       {page==='worlds'?<Suspense fallback={<p>Loading world library…</p>}><WorldLibrary choose={chooseWorld} nativeImport={async()=>{await rt.stop();setPage('import');}}/></Suspense>:
@@ -90,10 +105,11 @@ export default function App(){
        page==='experiments'?<Suspense fallback={<p>Loading measured experiment history…</p>}><ExperimentLibrary load={loadConfiguration}/></Suspense>:
        page==='settings'?<section className="library-area"><h1>Runtime settings</h1><p>API: {API}</p><p className="small">Provider keys stay in backend environment variables. World generation availability is shown in Worlds. This demo uses bounded shared compute and browser capabilities; it does not provide production user accounts or guaranteed uptime.</p><a href={`${API}/docs`} target="_blank" rel="noreferrer">API and schema reference</a></section>:
        page==='import'?<><button className="secondary" onClick={()=>setPage('worlds')}>Back to world library</button><Suspense fallback={<div className="viewport-loading">Loading import tools…</div>}><ImportWorld/></Suspense></>:<>
-        <details className="setup-disclosure" open={setupOpen} onToggle={e=>setSetupOpen(e.currentTarget.open)}><summary ref={setupSummary}>Configure an experiment</summary><ExperimentSetup initial={draft} load={loadConfiguration} worldsPage={()=>setPage('worlds')}/></details>
-        <details className="quick-templates"><summary>Quick workcell templates</summary><TemplatePicker loaded={activeTemplate.selection} busy={rt.mutating} load={loadTemplate}/></details>
-        <div className="loaded-template"><span>Loaded physical world</span><strong>{activeTemplate.name??selectionNames(activeTemplate.selection)}</strong><span className="connection" role="status">{rt.online?'Viva Physics connected':'Connecting to physics runtime…'}</span></div>
+        <div className="workspace-heading"><div><h1>Design. Simulate. Discover.</h1><p>Explore robotic systems in physical environments.</p></div><span className="connection" role="status">{rt.online?'Physics connected':'Connecting to runtime…'}</span></div>
+        {preparing&&<p role="status" className="small">Loading the selected physical configuration…</p>}
+        <nav className="journey" aria-label="Experiment stages">{['Environment','Robot','Operation','Experiment'].map((label,i)=><button key={label} aria-pressed={setupOpen&&setupStep===i} disabled={rt.active} onClick={()=>{setSetupStep(i);setSetupOpen(true);setEditing(false);}}><span>0{i+1}</span>{label}</button>)}</nav>
         {!rt.online&&rt.loaded&&<div className="offline-notice" role="status"><Warning size={18}/><span>Simulation runtime unavailable.</span><button onClick={rt.reconnect}>Reconnect</button></div>}
+        {downloadError&&<p className="negative" role="alert">{downloadError}</p>}
         {rt.error&&<div className="error-notice" role="alert"><Warning size={18}/><span>{rt.error}</span>{!rt.online&&<button onClick={rt.reconnect}>Reconnect</button>}<button className="icon-button" aria-label="Dismiss error" onClick={rt.clearError}><X size={17}/></button></div>}
         <div className="workbench">
           <section className="visual-area" aria-label="Live simulation">
@@ -109,6 +125,7 @@ export default function App(){
             {backend==='mujoco'&&<p className="small" role="status">The search tests physical alternatives until measured improvement levels off or this host reaches its compute budget. Progress below counts completed backend simulations.</p>}
           </section>
           <aside className="results" aria-label="Verified results">
+            {setupOpen?<><div className="context-heading"><h2>Configure experiment</h2><button aria-label="Close configuration" className="icon-button" onClick={()=>setSetupOpen(false)}><X size={16}/></button></div><ExperimentSetup initial={draft} load={loadConfiguration} worldsPage={()=>setPage('worlds')} step={setupStep} setStep={setSetupStep}/></>:<>
             <div className="section-heading"><h2>{cloth?'Best verified folds':'Best verified placements'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
             {backend==='mujoco'&&config.task==='pick_place'&&config.scene_profile!=='orbital_salvage'&&<p className="sensor-summary" data-testid="object-perception" role="status">{rt.active?'Object localization pauses during physical execution.':rt.perception?.detected&&rt.perception.estimated_xy_m?`Simulated depth sensing: object at X ${format(rt.perception.estimated_xy_m[0])} m, Y ${format(rt.perception.estimated_xy_m[1])} m from ${rt.perception.visible_cube_rays} MuJoCo rays.`:rt.perception?'Object is not visible to the simulated overhead sensor.':'Locating the object…'} <span>Simulator labels, not a real camera.</span></p>}
             {editing&&rt.world?cloth?<ClothSettings key={rt.world.id} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:
@@ -119,10 +136,12 @@ export default function App(){
               <p className="decision" data-testid="decision">{compatible?String(rt.experiment?.error??rt.experiment?.result.conclusion??''):''}</p>
               {rt.experiment?.stale&&<p className="stale-warning" data-testid="stale-warning">The world changed. These results describe its previous configuration.</p>}
             </>}
+            </>}
           </aside>
         </div>
         {counters.generated!==undefined&&<dl className="search-counts" aria-label="Actual search work">{[['Generated','generated'],['Screened','screened'],['Passed screening','screening_passed'],[cloth?'Validation rollouts':'Physics trials','fully_simulated'],['Verified feasible','verified_feasible']].map(([name,key])=><div key={key}><dt>{name}</dt><dd data-testid={`count-${key}`}>{Number(counters[key]??0).toLocaleString()}{!cloth&&!counters.adaptive_stopping&&key==='fully_simulated'&&Number(counters.physics_target)>0?` / ${Number(counters.physics_target).toLocaleString()}`:''}</dd></div>)}</dl>}
         <TechnicalInspector events={rt.events} initialized={compatible} playing={false} branches={branches} select={setBranchId} history={{ids:rt.session?.experiments??[],open:rt.history,disabled:rt.mutating}}/>
+        <details className="quick-templates"><summary>Legacy workcell templates</summary><TemplatePicker loaded={activeTemplate.selection} busy={rt.mutating} load={loadTemplate}/></details>
       </>}
     </main>
     <footer><span>Viva Physics</span><details><summary>Credits & scope</summary><p>Robotics: MuJoCo and Menagerie Franka Panda (Apache 2.0), simplified physical workcell. Cloth: actuated Panda, MuJoCo flex, pre-attached folding fixture; experimental, no autonomous grasp acquisition. OpenAI structures world/operation proposals; deterministic planners drive measured physics. World Labs assets use explicit collision mapping. Sessions are bounded and stop without a browser lease.</p></details><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>

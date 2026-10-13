@@ -5,20 +5,15 @@ export const API = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
 let sessionToken: string | null = null;
 export function setSessionToken(token: string) { sessionToken = token; }
 export function liveProtocols() { return sessionToken ? ['vivacity.live', `vivacity.token.${sessionToken}`] : []; }
-export class APIError extends Error {
-  constructor(public status: number, public detail: unknown) {
-    super(typeof detail === 'string' ? detail : JSON.stringify(detail));
-  }
-}
+export {APIError} from './apiResponse';
+import {APIError,readAPIResponse} from './apiResponse';
 type ValidationIssue = { msg?: unknown; loc?: unknown; type?: unknown };
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (sessionToken && !headers.has('X-Session-Token')) headers.set('X-Session-Token',sessionToken);
   const response = await fetch(API + path, {...init,headers});
-  const data = await response.json().catch(() => null);
-  if (!data) throw new APIError(response.status || 503, response.ok ? 'The simulation service returned an unreadable response.' : 'The simulation service is temporarily unavailable. Try again.');
-  if (!response.ok) throw new APIError(response.status, data.detail ?? data);
-  return data;
+  // JSON null is a valid response from the optional cached live-frame route.
+  return await readAPIResponse(response) as T;
 }
 const json = (method: string, body?: object, headers: Record<string,string> = {}): RequestInit => ({
   method, headers: body ? { 'Content-Type': 'application/json', ...headers } : headers,

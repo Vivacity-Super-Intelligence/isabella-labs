@@ -407,6 +407,58 @@
         }
       }
     },
+    "/v1/workspace/worlds/{identifier}/appearance": {
+      "get": {
+        "tags": [
+          "Worlds and experiment workspace"
+        ],
+        "summary": "Appearance",
+        "operationId": "appearance_v1_workspace_worlds__identifier__appearance_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/workspace/imports": {
       "post": {
         "tags": [
@@ -3744,6 +3796,18 @@
               }
             ],
             "title": "Mapping"
+          },
+          "appearance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Appearance"
           },
           "deleted": {
             "type": "boolean",

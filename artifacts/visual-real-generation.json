@@ -1,0 +1,580 @@
+{
+  "generation": {
+    "schema_version": "vivacity.generation/1.0",
+    "id": "78139242-899f-4423-936a-e4e8a1faf109",
+    "status": "completed",
+    "provider": "worldlabs",
+    "prompt": "A compact industrial warehouse with realistic steel pallet racks and cardboard cartons along the back wall, concrete flooring, steel ceiling beams and overhead lighting. Keep the central floor empty for a robotic workbench. No people.",
+    "seed": 7,
+    "model": "marble-1.1",
+    "operation_id": "b3f64ac6-556f-4331-99e3-2f4b4ff234fc",
+    "world_id": "d1db3c6a-de02-4c1f-bd99-f96ad279329b",
+    "created_unix_s": 1791884812.305288,
+    "updated_unix_s": 1791885195.0043397,
+    "error": null,
+    "interpretation": {
+      "name": "Compact Industrial Warehouse",
+      "description": "A simplified compact industrial warehouse with steel pallet racks and cardboard cartons along the back wall, concrete flooring, steel ceiling beams, and overhead lighting. Central floor area left empty for a robotic workbench.",
+      "dimensions_m": [
+        8.0,
+        8.0,
+        4.0
+      ],
+      "lighting": {
+        "ambient": 0.5,
+        "key_intensity": 0.9
+      },
+      "geometries": [
+        {
+          "name": "ConcreteFloor",
+          "type": "box",
+          "position": [
+            4.0,
+            4.0,
+            -0.4
+          ],
+          "size": [
+            4.0,
+            4.0,
+            0.4
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.8
+        },
+        {
+          "name": "SteelCeilingBeam1",
+          "type": "box",
+          "position": [
+            4.0,
+            1.0,
+            3.8
+          ],
+          "size": [
+            3.5,
+            0.1,
+            0.2
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.65,
+            1.0
+          ],
+          "friction": 0.5
+        },
+        {
+          "name": "SteelCeilingBeam2",
+          "type": "box",
+          "position": [
+            4.0,
+            3.0,
+            3.8
+          ],
+          "size": [
+            3.5,
+            0.1,
+            0.2
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.65,
+            1.0
+          ],
+          "friction": 0.5
+        },
+        {
+          "name": "SteelCeilingBeam3",
+          "type": "box",
+          "position": [
+            4.0,
+            5.0,
+            3.8
+          ],
+          "size": [
+            3.5,
+            0.1,
+            0.2
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.65,
+            1.0
+          ],
+          "friction": 0.5
+        },
+        {
+          "name": "SteelCeilingBeam4",
+          "type": "box",
+          "position": [
+            4.0,
+            7.0,
+            3.8
+          ],
+          "size": [
+            3.5,
+            0.1,
+            0.2
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.65,
+            1.0
+          ],
+          "friction": 0.5
+        },
+        {
+          "name": "LightingFixture1",
+          "type": "box",
+          "position": [
+            4.0,
+            1.0,
+            3.95
+          ],
+          "size": [
+            3.0,
+            0.05,
+            0.05
+          ],
+          "rgba": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "friction": 0.1
+        },
+        {
+          "name": "LightingFixture2",
+          "type": "box",
+          "position": [
+            4.0,
+            3.0,
+            3.95
+          ],
+          "size": [
+            3.0,
+            0.05,
+            0.05
+          ],
+          "rgba": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "friction": 0.1
+        },
+        {
+          "name": "LightingFixture3",
+          "type": "box",
+          "position": [
+            4.0,
+            5.0,
+            3.95
+          ],
+          "size": [
+            3.0,
+            0.05,
+            0.05
+          ],
+          "rgba": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "friction": 0.1
+        },
+        {
+          "name": "LightingFixture4",
+          "type": "box",
+          "position": [
+            4.0,
+            7.0,
+            3.95
+          ],
+          "size": [
+            3.0,
+            0.05,
+            0.05
+          ],
+          "rgba": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "friction": 0.1
+        },
+        {
+          "name": "PalletRackFrame1",
+          "type": "box",
+          "position": [
+            6.0,
+            1.5,
+            1.0
+          ],
+          "size": [
+            0.2,
+            1.5,
+            1.0
+          ],
+          "rgba": [
+            0.55,
+            0.55,
+            0.55,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "PalletRackFrame2",
+          "type": "box",
+          "position": [
+            6.0,
+            4.0,
+            1.0
+          ],
+          "size": [
+            0.2,
+            1.5,
+            1.0
+          ],
+          "rgba": [
+            0.55,
+            0.55,
+            0.55,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "PalletRackFrame3",
+          "type": "box",
+          "position": [
+            6.0,
+            6.5,
+            1.0
+          ],
+          "size": [
+            0.2,
+            1.5,
+            1.0
+          ],
+          "rgba": [
+            0.55,
+            0.55,
+            0.55,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "PalletRackShelf1",
+          "type": "box",
+          "position": [
+            6.0,
+            1.5,
+            1.5
+          ],
+          "size": [
+            1.0,
+            1.5,
+            0.1
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.6,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "PalletRackShelf2",
+          "type": "box",
+          "position": [
+            6.0,
+            4.0,
+            1.5
+          ],
+          "size": [
+            1.0,
+            1.5,
+            0.1
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.6,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "PalletRackShelf3",
+          "type": "box",
+          "position": [
+            6.0,
+            6.5,
+            1.5
+          ],
+          "size": [
+            1.0,
+            1.5,
+            0.1
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.6,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "CardboardCarton1",
+          "type": "box",
+          "position": [
+            5.7,
+            1.5,
+            0.3
+          ],
+          "size": [
+            0.3,
+            0.2,
+            0.3
+          ],
+          "rgba": [
+            0.82,
+            0.7,
+            0.55,
+            1.0
+          ],
+          "friction": 0.6
+        },
+        {
+          "name": "CardboardCarton2",
+          "type": "box",
+          "position": [
+            6.3,
+            1.5,
+            0.3
+          ],
+          "size": [
+            0.3,
+            0.2,
+            0.3
+          ],
+          "rgba": [
+            0.82,
+            0.7,
+            0.55,
+            1.0
+          ],
+          "friction": 0.6
+        },
+        {
+          "name": "CardboardCarton3",
+          "type": "box",
+          "position": [
+            5.7,
+            4.0,
+            0.3
+          ],
+          "size": [
+            0.3,
+            0.2,
+            0.3
+          ],
+          "rgba": [
+            0.82,
+            0.7,
+            0.55,
+            1.0
+          ],
+          "friction": 0.6
+        },
+        {
+          "name": "CardboardCarton4",
+          "type": "box",
+          "position": [
+            6.3,
+            4.0,
+            0.3
+          ],
+          "size": [
+            0.3,
+            0.2,
+            0.3
+          ],
+          "rgba": [
+            0.82,
+            0.7,
+            0.55,
+            1.0
+          ],
+          "friction": 0.6
+        },
+        {
+          "name": "CardboardCarton5",
+          "type": "box",
+          "position": [
+            5.7,
+            6.5,
+            0.3
+          ],
+          "size": [
+            0.3,
+            0.2,
+            0.3
+          ],
+          "rgba": [
+            0.82,
+            0.7,
+            0.55,
+            1.0
+          ],
+          "friction": 0.6
+        },
+        {
+          "name": "CardboardCarton6",
+          "type": "box",
+          "position": [
+            6.3,
+            6.5,
+            0.3
+          ],
+          "size": [
+            0.3,
+            0.2,
+            0.3
+          ],
+          "rgba": [
+            0.82,
+            0.7,
+            0.55,
+            1.0
+          ],
+          "friction": 0.6
+        }
+      ]
+    },
+    "provider_cost_credits": 1580,
+    "events": [
+      {
+        "stage": "interpreting",
+        "timestamp_unix_s": 1791884812.376283,
+        "message": "OpenAI is interpreting the prompt into a bounded scene specification."
+      },
+      {
+        "stage": "generating",
+        "timestamp_unix_s": 1791884822.1568732,
+        "message": "Submitting a private World Labs generation request."
+      },
+      {
+        "stage": "generating",
+        "timestamp_unix_s": 1791884830.1435242,
+        "message": "World Labs operation accepted; polling its actual status."
+      },
+      {
+        "stage": "receiving",
+        "timestamp_unix_s": 1791885187.9792342,
+        "message": "Retrieving and validating the actual generated collider mesh."
+      },
+      {
+        "stage": "completed",
+        "timestamp_unix_s": 1791885195.0043397,
+        "message": "World Labs colored SPZ appearance and separate collision mesh retrieved. Review the conservative collision mapping before experimentation."
+      }
+    ]
+  },
+  "world": {
+    "schema_version": "vivacity.library/1.0",
+    "id": "d1db3c6a-de02-4c1f-bd99-f96ad279329b",
+    "version": 1,
+    "name": "Compact Industrial Warehouse",
+    "description": "The scene is a compact industrial warehouse, rendered in a realistic style, conveying a functional and organized environment. The overall tone is efficient and utilitarian, emphasizing the practical aspects of an industrial setting. The warehouse features robust steel pallet racks that line the entire back wall, extending from floor to ceiling. These racks are filled with numerous cardboard cartons of various sizes, neatly stacked and organized. The flooring throughout the warehouse is made of smooth, grey concrete, providing a durable and easy-to-maintain surface. Overhead, a network of sturdy steel ceiling beams crisscrosses the space, supporting the structure and providing attachment points for the industrial lighting fixtures. These overhead lights are evenly spaced, casting a bright, uniform illumination across the entire area. The central floor area is deliberately left empty, creating a clear, expansive space designated for a robotic workbench. This central void highlights the intended purpose of the warehouse as a hub for automated operations. The steel pallet racks are positioned directly against the back wall, forming a continuous storage unit. The concrete flooring extends uniformly across the entire ground level. The steel ceiling beams are integrated into the overhead structure, with the lighting fixtures suspended directly from them. The empty central floor is surrounded by the concrete flooring, with the pallet racks forming a backdrop. ",
+    "source": "worldlabs",
+    "spec": {
+      "name": "Compact Industrial Warehouse",
+      "description": "Imported static geometry with an explicitly configured conservative bounding-box collision proxy.",
+      "dimensions_m": [
+        6.477196909982945,
+        7.0,
+        4.0
+      ],
+      "lighting": {
+        "ambient": 0.72,
+        "key_intensity": 3.2
+      },
+      "geometries": [
+        {
+          "name": "import_collision_proxy",
+          "type": "box",
+          "position": [
+            2.5,
+            2.5,
+            0.5
+          ],
+          "size": [
+            0.7385984549914726,
+            1.0,
+            0.39652431205724237
+          ],
+          "rgba": [
+            0.35,
+            0.4,
+            0.43,
+            1.0
+          ],
+          "friction": 0.8
+        }
+      ]
+    },
+    "created_unix_s": 1791885191.542891,
+    "sha256": "ed3e908d4a2d84b972e5583798341c3988cca8194ead83ce9e951e2ea9e41706",
+    "import_id": "f76665b1-64b5-4ab8-9922-1c2ecdca4e72",
+    "provider_world_id": "1eec9556-2690-44db-aaf5-08cc57e31997",
+    "provider_url": "https://marble.worldlabs.ai/world/1eec9556-2690-44db-aaf5-08cc57e31997",
+    "preview_available": true,
+    "physics_scope": "Original triangles are a visual preview. Physics uses a solid axis-aligned bounding-box proxy, centered at the chosen position and scale, plus the standard Panda workbench. A concave room must not be treated as an accurate solid-box reconstruction.",
+    "mapping": {
+      "scale": 0.3520451256573194,
+      "position_m": [
+        2.5,
+        2.5,
+        0.5
+      ],
+      "up_axis": "y",
+      "original_center_m": [
+        0.00952857658092604,
+        -0.3415159287194703,
+        -0.18627533330440404
+      ],
+      "source_sha256": "029a5d65b98c393d01efc7e3451b5d1c20b7338ad5c75b1acd8df8b811e98d1b"
+    },
+    "appearance": {
+      "format": "spz",
+      "quality": "500k",
+      "semantics": {
+        "metric_scale_factor": 1.7335340976715088,
+        "ground_plane_offset": 1.0082917213439941
+      },
+      "coordinate_system": "marble_raw_opencv",
+      "metric_scale_verified": true
+    },
+    "deleted": false,
+    "editable": true
+  },
+  "asset_bytes": 7421219,
+  "asset_sha256": "202be5b14baa2ad79d41b20ea050c4f53d43b3f23c4e10d7a937fef6805ece39"
+}

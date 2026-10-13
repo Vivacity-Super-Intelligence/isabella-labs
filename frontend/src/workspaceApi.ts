@@ -1,7 +1,7 @@
 import {API,APIError} from './api';
 import type {components} from './generated/api';
 
-export type LibraryWorld=Omit<components['schemas']['LibraryWorld'],'spec'> & {spec:{name:string;description:string;dimensions_m:number[];lighting:{ambient:number;key_intensity:number};geometries:{name:string;type:'box'|'cylinder';position:number[];size:number[];rgba:number[];friction:number}[]}};
+export type LibraryWorld=Omit<components['schemas']['LibraryWorld'],'spec'> & {appearance?:Record<string,unknown>|null;spec:{name:string;description:string;dimensions_m:number[];lighting:{ambient:number;key_intensity:number};geometries:{name:string;type:'box'|'cylinder';position:number[];size:number[];rgba:number[];friction:number}[]}};
 export type Configuration=Required<components['schemas']['ExperimentConfiguration']>;
 export type SavedConfiguration=Omit<components['schemas']['ConfigurationResponse'],'configuration'> & {configuration:Configuration};
 export type Generation=components['schemas']['GenerationResponse'];

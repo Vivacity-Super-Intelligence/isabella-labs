@@ -27,7 +27,7 @@ export default function TechnicalInspector({events,initialized,playing,branches,
   const log=useRef<HTMLDivElement>(null),follow=useRef(true);
   const origin=Number(events[0]?.details.timestamp_unix_s??0);
   useEffect(()=>{if(log.current&&follow.current)log.current.scrollTop=log.current.scrollHeight;},[events,playing,initialized]);
-  return <details className="inspector" open><summary>Technical Inspector</summary>
+  return <details className="inspector"><summary>Execution log & recorded evidence</summary>
     <div ref={log} className="event-log" role="log" aria-label="Measured execution events" aria-live="polite" aria-relevant="additions" tabIndex={0} onScroll={()=>{const el=log.current;if(el)follow.current=el.scrollHeight-el.scrollTop-el.clientHeight<30;}}>
       <p>{initialMessage??(initialized?'World initialized. Actual state restored.':'Initializing world…')}</p>
       {events.map(event=>{const elapsed=origin?Number(event.details.timestamp_unix_s??origin)-origin:Number(event.details.elapsed_seconds??0);return <p key={event.seq} className={event.kind==='failed'?'negative':''}><time>[{Math.floor(elapsed/60).toString().padStart(2,'0')}:{(elapsed%60).toFixed(2).padStart(5,'0')}]</time> {describe(event)}</p>;})}

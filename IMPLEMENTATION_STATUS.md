@@ -1,3 +1,27 @@
+# Visual correction release — 2026-10-13
+
+Working: real colored SPZ warehouse/laboratory rendering, preserved standalone
+GLB materials/textures, camera reset without Canvas remount, owned asynchronous
+renderer cleanup, four contextual configuration stages, concise robot catalogue.
+Real MuJoCo execution remains the source of measured results.
+
+Executed: Linux 201/201 passed (854.882 s), 512 MiB 2/2 passed (65.424 s),
+Windows scoped 60/60 passed (133.91 s), frontend 5 selection + 4 response checks
+passed. Real World Labs warehouse: 7,421,219 bytes, 1,580 actual credits.
+Eight environment switches and a textured GLB UI import produced no new browser
+exceptions after fixes. No experiment starts automatically.
+
+Limitations: two curated visual environments; other presets are explicitly
+simplified collision fixtures. Gaussian appearance has baked lighting and is
+not a reconstructed collision twin. Old laboratory scale is visually calibrated,
+not verified metric data. ZIP material bundles remain unsupported. Existing
+cloth/dual-arm/controller limits remain. Render Free can sleep and lose SQLite
+on redeploy. Large renderer chunks and a dependency deprecation warning remain.
+
+Details and current release evidence: `docs/VISUAL_RELEASE.md`.
+
+---
+
 # World and robotic experiment workspace — 2026-10-13
 
 Current backend source: `ffa94fad8628defc20664469335c6de3b6586c5e`.

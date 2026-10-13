@@ -2,6 +2,7 @@
 from copy import deepcopy
 import hashlib
 import json
+from pathlib import Path
 
 from .workspace_schemas import EnvironmentSpec, LibraryWorld
 
@@ -43,4 +44,13 @@ PREBUILT = [
 
 
 def prebuilt():
-    return deepcopy([item.model_dump() for item in PREBUILT])
+    result=deepcopy([item.model_dump() for item in PREBUILT])
+    catalog=json.loads(Path(__file__).with_name('visual_catalog.json').read_text(encoding='utf-8'))
+    for record in result:
+        if record['id'] in catalog:
+            visual=catalog[record['id']]
+            record['appearance']=deepcopy(visual['appearance'])
+            record['provider_world_id']=visual['provider_world_id']
+            record['description']='Curated World Labs '+('laboratory' if record['id']=='robotics_lab' else 'warehouse')+' appearance around a bounded robotics workcell.'
+            record['physics_scope']+=' The colored environment is visual context; its furniture is not automatically reconstructed into collision geometry.'
+    return result
