@@ -82,6 +82,24 @@ def test_emergency_stop_and_fresh_cell_reset(tmp_path):
         reset=c.post('/v1/factory/cells',headers=OWNER,json=cell['config']).json()
         assert reset['initial_state']==cell['initial_state'] and reset['frame']['time']==0
 
+
+def test_abandoned_pause_releases_worker_but_active_client_keeps_lease(tmp_path):
+    with TestClient(create_app(tmp_path/'factory.sqlite3')) as c:
+        c.app.state.factory.pause_lease_seconds=.3
+        cell=c.post('/v1/factory/cells',headers=OWNER,json={}).json()
+        run=c.post('/v1/factory/cells/'+cell['id']+'/runs',headers=OWNER,json={}).json()
+        url='/v1/factory/runs/'+run['id']
+        c.post(url+'/control',headers=OWNER,json={'action':'pause'})
+        paused=wait(c,run['id'],{'paused'})
+        for _ in range(5):
+            time.sleep(.1)
+            row=c.get(url,headers=OWNER).json()
+            assert row['status']=='paused' and row['frame']['time']==paused['frame']['time']
+        time.sleep(.65)
+        row=c.get(url,headers=OWNER).json()
+        assert row['status']=='stopped' and 'without an active client' in row['error']
+        assert c.post('/v1/factory/cells/'+cell['id']+'/runs',headers=OWNER,json={}).status_code==202
+
 def test_camera_http_ownership_and_changed_initial_conditions(tmp_path):
     with TestClient(create_app(tmp_path/'factory.sqlite3')) as c:
         cell=c.post('/v1/factory/cells',headers=OWNER,json={'carton_count':1,'carton_start_y_m':-.4}).json()

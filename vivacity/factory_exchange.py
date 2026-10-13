@@ -15,7 +15,12 @@ from .factory import FactorySettings, LAYOUT
 from .factory_benchmark import BenchmarkRequest, definition
 
 def digest(value):
-    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+    # Reports hash complete trajectories. Preserve the canonical bytes without
+    # allocating an additional complete JSON string and UTF-8 copy in memory.
+    result=hashlib.sha256()
+    for chunk in json.JSONEncoder(sort_keys=True,separators=(',',':'),allow_nan=False).iterencode(value):
+        result.update(chunk.encode())
+    return result.hexdigest()
 
 class Strict(BaseModel):
     model_config=ConfigDict(extra='forbid',allow_inf_nan=False)

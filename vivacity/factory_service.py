@@ -16,6 +16,7 @@ from .compiled import release_unused_memory
 
 
 class FactoryService:
+    pause_lease_seconds=120.
     def __init__(self,workspace):
         self.workspace=workspace
         self.backend=FactoryBackend()
@@ -115,7 +116,7 @@ class FactoryService:
                  'created_at':time.time(),'creator_label':creator_label,'status':'queued','phase':'queued','config':cell['config'],
                  'software':cell.get('software'),'world_version':cell['world_version'],'engine':cell['engine'],'initial_state':cell['initial_state'],
                  'frame':cell['frame'],'trace':[],'events':[],'metrics':{},'mode':mode,'error':None}
-            control={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False}
+            control={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False,'last_access':time.monotonic()}
             control['wake'].set()
             self.controls[row['id']]=control;self.live[row['id']]=row
             self._save_run(row,owner(token))
@@ -134,6 +135,7 @@ class FactoryService:
     def get(self,identifier,token,full=False):
         self._authorize_run(identifier,token)
         with self.lock:
+            if identifier in self.controls:self.controls[identifier]['last_access']=time.monotonic()
             row=self.live.get(identifier)
             if row is not None:
                 if not full:return self._summary(row)
@@ -190,6 +192,7 @@ class FactoryService:
         with self.lock:
             c=self.controls.get(identifier);row=self.live.get(identifier)
             if not c or c['done'].is_set():raise Conflict('This run has ended. Start a new run to execute it again.')
+            c['last_access']=time.monotonic()
             if action in ('stop','emergency_stop'):
                 c['emergency']=action=='emergency_stop';c['stop'].set();c['wake'].set()
             elif action=='pause':c['paused']=True;c['wake'].clear()
@@ -225,7 +228,11 @@ class FactoryService:
         if c['stop'].is_set():return False
         if c['paused']:
             with self.lock:row.update(status='paused')
-            while c['paused'] and not c['stop'].is_set():c['wake'].wait(.1)
+            while c['paused'] and not c['stop'].is_set():
+                if time.monotonic()-c['last_access']>self.pause_lease_seconds:
+                    with self.lock:row['error']='The paused experiment was stopped after two minutes without an active client. Its recorded samples remain available.'
+                    c['stop'].set();c['wake'].set();break
+                c['wake'].wait(.1)
             if c['stop'].is_set():return False
         with self.lock:row['status']='running'
         return True
@@ -255,7 +262,7 @@ class FactoryService:
             status='emergency_stopped' if c['emergency'] else 'stopped' if c['stop'].is_set() else 'completed' if reached else 'failed'
             with self.lock:
                 row.update(status=status,phase='station_ready' if reached else status,
-                           error=None if reached or c['stop'].is_set() else 'The carton did not reach the station within 45 simulation seconds.')
+                           error=row.get('error') if c['stop'].is_set() else None if reached else 'The carton did not reach the station within 45 simulation seconds.')
                 row['metrics']={'station_arrivals':int(reached),'simulation_steps':steps,'simulation_time_s':float(w.data.time),
                                 'wall_time_s':time.perf_counter()-wall,'cartons_sorted':0,'scope':'conveyor transport acceptance only'}
                 row['final_state']=self.backend.snapshot(w)
@@ -320,7 +327,7 @@ class FactoryService:
                  'name':settings['name'],'status':'queued','phase':'queued','cell_id':identifier,
                  'software':software(),'definition':spec,'request':settings,'engine':cell['engine'],'controller_version':'factory-1',
                  'trials':[],'comparison':{},'error':None,'total_trials':len(spec['trial_configurations'])}
-            c={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False}
+            c={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False,'last_access':time.monotonic()}
             c['wake'].set();self.controls[row['id']]=c;self.live[row['id']]=row
             self.workspace._put('factory_benchmark',owner(token),row)
             self.pool.submit(self._benchmark,row,owner(token),c)
@@ -328,7 +335,9 @@ class FactoryService:
 
     def benchmark(self,identifier,token):
         row=self.workspace._get(identifier,token,'factory_benchmark')
-        with self.lock:return deepcopy(self.live.get(identifier,row))
+        with self.lock:
+            if identifier in self.controls:self.controls[identifier]['last_access']=time.monotonic()
+            return deepcopy(self.live.get(identifier,row))
 
     def benchmarks(self,token):
         rows=self.workspace.list(token,'factory_benchmark')
