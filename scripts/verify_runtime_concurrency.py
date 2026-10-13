@@ -51,9 +51,14 @@ def verify(base,output):
             assert final['result']['execution_evaluation']['success']
             assert len({b['id'] for b in branches})==4
             assert all(b['parent_state_reference'].startswith(final['world_id']+':') for b in branches)
+            trials=request('GET',f"/v1/experiments/{e['id']}/trials")['items']
+            intervals=[{'candidate_index':t['candidate_index'],'start':t['performance']['physics_started_unix_s'],
+                        'end':t['performance']['physics_completed_unix_s']} for t in trials]
+            overlap=any(a['start']<b['end'] and b['start']<a['end'] for i,a in enumerate(intervals) for b in intervals[i+1:])
+            assert overlap,'no measured overlap between native trials'
             measurements.append({'experiment_id':e['id'],'world_id':final['world_id'],
                 'validation_count':3,'branch_count':len(branches),'performance':final['performance'],
-                'evaluations':[b['evaluation'] for b in branches]})
+                'evaluations':[b['evaluation'] for b in branches],'trial_intervals':intervals,'overlap_verified':overlap})
         assert all(e['performance']['peak_parallel_trials']==2 for e in measurements)
         result={'base_url':base,'http_requests_concurrent':True,'experiment_workers':1,
             'physics_trial_workers':2,'physics_parallel':True,'experiments':measurements,'concurrent_read_batches':read_batches,

@@ -440,7 +440,7 @@ class Runtime:
             if settings.get('adaptive_trials') or attempts%5==0 or attempts==len(actions):
                 self.store.event(e['id'],'progress',search|{'stage':'physics','message':e['result']['conclusion']})
             if cancellation.is_set():raise InterruptedError('cancelled during physical trial')
-            if batch_complete and settings.get('adaptive_trials') and attempts>=min(5,len(actions)) and best_duration<float('inf') and no_improvement>=3:
+            if batch_complete and attempts<len(actions) and settings.get('adaptive_trials') and attempts>=min(5,len(actions)) and best_duration<float('inf') and no_improvement>=3:
                 stopping_reason='measured_improvement_plateau'
                 break
         if stopping_reason!='measured_improvement_plateau' and attempts==len(actions):
