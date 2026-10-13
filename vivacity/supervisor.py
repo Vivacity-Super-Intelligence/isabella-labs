@@ -14,6 +14,7 @@ import uuid
 import numpy as np
 
 from .schemas import CreateWorld, ExperimentRequest, SessionRequest
+from .storage import encode
 from .control import PauseControl
 
 
@@ -138,9 +139,14 @@ class Supervisor:
                         break
                     request=s['request'];seed=(request['seed']+cycle)%2**32
                     config=deepcopy(request['config'])
+                    partition='unpartitioned'
+                    variation=request.get('variation',{})
+                    if variation.get('enabled'):
+                        from .variation import conditions
+                        config,partition=conditions(config,seed,cycle,s['max_cycles'],variation)
                     if cycle:
                         rng=np.random.default_rng(seed)
-                        if s['backend']=='mujoco' and config.get('task')=='pick_place':
+                        if s['backend']=='mujoco' and config.get('task')=='pick_place' and not variation.get('enabled'):
                             center_z=(config.get('cube_half_sizes') or [config.get('cube_half_size',.025)]*3)[2]+.001
                             config['cube_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(-.2,-.1)),center_z]
                             config['placement_position']=[float(rng.uniform(.46,.54)),float(rng.uniform(.12,.23)),center_z]
@@ -154,7 +160,7 @@ class Supervisor:
                         w=r.get_world(s['world_id'])
                     s['cycle']=cycle+1
                     s['conditions'].append({'cycle':cycle+1,'seed':seed,'world_id':w['id'],
-                                            'configuration_sha256':hashlib.sha256(str(w['config']).encode()).hexdigest()})
+                                            'partition':partition,'configuration_sha256':hashlib.sha256(encode(w['config']).encode()).hexdigest()})
                     settings=ExperimentRequest(candidates=3,max_simulation_seconds=40,physics_trials=request.get('physics_trials',0),
                         adaptive_trials=request.get('adaptive_trials',False),
                         execute_selected=s['backend'] in ('mujoco','cloth'),realtime_execution=request['realtime_execution'],realtime_speed=request.get('realtime_speed',1.),

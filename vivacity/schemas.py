@@ -328,7 +328,24 @@ class BranchExport(Schema):
     performance: dict
 
 
+class VariationSettings(Schema):
+    enabled: bool = False
+    position_radius_m: float = Field(.04,ge=0,le=.08)
+    friction_min: float = Field(.15,ge=.05,le=1.5)
+    friction_max: float = Field(1.2,ge=.05,le=1.5)
+    mass_min_kg: float = Field(.04,ge=.02,le=.15)
+    mass_max_kg: float = Field(.10,ge=.02,le=.15)
+    held_out_fraction: float = Field(.25,ge=.2,le=.5)
+
+    @model_validator(mode='after')
+    def ranges(self):
+        if self.friction_min>self.friction_max or self.mass_min_kg>self.mass_max_kg:
+            raise ValueError('variation minimum must not exceed maximum')
+        return self
+
+
 class SessionRequest(CreateWorld):
+    variation: VariationSettings = VariationSettings()
     realtime_speed: float = Field(1., ge=.25, le=4.)
     physics_trials: int = Field(0, ge=0, le=5000)
     adaptive_trials: bool = False
@@ -339,6 +356,8 @@ class SessionRequest(CreateWorld):
 
     @model_validator(mode='after')
     def trial_backend(self):
+        if self.variation.enabled and (self.backend!='mujoco' or self.config.task!='pick_place' or self.config.physical_operation!='pick_place' or self.max_cycles<3):
+            raise ValueError('physical variation requires pick-and-place and at least three cycles for baseline/training/held-out')
         if self.physics_trials and (self.backend!='mujoco' or self.config.task!='pick_place' or self.physics_trials!=self.search_candidates):
             raise ValueError('full physics trials require Panda pickup and matching search_candidates')
         if self.adaptive_trials and (self.backend!='mujoco' or self.config.task!='pick_place' or self.physics_trials or not self.search_candidates):

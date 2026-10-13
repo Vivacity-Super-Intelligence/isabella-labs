@@ -336,6 +336,9 @@ class ImportService:
             else:raise ValueError('unsupported entrypoint format')
         except (KeyError,TypeError,IndexError,OverflowError,RecursionError,struct.error) as exc:raise ValueError('malformed or unsupported scene content') from exc
         record={'schema_version':'vivacity.import/1.0','id':str(uuid.uuid4()),'filename':filename,'entrypoint':name,'format':ext[1:],'status':status,'physics_ready':False,'preview_available':preview is not None,'sha256':hashlib.sha256(data).hexdigest(),'uploaded_bytes':len(data),'created_unix_s':time.time(),'summary':summary|bundle,'diagnostics':diagnostics}
+        if preview:
+            from .spatial import geometry_evidence
+            record['summary']['geometry_validation']=geometry_evidence(preview,sampled=reduce_preview)
         source=None
         if ext in ('.xml','.mjcf','.urdf'):
             source={'entrypoint':name,'content':base64.b64encode(content).decode(),
@@ -343,7 +346,7 @@ class ImportService:
         payload=json.dumps({'record':record,'preview':preview,'source':source},allow_nan=False).encode()
         with self.lock:
             existing=list(self.root.glob('*.json'))
-            preserve_glb=ext=='.glb' and not files and not reduce_preview
+            preserve_glb=ext=='.glb' and not files
             stored=list(self.root.glob('*.json'))+list(self.root.glob('*.glb'))
             if len(existing)>=100 or sum(p.stat().st_size for p in stored)+len(payload)+(len(content) if preserve_glb else 0)>128*1024*1024:raise ValueError('import storage quota reached; administrator cleanup required')
             target=self.root/f'{record["id"]}.json';temp=target.with_suffix('.tmp');temp.write_bytes(payload);temp.replace(target)
