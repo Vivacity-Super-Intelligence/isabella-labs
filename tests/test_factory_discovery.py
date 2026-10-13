@@ -106,8 +106,10 @@ def test_real_mujoco_run_discovery_persists_and_is_owned(tmp_path):
         measured = discovery['series']['y']
         assert measured['sample_count'] == len(actual)
         assert measured['provenance']['source'] == 'MuJoCo factory frames'
+        assert measured['provenance']['experiment_conditions']['carton_start_y_m'] == -.4
         assert measured['models']
         assert discovery['relationships'][0]['status']=='insufficient_signal'
+        assert discovery['relationships'][0]['provenance']['experiment_conditions']['carton_count'] == 1
         with client.app.state.runtime.store.connect() as db:
             saved = db.execute('SELECT count(*) FROM factory_discoveries WHERE run_id=?', (run_id,)).fetchone()[0]
             assert saved == 8

@@ -123,7 +123,9 @@ class FactoryService:
                 with self.lock:target,final=self.discovery_targets[identifier]
                 with self.workspace.store.connect() as db:
                     rows=db.execute('SELECT time_s,values_json FROM factory_discovery_points WHERE run_id=? AND sample_index<? ORDER BY sample_index',(identifier,target)).fetchall()
+                    summary=db.execute('SELECT summary FROM factory_run_index WHERE run_id=?',(identifier,)).fetchone()
                 parsed=[(stamp,json.loads(values)) for stamp,values in rows]
+                conditions=json.loads(summary[0]).get('config') if summary else None
                 for quantity in QUANTITIES:
                     points=[(stamp,values[quantity]) for stamp,values in parsed if values.get(quantity) is not None]
                     try:
@@ -135,6 +137,7 @@ class FactoryService:
                         result['fit_wall_s']=time.perf_counter()-fit_wall
                         result['fit_cpu_s']=time.thread_time()-fit_cpu
                         result['updated_at']=time.time()
+                        result['provenance']['experiment_conditions']=conditions
                     except Exception:
                         log.exception('factory_discovery_failed run_id=%s quantity=%s',identifier,quantity)
                         continue
@@ -144,6 +147,7 @@ class FactoryService:
                 if final:
                     from .factory_relationships import infer_joint_torque
                     relation=infer_joint_torque(parsed,identifier)
+                    relation['provenance']['experiment_conditions']=conditions
                     with self.workspace.store.connect() as db:
                         db.execute('INSERT OR REPLACE INTO factory_relationships VALUES(?,?,?)',
                                    (identifier,relation['name'],encode(relation)))
