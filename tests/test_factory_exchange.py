@@ -49,3 +49,8 @@ def test_benchmark_import_preserves_definition_without_starting_worker(tmp_path)
         assert result['benchmark_request']['changes']['gripper_force_scale']==.005
         assert definition(result['cell']['config'],result['benchmark_request'])==benchmark['definition']
         assert not f.controls
+def test_streamed_digest_keeps_the_canonical_archive_hash():
+    import hashlib,json
+    from vivacity.factory_exchange import digest
+    value={'unicode':'Carton \u2192 bin','trace':[{'time':i*.002,'data':[None,True,1e-8,-0.0]} for i in range(1000)]}
+    assert digest(value)==hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()

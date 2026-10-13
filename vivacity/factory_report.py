@@ -100,7 +100,7 @@ def report_pdf(run,benchmark=None,attribution=None):
            p('Executive finding','h2')]
     if benchmark:
         completed=sum(t['status']=='completed' for t in benchmark['trials'])
-        story.append(p(f"{completed} of {len(benchmark['trials'])} recorded trials completed the full sorting task. Training selection: {benchmark['comparison'].get('selected_condition') or 'none'}. Held-out trials are reported separately."))
+        story.append(p(f"Benchmark status: {benchmark['status']}. {completed} of {len(benchmark['trials'])} recorded trials completed the full sorting task. Training selection: {benchmark['comparison'].get('selected_condition') or 'none'}. Held-out trials are reported separately."))
         story.append(p('Physics figures use the first recorded trial, identified on each analysis page. This choice does not filter for success.','small'))
     else:
         story.append(p(f"Run status: {run['status']}. {metrics.get('cartons_sorted',0)} of {config['carton_count']} configured cartons reached their selected destinations in {num(metrics.get('simulation_time_s'),'s')} of simulation time."))

@@ -1,3 +1,36 @@
+# Autonomous factory contract update — 2026-10-14
+
+The new factory is implemented in individually verified stages. Current release
+acceptance is tracked in [FACTORY_STAGE_GATES.md](docs/FACTORY_STAGE_GATES.md);
+do not infer deployment status from the older release notes below.
+
+[FACTORY_RUNTIME_HANDOFF.md](docs/FACTORY_RUNTIME_HANDOFF.md) is the current
+factory contract: exact HTTP endpoints, request examples, measured transforms,
+sample/replay formats, ownership, controls, import/export and setup commands.
+[FACTORY_CAPABILITIES.md](docs/FACTORY_CAPABILITIES.md) separates tested behavior
+from limitations. OpenAPI now contains 77 paths; regenerate TypeScript with
+`npm --prefix frontend run generate:api` after changing the contract.
+
+Claude Code should start with `frontend/src/FactoryWorkspace.tsx`,
+`FactoryView.tsx`, `FactoryAnalysis.tsx`, `factoryAnalysisData.ts`,
+`FactoryObservation.tsx`, `FactoryBenchmark.tsx`, `FactoryProjects.tsx`,
+`FactoryExchange.tsx`, `factoryApi.ts` and `factory.css`. Preserve the existing
+workcell and world-library contracts. Factory telemetry uses paged HTTP polling;
+legacy workcell WebSockets remain available. Only explicit Start/Run comparison
+actions may begin physics. Reset and import must leave the cell idle.
+
+Run the actual HTTP acceptance journey with:
+
+```powershell
+.venv\Scripts\python.exe -m scripts.demo_factory --base http://127.0.0.1:8010 --output artifacts/factory-live --benchmark
+node --experimental-strip-types --test scripts/test-api-responses.mjs scripts/test-api-transport.mjs scripts/test-spatial-quality.mjs scripts/test-factory-analysis.mjs scripts/test-template-selection.mjs
+npm --prefix frontend run build
+```
+
+The script invokes the selected server, including camera, actual successful and
+failed contact manipulation, pause/replay, six benchmark trials, strict idle
+import and PDF/ZIP. It does not simulate locally on behalf of a remote deployment.
+
 # Spatial pipeline contract update — 2026-10-13
 
 The current application is deployed at https://demo.tryvivacity.com/ with backend https://vivacity-runtime.onrender.com. All 55 OpenAPI paths are exported in `openapi.json` and `docs/openapi.json`; generated TypeScript contracts remain in `frontend/src/generated/api.d.ts`.

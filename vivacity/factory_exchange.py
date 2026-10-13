@@ -8,12 +8,19 @@ import json
 import platform
 import mujoco
 import numpy
+import scipy
+import sys
 from pydantic import BaseModel, ConfigDict, Field
 from .factory import FactorySettings, LAYOUT
 from .factory_benchmark import BenchmarkRequest, definition
 
 def digest(value):
-    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+    # Reports hash complete trajectories. Preserve the canonical bytes without
+    # allocating an additional complete JSON string and UTF-8 copy in memory.
+    result=hashlib.sha256()
+    for chunk in json.JSONEncoder(sort_keys=True,separators=(',',':'),allow_nan=False).iterencode(value):
+        result.update(chunk.encode())
+    return result.hexdigest()
 
 class Strict(BaseModel):
     model_config=ConfigDict(extra='forbid',allow_inf_nan=False)
@@ -32,6 +39,8 @@ class Software(Strict):
     engine:Literal['MuJoCo']='MuJoCo'
     engine_version:str
     numpy_version:str
+    scipy_version:str
+    python_version:str
     controller_sha256:str=Field(pattern=r'^[0-9a-f]{64}$')
     robot_assets_sha256:str=Field(pattern=r'^[0-9a-f]{64}$')
     world_sha256:str=Field(pattern=r'^[0-9a-f]{64}$')
@@ -41,8 +50,10 @@ def software():
     from .robotics import asset_digest
     # Normalize line endings so Git checkout settings cannot change compatibility.
     source='\n'.join(Path(__file__).with_name(name).read_text(encoding='utf-8') for name in
-                     ('factory.py','factory_controller.py','factory_measurements.py'))
+                     ('factory.py','factory_controller.py','factory_measurements.py','factory_benchmark.py',
+                      'robotics.py','pick_place.py','pickup_planning.py','physical_properties.py','headless.py'))
     return Software(engine_version=mujoco.__version__,numpy_version=numpy.__version__,
+                    scipy_version=scipy.__version__,python_version=f'{sys.version_info.major}.{sys.version_info.minor}',
                     controller_sha256=hashlib.sha256(source.encode()).hexdigest(),
                     robot_assets_sha256=asset_digest(),world_sha256=digest(LAYOUT)).model_dump()
 

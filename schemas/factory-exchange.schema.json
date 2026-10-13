@@ -258,6 +258,14 @@
           "title": "Numpy Version",
           "type": "string"
         },
+        "scipy_version": {
+          "title": "Scipy Version",
+          "type": "string"
+        },
+        "python_version": {
+          "title": "Python Version",
+          "type": "string"
+        },
         "controller_sha256": {
           "pattern": "^[0-9a-f]{64}$",
           "title": "Controller Sha256",
@@ -277,6 +285,8 @@
       "required": [
         "engine_version",
         "numpy_version",
+        "scipy_version",
+        "python_version",
         "controller_sha256",
         "robot_assets_sha256",
         "world_sha256"

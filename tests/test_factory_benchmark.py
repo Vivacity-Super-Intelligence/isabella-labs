@@ -61,3 +61,7 @@ def test_real_repeated_benchmark_retains_success_failure_and_held_out_records(tm
         assert row['worker_cpu_time_s']>0
     with TestClient(create_app(database)) as c:
         assert c.get(url,headers=TOKEN).json()==row
+
+def test_partial_training_cannot_select_a_winner():
+    rows=[{'partition':'training','condition':condition,'status':'completed','failure_kind':None,'metrics':{'simulation_time_s':10 if condition=='baseline' else 12}} for condition in ('baseline','candidate')]
+    assert comparison(rows,expected_repeats=2)['selected_condition'] is None

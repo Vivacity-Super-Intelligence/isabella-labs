@@ -4,6 +4,7 @@ from pydantic import BaseModel,ConfigDict,Field
 from .factory import FactorySettings
 from .workspace_api import Token
 from .factory_benchmark import BenchmarkRequest
+from .factory_schemas import FactoryCellResponse,FactoryRunResponse,FactorySamplesResponse,FactoryBenchmarkResponse
 
 router=APIRouter(prefix='/v1/factory',tags=['Factory production'])
 
@@ -16,11 +17,11 @@ class Command(BaseModel):
     model_config=ConfigDict(extra='forbid')
     action:Literal['pause','resume','stop','emergency_stop']
 
-@router.post('/cells',status_code=201)
+@router.post('/cells',responses={201:{'model':FactoryCellResponse}},status_code=201)
 def create_cell(body:FactorySettings,request:Request,x_workspace_token:Token):
     return request.app.state.factory.create(body.model_dump(),x_workspace_token)
 
-@router.get('/cells/{identifier}')
+@router.get('/cells/{identifier}',responses={200:{'model':FactoryCellResponse}})
 def cell(identifier:str,request:Request,x_workspace_token:Token):
     return request.app.state.factory.cell(identifier,x_workspace_token)
 
@@ -28,11 +29,11 @@ def cell(identifier:str,request:Request,x_workspace_token:Token):
 def observation(identifier:str,request:Request,x_workspace_token:Token,source:Literal['initial','latest']='latest'):
     return request.app.state.factory.observation(identifier,x_workspace_token,source)
 
-@router.post('/cells/{identifier}/runs',status_code=202)
+@router.post('/cells/{identifier}/runs',responses={202:{'model':FactoryRunResponse}},status_code=202)
 def start(identifier:str,body:RunRequest,request:Request,x_workspace_token:Token):
     return request.app.state.factory.start(identifier,x_workspace_token,body.mode,body.creator_label)
 
-@router.get('/runs/{identifier}')
+@router.get('/runs/{identifier}',responses={200:{'model':FactoryRunResponse}})
 def run(identifier:str,request:Request,x_workspace_token:Token):
     return request.app.state.factory.get(identifier,x_workspace_token)
 
@@ -42,17 +43,18 @@ def history(request:Request,x_workspace_token:Token):
 
 @router.get('/runs/{identifier}/record')
 def record(identifier:str,request:Request,x_workspace_token:Token):
-    return request.app.state.factory.get(identifier,x_workspace_token,full=True)
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(request.app.state.factory.record_json(identifier,x_workspace_token),media_type='application/json')
 
-@router.get('/runs/{identifier}/samples')
+@router.get('/runs/{identifier}/samples',responses={200:{'model':FactorySamplesResponse}})
 def samples(identifier:str,request:Request,x_workspace_token:Token,after:int=Query(-1,ge=-1),limit:int=Query(400,ge=1,le=1000)):
     return request.app.state.factory.samples(identifier,x_workspace_token,after,limit)
 
-@router.post('/runs/{identifier}/control')
+@router.post('/runs/{identifier}/control',responses={200:{'model':FactoryRunResponse}})
 def control(identifier:str,body:Command,request:Request,x_workspace_token:Token):
     return request.app.state.factory.command(identifier,x_workspace_token,body.action)
 
-@router.post('/cells/{identifier}/benchmarks',status_code=202)
+@router.post('/cells/{identifier}/benchmarks',responses={202:{'model':FactoryBenchmarkResponse}},status_code=202)
 def start_benchmark(identifier:str,body:BenchmarkRequest,request:Request,x_workspace_token:Token):
     return request.app.state.factory.start_benchmark(identifier,x_workspace_token,body.model_dump())
 
@@ -60,7 +62,7 @@ def start_benchmark(identifier:str,body:BenchmarkRequest,request:Request,x_works
 def benchmarks(request:Request,x_workspace_token:Token):
     return request.app.state.factory.benchmarks(x_workspace_token)
 
-@router.get('/benchmarks/{identifier}')
+@router.get('/benchmarks/{identifier}',responses={200:{'model':FactoryBenchmarkResponse}})
 def benchmark(identifier:str,request:Request,x_workspace_token:Token):
     return request.app.state.factory.benchmark(identifier,x_workspace_token)
 
@@ -80,9 +82,10 @@ def export_benchmark(identifier:str,request:Request,x_workspace_token:Token):
 
 @router.get('/runs/{identifier}/export')
 def export_record(identifier:str,request:Request,x_workspace_token:Token):
-    return request.app.state.factory.export_record(identifier,x_workspace_token)
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(request.app.state.factory.export_record(identifier,x_workspace_token,raw=True),media_type='application/json')
 
-@router.post('/imports',status_code=201)
+@router.post('/imports',status_code=201,openapi_extra={'requestBody':{'required':True,'content':{'application/json':{'schema':Exchange.model_json_schema(ref_template='#/components/schemas/{model}')}}}})
 async def import_configuration(request:Request,x_workspace_token:Token):
     # Bound bytes before JSON decoding and Pydantic validation (including chunked uploads).
     import asyncio

@@ -66,6 +66,8 @@ def _rollers(root, parent, prefix, x, start_y, end_y):
 
 @lru_cache(maxsize=2)
 def _compiled(settings_json):
+    from .compiled import release_unused_memory
+    release_unused_memory()
     settings = json.loads(settings_json)
     root = ET.parse(ASSET_DIR/'panda.xml').getroot()
     root.find('compiler').set('meshdir', str(ASSET_DIR/'assets'))
@@ -114,6 +116,9 @@ def _compiled(settings_json):
     visual=root.find('visual')
     if visual is None: visual=ET.SubElement(root,'visual')
     ET.SubElement(visual,'global',offwidth='320',offheight='240')
+    # The inspection image is 320x240. A default 4096px shadow texture wastes
+    # tens of MiB on software GL without adding useful measurement detail.
+    ET.SubElement(visual,'quality',shadowsize='512',offsamples='0')
     from .physical_properties import configure_xml
     configure_xml(root,{'physics':{'gripper_force_scale':settings['gripper_force_scale']}})
     # Only remove visual robot meshes; inertias and collision surfaces remain.

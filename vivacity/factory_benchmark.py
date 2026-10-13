@@ -46,7 +46,7 @@ def trial_configurations(baseline,request):
                 trials.append({'partition':partition,'repeat':repeat,'condition':condition,'config':FactorySettings.model_validate(value).model_dump()})
     return trials
 
-def comparison(trials):
+def comparison(trials,expected_repeats=None):
     groups={}
     for partition in ('training','held_out'):
         groups[partition]={}
@@ -63,7 +63,7 @@ def comparison(trials):
                 'successful_duration_variance_s2':statistics.variance(durations) if len(durations)>1 else None,
                 'failures':failures}
     training=groups['training'];a,b=training['baseline'],training['candidate']
-    if not a['trials'] or not b['trials']:selection=None;reason='Training trials have not completed.'
+    if not a['trials'] or not b['trials'] or (expected_repeats is not None and (a['trials']<expected_repeats or b['trials']<expected_repeats)):selection=None;reason='Training trials have not completed.'
     elif a['successes']==b['successes']==0:selection=None;reason='Neither configuration completed a training trial.'
     else:
         def score(g):return (g['success_rate'],-(g['successful_duration_mean_s'] or float('inf')))

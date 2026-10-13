@@ -1669,6 +1669,1776 @@
         }
       }
     },
+    "/v1/factory/cells": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Create Cell",
+        "operationId": "create_cell_v1_factory_cells_post",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactorySettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryCellResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/cells/{identifier}": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Cell",
+        "operationId": "cell_v1_factory_cells__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryCellResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/cells/{identifier}/observation": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Observation",
+        "operationId": "observation_v1_factory_cells__identifier__observation_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "initial",
+                "latest"
+              ],
+              "type": "string",
+              "default": "latest",
+              "title": "Source"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/cells/{identifier}/runs": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Start",
+        "operationId": "start_v1_factory_cells__identifier__runs_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/runs/{identifier}": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Run",
+        "operationId": "run_v1_factory_runs__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/runs": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "History",
+        "operationId": "history_v1_factory_runs_get",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/runs/{identifier}/record": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Record",
+        "operationId": "record_v1_factory_runs__identifier__record_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/runs/{identifier}/samples": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Samples",
+        "operationId": "samples_v1_factory_runs__identifier__samples_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": -1,
+              "default": -1,
+              "title": "After"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 400,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactorySamplesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/runs/{identifier}/control": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Control",
+        "operationId": "control_v1_factory_runs__identifier__control_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/cells/{identifier}/benchmarks": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Start Benchmark",
+        "operationId": "start_benchmark_v1_factory_cells__identifier__benchmarks_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BenchmarkRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryBenchmarkResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/benchmarks": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Benchmarks",
+        "operationId": "benchmarks_v1_factory_benchmarks_get",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/benchmarks/{identifier}": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Benchmark",
+        "operationId": "benchmark_v1_factory_benchmarks__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoryBenchmarkResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/benchmarks/{identifier}/control": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Benchmark Control",
+        "operationId": "benchmark_control_v1_factory_benchmarks__identifier__control_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/cells/{identifier}/export": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Export Configuration",
+        "operationId": "export_configuration_v1_factory_cells__identifier__export_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exchange"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/benchmarks/{identifier}/export": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Export Benchmark",
+        "operationId": "export_benchmark_v1_factory_benchmarks__identifier__export_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exchange"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/runs/{identifier}/export": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Export Record",
+        "operationId": "export_record_v1_factory_runs__identifier__export_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/imports": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Import Configuration",
+        "operationId": "import_configuration_v1_factory_imports_post",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$defs": {
+                  "BenchmarkRequest": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "schema_version": {
+                        "const": "vivacity.factory-benchmark-request/1.0",
+                        "default": "vivacity.factory-benchmark-request/1.0",
+                        "title": "Schema Version",
+                        "type": "string"
+                      },
+                      "name": {
+                        "default": "Contact sorting comparison",
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "title": "Name",
+                        "type": "string"
+                      },
+                      "repeats": {
+                        "default": 2,
+                        "maximum": 3,
+                        "minimum": 2,
+                        "title": "Repeats",
+                        "type": "integer"
+                      },
+                      "held_out_repeats": {
+                        "default": 1,
+                        "maximum": 2,
+                        "minimum": 1,
+                        "title": "Held Out Repeats",
+                        "type": "integer"
+                      },
+                      "changes": {
+                        "$ref": "#/components/schemas/ConditionChanges"
+                      }
+                    },
+                    "required": [
+                      "changes"
+                    ],
+                    "title": "BenchmarkRequest",
+                    "type": "object"
+                  },
+                  "ConditionChanges": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "carton_mass_kg": {
+                        "anyOf": [
+                          {
+                            "maximum": 0.15,
+                            "minimum": 0.02,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Carton Mass Kg"
+                      },
+                      "carton_friction": {
+                        "anyOf": [
+                          {
+                            "maximum": 1.5,
+                            "minimum": 0.05,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Carton Friction"
+                      },
+                      "conveyor_speed_m_s": {
+                        "anyOf": [
+                          {
+                            "maximum": 0.18,
+                            "minimum": 0.02,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Conveyor Speed M S"
+                      },
+                      "gripper_force_scale": {
+                        "anyOf": [
+                          {
+                            "maximum": 1,
+                            "minimum": 0.005,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Gripper Force Scale"
+                      }
+                    },
+                    "title": "ConditionChanges",
+                    "type": "object"
+                  },
+                  "FactorySettings": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "schema_version": {
+                        "const": "vivacity.factory-settings/1.0",
+                        "default": "vivacity.factory-settings/1.0",
+                        "title": "Schema Version",
+                        "type": "string"
+                      },
+                      "name": {
+                        "default": "Carton sorting baseline",
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "title": "Name",
+                        "type": "string"
+                      },
+                      "seed": {
+                        "default": 19,
+                        "maximum": 4294967295,
+                        "minimum": 0,
+                        "title": "Seed",
+                        "type": "integer"
+                      },
+                      "carton_count": {
+                        "default": 3,
+                        "maximum": 3,
+                        "minimum": 1,
+                        "title": "Carton Count",
+                        "type": "integer"
+                      },
+                      "carton_mass_kg": {
+                        "default": 0.06,
+                        "maximum": 0.15,
+                        "minimum": 0.02,
+                        "title": "Carton Mass Kg",
+                        "type": "number"
+                      },
+                      "carton_friction": {
+                        "default": 0.8,
+                        "maximum": 1.5,
+                        "minimum": 0.05,
+                        "title": "Carton Friction",
+                        "type": "number"
+                      },
+                      "carton_half_size_m": {
+                        "default": 0.025,
+                        "maximum": 0.03,
+                        "minimum": 0.02,
+                        "title": "Carton Half Size M",
+                        "type": "number"
+                      },
+                      "carton_start_x_m": {
+                        "default": 0.5,
+                        "maximum": 0.535,
+                        "minimum": 0.465,
+                        "title": "Carton Start X M",
+                        "type": "number"
+                      },
+                      "carton_start_y_m": {
+                        "default": -0.94,
+                        "maximum": -0.35,
+                        "minimum": -1.28,
+                        "title": "Carton Start Y M",
+                        "type": "number"
+                      },
+                      "conveyor_speed_m_s": {
+                        "default": 0.09,
+                        "maximum": 0.18,
+                        "minimum": 0.02,
+                        "title": "Conveyor Speed M S",
+                        "type": "number"
+                      },
+                      "arrival_interval_s": {
+                        "default": 18.0,
+                        "maximum": 60.0,
+                        "minimum": 1.0,
+                        "title": "Arrival Interval S",
+                        "type": "number"
+                      },
+                      "realtime_speed": {
+                        "default": 2.0,
+                        "maximum": 8.0,
+                        "minimum": 0.25,
+                        "title": "Realtime Speed",
+                        "type": "number"
+                      },
+                      "sort_threshold_kg": {
+                        "default": 0.07,
+                        "maximum": 0.15,
+                        "minimum": 0.02,
+                        "title": "Sort Threshold Kg",
+                        "type": "number"
+                      },
+                      "gripper_force_scale": {
+                        "default": 1.0,
+                        "maximum": 1.0,
+                        "minimum": 0.005,
+                        "title": "Gripper Force Scale",
+                        "type": "number"
+                      }
+                    },
+                    "title": "FactorySettings",
+                    "type": "object"
+                  },
+                  "Provenance": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "exported_at": {
+                        "format": "date-time",
+                        "title": "Exported At",
+                        "type": "string"
+                      },
+                      "source_record_id": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "title": "Source Record Id",
+                        "type": "string"
+                      },
+                      "source": {
+                        "const": "vivacity_backend",
+                        "default": "vivacity_backend",
+                        "title": "Source",
+                        "type": "string"
+                      },
+                      "platform": {
+                        "maxLength": 120,
+                        "title": "Platform",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "exported_at",
+                      "source_record_id",
+                      "platform"
+                    ],
+                    "title": "Provenance",
+                    "type": "object"
+                  },
+                  "Software": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "engine": {
+                        "const": "MuJoCo",
+                        "default": "MuJoCo",
+                        "title": "Engine",
+                        "type": "string"
+                      },
+                      "engine_version": {
+                        "title": "Engine Version",
+                        "type": "string"
+                      },
+                      "numpy_version": {
+                        "title": "Numpy Version",
+                        "type": "string"
+                      },
+                      "scipy_version": {
+                        "title": "Scipy Version",
+                        "type": "string"
+                      },
+                      "python_version": {
+                        "title": "Python Version",
+                        "type": "string"
+                      },
+                      "controller_sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "title": "Controller Sha256",
+                        "type": "string"
+                      },
+                      "robot_assets_sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "title": "Robot Assets Sha256",
+                        "type": "string"
+                      },
+                      "world_sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "title": "World Sha256",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "engine_version",
+                      "numpy_version",
+                      "scipy_version",
+                      "python_version",
+                      "controller_sha256",
+                      "robot_assets_sha256",
+                      "world_sha256"
+                    ],
+                    "title": "Software",
+                    "type": "object"
+                  },
+                  "Units": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "length": {
+                        "const": "m",
+                        "default": "m",
+                        "title": "Length",
+                        "type": "string"
+                      },
+                      "time": {
+                        "const": "s",
+                        "default": "s",
+                        "title": "Time",
+                        "type": "string"
+                      },
+                      "mass": {
+                        "const": "kg",
+                        "default": "kg",
+                        "title": "Mass",
+                        "type": "string"
+                      },
+                      "angle": {
+                        "const": "rad",
+                        "default": "rad",
+                        "title": "Angle",
+                        "type": "string"
+                      },
+                      "force": {
+                        "const": "N",
+                        "default": "N",
+                        "title": "Force",
+                        "type": "string"
+                      },
+                      "torque": {
+                        "const": "N m",
+                        "default": "N m",
+                        "title": "Torque",
+                        "type": "string"
+                      },
+                      "energy": {
+                        "const": "J",
+                        "default": "J",
+                        "title": "Energy",
+                        "type": "string"
+                      },
+                      "power": {
+                        "const": "W",
+                        "default": "W",
+                        "title": "Power",
+                        "type": "string"
+                      }
+                    },
+                    "title": "Units",
+                    "type": "object"
+                  }
+                },
+                "additionalProperties": false,
+                "properties": {
+                  "schema_version": {
+                    "const": "vivacity.factory-exchange/1.0",
+                    "default": "vivacity.factory-exchange/1.0",
+                    "title": "Schema Version",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "configuration",
+                      "benchmark"
+                    ],
+                    "title": "Kind",
+                    "type": "string"
+                  },
+                  "units": {
+                    "$ref": "#/components/schemas/Units"
+                  },
+                  "coordinates": {
+                    "const": "right-handed Z-up; XY horizontal; quaternion wxyz",
+                    "default": "right-handed Z-up; XY horizontal; quaternion wxyz",
+                    "title": "Coordinates",
+                    "type": "string"
+                  },
+                  "software": {
+                    "$ref": "#/components/schemas/Software"
+                  },
+                  "world_version": {
+                    "title": "World Version",
+                    "type": "string"
+                  },
+                  "robot": {
+                    "const": "MuJoCo Menagerie Franka Panda",
+                    "default": "MuJoCo Menagerie Franka Panda",
+                    "title": "Robot",
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "$ref": "#/components/schemas/Provenance"
+                  },
+                  "configuration": {
+                    "$ref": "#/components/schemas/FactorySettings"
+                  },
+                  "initial_state_sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "title": "Initial State Sha256",
+                    "type": "string"
+                  },
+                  "model_sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "title": "Model Sha256",
+                    "type": "string"
+                  },
+                  "benchmark_request": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/BenchmarkRequest"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "benchmark_definition_sha256": {
+                    "anyOf": [
+                      {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Benchmark Definition Sha256"
+                  },
+                  "content_sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "title": "Content Sha256",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "software",
+                  "world_version",
+                  "provenance",
+                  "configuration",
+                  "initial_state_sha256",
+                  "model_sha256",
+                  "content_sha256"
+                ],
+                "title": "Exchange",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/reports/{kind}/{identifier}": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Report",
+        "operationId": "report_v1_factory_reports__kind___identifier__get",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "run",
+                "benchmark"
+              ],
+              "type": "string",
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "pdf",
+                "zip"
+              ],
+              "type": "string",
+              "default": "pdf",
+              "title": "Format"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/projects": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Projects",
+        "operationId": "projects_v1_factory_projects_get",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Create Project",
+        "operationId": "create_project_v1_factory_projects_post",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/projects/{identifier}": {
+      "get": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Project",
+        "operationId": "project_v1_factory_projects__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/projects/{identifier}/versions": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Project Version",
+        "operationId": "project_version_v1_factory_projects__identifier__versions_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/factory/projects/{identifier}/attachments": {
+      "post": {
+        "tags": [
+          "Factory production"
+        ],
+        "summary": "Project Attach",
+        "operationId": "project_attach_v1_factory_projects__identifier__attachments_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttachmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "summary": "Health",
@@ -2889,6 +4659,118 @@
   },
   "components": {
     "schemas": {
+      "AttachmentRequest": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "run",
+              "benchmark"
+            ],
+            "title": "Kind"
+          },
+          "record_id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Record Id"
+          },
+          "added_by_label": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Added By Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "kind",
+          "record_id",
+          "added_by_label"
+        ],
+        "title": "AttachmentRequest"
+      },
+      "BenchmarkRequest": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-benchmark-request/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.factory-benchmark-request/1.0"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "default": "Contact sorting comparison"
+          },
+          "repeats": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 2.0,
+            "title": "Repeats",
+            "default": 2
+          },
+          "held_out_repeats": {
+            "type": "integer",
+            "maximum": 2.0,
+            "minimum": 1.0,
+            "title": "Held Out Repeats",
+            "default": 1
+          },
+          "changes": {
+            "$ref": "#/components/schemas/ConditionChanges"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "changes"
+        ],
+        "title": "BenchmarkRequest"
+      },
+      "BodyTransform": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "position": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Position"
+          },
+          "quaternion_wxyz": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Quaternion Wxyz"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "name",
+          "position",
+          "quaternion_wxyz"
+        ],
+        "title": "BodyTransform"
+      },
       "BranchExport": {
         "properties": {
           "schema_version": {
@@ -3211,6 +5093,65 @@
         ],
         "title": "CaptureResponse"
       },
+      "Carton": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "position_m": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Position M"
+          },
+          "quaternion_wxyz": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Quaternion Wxyz"
+          },
+          "linear_velocity_m_s": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Linear Velocity M S"
+          },
+          "angular_velocity_rad_s": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Angular Velocity Rad S"
+          },
+          "mass_kg": {
+            "type": "number",
+            "title": "Mass Kg"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "id",
+          "position_m",
+          "quaternion_wxyz",
+          "linear_velocity_m_s",
+          "angular_velocity_rad_s",
+          "mass_kg"
+        ],
+        "title": "Carton"
+      },
       "ClothConfig": {
         "properties": {
           "robot_model": {
@@ -3245,6 +5186,26 @@
         "type": "object",
         "title": "ClothConfig"
       },
+      "Command": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "pause",
+              "resume",
+              "stop",
+              "emergency_stop"
+            ],
+            "title": "Action"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "Command"
+      },
       "CommitRequest": {
         "properties": {
           "experiment_id": {
@@ -3263,6 +5224,65 @@
           "branch_id"
         ],
         "title": "CommitRequest"
+      },
+      "ConditionChanges": {
+        "properties": {
+          "carton_mass_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.15,
+                "minimum": 0.02
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carton Mass Kg"
+          },
+          "carton_friction": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.5,
+                "minimum": 0.05
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carton Friction"
+          },
+          "conveyor_speed_m_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.18,
+                "minimum": 0.02
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conveyor Speed M S"
+          },
+          "gripper_force_scale": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.005
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gripper Force Scale"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ConditionChanges"
       },
       "ConfigurationResponse": {
         "properties": {
@@ -3535,6 +5555,102 @@
           "details"
         ],
         "title": "EventResponse"
+      },
+      "Exchange": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-exchange/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.factory-exchange/1.0"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "configuration",
+              "benchmark"
+            ],
+            "title": "Kind"
+          },
+          "units": {
+            "$ref": "#/components/schemas/Units"
+          },
+          "coordinates": {
+            "type": "string",
+            "const": "right-handed Z-up; XY horizontal; quaternion wxyz",
+            "title": "Coordinates",
+            "default": "right-handed Z-up; XY horizontal; quaternion wxyz"
+          },
+          "software": {
+            "$ref": "#/components/schemas/Software"
+          },
+          "world_version": {
+            "type": "string",
+            "title": "World Version"
+          },
+          "robot": {
+            "type": "string",
+            "const": "MuJoCo Menagerie Franka Panda",
+            "title": "Robot",
+            "default": "MuJoCo Menagerie Franka Panda"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/FactorySettings"
+          },
+          "initial_state_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Initial State Sha256"
+          },
+          "model_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Model Sha256"
+          },
+          "benchmark_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "benchmark_definition_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benchmark Definition Sha256"
+          },
+          "content_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Content Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "software",
+          "world_version",
+          "provenance",
+          "configuration",
+          "initial_state_sha256",
+          "model_sha256",
+          "content_sha256"
+        ],
+        "title": "Exchange"
       },
       "ExperimentConfiguration": {
         "properties": {
@@ -3947,6 +6063,540 @@
           "request"
         ],
         "title": "ExperimentResponse"
+      },
+      "FactoryBenchmarkResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-benchmark-record/1.0",
+            "title": "Schema Version"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "created_at": {
+            "type": "number",
+            "title": "Created At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "cell_id": {
+            "type": "string",
+            "title": "Cell Id"
+          },
+          "definition": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Definition"
+          },
+          "request": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Request"
+          },
+          "trials": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Trials"
+          },
+          "comparison": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Comparison"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "total_trials": {
+            "type": "integer",
+            "title": "Total Trials"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "id",
+          "name",
+          "created_at",
+          "status",
+          "phase",
+          "cell_id",
+          "definition",
+          "request",
+          "trials",
+          "comparison",
+          "error",
+          "total_trials"
+        ],
+        "title": "FactoryBenchmarkResponse"
+      },
+      "FactoryCellResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-cell/1.0",
+            "title": "Schema Version"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "number",
+            "title": "Created At"
+          },
+          "config": {
+            "$ref": "#/components/schemas/FactorySettings"
+          },
+          "world_version": {
+            "type": "string",
+            "title": "World Version"
+          },
+          "engine": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Engine"
+          },
+          "initial_state": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Initial State",
+            "description": "Full mjSTATE_INTEGRATION, model hash, settings, seed and work ledger."
+          },
+          "frame": {
+            "$ref": "#/components/schemas/FactoryFrame"
+          },
+          "last_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run Id"
+          },
+          "collision_geometry": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Collision Geometry"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "id",
+          "created_at",
+          "config",
+          "world_version",
+          "engine",
+          "initial_state",
+          "frame",
+          "last_run_id",
+          "collision_geometry"
+        ],
+        "title": "FactoryCellResponse"
+      },
+      "FactoryFrame": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-frame/1.0",
+            "title": "Schema Version"
+          },
+          "time": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Time",
+            "description": "Native MuJoCo simulation time in seconds."
+          },
+          "qpos": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Qpos"
+          },
+          "qvel": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Qvel"
+          },
+          "ctrl": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Ctrl"
+          },
+          "body_transforms": {
+            "items": {
+              "$ref": "#/components/schemas/BodyTransform"
+            },
+            "type": "array",
+            "title": "Body Transforms"
+          },
+          "cartons": {
+            "items": {
+              "$ref": "#/components/schemas/Carton"
+            },
+            "type": "array",
+            "title": "Cartons"
+          },
+          "carton_half_size_m": {
+            "type": "number",
+            "title": "Carton Half Size M"
+          },
+          "end_effector": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "End Effector"
+          },
+          "conveyors": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Conveyors"
+          },
+          "measurements": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Measurements",
+            "description": "SI native joint/contact/object data, power and per-step work integrals. See FACTORY_MEASUREMENTS.md. Null means unavailable."
+          },
+          "source": {
+            "type": "string",
+            "const": "mujoco",
+            "title": "Source"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "time",
+          "qpos",
+          "qvel",
+          "ctrl",
+          "body_transforms",
+          "cartons",
+          "carton_half_size_m",
+          "end_effector",
+          "conveyors",
+          "measurements",
+          "source"
+        ],
+        "title": "FactoryFrame"
+      },
+      "FactoryRunResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-run/1.0",
+            "title": "Schema Version"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "cell_id": {
+            "type": "string",
+            "title": "Cell Id"
+          },
+          "created_at": {
+            "type": "number",
+            "title": "Created At"
+          },
+          "config": {
+            "$ref": "#/components/schemas/FactorySettings"
+          },
+          "world_version": {
+            "type": "string",
+            "title": "World Version"
+          },
+          "engine": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Engine"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "paused",
+              "completed",
+              "failed",
+              "stopped",
+              "emergency_stopped",
+              "interrupted"
+            ],
+            "title": "Status"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "production",
+              "conveyor"
+            ],
+            "title": "Mode"
+          },
+          "frame": {
+            "$ref": "#/components/schemas/FactoryFrame"
+          },
+          "events": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "id",
+          "cell_id",
+          "created_at",
+          "config",
+          "world_version",
+          "engine",
+          "status",
+          "phase",
+          "mode",
+          "frame",
+          "events",
+          "metrics",
+          "error"
+        ],
+        "title": "FactoryRunResponse"
+      },
+      "FactorySamplesResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-samples/1.0",
+            "title": "Schema Version"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "frames": {
+            "items": {
+              "$ref": "#/components/schemas/FactoryFrame"
+            },
+            "type": "array",
+            "title": "Frames"
+          },
+          "next_index": {
+            "type": "integer",
+            "title": "Next Index"
+          },
+          "total_samples": {
+            "type": "integer",
+            "title": "Total Samples"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "run_id",
+          "frames",
+          "next_index",
+          "total_samples",
+          "status"
+        ],
+        "title": "FactorySamplesResponse"
+      },
+      "FactorySettings": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.factory-settings/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.factory-settings/1.0"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "default": "Carton sorting baseline"
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 4294967295.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 19
+          },
+          "carton_count": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Carton Count",
+            "default": 3
+          },
+          "carton_mass_kg": {
+            "type": "number",
+            "maximum": 0.15,
+            "minimum": 0.02,
+            "title": "Carton Mass Kg",
+            "default": 0.06
+          },
+          "carton_friction": {
+            "type": "number",
+            "maximum": 1.5,
+            "minimum": 0.05,
+            "title": "Carton Friction",
+            "default": 0.8
+          },
+          "carton_half_size_m": {
+            "type": "number",
+            "maximum": 0.03,
+            "minimum": 0.02,
+            "title": "Carton Half Size M",
+            "default": 0.025
+          },
+          "carton_start_x_m": {
+            "type": "number",
+            "maximum": 0.535,
+            "minimum": 0.465,
+            "title": "Carton Start X M",
+            "default": 0.5
+          },
+          "carton_start_y_m": {
+            "type": "number",
+            "maximum": -0.35,
+            "minimum": -1.28,
+            "title": "Carton Start Y M",
+            "default": -0.94
+          },
+          "conveyor_speed_m_s": {
+            "type": "number",
+            "maximum": 0.18,
+            "minimum": 0.02,
+            "title": "Conveyor Speed M S",
+            "default": 0.09
+          },
+          "arrival_interval_s": {
+            "type": "number",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Arrival Interval S",
+            "default": 18.0
+          },
+          "realtime_speed": {
+            "type": "number",
+            "maximum": 8.0,
+            "minimum": 0.25,
+            "title": "Realtime Speed",
+            "default": 2.0
+          },
+          "sort_threshold_kg": {
+            "type": "number",
+            "maximum": 0.15,
+            "minimum": 0.02,
+            "title": "Sort Threshold Kg",
+            "default": 0.07
+          },
+          "gripper_force_scale": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.005,
+            "title": "Gripper Force Scale",
+            "default": 1.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FactorySettings"
       },
       "GenerationRequest": {
         "properties": {
@@ -4398,6 +7048,7 @@
         ],
         "title": "ImportResponse"
       },
+      "JsonValue": {},
       "LibraryWorld": {
         "properties": {
           "schema_version": {
@@ -4891,6 +7542,70 @@
         ],
         "title": "PhysicsValidationResponse"
       },
+      "ProjectRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "team_label": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Team Label"
+          },
+          "creator_label": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Creator Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "team_label",
+          "creator_label"
+        ],
+        "title": "ProjectRequest"
+      },
+      "Provenance": {
+        "properties": {
+          "exported_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Exported At"
+          },
+          "source_record_id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Source Record Id"
+          },
+          "source": {
+            "type": "string",
+            "const": "vivacity_backend",
+            "title": "Source",
+            "default": "vivacity_backend"
+          },
+          "platform": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Platform"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "exported_at",
+          "source_record_id",
+          "platform"
+        ],
+        "title": "Provenance"
+      },
       "RenameRequest": {
         "properties": {
           "name": {
@@ -5241,6 +7956,35 @@
         "type": "object",
         "title": "RunOverrides"
       },
+      "RunRequest": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "conveyor",
+              "production"
+            ],
+            "title": "Mode",
+            "default": "conveyor"
+          },
+          "creator_label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RunRequest"
+      },
       "SessionRequest": {
         "properties": {
           "schema_version": {
@@ -5466,6 +8210,59 @@
           "conditions"
         ],
         "title": "SessionResponse"
+      },
+      "Software": {
+        "properties": {
+          "engine": {
+            "type": "string",
+            "const": "MuJoCo",
+            "title": "Engine",
+            "default": "MuJoCo"
+          },
+          "engine_version": {
+            "type": "string",
+            "title": "Engine Version"
+          },
+          "numpy_version": {
+            "type": "string",
+            "title": "Numpy Version"
+          },
+          "scipy_version": {
+            "type": "string",
+            "title": "Scipy Version"
+          },
+          "python_version": {
+            "type": "string",
+            "title": "Python Version"
+          },
+          "controller_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Controller Sha256"
+          },
+          "robot_assets_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Robot Assets Sha256"
+          },
+          "world_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "World Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "engine_version",
+          "numpy_version",
+          "scipy_version",
+          "python_version",
+          "controller_sha256",
+          "robot_assets_sha256",
+          "world_sha256"
+        ],
+        "title": "Software"
       },
       "SortingRule": {
         "properties": {
@@ -5838,6 +8635,61 @@
         ],
         "title": "TrialsResponse"
       },
+      "Units": {
+        "properties": {
+          "length": {
+            "type": "string",
+            "const": "m",
+            "title": "Length",
+            "default": "m"
+          },
+          "time": {
+            "type": "string",
+            "const": "s",
+            "title": "Time",
+            "default": "s"
+          },
+          "mass": {
+            "type": "string",
+            "const": "kg",
+            "title": "Mass",
+            "default": "kg"
+          },
+          "angle": {
+            "type": "string",
+            "const": "rad",
+            "title": "Angle",
+            "default": "rad"
+          },
+          "force": {
+            "type": "string",
+            "const": "N",
+            "title": "Force",
+            "default": "N"
+          },
+          "torque": {
+            "type": "string",
+            "const": "N m",
+            "title": "Torque",
+            "default": "N m"
+          },
+          "energy": {
+            "type": "string",
+            "const": "J",
+            "title": "Energy",
+            "default": "J"
+          },
+          "power": {
+            "type": "string",
+            "const": "W",
+            "title": "Power",
+            "default": "W"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Units"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -5931,6 +8783,41 @@
         "additionalProperties": false,
         "type": "object",
         "title": "VariationSettings"
+      },
+      "VersionRequest": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          },
+          "cell_id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Cell Id"
+          },
+          "creator_label": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Creator Label"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "cell_id",
+          "creator_label"
+        ],
+        "title": "VersionRequest"
       },
       "WorldResponse": {
         "properties": {

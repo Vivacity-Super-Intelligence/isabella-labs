@@ -468,6 +468,381 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/factory/cells": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Cell */
+        post: operations["create_cell_v1_factory_cells_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/cells/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cell */
+        get: operations["cell_v1_factory_cells__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/cells/{identifier}/observation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Observation */
+        get: operations["observation_v1_factory_cells__identifier__observation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/cells/{identifier}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start */
+        post: operations["start_v1_factory_cells__identifier__runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/runs/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Run */
+        get: operations["run_v1_factory_runs__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** History */
+        get: operations["history_v1_factory_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/runs/{identifier}/record": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Record */
+        get: operations["record_v1_factory_runs__identifier__record_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/runs/{identifier}/samples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Samples */
+        get: operations["samples_v1_factory_runs__identifier__samples_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/runs/{identifier}/control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Control */
+        post: operations["control_v1_factory_runs__identifier__control_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/cells/{identifier}/benchmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Benchmark */
+        post: operations["start_benchmark_v1_factory_cells__identifier__benchmarks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/benchmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Benchmarks */
+        get: operations["benchmarks_v1_factory_benchmarks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/benchmarks/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Benchmark */
+        get: operations["benchmark_v1_factory_benchmarks__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/benchmarks/{identifier}/control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Benchmark Control */
+        post: operations["benchmark_control_v1_factory_benchmarks__identifier__control_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/cells/{identifier}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Configuration */
+        get: operations["export_configuration_v1_factory_cells__identifier__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/benchmarks/{identifier}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Benchmark */
+        get: operations["export_benchmark_v1_factory_benchmarks__identifier__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/runs/{identifier}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Record */
+        get: operations["export_record_v1_factory_runs__identifier__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Configuration */
+        post: operations["import_configuration_v1_factory_imports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/reports/{kind}/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Report */
+        get: operations["report_v1_factory_reports__kind___identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Projects */
+        get: operations["projects_v1_factory_projects_get"];
+        put?: never;
+        /** Create Project */
+        post: operations["create_project_v1_factory_projects_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/projects/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Project */
+        get: operations["project_v1_factory_projects__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/projects/{identifier}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project Version */
+        post: operations["project_version_v1_factory_projects__identifier__versions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/factory/projects/{identifier}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project Attach */
+        post: operations["project_attach_v1_factory_projects__identifier__attachments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -948,6 +1323,56 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AttachmentRequest */
+        AttachmentRequest: {
+            /** Expected Revision */
+            expected_revision: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "run" | "benchmark";
+            /** Record Id */
+            record_id: string;
+            /** Added By Label */
+            added_by_label: string;
+        };
+        /** BenchmarkRequest */
+        BenchmarkRequest: {
+            /**
+             * Schema Version
+             * @default vivacity.factory-benchmark-request/1.0
+             * @constant
+             */
+            schema_version: "vivacity.factory-benchmark-request/1.0";
+            /**
+             * Name
+             * @default Contact sorting comparison
+             */
+            name: string;
+            /**
+             * Repeats
+             * @default 2
+             */
+            repeats: number;
+            /**
+             * Held Out Repeats
+             * @default 1
+             */
+            held_out_repeats: number;
+            changes: components["schemas"]["ConditionChanges"];
+        };
+        /** BodyTransform */
+        BodyTransform: {
+            /** Name */
+            name: string;
+            /** Position */
+            position: number[];
+            /** Quaternion Wxyz */
+            quaternion_wxyz: number[];
+        } & {
+            [key: string]: unknown;
+        };
         /** BranchExport */
         BranchExport: {
             /**
@@ -1091,6 +1516,23 @@ export interface components {
             /** Created Unix S */
             created_unix_s: number;
         };
+        /** Carton */
+        Carton: {
+            /** Id */
+            id: string;
+            /** Position M */
+            position_m: number[];
+            /** Quaternion Wxyz */
+            quaternion_wxyz: number[];
+            /** Linear Velocity M S */
+            linear_velocity_m_s: number[];
+            /** Angular Velocity Rad S */
+            angular_velocity_rad_s: number[];
+            /** Mass Kg */
+            mass_kg: number;
+        } & {
+            [key: string]: unknown;
+        };
         /** ClothConfig */
         ClothConfig: {
             /**
@@ -1115,12 +1557,31 @@ export interface components {
              */
             friction: number;
         };
+        /** Command */
+        Command: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "pause" | "resume" | "stop" | "emergency_stop";
+        };
         /** CommitRequest */
         CommitRequest: {
             /** Experiment Id */
             experiment_id: string;
             /** Branch Id */
             branch_id: string;
+        };
+        /** ConditionChanges */
+        ConditionChanges: {
+            /** Carton Mass Kg */
+            carton_mass_kg?: number | null;
+            /** Carton Friction */
+            carton_friction?: number | null;
+            /** Conveyor Speed M S */
+            conveyor_speed_m_s?: number | null;
+            /** Gripper Force Scale */
+            gripper_force_scale?: number | null;
         };
         /** ConfigurationResponse */
         ConfigurationResponse: {
@@ -1244,6 +1705,47 @@ export interface components {
             details: {
                 [key: string]: unknown;
             };
+        };
+        /** Exchange */
+        Exchange: {
+            /**
+             * Schema Version
+             * @default vivacity.factory-exchange/1.0
+             * @constant
+             */
+            schema_version: "vivacity.factory-exchange/1.0";
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "configuration" | "benchmark";
+            units?: components["schemas"]["Units"];
+            /**
+             * Coordinates
+             * @default right-handed Z-up; XY horizontal; quaternion wxyz
+             * @constant
+             */
+            coordinates: "right-handed Z-up; XY horizontal; quaternion wxyz";
+            software: components["schemas"]["Software"];
+            /** World Version */
+            world_version: string;
+            /**
+             * Robot
+             * @default MuJoCo Menagerie Franka Panda
+             * @constant
+             */
+            robot: "MuJoCo Menagerie Franka Panda";
+            provenance: components["schemas"]["Provenance"];
+            configuration: components["schemas"]["FactorySettings"];
+            /** Initial State Sha256 */
+            initial_state_sha256: string;
+            /** Model Sha256 */
+            model_sha256: string;
+            benchmark_request?: components["schemas"]["BenchmarkRequest"] | null;
+            /** Benchmark Definition Sha256 */
+            benchmark_definition_sha256?: string | null;
+            /** Content Sha256 */
+            content_sha256: string;
         };
         /** ExperimentConfiguration */
         ExperimentConfiguration: {
@@ -1510,6 +2012,270 @@ export interface components {
              */
             stale: boolean;
         };
+        /** FactoryBenchmarkResponse */
+        FactoryBenchmarkResponse: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-benchmark-record/1.0";
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Created At */
+            created_at: number;
+            /** Status */
+            status: string;
+            /** Phase */
+            phase: string;
+            /** Cell Id */
+            cell_id: string;
+            /** Definition */
+            definition: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Request */
+            request: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Trials */
+            trials: {
+                [key: string]: components["schemas"]["JsonValue"];
+            }[];
+            /** Comparison */
+            comparison: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Error */
+            error: string | null;
+            /** Total Trials */
+            total_trials: number;
+        } & {
+            [key: string]: unknown;
+        };
+        /** FactoryCellResponse */
+        FactoryCellResponse: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-cell/1.0";
+            /** Id */
+            id: string;
+            /** Created At */
+            created_at: number;
+            config: components["schemas"]["FactorySettings"];
+            /** World Version */
+            world_version: string;
+            /** Engine */
+            engine: {
+                [key: string]: string;
+            };
+            /**
+             * Initial State
+             * @description Full mjSTATE_INTEGRATION, model hash, settings, seed and work ledger.
+             */
+            initial_state: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            frame: components["schemas"]["FactoryFrame"];
+            /** Last Run Id */
+            last_run_id: string | null;
+            /** Collision Geometry */
+            collision_geometry: {
+                [key: string]: components["schemas"]["JsonValue"];
+            }[];
+        } & {
+            [key: string]: unknown;
+        };
+        /** FactoryFrame */
+        FactoryFrame: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-frame/1.0";
+            /**
+             * Time
+             * @description Native MuJoCo simulation time in seconds.
+             */
+            time: number;
+            /** Qpos */
+            qpos: number[];
+            /** Qvel */
+            qvel: number[];
+            /** Ctrl */
+            ctrl: number[];
+            /** Body Transforms */
+            body_transforms: components["schemas"]["BodyTransform"][];
+            /** Cartons */
+            cartons: components["schemas"]["Carton"][];
+            /** Carton Half Size M */
+            carton_half_size_m: number;
+            /** End Effector */
+            end_effector: number[];
+            /** Conveyors */
+            conveyors: {
+                [key: string]: {
+                    [key: string]: components["schemas"]["JsonValue"];
+                };
+            };
+            /**
+             * Measurements
+             * @description SI native joint/contact/object data, power and per-step work integrals. See FACTORY_MEASUREMENTS.md. Null means unavailable.
+             */
+            measurements: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /**
+             * Source
+             * @constant
+             */
+            source: "mujoco";
+        } & {
+            [key: string]: unknown;
+        };
+        /** FactoryRunResponse */
+        FactoryRunResponse: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-run/1.0";
+            /** Id */
+            id: string;
+            /** Cell Id */
+            cell_id: string;
+            /** Created At */
+            created_at: number;
+            config: components["schemas"]["FactorySettings"];
+            /** World Version */
+            world_version: string;
+            /** Engine */
+            engine: {
+                [key: string]: string;
+            };
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "paused" | "completed" | "failed" | "stopped" | "emergency_stopped" | "interrupted";
+            /** Phase */
+            phase: string;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "production" | "conveyor";
+            frame: components["schemas"]["FactoryFrame"];
+            /** Events */
+            events: {
+                [key: string]: components["schemas"]["JsonValue"];
+            }[];
+            /** Metrics */
+            metrics: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Error */
+            error: string | null;
+        } & {
+            [key: string]: unknown;
+        };
+        /** FactorySamplesResponse */
+        FactorySamplesResponse: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.factory-samples/1.0";
+            /** Run Id */
+            run_id: string;
+            /** Frames */
+            frames: components["schemas"]["FactoryFrame"][];
+            /** Next Index */
+            next_index: number;
+            /** Total Samples */
+            total_samples: number;
+            /** Status */
+            status: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** FactorySettings */
+        FactorySettings: {
+            /**
+             * Schema Version
+             * @default vivacity.factory-settings/1.0
+             * @constant
+             */
+            schema_version: "vivacity.factory-settings/1.0";
+            /**
+             * Name
+             * @default Carton sorting baseline
+             */
+            name: string;
+            /**
+             * Seed
+             * @default 19
+             */
+            seed: number;
+            /**
+             * Carton Count
+             * @default 3
+             */
+            carton_count: number;
+            /**
+             * Carton Mass Kg
+             * @default 0.06
+             */
+            carton_mass_kg: number;
+            /**
+             * Carton Friction
+             * @default 0.8
+             */
+            carton_friction: number;
+            /**
+             * Carton Half Size M
+             * @default 0.025
+             */
+            carton_half_size_m: number;
+            /**
+             * Carton Start X M
+             * @default 0.5
+             */
+            carton_start_x_m: number;
+            /**
+             * Carton Start Y M
+             * @default -0.94
+             */
+            carton_start_y_m: number;
+            /**
+             * Conveyor Speed M S
+             * @default 0.09
+             */
+            conveyor_speed_m_s: number;
+            /**
+             * Arrival Interval S
+             * @default 18
+             */
+            arrival_interval_s: number;
+            /**
+             * Realtime Speed
+             * @default 2
+             */
+            realtime_speed: number;
+            /**
+             * Sort Threshold Kg
+             * @default 0.07
+             */
+            sort_threshold_kg: number;
+            /**
+             * Gripper Force Scale
+             * @default 1
+             */
+            gripper_force_scale: number;
+        };
         /** GenerationRequest */
         GenerationRequest: {
             /** Prompt */
@@ -1695,6 +2461,7 @@ export interface components {
             /** Configured World Id */
             configured_world_id?: string | null;
         };
+        JsonValue: unknown;
         /** LibraryWorld */
         LibraryWorld: {
             /**
@@ -1943,6 +2710,33 @@ export interface components {
             /** Scope */
             scope: string;
         };
+        /** ProjectRequest */
+        ProjectRequest: {
+            /** Name */
+            name: string;
+            /** Team Label */
+            team_label: string;
+            /** Creator Label */
+            creator_label: string;
+        };
+        /** Provenance */
+        Provenance: {
+            /**
+             * Exported At
+             * Format: date-time
+             */
+            exported_at: string;
+            /** Source Record Id */
+            source_record_id: string;
+            /**
+             * Source
+             * @default vivacity_backend
+             * @constant
+             */
+            source: "vivacity_backend";
+            /** Platform */
+            platform: string;
+        };
         /** RenameRequest */
         RenameRequest: {
             /** Name */
@@ -2123,6 +2917,17 @@ export interface components {
                 [key: string]: unknown;
             } | null;
         };
+        /** RunRequest */
+        RunRequest: {
+            /**
+             * Mode
+             * @default conveyor
+             * @enum {string}
+             */
+            mode: "conveyor" | "production";
+            /** Creator Label */
+            creator_label?: string | null;
+        };
         /** SessionRequest */
         SessionRequest: {
             /**
@@ -2245,6 +3050,29 @@ export interface components {
             conditions: {
                 [key: string]: unknown;
             }[];
+        };
+        /** Software */
+        Software: {
+            /**
+             * Engine
+             * @default MuJoCo
+             * @constant
+             */
+            engine: "MuJoCo";
+            /** Engine Version */
+            engine_version: string;
+            /** Numpy Version */
+            numpy_version: string;
+            /** Scipy Version */
+            scipy_version: string;
+            /** Python Version */
+            python_version: string;
+            /** Controller Sha256 */
+            controller_sha256: string;
+            /** Robot Assets Sha256 */
+            robot_assets_sha256: string;
+            /** World Sha256 */
+            world_sha256: string;
         };
         /** SortingRule */
         SortingRule: {
@@ -2418,6 +3246,57 @@ export interface components {
             /** Next After */
             next_after: number | null;
         };
+        /** Units */
+        Units: {
+            /**
+             * Length
+             * @default m
+             * @constant
+             */
+            length: "m";
+            /**
+             * Time
+             * @default s
+             * @constant
+             */
+            time: "s";
+            /**
+             * Mass
+             * @default kg
+             * @constant
+             */
+            mass: "kg";
+            /**
+             * Angle
+             * @default rad
+             * @constant
+             */
+            angle: "rad";
+            /**
+             * Force
+             * @default N
+             * @constant
+             */
+            force: "N";
+            /**
+             * Torque
+             * @default N m
+             * @constant
+             */
+            torque: "N m";
+            /**
+             * Energy
+             * @default J
+             * @constant
+             */
+            energy: "J";
+            /**
+             * Power
+             * @default W
+             * @constant
+             */
+            power: "W";
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -2468,6 +3347,20 @@ export interface components {
              * @default 0.25
              */
             held_out_fraction: number;
+        };
+        /** VersionRequest */
+        VersionRequest: {
+            /** Expected Revision */
+            expected_revision: number;
+            /** Cell Id */
+            cell_id: string;
+            /** Creator Label */
+            creator_label: string;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
         };
         /** WorldResponse */
         WorldResponse: {
@@ -3556,6 +4449,1041 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_cell_v1_factory_cells_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FactorySettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryCellResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cell_v1_factory_cells__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryCellResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    observation_v1_factory_cells__identifier__observation_get: {
+        parameters: {
+            query?: {
+                source?: "initial" | "latest";
+            };
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_v1_factory_cells__identifier__runs_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_v1_factory_runs__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    history_v1_factory_runs_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_v1_factory_runs__identifier__record_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    samples_v1_factory_runs__identifier__samples_get: {
+        parameters: {
+            query?: {
+                after?: number;
+                limit?: number;
+            };
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactorySamplesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    control_v1_factory_runs__identifier__control_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Command"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_benchmark_v1_factory_cells__identifier__benchmarks_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BenchmarkRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryBenchmarkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    benchmarks_v1_factory_benchmarks_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    benchmark_v1_factory_benchmarks__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FactoryBenchmarkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    benchmark_control_v1_factory_benchmarks__identifier__control_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Command"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_configuration_v1_factory_cells__identifier__export_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Exchange"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_benchmark_v1_factory_benchmarks__identifier__export_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Exchange"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_record_v1_factory_runs__identifier__export_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_configuration_v1_factory_imports_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * Schema Version
+                     * @default vivacity.factory-exchange/1.0
+                     * @constant
+                     */
+                    schema_version?: "vivacity.factory-exchange/1.0";
+                    /**
+                     * Kind
+                     * @enum {string}
+                     */
+                    kind: "configuration" | "benchmark";
+                    units?: components["schemas"]["Units"];
+                    /**
+                     * Coordinates
+                     * @default right-handed Z-up; XY horizontal; quaternion wxyz
+                     * @constant
+                     */
+                    coordinates?: "right-handed Z-up; XY horizontal; quaternion wxyz";
+                    software: components["schemas"]["Software"];
+                    /** World Version */
+                    world_version: string;
+                    /**
+                     * Robot
+                     * @default MuJoCo Menagerie Franka Panda
+                     * @constant
+                     */
+                    robot?: "MuJoCo Menagerie Franka Panda";
+                    provenance: components["schemas"]["Provenance"];
+                    configuration: components["schemas"]["FactorySettings"];
+                    /** Initial State Sha256 */
+                    initial_state_sha256: string;
+                    /** Model Sha256 */
+                    model_sha256: string;
+                    benchmark_request?: components["schemas"]["BenchmarkRequest"] | null;
+                    /** Benchmark Definition Sha256 */
+                    benchmark_definition_sha256?: string | null;
+                    /** Content Sha256 */
+                    content_sha256: string;
+                    $defs: {
+                        /** BenchmarkRequest */
+                        BenchmarkRequest: {
+                            /**
+                             * Schema Version
+                             * @default vivacity.factory-benchmark-request/1.0
+                             * @constant
+                             */
+                            schema_version?: "vivacity.factory-benchmark-request/1.0";
+                            /**
+                             * Name
+                             * @default Contact sorting comparison
+                             */
+                            name?: string;
+                            /**
+                             * Repeats
+                             * @default 2
+                             */
+                            repeats?: number;
+                            /**
+                             * Held Out Repeats
+                             * @default 1
+                             */
+                            held_out_repeats?: number;
+                            changes: components["schemas"]["ConditionChanges"];
+                        };
+                        /** ConditionChanges */
+                        ConditionChanges: {
+                            /** Carton Mass Kg */
+                            carton_mass_kg?: number | null;
+                            /** Carton Friction */
+                            carton_friction?: number | null;
+                            /** Conveyor Speed M S */
+                            conveyor_speed_m_s?: number | null;
+                            /** Gripper Force Scale */
+                            gripper_force_scale?: number | null;
+                        };
+                        /** FactorySettings */
+                        FactorySettings: {
+                            /**
+                             * Schema Version
+                             * @default vivacity.factory-settings/1.0
+                             * @constant
+                             */
+                            schema_version?: "vivacity.factory-settings/1.0";
+                            /**
+                             * Name
+                             * @default Carton sorting baseline
+                             */
+                            name?: string;
+                            /**
+                             * Seed
+                             * @default 19
+                             */
+                            seed?: number;
+                            /**
+                             * Carton Count
+                             * @default 3
+                             */
+                            carton_count?: number;
+                            /**
+                             * Carton Mass Kg
+                             * @default 0.06
+                             */
+                            carton_mass_kg?: number;
+                            /**
+                             * Carton Friction
+                             * @default 0.8
+                             */
+                            carton_friction?: number;
+                            /**
+                             * Carton Half Size M
+                             * @default 0.025
+                             */
+                            carton_half_size_m?: number;
+                            /**
+                             * Carton Start X M
+                             * @default 0.5
+                             */
+                            carton_start_x_m?: number;
+                            /**
+                             * Carton Start Y M
+                             * @default -0.94
+                             */
+                            carton_start_y_m?: number;
+                            /**
+                             * Conveyor Speed M S
+                             * @default 0.09
+                             */
+                            conveyor_speed_m_s?: number;
+                            /**
+                             * Arrival Interval S
+                             * @default 18
+                             */
+                            arrival_interval_s?: number;
+                            /**
+                             * Realtime Speed
+                             * @default 2
+                             */
+                            realtime_speed?: number;
+                            /**
+                             * Sort Threshold Kg
+                             * @default 0.07
+                             */
+                            sort_threshold_kg?: number;
+                            /**
+                             * Gripper Force Scale
+                             * @default 1
+                             */
+                            gripper_force_scale?: number;
+                        };
+                        /** Provenance */
+                        Provenance: {
+                            /**
+                             * Exported At
+                             * Format: date-time
+                             */
+                            exported_at: string;
+                            /** Source Record Id */
+                            source_record_id: string;
+                            /**
+                             * Source
+                             * @default vivacity_backend
+                             * @constant
+                             */
+                            source?: "vivacity_backend";
+                            /** Platform */
+                            platform: string;
+                        };
+                        /** Software */
+                        Software: {
+                            /**
+                             * Engine
+                             * @default MuJoCo
+                             * @constant
+                             */
+                            engine?: "MuJoCo";
+                            /** Engine Version */
+                            engine_version: string;
+                            /** Numpy Version */
+                            numpy_version: string;
+                            /** Scipy Version */
+                            scipy_version: string;
+                            /** Python Version */
+                            python_version: string;
+                            /** Controller Sha256 */
+                            controller_sha256: string;
+                            /** Robot Assets Sha256 */
+                            robot_assets_sha256: string;
+                            /** World Sha256 */
+                            world_sha256: string;
+                        };
+                        /** Units */
+                        Units: {
+                            /**
+                             * Length
+                             * @default m
+                             * @constant
+                             */
+                            length?: "m";
+                            /**
+                             * Time
+                             * @default s
+                             * @constant
+                             */
+                            time?: "s";
+                            /**
+                             * Mass
+                             * @default kg
+                             * @constant
+                             */
+                            mass?: "kg";
+                            /**
+                             * Angle
+                             * @default rad
+                             * @constant
+                             */
+                            angle?: "rad";
+                            /**
+                             * Force
+                             * @default N
+                             * @constant
+                             */
+                            force?: "N";
+                            /**
+                             * Torque
+                             * @default N m
+                             * @constant
+                             */
+                            torque?: "N m";
+                            /**
+                             * Energy
+                             * @default J
+                             * @constant
+                             */
+                            energy?: "J";
+                            /**
+                             * Power
+                             * @default W
+                             * @constant
+                             */
+                            power?: "W";
+                        };
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    report_v1_factory_reports__kind___identifier__get: {
+        parameters: {
+            query?: {
+                format?: "pdf" | "zip";
+                project_id?: string | null;
+            };
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                kind: "run" | "benchmark";
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    projects_v1_factory_projects_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_project_v1_factory_projects_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    project_v1_factory_projects__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    project_version_v1_factory_projects__identifier__versions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    project_attach_v1_factory_projects__identifier__attachments_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

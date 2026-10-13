@@ -6,7 +6,7 @@ import type {OrbitControls as Controls} from 'three-stdlib';
 import {loadAssets,GeomMesh,type Assets} from './RobotAssets';
 import type {BodyPose,RobotFrame,Vec3} from './domain';
 import SceneBoundary from './SceneBoundary';
-import layout from '../../vivacity/factory_layout.json';
+import layout from './generated/factory_layout.json';
 
 export type FactoryGeometry={name:string;shape:'sphere'|'cylinder'|'box';position:Vec3;quaternion_wxyz:number[];size:Vec3;moving_with_shuttle:boolean};
 export type FactoryViewMode='fidelity'|'engineering'|'performance';
