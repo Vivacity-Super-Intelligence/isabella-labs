@@ -1,7 +1,7 @@
 """Exercise the hosted HTTP boundary with concurrent reads and queued MuJoCo jobs.
 
-Requests are concurrent. Physics execution remains the configured single worker;
-this script explicitly records measured queue time rather than claiming parallel CPU work.
+Requests and independent native trials are concurrent. Separate experiments share
+one job worker; this script records measured queue time and actual trial overlap.
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor

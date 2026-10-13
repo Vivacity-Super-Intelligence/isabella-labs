@@ -4,7 +4,7 @@ import { simulatedPerception, type Backend, type World, type Experiment, type Br
 import type { components } from './generated/api';
 import {workspaceApi} from './workspaceApi';
 import {isConnectionMessage} from './apiTransport';
-import {expiredRuntimeReference,forgetRuntimeReferences} from './runtimeRecovery';
+import {expiredRuntimeReference,forgetRuntimeReferences,missingSavedConfiguration} from './runtimeRecovery';
 
 type Session = components['schemas']['SessionResponse'];
 type Live = components['schemas']['LiveState'];
@@ -17,7 +17,11 @@ async function ensureSession(backend:Backend,storageKey:string,config?:Dict,fres
     const work=(async()=>{
       const id=get(`${storageKey}:session`),token=get(`${storageKey}:token`);
       if(!fresh&&id&&token){setSessionToken(token);try{return await api.session(id);}catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}}
-      const configured=configurationId?await workspaceApi.start(configurationId,config):null;
+      let configured:Awaited<ReturnType<typeof workspaceApi.start>>|null=null;
+      if(configurationId){
+        try{configured=await workspaceApi.start(configurationId,config);}
+        catch(e){if(!missingSavedConfiguration(e,config))throw e;}
+      }
       const capability=configured?.session_token??freshToken();setSessionToken(capability);
       const session=configured?.session??await api.createSession(backend,capability,config);
       put(`${storageKey}:token`,capability);put(`${storageKey}:session`,session.id);return session;
@@ -117,7 +121,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
           else{
             let w:World|null=null;
             if(worldId){try{w=await api.world(worldId);}catch(e){if(!(e instanceof APIError&&[403,404].includes(e.status)))throw e;}}
-            w??=await api.create(backend,initialConfig);
+            w??=await api.create(backend,stagedConfig.current??initialConfig);
             const state=await api.state(w.id);
             if(!active||lock.current||version!==generation.current)return;
             put(`${storageKey}:world`,w.id);currentWorld.current=w;setWorld(w);setObservation(state.observation as Dict);
@@ -187,8 +191,11 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
 
   const perform=useCallback(async(operation:()=>Promise<void>)=>{
     if(lock.current)return false;lock.current=true;setMutating(true);setError(null);setRecoveryNotice(null);
-    try{await operation();return true;}catch(e){setError(errorMessage(e));return false;}finally{lock.current=false;setMutating(false);}
-  },[]);
+    try{await operation();return true;}catch(e){
+      if(expiredRuntimeReference(e))recoverExpired();else setError(errorMessage(e));
+      return false;
+    }finally{lock.current=false;setMutating(false);}
+  },[recoverExpired]);
   const stop=useCallback(async()=>{
     const s=currentSession.current;if(!s||!['active','stopping'].includes(s.status))return;
     let result=await api.stopSession(s.id);setSession(result);currentSession.current=result;

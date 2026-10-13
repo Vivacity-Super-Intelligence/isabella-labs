@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fetchRuntime,runtimeEndpoints,runtimeSocketURL,CONNECTION_ERROR,TIMEOUT_ERROR,isConnectionMessage} from '../frontend/src/apiTransport.ts';
-import {expiredRuntimeReference,forgetRuntimeReferences} from '../frontend/src/runtimeRecovery.ts';
+import {expiredRuntimeReference,forgetRuntimeReferences,missingSavedConfiguration} from '../frontend/src/runtimeRecovery.ts';
 import {APIError} from '../frontend/src/apiResponse.ts';
 const noWait=async()=>{};
 
@@ -78,4 +78,9 @@ test('expired run recovery preserves settings and other runtime identities',()=>
     ['vivacity:example:settings','{"mass":0.06}'],['vivacity:other:session','other-session'],['vivacity:workspace-capability','workspace-token']]);
   forgetRuntimeReferences({removeItem:key=>values.delete(key)},'example');
   assert.deepEqual([...values.keys()],['vivacity:example:settings','vivacity:other:session','vivacity:workspace-capability']);
+});
+test('an expired saved configuration can use known physical settings, never bypassing ownership',()=>{
+  assert.equal(missingSavedConfiguration(new APIError(404,'missing'),{task:'pick_place'}),true);
+  assert.equal(missingSavedConfiguration(new APIError(404,'missing'),undefined),false);
+  assert.equal(missingSavedConfiguration(new APIError(403,'forbidden'),{task:'pick_place'}),false);
 });
