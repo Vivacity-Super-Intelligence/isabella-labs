@@ -1,0 +1,11 @@
+{
+  "base_url": "https://vivacity-runtime.onrender.com",
+  "session_id": "3a82e0c3-02d8-418d-800f-de0ae2249d74",
+  "experiment_id": "2e2c6d06-3bc7-46cf-b05b-dec6241ad087",
+  "paused": true,
+  "first_sequence": 457,
+  "second_sequence": 457,
+  "first_simulation_time": 12.40000000000081,
+  "second_simulation_time": 12.40000000000081,
+  "resume_http_status": 200
+}

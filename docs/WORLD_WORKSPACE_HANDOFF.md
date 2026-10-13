@@ -204,3 +204,24 @@ the durable user-controlled export. Accounts, access revocation, cross-device
 identity, production queues, persistent disk and long-term monitoring remain
 future production work. Energy is null because energy accounting is absent;
 reported steps, timings, residual errors and success rates are measured.
+
+
+## Executed release verification
+
+Backend source `ffa94fa` passed all 198 production-image tests (693.269 s)
+and both 512 MiB capacity checks (56.547 s). UR5e HTTP/WSS/replay/geometry
+invalidation and fresh numerical recomputation passed against the public host.
+The full journey took 79.795 s; its first experiment took 37.404 s. Live KUKA
+UI pickup verified three validations and fresh execution in 51.480 s. Its
+exported report, pointer drag, stale-result feedback and recomputation worked.
+
+```powershell
+.venv/Scripts/python.exe -m scripts.verify_workspace_live --base https://vivacity-runtime.onrender.com --output artifacts/workspace-public-http-ws.json
+# On a interrupted verification, retain the ignored data/workspace-live-*.json
+# capability file and use --resume; never commit it.
+.venv/Scripts/python.exe -m pytest -q
+```
+
+Evidence, performance and explicit incomplete features are in
+IMPLEMENTATION_STATUS.md. A green build is not the verification boundary:
+exercise the custom domain and actual HTTP/WSS/physics flow after a release.

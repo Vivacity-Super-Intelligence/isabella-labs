@@ -1,0 +1,463 @@
+{
+  "generation": {
+    "schema_version": "vivacity.generation/1.0",
+    "id": "a6874a84-1f0a-4291-973d-2c5f188c7880",
+    "status": "completed",
+    "provider": "worldlabs",
+    "prompt": "A compact robotics workshop with a concrete floor, metal shelving along the back wall, overhead lighting and a clear central robot workbench. No people.",
+    "seed": 7,
+    "model": "marble-1.0-draft",
+    "operation_id": "90ead896-c7e7-41f5-bb4e-bbae5cb1f7ae",
+    "world_id": "f850d530-82c3-4455-9693-0b06b2800ec1",
+    "created_unix_s": 1791860075.6171544,
+    "updated_unix_s": 1791860497.7824745,
+    "error": null,
+    "interpretation": {
+      "name": "CompactRoboticsWorkshop",
+      "description": "A compact robotics workshop featuring a concrete floor, metal shelving along the back wall, overhead lighting, and a clear central robot workbench area standardized for Panda robot. The robot workbench area is kept clear as requested. The workshop room is simplified as a rectangular room with concrete floor and basic overhead lighting. Metal shelving is modeled as boxes against the back wall. No people included.",
+      "dimensions_m": [
+        4.0,
+        3.0,
+        2.5
+      ],
+      "lighting": {
+        "ambient": 0.15,
+        "key_intensity": 0.7
+      },
+      "geometries": [
+        {
+          "name": "concrete_floor",
+          "type": "box",
+          "position": [
+            2.0,
+            1.5,
+            -0.8
+          ],
+          "size": [
+            2.0,
+            1.5,
+            0.05
+          ],
+          "rgba": [
+            0.6,
+            0.6,
+            0.6,
+            1.0
+          ],
+          "friction": 0.8
+        },
+        {
+          "name": "back_wall",
+          "type": "box",
+          "position": [
+            2.0,
+            3.0,
+            1.25
+          ],
+          "size": [
+            2.0,
+            0.05,
+            1.25
+          ],
+          "rgba": [
+            0.7,
+            0.7,
+            0.7,
+            1.0
+          ],
+          "friction": 0.9
+        },
+        {
+          "name": "left_wall",
+          "type": "box",
+          "position": [
+            0.0,
+            1.5,
+            1.25
+          ],
+          "size": [
+            0.05,
+            1.5,
+            1.25
+          ],
+          "rgba": [
+            0.7,
+            0.7,
+            0.7,
+            1.0
+          ],
+          "friction": 0.9
+        },
+        {
+          "name": "right_wall",
+          "type": "box",
+          "position": [
+            4.0,
+            1.5,
+            1.25
+          ],
+          "size": [
+            0.05,
+            1.5,
+            1.25
+          ],
+          "rgba": [
+            0.7,
+            0.7,
+            0.7,
+            1.0
+          ],
+          "friction": 0.9
+        },
+        {
+          "name": "ceiling",
+          "type": "box",
+          "position": [
+            2.0,
+            1.5,
+            2.5
+          ],
+          "size": [
+            2.0,
+            1.5,
+            0.05
+          ],
+          "rgba": [
+            0.9,
+            0.9,
+            0.9,
+            1.0
+          ],
+          "friction": 0.9
+        },
+        {
+          "name": "metal_shelf_left",
+          "type": "box",
+          "position": [
+            0.7,
+            2.85,
+            0.7
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.7
+          ],
+          "rgba": [
+            0.4,
+            0.4,
+            0.4,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_mid",
+          "type": "box",
+          "position": [
+            2.0,
+            2.85,
+            0.7
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.7
+          ],
+          "rgba": [
+            0.4,
+            0.4,
+            0.4,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_right",
+          "type": "box",
+          "position": [
+            3.3,
+            2.85,
+            0.7
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.7
+          ],
+          "rgba": [
+            0.4,
+            0.4,
+            0.4,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_horiz_left",
+          "type": "box",
+          "position": [
+            0.7,
+            2.85,
+            0.4
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.05
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_horiz_mid",
+          "type": "box",
+          "position": [
+            2.0,
+            2.85,
+            0.4
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.05
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_horiz_right",
+          "type": "box",
+          "position": [
+            3.3,
+            2.85,
+            0.4
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.05
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_lower_left",
+          "type": "box",
+          "position": [
+            0.7,
+            2.85,
+            0.25
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.05
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_lower_mid",
+          "type": "box",
+          "position": [
+            2.0,
+            2.85,
+            0.25
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.05
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "metal_shelf_lower_right",
+          "type": "box",
+          "position": [
+            3.3,
+            2.85,
+            0.25
+          ],
+          "size": [
+            0.2,
+            0.1,
+            0.05
+          ],
+          "rgba": [
+            0.5,
+            0.5,
+            0.5,
+            1.0
+          ],
+          "friction": 0.7
+        },
+        {
+          "name": "overhead_light_cyl",
+          "type": "cylinder",
+          "position": [
+            2.0,
+            1.5,
+            2.3
+          ],
+          "size": [
+            0.15,
+            0.1,
+            0.1
+          ],
+          "rgba": [
+            1.0,
+            1.0,
+            0.9,
+            1.0
+          ],
+          "friction": 0.1
+        }
+      ]
+    },
+    "provider_cost_credits": 230,
+    "events": [
+      {
+        "stage": "interpreting",
+        "timestamp_unix_s": 1791860075.676223,
+        "message": "OpenAI is interpreting the prompt into a bounded scene specification."
+      },
+      {
+        "stage": "generating",
+        "timestamp_unix_s": 1791860085.64424,
+        "message": "Submitting a private World Labs generation request."
+      },
+      {
+        "stage": "generating",
+        "timestamp_unix_s": 1791860099.606684,
+        "message": "World Labs operation accepted; polling its actual status."
+      },
+      {
+        "stage": "receiving",
+        "timestamp_unix_s": 1791860121.801507,
+        "message": "Retrieving and validating the actual generated collider mesh."
+      },
+      {
+        "stage": "failed",
+        "timestamp_unix_s": 1791860126.9288774,
+        "message": "Generated mesh exceeds the 16 MiB import limit; use a smaller collider export."
+      },
+      {
+        "stage": "generating",
+        "timestamp_unix_s": 1791860476.8523614,
+        "message": "Resuming the existing World Labs operation; no new generation is submitted."
+      },
+      {
+        "stage": "receiving",
+        "timestamp_unix_s": 1791860480.1460154,
+        "message": "Retrieving and validating the actual generated collider mesh."
+      },
+      {
+        "stage": "completed",
+        "timestamp_unix_s": 1791860497.7824745,
+        "message": "Actual World Labs mesh retrieved. Review the conservative collision mapping before experimentation."
+      }
+    ]
+  },
+  "world": {
+    "schema_version": "vivacity.library/1.0",
+    "id": "f850d530-82c3-4455-9693-0b06b2800ec1",
+    "version": 1,
+    "name": "CompactRoboticsWorkshop",
+    "description": "The scene is a compact robotics workshop, rendered in a realistic style, conveying a functional and organized atmosphere. The workshop features a durable concrete floor that spans the entire space, providing a sturdy base for heavy equipment. Along the back wall, robust metal shelving units are meticulously organized, holding various tools, components, and project materials. Overhead lighting fixtures are strategically placed across the ceiling, ensuring uniform and bright illumination throughout the workspace. A clear central robot workbench dominates the foreground, serving as the primary area for assembly and testing. This workbench is equipped with essential tools and power outlets, indicating its readiness for intricate tasks. The metal shelving units are filled with an assortment of items, including circuit boards, wires, small motors, and various hand tools, all neatly arranged in bins and on hooks. The concrete floor is clean and free of debris, reflecting the workshop's maintained state. The workbench is positioned centrally, allowing easy access from all sides, with the metal shelving units directly behind it. The overhead lights are evenly distributed above the workbench and shelving, casting no significant shadows. ",
+    "source": "worldlabs",
+    "spec": {
+      "name": "CompactRoboticsWorkshop",
+      "description": "Imported static geometry with an explicitly configured conservative bounding-box collision proxy.",
+      "dimensions_m": [
+        7.0,
+        6.881015805859982,
+        4.0
+      ],
+      "lighting": {
+        "ambient": 0.72,
+        "key_intensity": 3.2
+      },
+      "geometries": [
+        {
+          "name": "import_collision_proxy",
+          "type": "box",
+          "position": [
+            2.5,
+            2.5,
+            0.5
+          ],
+          "size": [
+            1.0,
+            0.940507902929991,
+            0.43774881138042016
+          ],
+          "rgba": [
+            0.35,
+            0.4,
+            0.43,
+            1.0
+          ],
+          "friction": 0.8
+        }
+      ]
+    },
+    "created_unix_s": 1791860497.4036722,
+    "sha256": "be8d0f652894cef3dcc78c2a33271daedc790632041519cf8e3e592264f68447",
+    "import_id": "211eefae-5d06-4eb2-983b-3f8f20a698d9",
+    "provider_world_id": "70bebc3a-e669-4ba7-8b34-a597f9a871ca",
+    "provider_url": "https://marble.worldlabs.ai/world/70bebc3a-e669-4ba7-8b34-a597f9a871ca",
+    "preview_available": true,
+    "physics_scope": "Original triangles are a visual preview. Physics uses a solid axis-aligned bounding-box proxy, centered at the chosen position and scale, plus the standard Panda workbench. A concave room must not be treated as an accurate solid-box reconstruction.",
+    "mapping": {
+      "scale": 0.47893096289204923,
+      "position_m": [
+        2.5,
+        2.5,
+        0.5
+      ],
+      "up_axis": "y",
+      "original_center_m": [
+        -0.03673684616788225,
+        -0.004861727557133544,
+        -0.1049974747757329
+      ],
+      "source_sha256": "73ee4c7e8b9cdd61162e400ff5b9c8daf39f540281a2c0266ea2dce76472fcf5"
+    },
+    "deleted": false,
+    "editable": true
+  },
+  "preview_geometry": {
+    "vertex_count": 68379,
+    "triangle_count": 8236,
+    "coordinate_system": "glTF Y-up; original scene transforms applied; camera framing is display-only"
+  },
+  "actual_generated_world_experiment_id": "be43103f-69d8-430b-8da8-78cf384d1f75"
+}

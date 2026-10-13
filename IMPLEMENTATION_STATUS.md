@@ -1,3 +1,118 @@
+# World and robotic experiment workspace — 2026-10-13
+
+Current backend source: `ffa94fad8628defc20664469335c6de3b6586c5e`.
+Render deploy: `dep-db6r55gm7kps73b1kecg`. Frontend source: `f2e5bb9`,
+Vercel deploy `dpl_3X97ztxZvBMeBaCfr3ZUa9YaZKVc`.
+Public URL: https://demo.tryvivacity.com/.
+
+Working capabilities:
+
+- Seven actual arm models: Panda, UR5e, KUKA iiwa 14, Kinova Gen3, xArm7,
+  analytical educational SCARA and dual Panda (primary-arm task execution).
+  Every model completed actual native pickup trials in the 512 MiB container.
+- Thirteen selectable environments with real static collision primitives,
+  plus owned generated/imported worlds and explicit collision-proxy mapping.
+- Ten bounded operations: pickup, transfer, reaching, seeded manipulation,
+  experimental fixture fold, one-part rule sorting, passive fixture seating,
+  dynamic two-body stack, gravity-assisted insertion and actuated-door bay loading.
+- Actual OpenAI structured world/operation interpretation and actual World Labs
+  generation/retrieval, failed-operation recovery, reported credits, typed output,
+  scoped download hosts and bounded parsing. API credentials remain backend-only.
+- Owned configuration library, save/load/repeat, runtime session history,
+  measured comparison and JSON export. Idle loading does not submit experiments.
+- Independent MjData branches sharing immutable compiled geometry; complete
+  integration state snapshots; measured contacts, joint limits, controller
+  tracking, failures, goal errors and actual simulation steps.
+- Native MuJoCo validation and fresh execution, real pause/resume, live HTTP/WSS,
+  replay/export and stale-result invalidation/recomputation after geometry edits.
+- Compiled model geometry/initialized pose files for every arm, actual body
+  transform rendering and bounded import preview with keyboard orbit/zoom/reset.
+
+Verification executed so far:
+
+- Initial full Windows suite: **189 passed, 1 skipped**, 1534.66 s; Linux sandbox
+  test skipped on Windows. Initial deployment image: **190 passed**, 966.126 s.
+- Expanded feature suite: **36 passed**, 344.91 s. Native execution/pause/adaptive
+  subset: **22 passed**, 184.40 s. Authority/pause/capacity: **27 passed**, 317.56 s.
+- Further collision/pacing/preview/cost regression checks passed. Tests cover
+  secondary-arm contacts, full bounds after preview reduction, legacy index
+  normalization, owner isolation and preserving actual credits on retrieval failure.
+- Windows full run during native transition: **195 passed, 1 skipped, 1 failed**,
+  1045.51 s. The failing test assumed more than 100 streamed frames; native chunks
+  use fewer real frame updates. Its revised check compares delivered state with
+  recorded trace/final integration time and passed in the 27-test subset.
+- Five Node selection tests passed, covering **1,215 interactions** across 81
+  structurally valid legacy combinations. This is not proof of physics success
+  for every cross-product of hardware, scene and conditions.
+- TypeScript/Vite and production Vercel builds passed. Public OpenAPI matches
+  both exported specifications. Existing Three.js bundle/deprecation warnings
+  remain; browser error checks and desktop/390 px layout checks were exercised.
+- Two host-capacity tests passed under a real **512 MiB Docker limit**, 54.767 s,
+  including three native trials on all seven models. Earlier memory check exited
+  137 when native execution compiled duplicate mesh models; immutable model
+  sharing corrected that. The resource margin remains limited on Free compute.
+- Final production-image run **38346284197** on source `ffa94fa`: **198 passed,
+  zero failures/errors/skips**, **693.269 s**. The same run repeated the 512 MiB
+  capacity checks: **2 passed**, **56.547 s**. JUnit files are saved under
+  `artifacts/workspace-linux-release/`.
+
+Measured production evidence:
+
+- Live KUKA UI job `30dd3f6e-172b-4c17-b0c6-7b320931fc7f`: **3/3 validations**,
+  fresh execution verified, **45,410 steps**, **51.480 s** wall time. Its report
+  downloaded from the real UI. Dragging the blue object changed measured position
+  to X 0.492 m/Y -0.195 m and marked previous results stale. Recomputed validations and a fresh execution
+  succeeded; the new selected placement error was 1.6 mm.
+
+- Real UR5e job `3b0b974a-c49b-485b-b48e-204390540247`: three validation
+  trajectories, independently restored fresh execution, **65,742 physics steps**,
+  **526 integration calls**, **1.049 mm** final placement error, **37.404 s** job
+  wall time, **5.503 s** process CPU time, **2,161,340 bytes** serialized replay.
+  Full HTTP/WSS/replay/invalidation/recomputation journey: **79.795 s**, 12 events.
+  Earlier same-seed initial job was 180.258 s; its full verification was 446.499 s.
+  These are individual measurements on shared compute, not a guaranteed SLA.
+- Actual pause kept production frame sequence 457 and simulation time
+  12.40000000000081 unchanged; resume returned HTTP 200.
+- Real World Labs jobs completed locally and on production. Public job
+  `6c7ed573-d5dc-430e-9364-82a1c454d3dd` reported **230 provider credits**.
+  Original collider geometry is parsed; previews use bounded sampled triangles.
+  Initial nested NumPy indices rendered blank; flattening and typed preview
+  validation fixed the producer and normalize existing records on read.
+- Failure boundary experiment `60e38b3e-dc96-4ce9-92b2-c78463d0db7d` returned
+  a genuine timeout with 50 integrated steps, eight WSS events and matching replay.
+- Local UI saved UR5e and generated-world configurations, ran three real
+  validations/fresh execution, persisted reports across reload/server restart,
+  and exercised world import, rename, duplicate, recoverable removal and undo.
+
+Limitations and missing features:
+
+- Cloth uses a pre-attached fixture; autonomous cloth grasp acquisition is absent.
+  Dual Panda has no coordinated bimanual planner. SCARA is educational, not OEM
+  hardware. Added arms use a modeled Panda flange gripper, not certified mounts.
+- Sorting is one part with supplied properties, assembly is passive seating,
+  insertion is gravity-assisted, and machine tending is a passive bay/door.
+  Camera recognition, real machining, fastening, tight-tolerance force insertion,
+  multi-part manufacturing and energy accounting are absent.
+- Generated/imported rooms use an explicit solid AABB collision proxy beside the
+  standard workbench. Full concave scene reconstruction, Gaussian splat/texture
+  rendering, animation/skinning/extension-heavy GLTF and USD are absent.
+- Object inputs are 40–60 mm and 20–150 g with bounded friction. Valid input is
+  not a guarantee of feasible grasp/reach. Search is measured and compute-bounded,
+  not a global optimality proof. This host allows eight validation trials per run.
+- Workspaces use browser capabilities, not accounts/organizations or cross-device
+  identity. Run creation is not HTTP-idempotent; generation is idempotent.
+- Render remains **Free**. It can sleep, shared CPU is slow, and SQLite/import data
+  can be lost on redeploy/restart. No paid upgrade was activated. Serial container
+  tests do not prove concurrency/load capacity. Persistent disk, production queues,
+  durable backups, revocation and long-term uptime guarantees remain missing.
+- Scientific Discovery stays retired from the product and public API.
+
+Handoff: `docs/WORLD_WORKSPACE_HANDOFF.md`, `FRONTEND_HANDOFF.md`, `openapi.json`,
+`frontend/src/generated/api.d.ts` and `scripts/verify_workspace_live.py`.
+Historical evidence follows; older Panda-only availability is superseded.
+
+---
+
 # Template picker usability fix (2026-10-13)
 
 Frontend source `12ee3aa` is deployed as Vercel

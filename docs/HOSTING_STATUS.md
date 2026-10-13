@@ -1,3 +1,18 @@
+# Current workspace release — 2026-10-13
+
+Backend source `ffa94fa`, Render `dep-db6r55gm7kps73b1kecg`, frontend source
+`f2e5bb9`, Vercel `dpl_3X97ztxZvBMeBaCfr3ZUa9YaZKVc`. Both provider
+credentials are mounted in a Render secret file, excluded from source/builds.
+Production-image verification passed 198 tests in 693.269 s; its 512 MiB
+checks passed two tests in 56.547 s. Public OpenAPI matches the export. Real UR5e HTTP/WSS/replay/invalidation flow
+passed in 79.795 s; its initial job took 37.404 s. Seven models completed native
+pickup under a real 512 MiB container limit (two checks passed in 54.767 s).
+Free compute and ephemeral SQLite remain unchanged; continuous uptime and
+cross-deployment persistence cannot be guaranteed. See IMPLEMENTATION_STATUS.md
+and WORLD_WORKSPACE_HANDOFF.md for actual evidence and limitations.
+
+Historical release evidence follows.
+
 # Render hosting verification — 2026-10-13
 
 ## Current robotics templates release
