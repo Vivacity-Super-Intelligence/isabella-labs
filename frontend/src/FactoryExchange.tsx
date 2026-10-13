@@ -6,8 +6,8 @@ export function saveFactoryJSON(value:unknown,name:string){
  const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));
  const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-export async function downloadFactoryReport(kind:'run'|'benchmark',id:string,format:'pdf'|'zip'){
- const blob=await factoryApi.report(kind,id,format),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`vivacity-${id}.${format}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+export async function downloadFactoryReport(kind:'run'|'benchmark',id:string,format:'pdf'|'zip',projectId?:string){
+ const blob=await factoryApi.report(kind,id,format,projectId),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`vivacity-${id}.${format}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 export default function FactoryExchange({cellId,runId,disabled,onImport}:{cellId:string;runId?:string;disabled:boolean;onImport:(value:FactoryImport)=>void}){
  const [error,setError]=useState<string|null>(null),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);

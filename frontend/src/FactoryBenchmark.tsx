@@ -4,9 +4,10 @@ import {saveFactoryJSON,downloadFactoryReport} from './FactoryExchange';
 import type {BenchmarkInput} from './factoryApi';
 import {errorMessage} from './api';
 
-export default function FactoryBenchmark({cellId,disabled,load,onBusy,onFrame,preset,baseline}:{cellId:string;baseline:FactorySettings;preset:BenchmarkInput|null;disabled:boolean;load:(run:FactoryRun)=>void;onBusy:(busy:boolean)=>void;onFrame:(value:{frame:FactoryFrame;status:string}|null)=>void}){
+export default function FactoryBenchmark({cellId,disabled,load,onBusy,onFrame,preset,baseline,onSelect}:{cellId:string;onSelect:(id:string|undefined)=>void;baseline:FactorySettings;preset:BenchmarkInput|null;disabled:boolean;load:(run:FactoryRun)=>void;onBusy:(busy:boolean)=>void;onFrame:(value:{frame:FactoryFrame;status:string}|null)=>void}){
  const [records,setRecords]=useState<FactoryBenchmarkRecord[]>([]),[job,setJob]=useState<FactoryBenchmarkRecord|null>(null),[history,setHistory]=useState<FactoryRun[]>([]),[error,setError]=useState<string|null>(null),[pending,setPending]=useState(false),[name,setName]=useState('Grip force comparison'),[repeat,setRepeat]=useState(2),[force,setForce]=useState(.1),[friction,setFriction]=useState(.8),[mass,setMass]=useState(.06);
  useEffect(()=>{if(preset){setName(preset.name);setRepeat(preset.repeats);setForce(preset.changes.gripper_force_scale??baseline.gripper_force_scale);setFriction(preset.changes.carton_friction??baseline.carton_friction);setMass(preset.changes.carton_mass_kg??baseline.carton_mass_kg);}},[preset]);
+ useEffect(()=>onSelect(job?.id),[job?.id,onSelect]);
  const active=!!job&&['queued','running','paused'].includes(job.status);
  async function refresh(){const [benchmarks,runs]=await Promise.all([factoryApi.benchmarks(),factoryApi.history()]);setRecords(benchmarks);setHistory(runs);if(!job)setJob(benchmarks[0]??null);}
  useEffect(()=>{refresh().catch(e=>setError(errorMessage(e)));},[cellId]);

@@ -15,8 +15,13 @@ async function request<T>(path:string,method='GET',body?:unknown):Promise<T>{
 }
 export type BenchmarkInput={schema_version?:string;name:string;repeats:number;held_out_repeats:number;changes:{carton_mass_kg?:number;carton_friction?:number;gripper_force_scale?:number;conveyor_speed_m_s?:number}};
 export type FactoryImport={cell:FactoryCell;benchmark_request:BenchmarkInput|null;receipt_id:string;message:string};
+export type FactoryProject={id:string;name:string;team_label:string;creator_label:string;created_at:number;revision:number;versions:{number:number;creator_label:string;created_at:number;note:string;definition:unknown}[];attachments:{record_id:string;kind:'run'|'benchmark';added_by_label:string;summary:{name:string;status:string;creator_label:string|null;metrics:Record<string,number>|null;comparison:{selected_condition:string|null}|null}}[]};
 export const factoryApi={
- report:async(kind:'run'|'benchmark',id:string,format:'pdf'|'zip')=>{const response=await fetchRuntime(API+`/v1/factory/reports/${kind}/${encodeURIComponent(id)}?format=${format}`,{headers:{'X-Workspace-Token':workspaceToken()},signal:AbortSignal.timeout(120000)});if(!response.ok)await readAPIResponse(response);return response.blob();},
+ projects:()=>request<FactoryProject[]>('/projects'),
+ createProject:(value:{name:string;team_label:string;creator_label:string})=>request<FactoryProject>('/projects','POST',value),
+ saveProjectVersion:(id:string,value:{cell_id:string;expected_revision:number;creator_label:string;note:string})=>request<FactoryProject>(`/projects/${id}/versions`,'POST',value),
+ attachProject:(id:string,value:{record_id:string;kind:'run'|'benchmark';expected_revision:number;added_by_label:string})=>request<FactoryProject>(`/projects/${id}/attachments`,'POST',value),
+ report:async(kind:'run'|'benchmark',id:string,format:'pdf'|'zip',projectId?:string)=>{const response=await fetchRuntime(API+`/v1/factory/reports/${kind}/${encodeURIComponent(id)}?format=${format}${projectId?'&project_id='+encodeURIComponent(projectId):''}`,{headers:{'X-Workspace-Token':workspaceToken()},signal:AbortSignal.timeout(120000)});if(!response.ok)await readAPIResponse(response);return response.blob();},
  exportConfiguration:(id:string)=>request<unknown>(`/cells/${encodeURIComponent(id)}/export`),
  exportBenchmark:(id:string)=>request<unknown>(`/benchmarks/${encodeURIComponent(id)}/export`),
  exportRecord:(id:string)=>request<unknown>(`/runs/${encodeURIComponent(id)}/export`),
@@ -30,7 +35,7 @@ export const factoryApi={
  observation:(id:string)=>request<FactoryObservationRecord>(`/cells/${encodeURIComponent(id)}/observation`),
  create:(settings:FactorySettings)=>request<FactoryCell>('/cells','POST',settings),
  cell:(id:string)=>request<FactoryCell>('/cells/'+encodeURIComponent(id)),
- start:(id:string,mode:'conveyor'|'production'='production')=>request<FactoryRun>(`/cells/${encodeURIComponent(id)}/runs`,'POST',{mode}),
+ start:(id:string,mode:'conveyor'|'production'='production',creator_label?:string)=>request<FactoryRun>(`/cells/${encodeURIComponent(id)}/runs`,'POST',{mode,creator_label:creator_label||null}),
  run:(id:string)=>request<FactoryRun>('/runs/'+encodeURIComponent(id)),
  record:(id:string)=>request<FactoryRun>(`/runs/${encodeURIComponent(id)}/record`),
  control:(id:string,action:'pause'|'resume'|'stop'|'emergency_stop')=>request<FactoryRun>(`/runs/${encodeURIComponent(id)}/control`,'POST',{action}),

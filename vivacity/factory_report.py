@@ -96,7 +96,7 @@ def report_pdf(run,benchmark=None,attribution=None):
     story=[p('VIVACITY  /  PHYSICAL INTELLIGENCE','label'),Spacer(1,12),p('Carton sorting study','h1'),p(title),
            p(when,'small'),FactoryPlan(run.get('frame',{})),Spacer(1,12),
            p('MuJoCo Menagerie Franka Panda / Contact-driven sorting cell','small'),
-           p('Project: '+(attribution or {}).get('project','Unassigned')+' / Creator: '+(attribution or {}).get('creator','Not recorded'),'small'),
+           p('Project: '+(attribution or {}).get('project','Unassigned')+' / Declared creator: '+(attribution or {}).get('creator',run.get('creator_label') or 'Not recorded'),'small'),
            p('Executive finding','h2')]
     if benchmark:
         completed=sum(t['status']=='completed' for t in benchmark['trials'])

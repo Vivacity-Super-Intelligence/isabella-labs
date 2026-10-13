@@ -6,12 +6,14 @@ import FactoryObservation from './FactoryObservation';
 import FactoryAnalysis from './FactoryAnalysis';
 import FactoryBenchmark from './FactoryBenchmark';
 import FactoryExchange from './FactoryExchange';
+import FactoryProjects from './FactoryProjects';
 import type {FactoryImport} from './factoryApi';
 import type {Vec3} from './domain';
 import './factory.css';
 
 export default function FactoryWorkspace(){
  const [mode,setMode]=useState<FactoryViewMode>('fidelity'),[cell,setCell]=useState<FactoryCell|null>(null),[run,setRun]=useState<FactoryRun|null>(null),[error,setError]=useState<string|null>(null),[busy,setBusy]=useState(false),[draft,setDraft]=useState<FactorySettings>(factoryDefaults),[inspected,setInspected]=useState<FactoryFrame|null>(null),[trajectory,setTrajectory]=useState<Vec3[]>([]),[benchmarkBusy,setBenchmarkBusy]=useState(false),[benchmarkView,setBenchmarkView]=useState<{frame:FactoryFrame;status:string}|null>(null);
+ const [creatorLabel,setCreatorLabel]=useState(''),[benchmarkId,setBenchmarkId]=useState<string|undefined>();
  const [imported,setImported]=useState<FactoryImport|null>(null);
  const active=!!run&&['queued','running','paused'].includes(run.status);
  async function load(){
@@ -34,7 +36,7 @@ export default function FactoryWorkspace(){
   {inspected&&!benchmarkBusy&&<p className="factory-stage-note" role="status">Viewport: recorded sample at {inspected.time.toFixed(3)} s. {active?'Production continues on the backend.':''}Use “Return to latest” in the analysis controls to leave inspection.</p>}
   <FactoryView frame={benchmarkView?.frame??inspected??frame} mode={mode} geometry={cell?.collision_geometry} trajectory={trajectory} status={benchmarkView?.status??run?.status??'idle'}/>
   <div className="factory-control-bar"><div><strong role="status">{benchmarkView?'Benchmark '+benchmarkView.status+' · '+(benchmarkView.frame.phase??'initializing').replaceAll('_',' '):run?run.status.replaceAll('_',' ')+' · '+run.phase.replaceAll('_',' '):(cell?'Ready':'Connecting')}</strong><span data-testid="factory-clock">{(frame?.time??0).toFixed(3)} s · MuJoCo simulation time</span></div><div className="factory-actions">
-   <button className="primary" disabled={!cell||active||benchmarkBusy||busy} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id));})}>Start production</button>
+   <button className="primary" disabled={!cell||active||benchmarkBusy||busy} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id,'production',creatorLabel));})}>Start production</button>
    <button disabled={!active||busy} onClick={()=>command(run?.status==='paused'?'resume':'pause')}>{run?.status==='paused'?'Resume':'Pause'}</button>
    <button disabled={!active||busy} onClick={()=>command('stop')}>Stop</button>
    <button className="factory-estop" disabled={!active||busy} onClick={()=>command('emergency_stop')}>Emergency simulation stop</button>
@@ -47,11 +49,12 @@ export default function FactoryWorkspace(){
    <label>Configuration name<input value={draft.name} maxLength={80} onChange={e=>setDraft({...draft,name:e.target.value})}/></label>
    {([['carton_count','Cartons',1,3,1],['carton_start_x_m','Initial carton X (m)',.465,.535,.005],['carton_start_y_m','Initial carton Y (m)',-1.28,-.35,.01],['carton_mass_kg','Reference mass (kg)',.02,.15,.01],['carton_half_size_m','Carton half-width (m)',.02,.03,.001],['carton_friction','Contact friction',.05,1.5,.05],['conveyor_speed_m_s','Conveyor speed (m/s)',.02,.18,.01],['arrival_interval_s','Minimum arrival spacing (s)',1,60,1],['sort_threshold_kg','Lane threshold (kg)',.02,.15,.01],['realtime_speed','Simulation speed',.25,8,.25],['gripper_force_scale','Gripper force scale',.005,1,.005]] as const).map(([key,label,min,max,step])=><label key={key}>{label}<input type="number" value={draft[key]} min={min} max={max} step={step} onChange={e=>setDraft({...draft,[key]:e.target.valueAsNumber})}/></label>)}
    <button onClick={()=>action(async()=>{const value=await factoryApi.create(draft);setCell(value);setRun(null);localStorage.setItem('vivacity:factory-cell',value.id);})}>Apply conditions</button>
-   <button disabled={!cell} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id,'conveyor'));})}>Test conveyor only</button>
+   <button disabled={!cell} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id,'conveyor',creatorLabel));})}>Test conveyor only</button>
   </fieldset><p className="factory-stage-note">Later cartons have seeded mass variation (0.7–1.6 × reference, limited to 20–150 g). A finite batch is integrated continuously; cartons are not teleported or respawned. Arrival spacing is a minimum because this cell handles one carton at a time.</p></details>
   <details className="factory-readout"><summary>Measured transport and event log</summary><dl>{Object.entries(frame?.conveyors??{}).map(([name,value])=><div key={name}><dt>{name.replaceAll('_',' ')}</dt><dd>{value.surface_speed_m_s.toFixed(3)} m/s</dd></div>)}</dl><ol>{run?.events.map((event,i)=><li key={i}>{event.time_s.toFixed(3)} s · {event.kind.replaceAll('_',' ')}</li>)}</ol></details>
+  {cell&&<FactoryProjects cellId={cell.id} runId={run?.id} benchmarkId={benchmarkId} disabled={active||benchmarkBusy||busy} onCreator={setCreatorLabel} onImport={value=>{setImported(value);setCell(value.cell);setDraft(value.cell.config);setRun(null);setInspected(null);localStorage.setItem('vivacity:factory-cell',value.cell.id);}} onRun={saved=>action(async()=>{const value=await factoryApi.cell(saved.cell_id);setCell(value);setDraft(value.config);setRun(saved);localStorage.setItem('vivacity:factory-cell',value.id);})}/>}
   {cell&&<FactoryExchange cellId={cell.id} runId={run?.id} disabled={active||benchmarkBusy||busy} onImport={value=>{setImported(value);setCell(value.cell);setDraft(value.cell.config);setRun(null);setInspected(null);localStorage.setItem('vivacity:factory-cell',value.cell.id);}}/>}
-  {cell&&<FactoryBenchmark baseline={cell.config} preset={imported?.benchmark_request??null} cellId={cell.id} disabled={active||busy} onBusy={setBenchmarkBusy} onFrame={setBenchmarkView} load={saved=>action(async()=>{const value=await factoryApi.cell(saved.cell_id);setCell(value);setDraft(value.config);setRun(saved);localStorage.setItem('vivacity:factory-cell',value.id);})}/>}
+  {cell&&<FactoryBenchmark onSelect={setBenchmarkId} baseline={cell.config} preset={imported?.benchmark_request??null} cellId={cell.id} disabled={active||busy} onBusy={setBenchmarkBusy} onFrame={setBenchmarkView} load={saved=>action(async()=>{const value=await factoryApi.cell(saved.cell_id);setCell(value);setDraft(value.config);setRun(saved);localStorage.setItem('vivacity:factory-cell',value.id);})}/>}
   {run&&!benchmarkBusy&&<FactoryAnalysis key={run.id} run={run} onInspect={setInspected} onTrajectory={setTrajectory}/>}
   {cell&&!benchmarkBusy&&<FactoryObservation key={cell.id} cellId={cell.id} frame={inspected??frame} label={inspected?"Recorded":"Live"}/>}
  </section>;

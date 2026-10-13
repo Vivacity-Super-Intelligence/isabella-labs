@@ -47,7 +47,7 @@ class FactoryService:
 
     def cell(self,identifier,token):return self.workspace._get(identifier,token,'factory_cell')
 
-    def start(self,identifier,token,mode='conveyor'):
+    def start(self,identifier,token,mode='conveyor',creator_label=None):
         cell=self.cell(identifier,token)
         if self.backend.create_world(cell['config']).model_hash!=cell['initial_state']['model_hash']:
             raise Conflict('The physical model has changed since this cell was saved. Reset or apply its conditions to create a compatible initial state. Saved results remain inspectable.')
@@ -58,7 +58,7 @@ class FactoryService:
             self.live.clear()
             self.latest_states.clear()
             row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-run/1.0','cell_id':identifier,
-                 'created_at':time.time(),'status':'queued','phase':'queued','config':cell['config'],
+                 'created_at':time.time(),'creator_label':creator_label,'status':'queued','phase':'queued','config':cell['config'],
                  'software':cell.get('software'),'world_version':cell['world_version'],'engine':cell['engine'],'initial_state':cell['initial_state'],
                  'frame':cell['frame'],'trace':[],'events':[],'metrics':{},'mode':mode,'error':None}
             control={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False}
@@ -298,7 +298,7 @@ class FactoryService:
                 'provenance':'Saved backend MuJoCo execution; imported measurements are never accepted as a verified run.',
                 'record':row}
 
-    def report(self,identifier,token,kind='run',archive=False):
+    def report(self,identifier,token,kind='run',archive=False,project_id=None):
         from .factory_report import report_pdf,csv_samples
         import tempfile,zipfile
         from pathlib import Path
@@ -317,7 +317,13 @@ class FactoryService:
             if benchmark and not benchmark['trials']:raise Conflict('This benchmark has no recorded trials to report.')
             run=self.get(benchmark['trials'][0]['run_id'] if benchmark else identifier,token,full=True)
             if run['status'] in ('running','paused','queued'):raise Conflict('Finish or stop this run before preparing a report.')
-            pdf=report_pdf(run,benchmark)
+            attribution=None
+            if project_id:
+                from .factory_projects import FactoryProjects
+                project=FactoryProjects(self).get(project_id,token)
+                if not any(a['kind']==kind and a['record_id']==identifier for a in project['attachments']):raise Conflict('This result is not attached to the selected project.')
+                attribution={'project':project['name']+' / '+project['team_label'],'creator':run.get('creator_label') or 'Not recorded'}
+            pdf=report_pdf(run,benchmark,attribution)
             if not archive:return pdf
             handle=tempfile.NamedTemporaryFile(prefix='vivacity-report-',suffix='.zip',delete=False);target=Path(handle.name);handle.close()
             encoder=json.JSONEncoder(ensure_ascii=False,allow_nan=False,separators=(',',':'))
