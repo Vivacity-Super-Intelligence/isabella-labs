@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowsClockwise, SlidersHorizontal, Warning, X } from '@phosphor-icons/react';
 import { useRuntime, isBusy } from './useRuntime';
-import { API, api, errorMessage } from './api';
+import { API, BACKEND, api, errorMessage } from './api';
 import { format, robotFrame, clothFrame, type Backend, type Branch, type RobotFrame, type ClothFrame, type Vec3 } from './domain';
 import { objectHalfSizes, placementAwayFrom } from './pickupWorkspace';
 import Settings from './Settings';
@@ -103,7 +103,7 @@ export default function App(){
       {page==='worlds'?<Suspense fallback={<p>Loading world library…</p>}><WorldLibrary choose={chooseWorld} nativeImport={async()=>{await rt.stop();setPage('import');}}/></Suspense>:
        page==='robots'||page==='operations'?<Suspense fallback={<p>Loading registry…</p>}><RegistryView mode={page} choose={chooseOption}/></Suspense>:
        page==='experiments'?<Suspense fallback={<p>Loading measured experiment history…</p>}><ExperimentLibrary load={loadConfiguration}/></Suspense>:
-       page==='settings'?<section className="library-area"><h1>Runtime settings</h1><p>API: {API}</p><p className="small">Provider keys stay in backend environment variables. World generation availability is shown in Worlds. This demo uses bounded shared compute and browser capabilities; it does not provide production user accounts or guaranteed uptime.</p><a href={`${API}/docs`} target="_blank" rel="noreferrer">API and schema reference</a></section>:
+       page==='settings'?<section className="library-area"><h1>Runtime settings</h1><p>API: {API}</p><p className="small">Provider keys stay in backend environment variables. World generation availability is shown in Worlds. This demo uses bounded shared compute and browser capabilities; it does not provide production user accounts or guaranteed uptime.</p><a href={`${BACKEND}/docs`} target="_blank" rel="noreferrer">API and schema reference</a></section>:
        page==='import'?<><button className="secondary" onClick={()=>setPage('worlds')}>Back to world library</button><Suspense fallback={<div className="viewport-loading">Loading import tools…</div>}><ImportWorld/></Suspense></>:<>
         <div className="workspace-heading"><div><h1>Design. Simulate. Discover.</h1><p>Explore robotic systems in physical environments.</p></div><span className="connection" role="status">{rt.online?'Physics connected':'Connecting to runtime…'}</span></div>
         {preparing&&<p role="status" className="small">Loading the selected physical configuration…</p>}
@@ -144,6 +144,6 @@ export default function App(){
         <details className="quick-templates"><summary>Legacy workcell templates</summary><TemplatePicker loaded={activeTemplate.selection} busy={rt.mutating} load={loadTemplate}/></details>
       </>}
     </main>
-    <footer><span>Viva Physics</span><a href={`${API}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
+    <footer><span>Viva Physics</span><a href={`${BACKEND}/docs`} target="_blank" rel="noreferrer">API reference <ArrowRight size={14}/></a></footer>
   </>;
 }

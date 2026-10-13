@@ -3,6 +3,7 @@ import { api, APIError, errorMessage, liveProtocols, liveWebsocketURL, setSessio
 import { simulatedPerception, type Backend, type World, type Experiment, type Branch, type Event, type Dict, type SimulatedPerception } from './domain';
 import type { components } from './generated/api';
 import {workspaceApi} from './workspaceApi';
+import {isConnectionMessage} from './apiTransport';
 
 type Session = components['schemas']['SessionResponse'];
 type Live = components['schemas']['LiveState'];
@@ -111,7 +112,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
             setPerception(simulatedPerception((state.observation as Dict).perception));
           }
         }
-        if(active&&version===generation.current){setOnline(true);setLoaded(true);setError(previous=>previous==='Failed to fetch'?null:previous);}
+        if(active&&version===generation.current){setOnline(true);setLoaded(true);setError(previous=>isConnectionMessage(previous)?null:previous);}
       }catch(e){if(active){setError(errorMessage(e));setOnline(false);setLoaded(true);}}
       finally{refreshing=false;}
     };
@@ -133,7 +134,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
       if(!active||refreshing||terminal)return;refreshing=true;
       try{
         const e=await api.experiment(id);
-        if(!active)return;setOnline(true);setError(previous=>previous==='Failed to fetch'?null:previous);currentExperiment.current=e;setExperiment(e);
+        if(!active)return;setOnline(true);setError(previous=>isConnectionMessage(previous)?null:previous);currentExperiment.current=e;setExperiment(e);
         const batch=await api.events(id,eventCursor);if(active&&batch.length){append(batch);eventCursor=batch.at(-1)!.seq;}
         measured(await api.live(id));
         if(isBusy(e)&&Date.now()-lastBranches>5000){

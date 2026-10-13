@@ -1,4 +1,5 @@
 import {API,APIError} from './api';
+import {fetchRuntime} from './apiTransport';
 import type {components} from './generated/api';
 
 export type LibraryWorld=Omit<components['schemas']['LibraryWorld'],'spec'> & {appearance?:Record<string,unknown>|null;spec:{name:string;description:string;dimensions_m:number[];lighting:{ambient:number;key_intensity:number};geometries:{name:string;type:'box'|'cylinder';position:number[];size:number[];rgba:number[];friction:number}[]}};
@@ -14,7 +15,7 @@ export function workspaceToken(){
   return token;
 }
 async function request<T>(path:string,method='GET',body?:unknown,extra:Record<string,string>={}):Promise<T>{
-  const r=await fetch(API+'/v1/workspace'+path,{method,headers:{'X-Workspace-Token':workspaceToken(),...(body!==undefined?{'Content-Type':'application/json'}:{}),...extra},
+  const r=await fetchRuntime(API+'/v1/workspace'+path,{method,headers:{'X-Workspace-Token':workspaceToken(),...(body!==undefined?{'Content-Type':'application/json'}:{}),...extra},
     ...(body!==undefined?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(60000)});
   const value=await r.json().catch(()=>null);
   if(!r.ok)throw new APIError(r.status,value?.detail??'Workspace request could not complete.');
@@ -35,7 +36,7 @@ export const workspaceApi={
   generations:()=>request<Generation[]>('/generations'),
   retry:(id:string)=>request<Generation>(`/generations/${encodeURIComponent(id)}/retry-retrieval`,'POST'),
   async upload(file:File){
-    const r=await fetch(`${API}/v1/workspace/imports?filename=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'X-Workspace-Token':workspaceToken(),'Content-Type':'application/octet-stream'},body:file,signal:AbortSignal.timeout(60000)});
+    const r=await fetchRuntime(`${API}/v1/workspace/imports?filename=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'X-Workspace-Token':workspaceToken(),'Content-Type':'application/octet-stream'},body:file,signal:AbortSignal.timeout(60000)});
     const value=await r.json();if(!r.ok)throw new APIError(r.status,value.detail);return value as components['schemas']['ImportResponse'];
   },
   map:(id:string,mapping:components['schemas']['ImportMapping'])=>request<LibraryWorld>(`/imports/${encodeURIComponent(id)}/map`,'POST',mapping),

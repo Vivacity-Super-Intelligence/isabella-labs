@@ -1,0 +1,67 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {fetchRuntime,runtimeEndpoints,runtimeSocketURL,CONNECTION_ERROR,TIMEOUT_ERROR,isConnectionMessage} from '../frontend/src/apiTransport.ts';
+const noWait=async()=>{};
+
+test('production HTTP stays on the demo origin and streams retain the backend',()=>{
+  const endpoints=runtimeEndpoints(true,'https://vivacity-runtime.onrender.com/','https://demo.tryvivacity.com');
+  assert.equal(endpoints.http,'https://demo.tryvivacity.com/runtime');
+  assert.equal(runtimeSocketURL(endpoints.backend,'example','events',9),'wss://vivacity-runtime.onrender.com/v1/experiments/example/events?after=9');
+  assert.equal(runtimeSocketURL(endpoints.backend,'example','live'),'wss://vivacity-runtime.onrender.com/v1/experiments/example/live');
+});
+test('local development retains the explicitly configured backend',()=>{
+  assert.equal(runtimeEndpoints(false,'http://localhost:8000/','http://localhost:5173').http,'http://localhost:8000');
+  assert.equal(runtimeEndpoints(false,undefined,'http://localhost:5173').http,'http://127.0.0.1:8000');
+});
+test('a read recovers from a transport failure without losing capability headers',async()=>{
+  let attempts=0;
+  const response=await fetchRuntime('/runtime/health',{headers:{'X-Session-Token':'test-capability'}},{wait:noWait,fetcher:async(url,init)=>{
+    assert.equal(url,'/runtime/health');assert.equal(init.cache,'no-store');assert.equal(init.headers['X-Session-Token'],'test-capability');
+    if(++attempts===1)throw new TypeError('Failed to fetch');return new Response('{"status":"ok"}');
+  }});
+  assert.equal(attempts,2);assert.deepEqual(await response.json(),{status:'ok'});
+});
+test('read recovery is bounded and gives an actionable connection error',async()=>{
+  let attempts=0;
+  await assert.rejects(()=>fetchRuntime('/runtime/health',{}, {wait:noWait,fetcher:async()=>{attempts++;throw new TypeError('Failed to fetch');}}),{message:CONNECTION_ERROR});
+  assert.equal(attempts,3);
+});
+test('temporary upstream gateway errors are retried for reads',async()=>{
+  let attempts=0;
+  const response=await fetchRuntime('/runtime/health',{}, {wait:noWait,fetcher:async()=>new Response('upstream',{status:++attempts<3?503:200})});
+  assert.equal(response.status,200);assert.equal(attempts,3);
+});
+test('validation errors are returned immediately and retain their body',async()=>{
+  let attempts=0;
+  const response=await fetchRuntime('/runtime/v1/worlds',{}, {fetcher:async()=>{attempts++;return new Response('{"detail":"invalid config"}',{status:422});}});
+  assert.equal(attempts,1);assert.deepEqual(await response.json(),{detail:'invalid config'});
+});
+test('mutations are never repeated after a lost response or gateway error',async()=>{
+  for(const method of ['POST','PATCH']){
+    let attempts=0;
+    await assert.rejects(()=>fetchRuntime('/runtime/v1/worlds',{method,body:'{}'},{fetcher:async()=>{attempts++;throw new TypeError('lost response');}}),{message:CONNECTION_ERROR});
+    assert.equal(attempts,1);
+    const response=await fetchRuntime('/runtime/v1/worlds',{method},{fetcher:async()=>{attempts++;return new Response('upstream',{status:503});}});
+    assert.equal(response.status,503);assert.equal(attempts,2);
+  }
+});
+test('caller cancellation is preserved without retrying',async()=>{
+  const controller=new AbortController();controller.abort();let attempts=0;
+  await assert.rejects(()=>fetchRuntime('/runtime/health',{signal:controller.signal},{fetcher:async(url,init)=>{attempts++;init.signal.throwIfAborted();}}),{name:'AbortError'});
+  assert.equal(attempts,1);
+});
+test('a bounded timeout explains the startup delay',async()=>{
+  let attempts=0;
+  await assert.rejects(()=>fetchRuntime('/runtime/health',{}, {timeoutMs:5,wait:noWait,fetcher:async(url,init)=>{
+    attempts++;
+    return await new Promise((resolve,reject)=>{
+      const hold=setTimeout(()=>resolve(new Response('unexpected')),100);
+      init.signal.addEventListener('abort',()=>{clearTimeout(hold);reject(init.signal.reason);},{once:true});
+    });
+  }}),{message:TIMEOUT_ERROR});
+  assert.equal(attempts,3);
+});
+test('recovery clears transport notices while retaining physics validation errors',()=>{
+  for(const message of [CONNECTION_ERROR,TIMEOUT_ERROR,'Failed to fetch','503: The simulation service is temporarily unavailable. Try again.'])assert.equal(isConnectionMessage(message),true);
+  assert.equal(isConnectionMessage('422: object exceeds the gripper aperture'),false);
+});

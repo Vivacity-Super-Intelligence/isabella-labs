@@ -1,7 +1,10 @@
 import type { Backend, World, Experiment, Branch, Replay, Dict, Event } from './domain';
 import type { components } from './generated/api';
 
-export const API = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
+import {fetchRuntime,runtimeEndpoints,runtimeSocketURL} from './apiTransport';
+const endpoints=runtimeEndpoints(import.meta.env.PROD,import.meta.env.VITE_API_BASE_URL,window.location.origin);
+export const API=endpoints.http;
+export const BACKEND=endpoints.backend;
 let sessionToken: string | null = null;
 export function setSessionToken(token: string) { sessionToken = token; }
 export function liveProtocols() { return sessionToken ? ['vivacity.live', `vivacity.token.${sessionToken}`] : []; }
@@ -11,7 +14,7 @@ type ValidationIssue = { msg?: unknown; loc?: unknown; type?: unknown };
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (sessionToken && !headers.has('X-Session-Token')) headers.set('X-Session-Token',sessionToken);
-  const response = await fetch(API + path, {...init,headers});
+  const response = await fetchRuntime(API + path, {...init,headers});
   // JSON null is a valid response from the optional cached live-frame route.
   return await readAPIResponse(response) as T;
 }
@@ -48,7 +51,7 @@ export const api = {
   branches: (id: string) => request<Branch[]>(`/v1/experiments/${encodeURIComponent(id)}/branches`),
   events: (id: string, after=0) => request<Event[]>(`/v1/experiments/${encodeURIComponent(id)}/events?after=${after}`),
   download:async(eid:string,bid:string)=>{
-    const response=await fetch(`${API}/v1/experiments/${encodeURIComponent(eid)}/branches/${encodeURIComponent(bid)}/export`,{headers:sessionToken?{'X-Session-Token':sessionToken}:{}});
+    const response=await fetchRuntime(`${API}/v1/experiments/${encodeURIComponent(eid)}/branches/${encodeURIComponent(bid)}/export`,{headers:sessionToken?{'X-Session-Token':sessionToken}:{}});
     if(!response.ok)throw new APIError(response.status,(await response.json()).detail);
     const data=await response.json();
     if(data.schema_version!=='vivacity.branch/1.0'||data.branch_id!==bid||!Array.isArray(data.recorded_frames))throw new Error('Invalid branch export');
@@ -61,12 +64,10 @@ export const api = {
   commit: (id: string, experiment_id: string, branch_id: string) => request<World>(`/v1/worlds/${id}/commit`, json('POST', { experiment_id, branch_id })),
 };
 export function websocketURL(id: string, after: number) {
-  const u = new URL(`/v1/experiments/${encodeURIComponent(id)}/events`, API);
-  u.protocol = u.protocol === 'https:' ? 'wss:' : 'ws:'; u.searchParams.set('after', String(after)); return u.href;
+  return runtimeSocketURL(BACKEND,id,'events',after);
 }
 export function liveWebsocketURL(id:string) {
-  const u=new URL(`/v1/experiments/${encodeURIComponent(id)}/live`,API);
-  u.protocol=u.protocol==='https:'?'wss:':'ws:';return u.href;
+  return runtimeSocketURL(BACKEND,id,'live');
 }
 export function errorMessage(error: unknown) {
   if (error instanceof APIError) {
