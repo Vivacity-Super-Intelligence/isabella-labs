@@ -19,6 +19,7 @@
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.1",
     "@sparkjsdev/spark": "^2.3.1",
+    "katex": "^0.19.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "three": "^0.185.0"

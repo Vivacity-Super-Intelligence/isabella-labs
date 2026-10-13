@@ -5523,6 +5523,17 @@
             "type": "string",
             "title": "Equation Latex"
           },
+          "display_latex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Latex"
+          },
           "equation_text": {
             "anyOf": [
               {

@@ -4,6 +4,11 @@ The factory now exposes `GET /v1/factory/runs/{run_id}/discovery`, returning
 persisted measured-series fits, chronological held-out metrics, validation
 status, Desmos-ready expressions, predicted curves and a joint-torque
 association when supported. It uses the same `X-Workspace-Token` as the run.
+Each new fit also includes `display_latex`: a conventional, typeset form of
+the same equation for the discovery panel. `equation_latex` and
+`editable_latex` remain the Desmos forms. The frontend renders the display
+with KaTeX/MathML, copies that LaTeX source, and keeps horizontal scrolling
+inside the equation card on mobile.
 The verified backend source is `5657aaf` (Render deploy
 `dep-db7bq4tg1s2s739tt590`); the production frontend remains at
 https://demo.tryvivacity.com/. A public one-carton conveyor run exercised the

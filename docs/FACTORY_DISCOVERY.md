@@ -48,6 +48,7 @@ and are **not** an experiment result:
           "model": "linear", "parameters": [],
           "validation_status": "poor_fit",
           "equation_latex": "<Desmos expression with a time-domain restriction>",
+          "display_latex": "<typeset equation with t, normalized time, domain and cases where needed>",
           "editable_latex": "<Desmos expression using adjustable a_1, a_2 ...>",
           "equation_text": "<human-readable equation>",
           "training": {"rmse": 0, "mae": 0, "r2": null},
@@ -89,6 +90,13 @@ and JSON snapshot downloads are client-generated from the received canonical
 samples. The snapshot includes the selected backend model and, if an embedded
 calculator is active, its `getState()` output. Editing that calculator is an
 exploratory scratch operation and never writes to the physical experiment.
+The UI typesets `display_latex` with KaTeX and accessible MathML. This is a
+presentation of the same fitted parameters as `equation_latex`, which remains
+the Desmos-compatible expression. The conventional display uses simulation
+time `t`, explicit domains and a `cases` layout for piecewise fits. Older
+saved models without `display_latex` fall back to their Desmos LaTeX.
+The Copy LaTeX action copies the displayed source; snapshots retain both forms.
+Long equations scroll inside their card on narrow screens.
 
 Desmos uses the [official Graphing Calculator API v1.12](https://www.desmos.com/api/v1.12/docs/index.html?lang=en):
 `GraphingCalculator`, `setExpression`/table columns, `setMathBounds`,

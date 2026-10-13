@@ -1678,6 +1678,8 @@ export interface components {
             parameter_count: number;
             /** Equation Latex */
             equation_latex: string;
+            /** Display Latex */
+            display_latex?: string | null;
             /** Equation Text */
             equation_text?: string | null;
             /** Editable Latex */
