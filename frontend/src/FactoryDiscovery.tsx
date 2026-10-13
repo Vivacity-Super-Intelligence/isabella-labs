@@ -38,7 +38,7 @@ function DesmosGraph({runId,quantity,unit,points,model,comparison,edited,onEdite
  useEffect(()=>{if(!key||!host.current)return;let active=true;loadDesmos(key).then(()=>{if(!active||!host.current||!window.Desmos)return;if(window.Desmos.enabledFeatures?.GraphingCalculator===false)throw new Error('This Desmos key does not enable Graphing Calculator.');const created=window.Desmos.GraphingCalculator(host.current);calc.current=created;setReady(true);onReady(created);created.observeEvent('change.vivacity',(_name,event)=>{if(event.isUserInitiated)onEdited();});}).catch(e=>{if(active)setFailure(errorMessage(e));});return()=>{active=false;onReady(null);calc.current?.unobserveEvent('change.vivacity');calc.current?.destroy();calc.current=null;};},[runId]);
  useEffect(()=>{const c=calc.current;if(!c||!key)return;
   // Programmatic updates only mirror canonical measurements. Desmos edits are a scratch view.
-  const table=(id:string,data:[number,number][],color:string,subscript:number):GraphExpression=>({id,type:'table',columns:[{latex:`x_${subscript}`,values:data.map(v=>String(v[0]))},{latex:`y_${subscript}`,values:data.map(v=>String(v[1])),color,points:true,lines:false}]});
+  const table=(id:string,data:[number,number][],color:string,subscript:number):GraphExpression=>({id,type:'table',columns:[{latex:`x_${subscript}`,values:data.map(v=>desmosNumber(v[0]))},{latex:`y_${subscript}`,values:data.map(v=>desmosNumber(v[1])),color,points:true,lines:false}]});
   c.setExpression(table('observations',points,'#ddb879',1));
   if(comparison)c.setExpression(table('comparison_observations',comparison.points,'#d1a7e7',2));else c.removeExpression({id:'comparison_observations'});
   if(!edited){
