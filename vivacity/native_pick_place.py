@@ -37,6 +37,7 @@ class NativePickup:
         user=np.empty(mj.mj_stateSize(m,mj.mjtState.mjSTATE_USER))
         sensor=lambda name: int(m.sensor_adr[m.sensor(name).id])
         ids={name:sensor(name) for name in ('robot_contacts','mount_contacts','left_grasp','right_grasp','table_support','object_obstacle','object_ground')}
+        environment_ids=[int(m.sensor_adr[i]) for i in range(m.nsensor) if m.sensor(i).name.startswith('object_environment_')]
         with Rollout() as rollout:
             for stage in action['stages']:
                 if failure:break
@@ -65,6 +66,7 @@ class NativePickup:
                     if phase=='transport' and np.any(height<.07):retention=False;failure='dropped_object'
                     prohibited=sensors[:,ids['robot_contacts']]-sensors[:,ids['mount_contacts']]-sensors[:,ids['left_grasp']]-sensors[:,ids['right_grasp']]
                     collision=(prohibited>0)|(sensors[:,ids['object_obstacle']]>0)|(sensors[:,ids['object_ground']]>0)
+                    if environment_ids:collision|=(sensors[:,environment_ids]>0).any(axis=1)
                     if collision.any():
                         failure='collision_failure';violations.append({'category':'native_contact_sensor_collision',
                             'bodies':[],'geoms':[],'first_step':steps-length+int(np.flatnonzero(collision)[0])+1,

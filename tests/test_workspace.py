@@ -57,6 +57,9 @@ def test_import_mapping_uses_actual_uploaded_geometry_and_capability(tmp_path):
         assert preview['vertex_count']==3 and preview['triangle_count']==1
         assert world['spec']['geometries'][0]['size']==[.25,.005,.25]
         assert world['mapping']['source_sha256']==record.json()['sha256']
+        copied=client.post('/v1/workspace/worlds',headers=OWNER,json={'source_id':world['id']}).json()
+        assert copied['mapping']==world['mapping'] and copied['import_id']==world['import_id']
+        assert client.get('/v1/workspace/worlds/'+copied['id']+'/preview',headers=OWNER).json()==preview
         assert client.post('/v1/workspace/imports/'+identifier+'/map',headers=OWNER,json={'name':'Huge','scale':100}).status_code==422
 
 
@@ -146,6 +149,21 @@ def test_machine_closure_respects_timeout_and_cancellation():
     assert steps==1 and failure=='timeout'
     steps,failure,_=finish_task(world,{'max_simulation_seconds':40,'checkpoint':lambda:False},[],backend,0,time.perf_counter(),0)
     assert steps==0 and failure=='cancelled'
+
+
+@pytest.mark.parametrize('arm',['panda','ur5e'])
+def test_native_object_environment_collision_is_measured(arm,monkeypatch):
+    from vivacity.native_pick_place import NativePickup
+    monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS','1')
+    backend=PickPlaceBackend() if arm=='panda' else ModelPickupBackend(arm)
+    config=RoboticsConfig(task='pick_place',robot_model=arm,obstacle_enabled=False,
+        scene_geometries=[{'name':'collision_fixture','type':'box','position':[.5,-.15,.03],'size':[.06,.06,.02]}]).model_dump()
+    world=backend.create_world(config,7);start=world.data.qpos[:backend.arm_dof].tolist()
+    stage={'phase':'approach','start':start,'goal':start,'duration_s':.02,'dwell_s':.02,'gripper':255}
+    action={'kind':'pick_place','stages':[stage.copy() for _ in range(8)],'planning_feasible':True}
+    result,evaluation,_=NativePickup(backend,backend.snapshot(world)).simulate(action,{'max_simulation_seconds':40})
+    assert result['simulation_steps']>0 and evaluation['status']=='collision_failure'
+    assert result['contact_violations']
 
 
 @pytest.mark.parametrize('arm',['panda',*MODELS])

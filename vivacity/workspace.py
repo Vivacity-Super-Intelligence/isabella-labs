@@ -87,7 +87,7 @@ class WorkspaceService:
         original=self.world(identifier,token);spec=EnvironmentSpec.model_validate(original['spec']);spec.name=(original['name'][:56]+' copy')
         return self.save_world(spec,token,original['source'],import_id=original.get('import_id'),
             provider_world_id=original.get('provider_world_id'),provider_url=original.get('provider_url'),
-            preview_available=original['preview_available'],physics_scope=original['physics_scope'])
+            preview_available=original['preview_available'],physics_scope=original['physics_scope'],mapping=deepcopy(original.get('mapping')))
 
     def map_import(self,record,preview,mapping,token,source='imported',**fields):
         vertices=np.asarray(preview.get('source_bounds_m') or preview['positions'],dtype=float)*mapping.scale

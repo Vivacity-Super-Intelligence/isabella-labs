@@ -159,6 +159,8 @@ class ModelPickupBackend(PickPlaceBackend):
                 ('left_grasp',{'body1':'left_finger','geom2':'cube'}),('right_grasp',{'body1':'right_finger','geom2':'cube'}),
                 ('table_support',{'geom1':'cube','geom2':'table'}),('object_obstacle',{'geom1':'cube','geom2':'obstacle_geom'}),('object_ground',{'geom1':'cube','geom2':'ground'})]:
                 ET.SubElement(sensors,'contact',name=name,data='found force',reduce='maxforce',**attributes)
+            from .scene import append_object_environment_sensors
+            append_object_environment_sensors(root,sensors)
         model=mj.MjModel.from_xml_string(ET.tostring(root,encoding='unicode'))
         # MuJoCo ignores range for continuous joints. Supply a finite RRT/DLS
         # search window without enabling a nonexistent mechanical limit.

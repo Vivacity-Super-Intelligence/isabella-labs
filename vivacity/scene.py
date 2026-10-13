@@ -34,6 +34,13 @@ def append_scene(worldbody, config, root=None):
             ET.SubElement(actuator,'position',name='machine_door_motor',joint='machine_door_joint',kp='100',kv='10',ctrlrange='0 1.5707963',forcerange='-5 5')
 
 
+def append_object_environment_sensors(root,sensors):
+    for geom in root.findall('.//geom'):
+        name=geom.get('name','')
+        if name.startswith('environment_'):
+            ET.SubElement(sensors,'contact',name='object_environment_'+name,geom1='cube',geom2=name,data='found force',reduce='maxforce')
+
+
 def initialize_task(model,data,config):
     if config.get('physical_operation')=='machine_tending':
         data.qpos[int(model.jnt_qposadr[model.joint('machine_door_joint').id])]=1.5707963
