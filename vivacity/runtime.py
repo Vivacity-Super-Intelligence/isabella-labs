@@ -34,6 +34,9 @@ class Unavailable(ValueError):
 
 class Runtime:
     def __init__(self, database):
+        self.physics_trial_workers=int(os.getenv('VIVACITY_PHYSICS_TRIAL_WORKERS','1'))
+        if not 1<=self.physics_trial_workers<=2:
+            raise ValueError('VIVACITY_PHYSICS_TRIAL_WORKERS must be 1..2')
         self.max_physics_trials = int(os.getenv('VIVACITY_MAX_PHYSICS_TRIALS', '5000'))
         if not 1 <= self.max_physics_trials <= 5000:
             raise ValueError('VIVACITY_MAX_PHYSICS_TRIALS must be 1..5000')
@@ -394,12 +397,13 @@ class Runtime:
             if now-last_frame[0]>=.05:
                 self.publish_live(e['id'],e['world_id'],'testing_candidates',frame)
                 last_frame[0]=now
-        for action in actions:
+        from .trial_execution import trial_results
+        concurrency={'peak_parallel_trials':0}
+        for action,result,evaluation,final_state,timing,batch_complete in trial_results(
+                engine,actions,settings,cancellation,live,self.physics_trial_workers,concurrency):
             if not settings['checkpoint']():raise InterruptedError('cancelled between physical trials')
-            result,evaluation,final_state=engine.simulate(action,settings|{'cancel_event':cancellation,
-                'on_frame':lambda frame:live(frame|{'candidate_index':action['candidate_index']})})
             performance={'wall_seconds':result['physics_wall_seconds'],'physics_wall_seconds':result['physics_wall_seconds'],
-                         'simulation_steps':result['simulation_steps'],'integration_calls':result.get('integration_calls',0),'measurement_complete':True}
+                         'simulation_steps':result['simulation_steps'],'integration_calls':result.get('integration_calls',0),'measurement_complete':True,**timing}
             record={'schema_version':'vivacity.trial/1.0','candidate_index':action['candidate_index'],
                     'parent_state_reference':reference,'action':deepcopy(action),'engine':engine.engine,
                     'control_sha256':hashlib.sha256(encode(action['stages']).encode()).hexdigest(),
@@ -428,14 +432,15 @@ class Runtime:
                     w['evaluations'].append({'branch_id':branch['id'],'evaluation':evaluation});self.store.put('worlds',w,db)
             search.update(fully_simulated=simulated,physics_attempts=attempts,physics_target=len(actions),
                           verified_feasible=feasible,physics_rejected=simulated-feasible,trial_simulation_steps=steps,
-                          engine=engine.engine,retained_full_traces=len(best))
+                          engine=engine.engine,retained_full_traces=len(best),physics_trial_workers=self.physics_trial_workers,
+                          peak_parallel_trials=concurrency['peak_parallel_trials'])
             e['result']={'search':search,'top_feasible_branch_ids':[b['id'] for b in best if b['evaluation']['success']],
                          'conclusion':f'{simulated:,} integrated physics trials evaluated; {feasible:,} feasible.'}
             self.store.put('experiments',e)
             if settings.get('adaptive_trials') or attempts%5==0 or attempts==len(actions):
                 self.store.event(e['id'],'progress',search|{'stage':'physics','message':e['result']['conclusion']})
             if cancellation.is_set():raise InterruptedError('cancelled during physical trial')
-            if settings.get('adaptive_trials') and attempts>=min(5,len(actions)) and best_duration<float('inf') and no_improvement>=3:
+            if batch_complete and settings.get('adaptive_trials') and attempts>=min(5,len(actions)) and best_duration<float('inf') and no_improvement>=3:
                 stopping_reason='measured_improvement_plateau'
                 break
         if stopping_reason!='measured_improvement_plateau' and attempts==len(actions):
@@ -447,7 +452,8 @@ class Runtime:
         self.store.event(e['id'],'progress',search|{'stage':'physics','message':e['result']['conclusion']})
         return best,{'trial_count':attempts,'integrated_trial_count':simulated,'trial_simulation_steps':steps,'trial_integration_calls':integration_calls,
                      'trial_physics_wall_seconds':physics,'trial_failure_rate':(attempts-feasible)/max(1,attempts),
-                     'trial_engine':engine.engine,'stopping_reason':stopping_reason}
+                     'trial_engine':engine.engine,'stopping_reason':stopping_reason,
+                     'physics_trial_workers':self.physics_trial_workers,'peak_parallel_trials':concurrency['peak_parallel_trials']}
 
     def cancel(self, eid):
         self.get_experiment(eid)

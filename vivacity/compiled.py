@@ -34,7 +34,7 @@ def reuse_world(backend):
         def wrapped(self, config, seed, *args, **kwargs):
             if os.getenv('VIVACITY_IMMUTABLE_MODEL_FORKS') != '1':
                 return create(self, config, seed, *args, **kwargs)
-            key = (type(self).__name__, json.dumps(config, sort_keys=True),
+            key = (type(self).__name__,os.getenv('VIVACITY_HEADLESS_GEOMETRY'),json.dumps(config, sort_keys=True),
                    tuple(args), tuple(sorted(kwargs.items())))
             with _lock:
                 saved = _compiled.get(key)

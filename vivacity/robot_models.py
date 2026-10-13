@@ -163,6 +163,8 @@ class ModelPickupBackend(PickPlaceBackend):
         if self.identifier=='dual_arm':
             ET.SubElement(sensors,'contact',name='secondary_robot_contacts',subtree1='secondary_link0',data='found force',reduce='maxforce')
             ET.SubElement(sensors,'contact',name='secondary_mount_contacts',body1='secondary_link0',geom2='table',data='found force',reduce='maxforce')
+        from .headless import collision_only
+        collision_only(root)
         model=mj.MjModel.from_xml_string(ET.tostring(root,encoding='unicode'))
         # MuJoCo ignores range for continuous joints. Supply a finite RRT/DLS
         # search window without enabling a nonexistent mechanical limit.

@@ -56,6 +56,8 @@ class ClothBackend(LegacyClothBackend):
         equality = root.find('equality')
         for i in range(N):
             ET.SubElement(equality, 'connect', name=f'grasp_{i}', body1=f'cloth_{N*(N-1)+i}', body2='clamp', anchor='0 0 0', solref='.006 1')
+        from .headless import collision_only
+        collision_only(root)
         model = mj.MjModel.from_xml_string(ET.tostring(root, encoding='unicode'))
         data = mj.MjData(model)
         data.qpos[:7] = [0,0,0,-1.57079,0,1.57079,-.7853]

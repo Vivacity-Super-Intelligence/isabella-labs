@@ -58,7 +58,9 @@ class RoboticsBackend:
         from .scene import append_scene
         append_scene(wb, config, root)
         xml = ET.tostring(root, encoding='unicode')
-        model = mj.MjModel.from_xml_string(xml)
+        from .headless import collision_only
+        collision_only(root)
+        model = mj.MjModel.from_xml_string(ET.tostring(root,encoding='unicode'))
         data = mj.MjData(model)
         mj.mj_resetDataKeyframe(model, data, 0)
         mj.mj_forward(model, data)
