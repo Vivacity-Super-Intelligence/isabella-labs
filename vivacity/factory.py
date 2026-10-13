@@ -99,7 +99,7 @@ def _compiled(settings_json):
         spec=LAYOUT[prefix]
         for side in (-1,1):
             _geom(wb,prefix+'_rail_'+str(side),'box',[spec['x']+side*.109,(spec['start_y']+spec['end_y'])/2,.004],
-                  [.007,(spec['end_y']-spec['start_y'])/2+.025,.008],rgba='.2 .25 .26 1')
+                  [.007,(spec['end_y']-spec['start_y'])/2+(.025 if prefix=='infeed' else -.015),.008],rgba='.2 .25 .26 1')
     ET.SubElement(wb,'camera',name='inspection',pos='.5 -.24 1.15',xyaxes='1 0 0 0 1 0',fovy='54')
     ET.SubElement(wb,'light',pos='1 -1 3',dir='-.3 .1 -1',diffuse='.8 .8 .8')
     visual=root.find('visual')
@@ -169,11 +169,13 @@ class FactoryBackend(RoboticsBackend):
             aids=[i for i in range(m.nu) if m.actuator(i).name.startswith(prefix+'_roller_')]
             velocities=[float(d.qvel[m.jnt_dofadr[m.actuator_trnid[i,0]]]) for i in aids]
             drives[prefix]={'surface_speed_m_s':-float(np.mean(velocities))*LAYOUT['roller_radius'],
+                            'roller_angles_rad':[float(d.qpos[m.jnt_qposadr[m.actuator_trnid[i,0]]]) for i in aids],
                             'motor_torque_sum_nm':float(np.sum(np.abs(d.actuator_force[aids])))}
-        poses=[{'name':m.body(i).name,'position':d.xpos[i].tolist(),'quaternion_wxyz':d.xquat[i].tolist()} for i in range(1,m.nbody)]
+        poses=[{'name':m.body(i).name,'position':d.xpos[i].tolist(),'quaternion_wxyz':d.xquat[i].tolist()}
+               for i in range(1,m.nbody) if '_roller_' not in m.body(i).name]
         return {'schema_version':'vivacity.factory-frame/1.0','time':float(d.time),'qpos':d.qpos.tolist(),
                 'qvel':d.qvel.tolist(),'ctrl':d.ctrl.tolist(),'body_transforms':poses,'cartons':cartons,
-                'end_effector':d.site('pregrasp').xpos.tolist(),'conveyors':drives,'source':'mujoco'}
+                'carton_half_size_m':world.config['carton_half_size_m'],'end_effector':d.site('pregrasp').xpos.tolist(),'conveyors':drives,'source':'mujoco'}
 
     def simulate(self,world,limits):
         trace=[self.observe(world)]

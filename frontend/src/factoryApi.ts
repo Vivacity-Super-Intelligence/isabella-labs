@@ -16,7 +16,7 @@ async function request<T>(path:string,method='GET',body?:unknown):Promise<T>{
 export const factoryApi={
  create:(settings:FactorySettings)=>request<FactoryCell>('/cells','POST',settings),
  cell:(id:string)=>request<FactoryCell>('/cells/'+encodeURIComponent(id)),
- start:(id:string)=>request<FactoryRun>(`/cells/${encodeURIComponent(id)}/runs`,'POST',{mode:'conveyor'}),
+ start:(id:string,mode:'conveyor'|'production'='production')=>request<FactoryRun>(`/cells/${encodeURIComponent(id)}/runs`,'POST',{mode}),
  run:(id:string)=>request<FactoryRun>('/runs/'+encodeURIComponent(id)),
  record:(id:string)=>request<FactoryRun>(`/runs/${encodeURIComponent(id)}/record`),
  control:(id:string,action:'pause'|'resume'|'stop'|'emergency_stop')=>request<FactoryRun>(`/runs/${encodeURIComponent(id)}/control`,'POST',{action}),

@@ -1,16 +1,16 @@
 import {useEffect,useState} from 'react';
 import FactoryView,{type FactoryViewMode} from './FactoryView';
-import {factoryApi,factoryDefaults,type FactoryCell,type FactoryRun} from './factoryApi';
+import {factoryApi,factoryDefaults,type FactoryCell,type FactoryRun,type FactorySettings} from './factoryApi';
 import {APIError,errorMessage} from './api';
 import './factory.css';
 
 export default function FactoryWorkspace(){
- const [mode,setMode]=useState<FactoryViewMode>('fidelity'),[cell,setCell]=useState<FactoryCell|null>(null),[run,setRun]=useState<FactoryRun|null>(null),[error,setError]=useState<string|null>(null),[busy,setBusy]=useState(false);
+ const [mode,setMode]=useState<FactoryViewMode>('fidelity'),[cell,setCell]=useState<FactoryCell|null>(null),[run,setRun]=useState<FactoryRun|null>(null),[error,setError]=useState<string|null>(null),[busy,setBusy]=useState(false),[draft,setDraft]=useState<FactorySettings>(factoryDefaults);
  const active=!!run&&['queued','running','paused'].includes(run.status);
  async function load(){
   const id=localStorage.getItem('vivacity:factory-cell');let value:FactoryCell;
   try{value=id?await factoryApi.cell(id):await factoryApi.create(factoryDefaults);}catch(e){if(e instanceof APIError&&e.status===404)value=await factoryApi.create(factoryDefaults);else throw e;}
-  setCell(value);localStorage.setItem('vivacity:factory-cell',value.id);
+  setCell(value);setDraft(value.config);localStorage.setItem('vivacity:factory-cell',value.id);
   if(value.last_run_id)setRun(await factoryApi.run(value.last_run_id));
  }
  useEffect(()=>{load().catch(e=>setError(errorMessage(e)));},[]);
@@ -25,14 +25,22 @@ export default function FactoryWorkspace(){
   <header className="factory-heading"><div><span className="factory-eyebrow">Production research / Cell 01</span><h1>Carton sorting</h1></div><label>View<select value={mode} onChange={e=>setMode(e.target.value as FactoryViewMode)}><option value="fidelity">High fidelity</option><option value="performance">Performance</option></select></label></header>
   {error&&<div role="alert" className="notice">{error} <button onClick={()=>action(load)}>Reconnect</button></div>}
   <FactoryView frame={frame} mode={mode} status={run?.status??'idle'}/>
-  <div className="factory-control-bar"><div><strong role="status">{run?.status??(cell?'Ready':'Connecting')}</strong><span data-testid="factory-clock">{(frame?.time??0).toFixed(3)} s · MuJoCo simulation time</span></div><div className="factory-actions">
-   <button className="primary" disabled={!cell||active||busy} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id));})}>Start conveyor test</button>
+  <div className="factory-control-bar"><div><strong role="status">{run?run.status.replaceAll('_',' ')+' · '+run.phase.replaceAll('_',' '):(cell?'Ready':'Connecting')}</strong><span data-testid="factory-clock">{(frame?.time??0).toFixed(3)} s · MuJoCo simulation time</span></div><div className="factory-actions">
+   <button className="primary" disabled={!cell||active||busy} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id));})}>Start production</button>
    <button disabled={!active||busy} onClick={()=>command(run?.status==='paused'?'resume':'pause')}>{run?.status==='paused'?'Resume':'Pause'}</button>
    <button disabled={!active||busy} onClick={()=>command('stop')}>Stop</button>
    <button className="factory-estop" disabled={!active||busy} onClick={()=>command('emergency_stop')}>Emergency simulation stop</button>
    <button disabled={active||busy||!cell} onClick={()=>action(async()=>{const value=await factoryApi.create(cell?.config??factoryDefaults);setCell(value);setRun(null);localStorage.setItem('vivacity:factory-cell',value.id);})}>Reset</button>
   </div></div>
-  <p className="factory-stage-note">Conveyor acceptance: motor-driven rollers transport free cartons to the robot station. Robot sorting is not enabled in this stage.</p>
+  {run?.error&&<p role="alert" className="notice">{run.error}</p>}
+  <div className="factory-counts"><span><strong>{Number(run?.metrics.cartons_sorted??run?.events.filter(e=>e.kind==='destination_arrival').length??0)}</strong> / {cell?.config.carton_count??3} cartons sorted</span><span><strong>{run?.events.filter(e=>e.kind==='station_arrival').length??0}</strong> station arrivals</span><span>Lane A &lt; {(cell?.config.sort_threshold_kg??.07)*1000} g · Lane B ≥ {(cell?.config.sort_threshold_kg??.07)*1000} g</span></div>
+  <p className="factory-stage-note">Small-carton contact sorting. Classification currently uses simulator mass and position; camera observation is the next stage. Emergency stop freezes this simulation, not physical hardware.</p>
+  <details className="factory-readout"><summary>Production conditions</summary><fieldset disabled={active||busy} className="factory-settings"><legend>New run configuration</legend>
+   <label>Configuration name<input value={draft.name} maxLength={80} onChange={e=>setDraft({...draft,name:e.target.value})}/></label>
+   {([['carton_count','Cartons',1,3,1],['carton_mass_kg','Reference mass (kg)',.02,.15,.01],['carton_half_size_m','Carton half-width (m)',.02,.03,.001],['carton_friction','Contact friction',.05,1.5,.05],['conveyor_speed_m_s','Conveyor speed (m/s)',.02,.18,.01],['arrival_interval_s','Minimum arrival spacing (s)',1,60,1],['sort_threshold_kg','Lane threshold (kg)',.02,.15,.01],['realtime_speed','Simulation speed',.25,8,.25],['gripper_force_scale','Gripper force scale',.005,1,.005]] as const).map(([key,label,min,max,step])=><label key={key}>{label}<input type="number" value={draft[key]} min={min} max={max} step={step} onChange={e=>setDraft({...draft,[key]:e.target.valueAsNumber})}/></label>)}
+   <button onClick={()=>action(async()=>{const value=await factoryApi.create(draft);setCell(value);setRun(null);localStorage.setItem('vivacity:factory-cell',value.id);})}>Apply conditions</button>
+   <button disabled={!cell} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id,'conveyor'));})}>Test conveyor only</button>
+  </fieldset><p className="factory-stage-note">Later cartons have seeded mass variation (0.7–1.6 × reference, limited to 20–150 g). A finite batch is integrated continuously; cartons are not teleported or respawned. Arrival spacing is a minimum because this cell handles one carton at a time.</p></details>
   <details className="factory-readout"><summary>Measured transport and event log</summary><dl>{Object.entries(frame?.conveyors??{}).map(([name,value])=><div key={name}><dt>{name.replaceAll('_',' ')}</dt><dd>{value.surface_speed_m_s.toFixed(3)} m/s</dd></div>)}</dl><ol>{run?.events.map((event,i)=><li key={i}>{event.time_s.toFixed(3)} s · {event.kind.replaceAll('_',' ')}</li>)}</ol></details>
  </section>;
 }

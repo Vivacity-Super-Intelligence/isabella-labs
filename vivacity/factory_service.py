@@ -89,6 +89,8 @@ class FactoryService:
         return True
 
     def _run(self,identifier,owner_id,c):
+        if self.live[identifier]['mode']=='production':
+            return self._production(identifier,owner_id,c)
         row=self.live[identifier];w=None;wall=time.perf_counter();steps=0
         try:
             w=self.backend.fork(row['initial_state'])
@@ -118,6 +120,36 @@ class FactoryService:
         except Exception as exc:
             with self.lock:row.update(status='failed',phase='failed',error=str(exc)[:300])
         finally:
+            self.workspace._put('factory_run',owner_id,row)
+            c['done'].set()
+
+    def _production(self,identifier,owner_id,c):
+        from .factory_controller import ProductionController,FactoryFault
+        row=self.live[identifier];wall=time.perf_counter();w=None;controller=None
+        def event(value):
+            with self.lock:row['events'].append(value)
+        try:
+            w=self.backend.fork(row['initial_state'])
+            with self.lock:row.update(status='running',phase='initializing')
+            self._frame(row,w,'initializing')
+            controller=ProductionController(self.backend,w,on_frame=lambda w,p:self._frame(row,w,p),
+                                           on_event=event,checkpoint=lambda:self._checkpoint(row,c))
+            metrics=controller.run()
+            with self.lock:row.update(status='completed',phase='completed',metrics=metrics)
+        except InterruptedError:
+            with self.lock:row.update(status='emergency_stopped' if c['emergency'] else 'stopped',phase='stopped')
+        except Exception as exc:
+            with self.lock:row.update(status='failed',phase=getattr(exc,'kind','runtime_failure'),error=str(exc)[:500])
+        finally:
+            if w is not None:
+                self._frame(row,w,row['phase'])
+                with self.lock:
+                    row['final_state']=self.backend.snapshot(w)
+                    row['plans']=controller.plans if controller else []
+                    row['metrics'].update(cartons_sorted=controller.sorted if controller else 0,
+                        station_arrivals=controller.arrivals if controller else 0,
+                        simulation_steps=controller.steps if controller else 0,simulation_time_s=float(w.data.time),
+                        wall_time_s=time.perf_counter()-wall)
             self.workspace._put('factory_run',owner_id,row)
             c['done'].set()
 

@@ -9,7 +9,7 @@ import SceneBoundary from './SceneBoundary';
 import layout from '../../vivacity/factory_layout.json';
 
 export type FactoryViewMode='fidelity'|'engineering'|'performance';
-export interface FactoryVisualState {time:number;body_transforms:BodyPose[];qpos:number[];phase?:string;}
+export interface FactoryVisualState {time:number;body_transforms:BodyPose[];qpos:number[];phase?:string;carton_half_size_m?:number;conveyors?:Record<string,{roller_angles_rad?:number[]}>;}
 const colors={steel:'#b1b8b7',dark:'#354044',roller:'#88948f',amber:'#dda344',floor:'#a3a39a',carton:'#b18c58'};
 
 function Plate({position,size,color=colors.steel,metal=.7}:{position:Vec3;size:Vec3;color?:string;metal?:number}){
@@ -91,7 +91,7 @@ export default function FactoryView({frame,mode='fidelity',status='idle'}:{frame
  const detailed=mode==='fidelity';
  const poses=new Map(frame?.body_transforms.map(p=>[p.name,p])??[]);
  const cartons=[...poses.values()].filter(p=>p.name==='target'||/^carton_\d+$/.test(p.name));
- const rollerAngles=(prefix:string)=>frame?.body_transforms.filter(p=>p.name.startsWith(prefix)).map(p=>2*Math.atan2(p.quaternion_wxyz[1],p.quaternion_wxyz[0]));
+ const rollerAngles=(prefix:string)=>frame?.conveyors?.[prefix.replace('_roller_','')]?.roller_angles_rad;
  return <section className="factory-scene" aria-label="Factory simulation">
   <div className="factory-canvas"><SceneBoundary><Canvas frameloop="demand" shadows={detailed?{type:PCFSoftShadowMap}:false} dpr={detailed?1.5:1} camera={{position:[2.6,-3.3,2.05],fov:42,near:.01,far:80}} gl={{antialias:detailed,toneMapping:ACESFilmicToneMapping}} onCreated={({camera,gl})=>{camera.up.set(0,0,1);gl.setClearColor(detailed?'#a5aca5':'#1a2328');gl.toneMappingExposure=1.05;}}>
    <hemisphereLight args={['#f5f3e9','#6d776c',2]}/><directionalLight position={[1.5,-2,4]} intensity={4} castShadow={detailed} shadow-mapSize={[2048,2048]} shadow-camera-left={-3} shadow-camera-right={3} shadow-camera-top={3} shadow-camera-bottom={-3} shadow-normalBias={.004}/><directionalLight position={[-2,2,2]} intensity={1.5}/>
@@ -102,7 +102,7 @@ export default function FactoryView({frame,mode='fidelity',status='idle'}:{frame
    {layout.lanes.map(l=><group key={l.id}><RollerLine {...l} detail={detailed} angles={rollerAngles('lane_'+l.id+'_roller_')}/><Bin x={l.x} label={l.id}/></group>)}
    {detailed&&<><Profile position={[.78,-.24,-.8]} length={1.95}/><Tube a={[.78,-.24,1.15]} b={[.5,-.24,1.15]} r={.016}/><Plate position={[.5,-.24,1.14]} size={[.085,.07,.07]} color="#35464d"/><mesh position={[.5,-.24,1.09]}><cylinderGeometry args={[.019,.019,.025,20]}/><meshStandardMaterial color="#15242c" metalness={.65} roughness={.12}/></mesh><Profile position={[-.2,.25,-.8]} length={1.45}/>{['#845b4d','#be9444','#4d857a'].map((c,i)=><mesh key={c} position={[-.2,.25,.49+i*.043]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.023,.023,.037,20]}/><meshStandardMaterial color={c} emissive={status==='running'&&i===2?c:'#000000'} emissiveIntensity={.6}/></mesh>)}</>}
    {frame&&assets&&<FactoryRobot assets={assets} frame={frame} engineering={mode==='engineering'}/>}
-   {cartons.map(cube=><group key={cube.name} position={cube.position} quaternion={new Quaternion(cube.quaternion_wxyz[1],cube.quaternion_wxyz[2],cube.quaternion_wxyz[3],cube.quaternion_wxyz[0])}><Plate position={[0,0,0]} size={[.05,.05,.05]} color={colors.carton} metal={0}/>{detailed&&<><Plate position={[0,0,.02515]} size={[.012,.0502,.0004]} color="#ccba87" metal={0}/><Plate position={[.0251,0,0]} size={[.0004,.024,.019]} color="#ede6cf" metal={0}/></>}</group>)}
+   {cartons.map(cube=><group key={cube.name} scale={(frame?.carton_half_size_m??.025)/.025} position={cube.position} quaternion={new Quaternion(cube.quaternion_wxyz[1],cube.quaternion_wxyz[2],cube.quaternion_wxyz[3],cube.quaternion_wxyz[0])}><Plate position={[0,0,0]} size={[.05,.05,.05]} color={colors.carton} metal={0}/>{detailed&&<><Plate position={[0,0,.02515]} size={[.012,.0502,.0004]} color="#ccba87" metal={0}/><Plate position={[.0251,0,0]} size={[.0004,.024,.019]} color="#ede6cf" metal={0}/></>}</group>)}
    <Camera command={camera}/><Refresh revision={[frame,mode,status]}/>
   </Canvas></SceneBoundary>{error&&<p role="alert">{error}</p>}</div>
   <div className="factory-view-tools"><span>Sorting cell 01 <small>· Panda / Z-up / metres</small></span><div>{[['overview','Overview'],['station','Robot station'],['top','Plan']].map(([id,label])=><button key={id} aria-pressed={camera.name===id} onClick={()=>setCamera(c=>({name:id,seq:c.seq+1}))}>{label}</button>)}</div></div>

@@ -29,7 +29,7 @@ const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
 export default function App(){
   const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:defaultWorkcell,key:'curated-warehouse-v1',name:'Franka Panda / Industrial warehouse / Pick and place'});
   const [draft,setDraft]=useState<Configuration>(defaultConfiguration('warehouse'));
-  const [page,setPage]=useState<'factory'|'workspace'|'worlds'|'experiments'|'results'|'settings'|'import'>('workspace');
+  const [page,setPage]=useState<'factory'|'workspace'|'worlds'|'experiments'|'results'|'settings'|'import'>('factory');
   const [inspecting,setInspecting]=useState(false),[inspectSelection,setInspectSelection]=useState<'object'|'robot'|'experiment'>('object');
   const [overlays,setOverlays]=useState<OverlayOptions>(defaultOverlays);
   const setupSummary=useRef<HTMLElement>(null);

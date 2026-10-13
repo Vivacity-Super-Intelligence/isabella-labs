@@ -8,7 +8,7 @@ router=APIRouter(prefix='/v1/factory',tags=['Factory production'])
 
 class RunRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
-    mode:Literal['conveyor']='conveyor'
+    mode:Literal['conveyor','production']='conveyor'
 
 class Command(BaseModel):
     model_config=ConfigDict(extra='forbid')
