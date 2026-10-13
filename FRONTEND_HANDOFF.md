@@ -1,5 +1,12 @@
 # Current world and experimentation workspace
 
+Current connection/parallel-execution release:
+[RUNTIME_STABILITY_RELEASE.md](docs/RUNTIME_STABILITY_RELEASE.md).
+Deployed HTTP uses the same-origin `/runtime` prefix; native WSS uses Render.
+Import URL/socket helpers from `frontend/src/api.ts`. Each experiment may run two
+independent native trials concurrently; separate experiments share one job queue.
+Start remains explicit. Missing run IDs recover to an idle world, not a resumed run.
+
 The current visual release and binary appearance API are documented in
 [VISUAL_RELEASE.md](docs/VISUAL_RELEASE.md), including coordinates, supported
 formats, renderer lifetime, executed checks and remaining physical limits.

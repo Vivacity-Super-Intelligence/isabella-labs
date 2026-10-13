@@ -1,3 +1,25 @@
+# Runtime stability and parallel trials — 2026-10-13
+
+Fixed the reproduced Render 512 MB memory crash and persistent stale-session 404
+loop. Production HTTP now uses same-origin `/runtime`, with uncached capability
+forwarding and bounded read retries. Writes are never automatically repeated.
+Two independent native MuJoCo trials run concurrently; adaptive stopping counts
+complete batches and reports exhausted budgets accurately. Detailed frontend
+geometry/UI is preserved; the headless backend keeps all physics geometry/inertia.
+
+Executed: Linux **213/213 passed**, zero failures/errors/test skips; separate hard
+512 MiB image checks **3/3 passed (68.756 s)**; frontend **19/19 passed** and build
+passed. Targeted Windows backend **13/13 passed (83.42 s)**. Public multi-candidate
+experiments, measured overlapping integrations, concurrent reads, pause/resume,
+stop, mass changes, stale-world recovery, replay/export and WSS were exercised.
+The first Linux run's 1 stopping-report failure was corrected and remains recorded.
+
+Limits: Render Free still sleeps and loses SQLite/imports on restart. Public host
+budget remains eight physics trials; no 5,000-trial public run or uptime guarantee
+is claimed. Separate experiments queue; existing physical fidelity/controller and
+cloth/dual-arm limitations remain. Full evidence and reproduction:
+[RUNTIME_STABILITY_RELEASE.md](docs/RUNTIME_STABILITY_RELEASE.md).
+
 # Visual correction release — 2026-10-13
 
 Working: real colored SPZ warehouse/laboratory rendering, preserved standalone

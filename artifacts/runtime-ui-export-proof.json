@@ -1,0 +1,10 @@
+{
+  "experiment_id": "3c73f608-26a9-4ed1-8f38-d9fd33de2ce2",
+  "branch_id": "3b7bd038-445c-47e1-990e-989a0a8a7871",
+  "initial_cube_mass_kg": 0.065,
+  "recorded_frames": 53,
+  "simulation_steps": 6055,
+  "export_bytes": 589972,
+  "full_integration_state_values": 155,
+  "success": true
+}

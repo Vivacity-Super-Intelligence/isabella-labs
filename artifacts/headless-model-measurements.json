@@ -1,0 +1,22 @@
+[
+  {
+    "variant": "original",
+    "render_only_geoms_removed": 0,
+    "mesh_vertices": 396791,
+    "mesh_faces": 136590,
+    "model_buffer_bytes": 35378160,
+    "geometries": 81,
+    "bodies": 12,
+    "joint_positions": 9
+  },
+  {
+    "variant": "collision_only",
+    "render_only_geoms_removed": 58,
+    "mesh_vertices": 2247,
+    "mesh_faces": 2688,
+    "model_buffer_bytes": 752688,
+    "geometries": 23,
+    "bodies": 12,
+    "joint_positions": 9
+  }
+]

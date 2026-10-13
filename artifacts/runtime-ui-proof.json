@@ -1,0 +1,27 @@
+{
+  "url": "https://demo.tryvivacity.com/",
+  "backend_source": "1b7f5b98467c9c587f273c78b82e918dd5421f60",
+  "render_deployment": "dep-db721ct9fdbs73eot10g",
+  "frontend_source": "0d4912d",
+  "vercel_deployment": "dpl_G99tFMNKEfhWsYZ5wCeYTE3fBiCo",
+  "tested_ui_experiment": "3c73f608-26a9-4ed1-8f38-d9fd33de2ce2",
+  "native_trials": 6,
+  "socket_handshake_statuses": [
+    101,
+    101
+  ],
+  "physics_frames_observed_before_pause": 39,
+  "new_physics_frames_while_paused": 0,
+  "resumed_physics_frames_observed": 27,
+  "resumed_final_stage": "verified",
+  "resumed_final_simulation_time": 12.110000000000714,
+  "stop_observed_status": "Cancelled",
+  "expired_world_recovery_observed": true,
+  "mass_change_export_verified_kg": 0.065,
+  "direct_render_http_block_removed": true,
+  "final_reload_connected": true,
+  "final_reload_idle": true,
+  "final_browser_error_logs": [],
+  "screenshot": "artifacts/runtime-public-final.jpg",
+  "note": "Frame counts cover captured network windows; they are not total frame counts for the run."
+}
