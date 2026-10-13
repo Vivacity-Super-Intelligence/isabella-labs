@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fetchRuntime,runtimeEndpoints,runtimeSocketURL,CONNECTION_ERROR,TIMEOUT_ERROR,isConnectionMessage} from '../frontend/src/apiTransport.ts';
+import {expiredRuntimeReference,forgetRuntimeReferences} from '../frontend/src/runtimeRecovery.ts';
+import {APIError} from '../frontend/src/apiResponse.ts';
 const noWait=async()=>{};
 
 test('production HTTP stays on the demo origin and streams retain the backend',()=>{
@@ -64,4 +66,16 @@ test('a bounded timeout explains the startup delay',async()=>{
 test('recovery clears transport notices while retaining physics validation errors',()=>{
   for(const message of [CONNECTION_ERROR,TIMEOUT_ERROR,'Failed to fetch','503: The simulation service is temporarily unavailable. Try again.'])assert.equal(isConnectionMessage(message),true);
   assert.equal(isConnectionMessage('422: object exceeds the gripper aperture'),false);
+});
+test('missing runtime records trigger recovery; ordinary transport and physics errors do not',()=>{
+  for(const status of [403,404])assert.equal(expiredRuntimeReference(new APIError(status,'record not found')),true);
+  for(const status of [422,429,500,503])assert.equal(expiredRuntimeReference(new APIError(status,'request failed')),false);
+  assert.equal(expiredRuntimeReference(new TypeError('Failed to fetch')),false);
+});
+test('expired run recovery preserves settings and other runtime identities',()=>{
+  const values=new Map([
+    ['vivacity:example:session','old-session'],['vivacity:example:token','old-token'],['vivacity:example:world','old-world'],
+    ['vivacity:example:settings','{"mass":0.06}'],['vivacity:other:session','other-session'],['vivacity:workspace-capability','workspace-token']]);
+  forgetRuntimeReferences({removeItem:key=>values.delete(key)},'example');
+  assert.deepEqual([...values.keys()],['vivacity:example:settings','vivacity:other:session','vivacity:workspace-capability']);
 });

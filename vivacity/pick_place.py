@@ -68,6 +68,8 @@ class PickPlaceBackend(RoboticsBackend):
             ET.SubElement(sensors,'contact',name=name,data='found force',reduce='maxforce',**attributes)
         from .scene import append_object_environment_sensors
         append_object_environment_sensors(root,sensors)
+        from .headless import collision_only
+        collision_only(root)
         model = mj.MjModel.from_xml_string(ET.tostring(root, encoding='unicode'))
         data = mj.MjData(model)
         data.qpos[:9] = [0, 0, 0, -1.57079, 0, 1.57079, -.7853, .04, .04]

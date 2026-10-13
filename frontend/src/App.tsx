@@ -107,6 +107,7 @@ export default function App(){
        page==='import'?<><button className="secondary" onClick={()=>setPage('worlds')}>Back to world library</button><Suspense fallback={<div className="viewport-loading">Loading import tools…</div>}><ImportWorld/></Suspense></>:<>
         <div className="workspace-heading"><div><h1>Design. Simulate. Discover.</h1><p>Explore robotic systems in physical environments.</p></div><span className="connection" role="status">{rt.online?'Physics connected':'Connecting to runtime…'}</span></div>
         {preparing&&<p role="status" className="small">Loading the selected physical configuration…</p>}
+        {rt.recoveryNotice&&<p role="status" className="small">{rt.recoveryNotice}</p>}
         <nav className="journey" aria-label="Experiment stages">{['Environment','Robot','Operation','Experiment'].map((label,i)=><button key={label} aria-pressed={setupOpen&&setupStep===i} disabled={rt.active} onClick={()=>{setSetupStep(i);setSetupOpen(true);setEditing(false);}}><span>0{i+1}</span>{label}</button>)}</nav>
         {!rt.online&&rt.loaded&&<div className="offline-notice" role="status"><Warning size={18}/><span>Simulation runtime unavailable.</span><button onClick={rt.reconnect}>Reconnect</button></div>}
         {downloadError&&<p className="negative" role="alert">{downloadError}</p>}

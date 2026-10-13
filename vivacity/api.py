@@ -88,7 +88,7 @@ def create_app(database=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'schema_version': '1.0', 'backends': {k: b.version for k, b in app.state.runtime.backends.items()}, 'limits': {'max_physics_trials': app.state.runtime.max_physics_trials}}
+        return {'status': 'ok', 'schema_version': '1.0', 'backends': {k: b.version for k, b in app.state.runtime.backends.items()}, 'limits': {'max_physics_trials': app.state.runtime.max_physics_trials,'physics_trial_workers':app.state.runtime.physics_trial_workers}}
 
     @app.head('/health', include_in_schema=False)
     def health_head():

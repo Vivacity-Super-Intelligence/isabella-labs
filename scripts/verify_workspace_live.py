@@ -13,7 +13,7 @@ from websockets.sync.client import connect
 from websockets.exceptions import ConnectionClosedOK
 
 
-def verify(base,output,arm,resume=False):
+def verify(base,output,arm,resume=False,websocket_base=None):
     started=time.perf_counter();state_path=Path('data')/('workspace-live-'+arm+'-'+('public' if base.startswith('https://') else 'local')+'.json')
     prior=json.loads(state_path.read_text()) if resume else None
     capability=prior['workspace_token'] if prior else secrets.token_urlsafe(36)
@@ -50,7 +50,7 @@ def verify(base,output,arm,resume=False):
     assert experiment['performance']['trial_count']==3
     replay=request('GET',f'/v1/experiments/{eid}/replay')
     assert replay['branches'] and all(b['frames'] for b in replay['branches'])
-    ws=base.replace('https://','wss://').replace('http://','ws://')
+    ws=(websocket_base or base).replace('https://','wss://').replace('http://','ws://')
     protocols=['vivacity.live','vivacity.token.'+session_token]
     events=[]
     with connect(f'{ws}/v1/experiments/{eid}/events',origin='https://demo.tryvivacity.com',subprotocols=protocols,open_timeout=120) as socket:
@@ -91,4 +91,5 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--base',default='http://127.0.0.1:8000')
     parser.add_argument('--arm',default='ur5e');parser.add_argument('--output',type=Path,default=Path('artifacts/workspace-live.json'))
     parser.add_argument('--resume',action='store_true')
-    args=parser.parse_args();verify(args.base,args.output,args.arm,args.resume)
+    parser.add_argument('--websocket-base',help='Native backend URL when HTTP goes through a same-origin proxy')
+    args=parser.parse_args();verify(args.base,args.output,args.arm,args.resume,args.websocket_base)

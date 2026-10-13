@@ -4,6 +4,7 @@ import { simulatedPerception, type Backend, type World, type Experiment, type Br
 import type { components } from './generated/api';
 import {workspaceApi} from './workspaceApi';
 import {isConnectionMessage} from './apiTransport';
+import {expiredRuntimeReference,forgetRuntimeReferences} from './runtimeRecovery';
 
 type Session = components['schemas']['SessionResponse'];
 type Live = components['schemas']['LiveState'];
@@ -33,6 +34,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
   const [branches,setBranches]=useState<Branch[]>([]),[events,setEvents]=useState<Event[]>([]);
   const [online,setOnline]=useState(false),[loaded,setLoaded]=useState(false),[mutating,setMutating]=useState(false);
   const [error,setError]=useState<string|null>(null),[epoch,setEpoch]=useState(0);
+  const [recoveryNotice,setRecoveryNotice]=useState<string|null>(null);
   const [stream,setStream]=useState<'connecting'|'live'|'reconnecting'|'idle'>('idle');
   const [liveState,setLiveState]=useState<Live|null>(null);
   const [hostPhysicsLimit,setHostPhysicsLimit]=useState<number|null>(null);
@@ -42,6 +44,16 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
   const lock=useRef(false),generation=useRef(0);
   const inspecting=useRef(false);
   const stagedConfig=useRef<Dict|null>(null);
+
+  const recoverExpired=useCallback(()=>{
+    try{forgetRuntimeReferences(localStorage,storageKey);}catch{/* Optional storage. */}
+    ++generation.current;
+    currentSession.current=null;currentWorld.current=null;currentExperiment.current=null;
+    setSession(null);setWorld(null);setExperiment(null);setBranches([]);setEvents([]);setLiveState(null);
+    setOnline(false);setLoaded(false);setError(null);
+    setRecoveryNotice('The previous run is no longer available on the server. A fresh world will be initialized; press Start experiments to run it.');
+    setEpoch(value=>value+1);
+  },[storageKey]);
 
   useEffect(()=>{
     let active=true;
@@ -113,12 +125,15 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
           }
         }
         if(active&&version===generation.current){setOnline(true);setLoaded(true);setError(previous=>isConnectionMessage(previous)?null:previous);}
-      }catch(e){if(active){setError(errorMessage(e));setOnline(false);setLoaded(true);}}
+      }catch(e){if(active&&version===generation.current){
+        if(expiredRuntimeReference(e))recoverExpired();
+        else{setError(errorMessage(e));setOnline(false);setLoaded(true);}
+      }}
       finally{refreshing=false;}
     };
     refresh();const interval=setInterval(refresh,1000);
     return()=>{active=false;clearInterval(interval);};
-  },[backend,storageKey,initialConfig,epoch,adopt]);
+  },[backend,storageKey,initialConfig,epoch,adopt,recoverExpired]);
 
   useEffect(()=>{
     const id=experiment?.id;if(!id)return;
@@ -150,7 +165,10 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
           }
           terminal=true;setStream('idle');eventSocket?.close();liveSocket?.close();
         }
-      }catch(e){if(active){setError(errorMessage(e));setStream('reconnecting');}}
+      }catch(e){if(active){
+        if(expiredRuntimeReference(e)){terminal=true;eventSocket?.close();liveSocket?.close();recoverExpired();}
+        else{setError(errorMessage(e));setStream('reconnecting');}
+      }}
       finally{refreshing=false;}
     };
     const connect=()=>{
@@ -165,10 +183,10 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
     refresh();if(isBusy(experiment))connect();
     const poll=setInterval(refresh,1000);
     return()=>{active=false;clearInterval(poll);if(reconnect)clearTimeout(reconnect);liveSocket?.close();eventSocket?.close();};
-  },[experiment?.id]);
+  },[experiment?.id,recoverExpired]);
 
   const perform=useCallback(async(operation:()=>Promise<void>)=>{
-    if(lock.current)return false;lock.current=true;setMutating(true);setError(null);
+    if(lock.current)return false;lock.current=true;setMutating(true);setError(null);setRecoveryNotice(null);
     try{await operation();return true;}catch(e){setError(errorMessage(e));return false;}finally{lock.current=false;setMutating(false);}
   },[]);
   const stop=useCallback(async()=>{
@@ -212,7 +230,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
     const batch=await api.events(id);setEvents(batch.slice(-160));
     // Evidence inspection never substitutes a recorded trajectory into the main scene.
   });
-  return {world,observation,perception,experiment,branches,events,session,liveState,hostPhysicsLimit,online,loaded,mutating,error,stream,
+  return {world,observation,perception,experiment,branches,events,session,liveState,hostPhysicsLimit,online,loaded,mutating,error,recoveryNotice,stream,
     busy:mutating||isBusy(experiment),active:session?.status==='active'||session?.status==='stopping',
     run:start,stop,togglePause,apply,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
 }
