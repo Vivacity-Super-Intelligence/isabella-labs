@@ -360,6 +360,7 @@ class Runtime:
                 extra=branches[-1] if settings.get('execute_selected') and selected else None
                 e['performance'].update(trial_metrics)
                 e['performance']['simulation_steps']=trial_metrics['trial_simulation_steps']+(extra['performance']['simulation_steps'] or 0 if extra else 0)
+                e['performance']['integration_calls']=trial_metrics['trial_integration_calls']+(extra['performance']['integration_calls'] or 0 if extra else 0)
                 e['performance']['physics_wall_seconds']=trial_metrics['trial_physics_wall_seconds']+(extra['performance']['physics_wall_seconds'] or 0 if extra else 0)
             with self.lock, self.store.connect() as db:
                 w = self.store.get('worlds', e['world_id'], db)
@@ -384,7 +385,7 @@ class Runtime:
     def _bulk_trials(self, e, actions, settings, search, reference, cancellation):
         from .native_pick_place import NativePickup
         engine=NativePickup(self.backends['mujoco'].backend(e['config']),e['snapshot'])
-        best=[];simulated=0;attempts=0;feasible=0;steps=0;physics=0.;last_frame=[0.]
+        best=[];simulated=0;attempts=0;feasible=0;steps=0;integration_calls=0;physics=0.;last_frame=[0.]
         best_duration=float('inf');no_improvement=0;stopping_reason='candidate_exhausted'
         objective=lambda b:(not b['evaluation']['success'],b['evaluation'].get('execution_duration_s',float('inf')),
                             b['evaluation'].get('goal_error_m',float('inf')),b['action']['candidate_index'])
@@ -398,7 +399,7 @@ class Runtime:
             result,evaluation,final_state=engine.simulate(action,settings|{'cancel_event':cancellation,
                 'on_frame':lambda frame:live(frame|{'candidate_index':action['candidate_index']})})
             performance={'wall_seconds':result['physics_wall_seconds'],'physics_wall_seconds':result['physics_wall_seconds'],
-                         'simulation_steps':result['simulation_steps'],'integration_calls':0,'measurement_complete':True}
+                         'simulation_steps':result['simulation_steps'],'integration_calls':result.get('integration_calls',0),'measurement_complete':True}
             record={'schema_version':'vivacity.trial/1.0','candidate_index':action['candidate_index'],
                     'parent_state_reference':reference,'action':deepcopy(action),'engine':engine.engine,
                     'control_sha256':hashlib.sha256(encode(action['stages']).encode()).hexdigest(),
@@ -414,7 +415,7 @@ class Runtime:
                     no_improvement+=1
             elif settings.get('adaptive_trials') and best_duration<float('inf'):
                 no_improvement+=1
-            steps+=result['simulation_steps'];physics+=result['physics_wall_seconds']
+            steps+=result['simulation_steps'];integration_calls+=result.get('integration_calls',0);physics+=result['physics_wall_seconds']
             branch={'schema_version':'1.0','id':uid(),'experiment_id':e['id'],'parent_state_reference':reference,
                     'initial_state':deepcopy(e['snapshot']),'action':deepcopy(action)|{'execution_role':'validation','engine':engine.engine},
                     'trace':result['trace'],'final_state':final_state,'evaluation':evaluation,'performance':performance}
@@ -444,7 +445,7 @@ class Runtime:
                      'conclusion':f'{simulated:,} integrated physics trials evaluated; {feasible:,} feasible. Search stopped: {stopping_reason.replace("_"," ")}.'}
         self.store.put('experiments',e)
         self.store.event(e['id'],'progress',search|{'stage':'physics','message':e['result']['conclusion']})
-        return best,{'trial_count':attempts,'integrated_trial_count':simulated,'trial_simulation_steps':steps,
+        return best,{'trial_count':attempts,'integrated_trial_count':simulated,'trial_simulation_steps':steps,'trial_integration_calls':integration_calls,
                      'trial_physics_wall_seconds':physics,'trial_failure_rate':(attempts-feasible)/max(1,attempts),
                      'trial_engine':engine.engine,'stopping_reason':stopping_reason}
 

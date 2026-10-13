@@ -158,13 +158,13 @@ def test_machine_closure_respects_timeout_and_cancellation():
     assert steps==0 and failure=='cancelled'
 
 
-@pytest.mark.parametrize('arm',['panda','ur5e'])
+@pytest.mark.parametrize('arm',['panda','ur5e','dual_arm'])
 def test_native_object_environment_collision_is_measured(arm,monkeypatch):
     from vivacity.native_pick_place import NativePickup
     monkeypatch.setenv('VIVACITY_IMMUTABLE_MODEL_FORKS','1')
     backend=PickPlaceBackend() if arm=='panda' else ModelPickupBackend(arm)
     config=RoboticsConfig(task='pick_place',robot_model=arm,obstacle_enabled=False,
-        scene_geometries=[{'name':'collision_fixture','type':'box','position':[.5,-.15,.03],'size':[.06,.06,.02]}]).model_dump()
+        scene_geometries=[{'name':'collision_fixture','type':'box','position':[-1.4,0,.35] if arm=='dual_arm' else [.5,-.15,.03],'size':[.08,.08,.08] if arm=='dual_arm' else [.06,.06,.02]}]).model_dump()
     world=backend.create_world(config,7);start=world.data.qpos[:backend.arm_dof].tolist()
     stage={'phase':'approach','start':start,'goal':start,'duration_s':.02,'dwell_s':.02,'gripper':255}
     action={'kind':'pick_place','stages':[stage.copy() for _ in range(8)],'planning_feasible':True}
