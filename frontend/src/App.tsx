@@ -19,6 +19,7 @@ import type {OverlayOptions} from './EngineeringOverlay';
 const defaultOverlays:OverlayOptions={forces:true,velocity:true,center:true,trajectory:false,collision:false};
 import './engineering.css';
 
+const FactoryWorkspace=lazy(()=>import('./FactoryWorkspace'));
 const RobotView=lazy(()=>import('./RobotView'));
 const ClothView=lazy(()=>import('./ClothView'));
 const ImportWorld=lazy(()=>import('./ImportWorld'));
@@ -28,7 +29,7 @@ const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
 export default function App(){
   const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:defaultWorkcell,key:'curated-warehouse-v1',name:'Franka Panda / Industrial warehouse / Pick and place'});
   const [draft,setDraft]=useState<Configuration>(defaultConfiguration('warehouse'));
-  const [page,setPage]=useState<'workspace'|'worlds'|'experiments'|'results'|'settings'|'import'>('workspace');
+  const [page,setPage]=useState<'factory'|'workspace'|'worlds'|'experiments'|'results'|'settings'|'import'>('workspace');
   const [inspecting,setInspecting]=useState(false),[inspectSelection,setInspectSelection]=useState<'object'|'robot'|'experiment'>('object');
   const [overlays,setOverlays]=useState<OverlayOptions>(defaultOverlays);
   const setupSummary=useRef<HTMLElement>(null);
@@ -90,11 +91,12 @@ export default function App(){
   return <>
     <a className="skip-link" href="#workspace">Skip to workspace</a>
     <header className="site-header platform-nav"><Brand/><nav className="main-nav" aria-label="Workspace navigation">
-      {(['workspace','worlds','experiments'] as const).map(id=><button key={id} aria-pressed={page===id} disabled={rt.mutating} onClick={()=>setPage(id)}>{id[0].toUpperCase()+id.slice(1)}</button>)}
+      {(['factory','workspace','worlds','experiments'] as const).map(id=><button key={id} aria-pressed={page===id} disabled={rt.mutating} onClick={()=>setPage(id)}>{id[0].toUpperCase()+id.slice(1)}</button>)}
       <button className="nav-settings" aria-label="Runtime settings" onClick={()=>setPage('settings')}><SlidersHorizontal size={18}/></button>
     </nav></header>
     <main className="platform-main" id="workspace" tabIndex={-1}>
-      {page==='worlds'?<Suspense fallback={<p>Loading world library…</p>}><WorldLibrary choose={chooseWorld} nativeImport={async()=>{await rt.stop();setPage('import');}}/></Suspense>:
+      {page==='factory'?<Suspense fallback={<p>Loading sorting cell…</p>}><FactoryWorkspace frame={robotFrame(currentFrame)}/></Suspense>:
+       page==='worlds'?<Suspense fallback={<p>Loading world library…</p>}><WorldLibrary choose={chooseWorld} nativeImport={async()=>{await rt.stop();setPage('import');}}/></Suspense>:
        page==='experiments'||page==='results'?<Suspense fallback={<p>Loading measured experiment history…</p>}><ExperimentLibrary load={loadConfiguration} current={compatible?rt.experiment:null} currentConfig={(branches[0]?.initial_state.config as Record<string,unknown>|undefined)??config} currentFriction={robotFrame(branches[0]?.trace.at(-1))?.inspection?.object.friction[0]}/></Suspense>:
        page==='settings'?<section className="library-area"><h1>Runtime settings</h1><p>API: {API}</p><p className="small">Provider keys stay in backend environment variables. World generation availability is shown in Worlds. This demo uses bounded shared compute and browser capabilities; it does not provide production user accounts or guaranteed uptime.</p><a href={`${BACKEND}/docs`} target="_blank" rel="noreferrer">API and schema reference</a></section>:
        page==='import'?<><button className="secondary" onClick={()=>setPage('worlds')}>Back to world library</button><Suspense fallback={<div className="viewport-loading">Loading import tools…</div>}><ImportWorld/></Suspense></>:<>

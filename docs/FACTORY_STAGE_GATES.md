@@ -51,7 +51,7 @@ geometry. Sampled telemetry, charts, JSON and reports share the same saved data.
 | Stage | Acceptance | Status / evidence |
 |---|---|---|
 | P0 Focused interface | No duplicate destinations; useful existing selections remain reachable; keyboard/mobile and build pass | Passed: 26 frontend checks; TypeScript/Vite build; local browser navigation + keyboard selection; 390 px reflow without horizontal overflow. `artifacts/factory-p0-desktop.jpg` |
-| P1 Factory composition | Detailed existing robot, authored industrial machine assets, distinct render modes; no fake motion; browser review | Pending |
+| P1 Factory composition | Detailed existing robot, authored industrial machine assets, distinct render modes; no fake motion; browser review | Passed visual preview: TypeScript/build; browser High fidelity/Performance and keyboard Plan/Overview; no JS errors. Engineering mode awaits P5. `artifacts/factory-p1-fidelity.jpg` |
 | P2 Conveyor physics | Motor-driven contacts transport a free carton to station; pause/reset and state reproduction | Pending |
 | P3 Production workflow | Observe → plan → physical grip → transfer → route → destination events; counters match recorded events | Pending |
 | P4 Observations | Actual rendered camera, semantic detection/occlusion, world estimate compared to ground truth; no invented confidence | Pending |
