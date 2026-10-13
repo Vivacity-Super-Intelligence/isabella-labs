@@ -24,7 +24,10 @@ def create_app(database=None):
         app.state.imports = app.state.runtime.imports
         from .workspace import WorkspaceService
         app.state.workspace = WorkspaceService(app.state.runtime)
+        from .factory_service import FactoryService
+        app.state.factory = FactoryService(app.state.workspace)
         yield
+        await asyncio.to_thread(app.state.factory.close)
         await asyncio.to_thread(app.state.workspace.close)
         await asyncio.to_thread(app.state.runtime.close)
 
@@ -55,6 +58,8 @@ def create_app(database=None):
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token','X-Workspace-Token'])
     from .workspace_api import router
     app.include_router(router)
+    from .factory_api import router as factory_router
+    app.include_router(factory_router)
 
     @app.exception_handler(PermissionError)
     async def permission(request,exc):

@@ -2,6 +2,8 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    MUJOCO_GL=osmesa \
+    LP_NUM_THREADS=1 \
     PIP_NO_CACHE_DIR=1 \
     VIVACITY_DATABASE=/data/vivacity.sqlite3 \
     VIVACITY_HEADLESS_GEOMETRY=1 \
@@ -12,6 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 RUN mkdir -p /data
+RUN apt-get update && apt-get install -y --no-install-recommends libosmesa6 libgl1 && rm -rf /var/lib/apt/lists/*
 
 COPY requirements-lock.txt ./
 RUN python -m pip install --no-cache-dir -r requirements-lock.txt
