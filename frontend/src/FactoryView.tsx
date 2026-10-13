@@ -8,8 +8,9 @@ import type {BodyPose,RobotFrame,Vec3} from './domain';
 import SceneBoundary from './SceneBoundary';
 import layout from '../../vivacity/factory_layout.json';
 
+export type FactoryGeometry={name:string;shape:'sphere'|'cylinder'|'box';position:Vec3;quaternion_wxyz:number[];size:Vec3;moving_with_shuttle:boolean};
 export type FactoryViewMode='fidelity'|'engineering'|'performance';
-export interface FactoryVisualState {time:number;body_transforms:BodyPose[];qpos:number[];phase?:string;carton_half_size_m?:number;conveyors?:Record<string,{roller_angles_rad?:number[]}>;}
+export interface FactoryVisualState {time:number;body_transforms:BodyPose[];qpos:number[];phase?:string;measurements?:{contacts:{position_m:number[];force_on_geom2_world_n:number[]}[]};carton_half_size_m?:number;conveyors?:Record<string,{roller_angles_rad?:number[]}>;}
 const colors={steel:'#b1b8b7',dark:'#354044',roller:'#88948f',amber:'#dda344',floor:'#a3a39a',carton:'#b18c58'};
 
 function Plate({position,size,color=colors.steel,metal=.7}:{position:Vec3;size:Vec3;color?:string;metal?:number}){
@@ -85,7 +86,7 @@ function Camera({command}:{command:{name:string;seq:number}}){
 }
 function Refresh({revision}:{revision:unknown}){const invalidate=useThree(s=>s.invalidate);useEffect(()=>invalidate(),[revision,invalidate]);return null;}
 
-export default function FactoryView({frame,mode='fidelity',status='idle'}:{frame:FactoryVisualState|null;mode?:FactoryViewMode;status?:string}){
+export default function FactoryView({frame,mode='fidelity',status='idle',geometry=[]}:{frame:FactoryVisualState|null;mode?:FactoryViewMode;status?:string;geometry?:FactoryGeometry[]}){
  const [assets,setAssets]=useState<Assets|null>(null),[error,setError]=useState<string|null>(null),[camera,setCamera]=useState({name:'overview',seq:0});
  useEffect(()=>{let active=true;loadAssets().then(v=>active&&setAssets(v)).catch(e=>active&&setError(String(e)));return()=>{active=false;};},[]);
  const detailed=mode==='fidelity';
@@ -96,15 +97,18 @@ export default function FactoryView({frame,mode='fidelity',status='idle'}:{frame
   <div className="factory-canvas"><SceneBoundary><Canvas frameloop="demand" shadows={detailed?{type:PCFSoftShadowMap}:false} dpr={detailed?1.5:1} camera={{position:[2.6,-3.3,2.05],fov:42,near:.01,far:80}} gl={{antialias:detailed,toneMapping:ACESFilmicToneMapping}} onCreated={({camera,gl})=>{camera.up.set(0,0,1);gl.setClearColor(detailed?'#a5aca5':'#1a2328');gl.toneMappingExposure=1.05;}}>
    <hemisphereLight args={['#f5f3e9','#6d776c',2]}/><directionalLight position={[1.5,-2,4]} intensity={4} castShadow={detailed} shadow-mapSize={[2048,2048]} shadow-camera-left={-3} shadow-camera-right={3} shadow-camera-top={3} shadow-camera-bottom={-3} shadow-normalBias={.004}/><directionalLight position={[-2,2,2]} intensity={1.5}/>
    {detailed?<><Room/><Guarding/></>:<mesh position={[0,0,-.8]}><planeGeometry args={[8,8]}/><meshStandardMaterial color="#303c41"/></mesh>}
-   <Plate position={[0,0,-.4]} size={[.32,.32,.8]} color={colors.dark}/><Plate position={[0,0,-.02]} size={[.37,.37,.04]}/>
+   {mode!=='engineering'&&<><Plate position={[0,0,-.4]} size={[.32,.32,.8]} color={colors.dark}/><Plate position={[0,0,-.02]} size={[.37,.37,.04]}/>
    <RollerLine {...layout.infeed} detail={detailed} angles={rollerAngles('infeed_roller_')}/><RollerLine {...layout.transfer} detail={detailed} angles={rollerAngles('transfer_roller_')}/>
    <group position={[poses.get('shuttle')?.position[0]??0,0,0]}><RollerLine {...layout.shuttle} detail={detailed} angles={rollerAngles('shuttle_roller_')}/></group>
    {layout.lanes.map(l=><group key={l.id}><RollerLine {...l} detail={detailed} angles={rollerAngles('lane_'+l.id+'_roller_')}/><Bin x={l.x} label={l.id}/></group>)}
+   </>}
+   {mode==='engineering'&&geometry.map(g=><group key={g.name} position={[g.position[0]+(g.moving_with_shuttle?(poses.get('shuttle')?.position[0]??0):0),g.position[1],g.position[2]]} quaternion={new Quaternion(g.quaternion_wxyz[1],g.quaternion_wxyz[2],g.quaternion_wxyz[3],g.quaternion_wxyz[0])}><mesh rotation={g.shape==='cylinder'?[Math.PI/2,0,0]:[0,0,0]}>{g.shape==='box'?<boxGeometry args={[2*g.size[0],2*g.size[1],2*g.size[2]]}/>:g.shape==='cylinder'?<cylinderGeometry args={[g.size[0],g.size[0],2*g.size[1],12]}/>:<sphereGeometry args={[g.size[0],12,8]}/>}<meshStandardMaterial color="#78978e" wireframe/></mesh></group>)}
+   {mode==='engineering'&&frame?.measurements?.contacts.map((c,i)=>{const force=new Vector3(...c.force_on_geom2_world_n as Vec3),length=force.length();return <group key={i}><mesh position={c.position_m as Vec3}><sphereGeometry args={[.003,6,6]}/><meshBasicMaterial color="#f3b158"/></mesh>{length>0&&<arrowHelper args={[force.normalize(),new Vector3(...c.position_m as Vec3),Math.min(.15,length*.002),0xf3b158,.008,.005]}/>}</group>;})}
    {detailed&&<><Profile position={[.78,-.24,-.8]} length={1.95}/><Tube a={[.78,-.24,1.15]} b={[.5,-.24,1.15]} r={.016}/><Plate position={[.5,-.24,1.14]} size={[.085,.07,.07]} color="#35464d"/><mesh position={[.5,-.24,1.09]}><cylinderGeometry args={[.019,.019,.025,20]}/><meshStandardMaterial color="#15242c" metalness={.65} roughness={.12}/></mesh><Profile position={[-.2,.25,-.8]} length={1.45}/>{['#845b4d','#be9444','#4d857a'].map((c,i)=><mesh key={c} position={[-.2,.25,.49+i*.043]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.023,.023,.037,20]}/><meshStandardMaterial color={c} emissive={status==='running'&&i===2?c:'#000000'} emissiveIntensity={.6}/></mesh>)}</>}
    {frame&&assets&&<FactoryRobot assets={assets} frame={frame} engineering={mode==='engineering'}/>}
    {cartons.map(cube=><group key={cube.name} scale={(frame?.carton_half_size_m??.025)/.025} position={cube.position} quaternion={new Quaternion(cube.quaternion_wxyz[1],cube.quaternion_wxyz[2],cube.quaternion_wxyz[3],cube.quaternion_wxyz[0])}><Plate position={[0,0,0]} size={[.05,.05,.05]} color={colors.carton} metal={0}/>{detailed&&<><Plate position={[0,0,.02515]} size={[.012,.0502,.0004]} color="#ccba87" metal={0}/><Plate position={[.0251,0,0]} size={[.0004,.024,.019]} color="#ede6cf" metal={0}/></>}</group>)}
    <Camera command={camera}/><Refresh revision={[frame,mode,status]}/>
   </Canvas></SceneBoundary>{error&&<p role="alert">{error}</p>}</div>
-  <div className="factory-view-tools"><span>Sorting cell 01 <small>· Panda / Z-up / metres</small></span><div>{[['overview','Overview'],['station','Robot station'],['top','Plan']].map(([id,label])=><button key={id} aria-pressed={camera.name===id} onClick={()=>setCamera(c=>({name:id,seq:c.seq+1}))}>{label}</button>)}</div></div>
+  <div className="factory-view-tools"><span>Sorting cell 01 <small>· Panda / Z-up / metres</small></span>{mode==='engineering'&&<small>Collision surfaces · body axes · force on geom 2 (2 mm/N, capped at 0.15 m)</small>}<div>{[['overview','Overview'],['station','Robot station'],['top','Plan']].map(([id,label])=><button key={id} aria-pressed={camera.name===id} onClick={()=>setCamera(c=>({name:id,seq:c.seq+1}))}>{label}</button>)}</div></div>
  </section>;
 }

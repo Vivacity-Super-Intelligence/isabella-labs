@@ -21,6 +21,7 @@ def png_bytes(rgb):
 def observe_camera(w,width=320,height=240):
     m,d=w.model,w.data
     mj.mj_forward(m,d)
+    w.force_time=float(d.time)
     camera=m.camera('inspection').id;rotation=d.cam_xmat[camera].reshape(3,3).copy();origin=d.cam_xpos[camera].copy()
     focal=.5*height/np.tan(np.deg2rad(float(m.cam_fovy[camera]))/2)
     with mj.Renderer(m,height=height,width=width,max_geom=2000) as renderer:

@@ -23,9 +23,9 @@ export default function FactoryWorkspace(){
  const command=(value:'pause'|'resume'|'stop'|'emergency_stop')=>action(async()=>{if(run)setRun(await factoryApi.control(run.id,value));});
  const frame=run?.frame??cell?.frame??null;
  return <section className="factory-workspace">
-  <header className="factory-heading"><div><span className="factory-eyebrow">Production research / Cell 01</span><h1>Carton sorting</h1></div><label>View<select value={mode} onChange={e=>setMode(e.target.value as FactoryViewMode)}><option value="fidelity">High fidelity</option><option value="performance">Performance</option></select></label></header>
+  <header className="factory-heading"><div><span className="factory-eyebrow">Production research / Cell 01</span><h1>Carton sorting</h1></div><label>View<select value={mode} onChange={e=>setMode(e.target.value as FactoryViewMode)}><option value="fidelity">High fidelity</option><option value="performance">Performance</option><option value="engineering">Engineering</option></select></label></header>
   {error&&<div role="alert" className="notice">{error} <button onClick={()=>action(load)}>Reconnect</button></div>}
-  <FactoryView frame={frame} mode={mode} status={run?.status??'idle'}/>
+  <FactoryView frame={frame} mode={mode} geometry={cell?.collision_geometry} status={run?.status??'idle'}/>
   <div className="factory-control-bar"><div><strong role="status">{run?run.status.replaceAll('_',' ')+' · '+run.phase.replaceAll('_',' '):(cell?'Ready':'Connecting')}</strong><span data-testid="factory-clock">{(frame?.time??0).toFixed(3)} s · MuJoCo simulation time</span></div><div className="factory-actions">
    <button className="primary" disabled={!cell||active||busy} onClick={()=>action(async()=>{if(cell)setRun(await factoryApi.start(cell.id));})}>Start production</button>
    <button disabled={!active||busy} onClick={()=>command(run?.status==='paused'?'resume':'pause')}>{run?.status==='paused'?'Resume':'Pause'}</button>

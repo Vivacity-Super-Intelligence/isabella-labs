@@ -35,7 +35,8 @@ class FactoryService:
         w=self.backend.create_world(settings)
         row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-cell/1.0','created_at':time.time(),
              'config':settings,'world_version':LAYOUT['version'],'engine':{'name':'MuJoCo','version':self.backend.version},
-             'frame':self.backend.observe(w),'initial_state':self.backend.snapshot(w),'last_run_id':None}
+             'frame':self.backend.observe(w),'initial_state':self.backend.snapshot(w),'last_run_id':None,
+             'collision_geometry':self.backend.machine_collision_geometry(w)}
         self.workspace._put('factory_cell',owner(token),row)
         return row
 

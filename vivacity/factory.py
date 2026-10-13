@@ -133,12 +133,21 @@ class FactoryBackend(RoboticsBackend):
         d.qpos[:9]=[0,0,0,-1.57079,0,1.57079,-.7853,.04,.04]
         d.ctrl[:7]=d.qpos[:7];d.ctrl[7]=255
         mj.mj_forward(m,d)
-        return RobotWorld(m,d,settings,settings['seed'],digest)
+        w=RobotWorld(m,d,settings,settings['seed'],digest)
+        w.work_integrals={'net':0.,'positive':0.,'robot':0.}
+        w.force_time=0.
+        return w
 
     def snapshot(self,world):
         value=super().snapshot(world)
         value['backend']='factory'
+        value['work_integrals']=deepcopy(world.work_integrals)
         return value
+
+    def restore(self,world,state):
+        super().restore(world,state)
+        world.work_integrals=deepcopy(state.get('work_integrals',{'net':0.,'positive':0.,'robot':0.}))
+        world.force_time=float(world.data.time)
 
     def fork(self,state):
         world=self.create_world(state['config'],state['seed'])
@@ -150,6 +159,18 @@ class FactoryBackend(RoboticsBackend):
             if world.model.actuator(i).name.startswith(prefix+'_roller_'):
                 world.data.ctrl[i]=-float(speed)/LAYOUT['roller_radius']
 
+    def machine_collision_geometry(self,w):
+        m,d=w.model,w.data;geometry=[]
+        for i in range(m.ngeom):
+            body=m.body(int(m.geom_bodyid[i])).name
+            if body.startswith('link') or body in ('hand','left_finger','right_finger','target') or body.startswith('carton_'):continue
+            if int(m.geom_type[i]) not in (2,5,6):continue
+            quaternion=np.zeros(4);mj.mju_mat2Quat(quaternion,d.geom_xmat[i])
+            geometry.append({'name':m.geom(i).name,'shape':{2:'sphere',5:'cylinder',6:'box'}[int(m.geom_type[i])],
+                             'position':d.geom_xpos[i].tolist(),'quaternion_wxyz':quaternion.tolist(),
+                             'size':m.geom_size[i].tolist(),'moving_with_shuttle':body=='shuttle' or body.startswith('shuttle_roller_')})
+        return geometry
+
     def apply_action(self,world,action):
         allowed={'infeed','transfer','shuttle','lane_A','lane_B'}
         if set(action)-allowed: raise ValueError('unknown conveyor drive')
@@ -159,7 +180,15 @@ class FactoryBackend(RoboticsBackend):
         world.action=deepcopy(action)
 
     def step(self,world,steps=1):
-        mj.mj_step(world.model,world.data,nstep=steps)
+        for _ in range(steps):
+            mj.mj_step(world.model,world.data)
+            power=world.data.actuator_force*world.data.actuator_velocity;dt=world.model.opt.timestep
+            world.work_integrals['net']+=float(np.sum(power))*dt
+            world.work_integrals['positive']+=float(np.maximum(power,0).sum())*dt
+            world.work_integrals['robot']+=float(np.sum(power[:8]))*dt
+            world.force_time=float(world.data.time-dt)
+            # Observing must not change the controller's next state predicate.
+            mj.mj_kinematics(world.model,world.data)
         if np.any(world.data.warning.number) or not np.isfinite(world.data.qpos).all():
             raise RuntimeError('MuJoCo reported an unstable factory state')
 
@@ -181,8 +210,10 @@ class FactoryBackend(RoboticsBackend):
                             'motor_torque_sum_nm':float(np.sum(np.abs(d.actuator_force[aids])))}
         poses=[{'name':m.body(i).name,'position':d.xpos[i].tolist(),'quaternion_wxyz':d.xquat[i].tolist()}
                for i in range(1,m.nbody) if '_roller_' not in m.body(i).name]
+        from .factory_measurements import measure
         return {'schema_version':'vivacity.factory-frame/1.0','time':float(d.time),'qpos':d.qpos.tolist(),
                 'qvel':d.qvel.tolist(),'ctrl':d.ctrl.tolist(),'body_transforms':poses,'cartons':cartons,
+                'measurements':measure(world),
                 'carton_half_size_m':world.config['carton_half_size_m'],'end_effector':d.site('pregrasp').xpos.tolist(),'conveyors':drives,'source':'mujoco'}
 
     def simulate(self,world,limits):
