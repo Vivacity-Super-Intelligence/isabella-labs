@@ -1,7 +1,7 @@
 import {APIError} from './apiResponse.ts';
 
-export function expiredRuntimeReference(error:unknown){
-  return error instanceof APIError&&[403,404].includes(error.status);
+export function expiredRuntimeReference(error:unknown,knownReference=true){
+  return knownReference&&error instanceof APIError&&[403,404].includes(error.status);
 }
 
 export function missingSavedConfiguration(error:unknown,config:unknown){

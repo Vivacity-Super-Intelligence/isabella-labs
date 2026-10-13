@@ -130,7 +130,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
         }
         if(active&&version===generation.current){setOnline(true);setLoaded(true);setError(previous=>isConnectionMessage(previous)?null:previous);}
       }catch(e){if(active&&version===generation.current){
-        if(expiredRuntimeReference(e))recoverExpired();
+        if(expiredRuntimeReference(e,Boolean(currentSession.current||currentWorld.current||currentExperiment.current)))recoverExpired();
         else{setError(errorMessage(e));setOnline(false);setLoaded(true);}
       }}
       finally{refreshing=false;}

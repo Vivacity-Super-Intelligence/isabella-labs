@@ -77,6 +77,9 @@ test('missing runtime records trigger recovery; ordinary transport and physics e
   for(const status of [422,429,500,503])assert.equal(expiredRuntimeReference(new APIError(status,'request failed')),false);
   assert.equal(expiredRuntimeReference(new TypeError('Failed to fetch')),false);
 });
+test('a missing asset during first world creation is an error, not an endless expired-run reset',()=>{
+  assert.equal(expiredRuntimeReference(new APIError(404,'missing imported asset'),false),false);
+});
 test('expired run recovery preserves settings and other runtime identities',()=>{
   const values=new Map([
     ['vivacity:example:session','old-session'],['vivacity:example:token','old-token'],['vivacity:example:world','old-world'],
