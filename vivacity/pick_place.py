@@ -59,16 +59,15 @@ class PickPlaceBackend(RoboticsBackend):
         physical_root = deepcopy(root)
         physical_root.find('compiler').set('meshdir', 'assets')
         digest = hashlib.sha256((ET.tostring(physical_root, encoding='unicode') + asset_digest() + self.version).encode()).hexdigest()
-        if diagnostics:
-            sensors=ET.SubElement(root,'sensor')
-            for name,attributes in [
-                ('robot_contacts',{'subtree1':'link0'}),('mount_contacts',{'body1':'link0','geom2':'table'}),
-                ('left_grasp',{'body1':'left_finger','geom2':'cube'}),('right_grasp',{'body1':'right_finger','geom2':'cube'}),
-                ('table_support',{'geom1':'cube','geom2':'table'}),('object_obstacle',{'geom1':'cube','geom2':'obstacle_geom'}),
-                ('object_ground',{'geom1':'cube','geom2':'ground'})]:
-                ET.SubElement(sensors,'contact',name=name,data='found force',reduce='maxforce',**attributes)
-            from .scene import append_object_environment_sensors
-            append_object_environment_sensors(root,sensors)
+        sensors=ET.SubElement(root,'sensor')
+        for name,attributes in [
+            ('robot_contacts',{'subtree1':'link0'}),('mount_contacts',{'body1':'link0','geom2':'table'}),
+            ('left_grasp',{'body1':'left_finger','geom2':'cube'}),('right_grasp',{'body1':'right_finger','geom2':'cube'}),
+            ('table_support',{'geom1':'cube','geom2':'table'}),('object_obstacle',{'geom1':'cube','geom2':'obstacle_geom'}),
+            ('object_ground',{'geom1':'cube','geom2':'ground'})]:
+            ET.SubElement(sensors,'contact',name=name,data='found force',reduce='maxforce',**attributes)
+        from .scene import append_object_environment_sensors
+        append_object_environment_sensors(root,sensors)
         model = mj.MjModel.from_xml_string(ET.tostring(root, encoding='unicode'))
         data = mj.MjData(model)
         data.qpos[:9] = [0, 0, 0, -1.57079, 0, 1.57079, -.7853, .04, .04]
@@ -78,8 +77,8 @@ class PickPlaceBackend(RoboticsBackend):
         mj.mj_forward(model, data)
         root.find('compiler').set('meshdir', 'assets')
         world = RobotWorld(model, data, deepcopy(config), seed, digest)
-        # Instrumented native rollout models have additional sensors and must
-        # not replace the normal model associated with this physical hash.
+        # Contact sensors observe the same immutable physics layout in both
+        # scalar stepping and native rollout. Every fork still owns its MjData.
         return world if diagnostics else remember(world, 'mujoco')
 
     def contact_evidence(self, world):
@@ -463,7 +462,13 @@ class RobotAdapter:
         return self.backend(world.config).apply_action(world, action)
 
     def simulate(self, world, limits):
-        return self.backend(world.config).simulate(world, limits)
+        backend=self.backend(world.config)
+        if world.config.get('task')=='pick_place' and limits.get('realtime'):
+            from .native_pick_place import NativePickup
+            result,_,final_state=NativePickup(backend,backend.snapshot(world)).simulate(world.action,limits)
+            backend.restore(world,final_state)
+            return result
+        return backend.simulate(world, limits)
 
     def evaluate(self, world, result):
         return self.backend(world.config).evaluate(world, result)

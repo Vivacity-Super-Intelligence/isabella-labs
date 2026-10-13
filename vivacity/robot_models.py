@@ -153,14 +153,13 @@ class ModelPickupBackend(PickPlaceBackend):
             mesh.set('file',Path(mesh.get('file')).relative_to(ASSET_DIR.parent).as_posix())
         physical_xml=ET.tostring(portable)
         checksum=hashlib.sha256(physical_xml+_model_assets_digest(self.identifier)+self.version.encode()).hexdigest()
-        if diagnostics:
-            sensors=ET.SubElement(root,'sensor')
-            for name,attributes in [('robot_contacts',{'subtree1':'link0'}),('mount_contacts',{'body1':'link0','geom2':'table'}),
-                ('left_grasp',{'body1':'left_finger','geom2':'cube'}),('right_grasp',{'body1':'right_finger','geom2':'cube'}),
-                ('table_support',{'geom1':'cube','geom2':'table'}),('object_obstacle',{'geom1':'cube','geom2':'obstacle_geom'}),('object_ground',{'geom1':'cube','geom2':'ground'})]:
-                ET.SubElement(sensors,'contact',name=name,data='found force',reduce='maxforce',**attributes)
-            from .scene import append_object_environment_sensors
-            append_object_environment_sensors(root,sensors)
+        sensors=ET.SubElement(root,'sensor')
+        for name,attributes in [('robot_contacts',{'subtree1':'link0'}),('mount_contacts',{'body1':'link0','geom2':'table'}),
+            ('left_grasp',{'body1':'left_finger','geom2':'cube'}),('right_grasp',{'body1':'right_finger','geom2':'cube'}),
+            ('table_support',{'geom1':'cube','geom2':'table'}),('object_obstacle',{'geom1':'cube','geom2':'obstacle_geom'}),('object_ground',{'geom1':'cube','geom2':'ground'})]:
+            ET.SubElement(sensors,'contact',name=name,data='found force',reduce='maxforce',**attributes)
+        from .scene import append_object_environment_sensors
+        append_object_environment_sensors(root,sensors)
         model=mj.MjModel.from_xml_string(ET.tostring(root,encoding='unicode'))
         # MuJoCo ignores range for continuous joints. Supply a finite RRT/DLS
         # search window without enabling a nonexistent mechanical limit.

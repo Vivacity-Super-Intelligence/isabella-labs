@@ -21,7 +21,9 @@ class NativePickup:
     def __init__(self, backend, snapshot):
         self.backend=backend
         self.snapshot=deepcopy(snapshot)
-        self.template=backend.create_world(snapshot['config'],snapshot['seed'],diagnostics=True)
+        # Contact diagnostics exist on the immutable normal model. Fork its data
+        # instead of compiling a second copy of every high-resolution mesh.
+        self.template=backend.fork(snapshot)
         backend.restore(self.template,snapshot)
 
     def simulate(self, action, limits):
@@ -77,6 +79,14 @@ class NativePickup:
                     if d.time-start>=limits['max_simulation_seconds'] or elapsed>limits.get('max_wall_seconds',120):failure='timeout'
                     frame=b.observe(w)|{'phase':phase};trace.append(frame)
                     if limits.get('on_frame'):limits['on_frame'](frame)
+                    if limits.get('realtime'):
+                        delay=max(0.,float(d.time-start)/limits.get('realtime_speed',1.)-elapsed)
+                        while delay>0:
+                            if limits.get('checkpoint') and not limits['checkpoint']():failure='cancelled';break
+                            if limits.get('cancel_event') and limits['cancel_event'].is_set():failure='cancelled';break
+                            time.sleep(min(delay,.05))
+                            elapsed=time.perf_counter()-tic-(limits.get('pause_seconds',lambda:0.)()-pause_start)
+                            delay=max(0.,float(d.time-start)/limits.get('realtime_speed',1.)-elapsed)
                     if failure:break
                 evidence=b.contact_evidence(w)
                 milestones.append({'phase':phase,'time':float(d.time),'cube_position':d.body('target').xpos.tolist(),**evidence})
