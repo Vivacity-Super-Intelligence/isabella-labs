@@ -220,7 +220,7 @@
   "vivacity/providers.py": "08c25e64bfc0e5985071182ad16d5968a99e89c95bdbc8ac0de820a5c70fbed3",
   "vivacity/registry.py": "b90fa8ff3eee811cf989a83fe543d7e5868e6d6d981746a2ba40ea67602832ba",
   "vivacity/robot_models.py": "b1d114c15405ce1f9790fc78e0fbf4207085f5af68849bd87b6b7108fe51a58d",
-  "vivacity/robotics.py": "fa53d87343040b4d109d390c0acaceffc94ef49a2e855e9088fbfc195a96b647",
+  "vivacity/robotics.py": "9eb69f02dedfb3e842f6fdd7e3087570709f82bf420b68106ba31a1220127ba9",
   "vivacity/runtime.py": "1dbeca01473ed32333f60974f68a6da21405fe95f63a745af0a14845f2fd2b46",
   "vivacity/scene.py": "6e1e1149bb704bd45913018e9a6678ee9eb6e4619149ab0261d999c946b13f91",
   "vivacity/schemas.py": "4a72e6e1f3f31d22a046fb2fd2228e257a3654395309fa7f6d99a7a32f1bfb19",

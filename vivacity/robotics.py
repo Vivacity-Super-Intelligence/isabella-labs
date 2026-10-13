@@ -258,8 +258,11 @@ class RoboticsBackend:
         if not failure and (error > 0.02 or orientation > 0.08):
             failure = 'controller_failure'
         trace=result['trace']
-        path_length=float(sum(np.linalg.norm(np.asarray(b['qpos'][:self.arm_dof])-a['qpos'][:self.arm_dof]) for a,b in zip(trace[:-1],trace[1:])))
-        return {'success': failure is None, 'status': failure or 'execution_success', 'planning_feasible': world.action['planning_feasible'], 'goal_error_m': error, 'orientation_error_rad': orientation, 'contact_violations': result['contact_violations'], 'execution_duration_s': result['execution_duration_s'], 'joint_path_length_rad':path_length, 'milestone': 'collision_free_reach'}
+        slide=world.model.jnt_type[:self.arm_dof]==mj.mjtJoint.mjJNT_SLIDE
+        changes=[np.asarray(b['qpos'][:self.arm_dof])-a['qpos'][:self.arm_dof] for a,b in zip(trace[:-1],trace[1:])]
+        path_length=float(sum(np.linalg.norm(delta[~slide]) for delta in changes))
+        linear_path=float(sum(np.linalg.norm(delta[slide]) for delta in changes))
+        return {'success': failure is None, 'status': failure or 'execution_success', 'planning_feasible': world.action['planning_feasible'], 'goal_error_m': error, 'orientation_error_rad': orientation, 'contact_violations': result['contact_violations'], 'execution_duration_s': result['execution_duration_s'], 'joint_path_length_rad':path_length,'joint_path_length_m':linear_path, 'milestone': 'collision_free_reach'}
 
     def commit(self, state):
         return self.snapshot(self.fork(state))
