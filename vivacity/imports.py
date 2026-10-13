@@ -343,8 +343,15 @@ class ImportService:
         payload=json.dumps({'record':record,'preview':preview,'source':source},allow_nan=False).encode()
         with self.lock:
             existing=list(self.root.glob('*.json'))
-            if len(existing)>=100 or sum(p.stat().st_size for p in existing)+len(payload)>128*1024*1024:raise ValueError('import storage quota reached; administrator cleanup required')
+            preserve_glb=ext=='.glb' and not files and not reduce_preview
+            stored=list(self.root.glob('*.json'))+list(self.root.glob('*.glb'))
+            if len(existing)>=100 or sum(p.stat().st_size for p in stored)+len(payload)+(len(content) if preserve_glb else 0)>128*1024*1024:raise ValueError('import storage quota reached; administrator cleanup required')
             target=self.root/f'{record["id"]}.json';temp=target.with_suffix('.tmp');temp.write_bytes(payload);temp.replace(target)
+            if preserve_glb:
+                # The static parser already rejected network URIs/extensions.
+                # Preserve the embedded visual asset rather than flattening PBR
+                # materials, UVs and texture bytes into the collision preview.
+                visual=self.root/f'{record["id"]}.glb';visual.write_bytes(content)
         return record
 
     def get(self,identifier,preview=False):

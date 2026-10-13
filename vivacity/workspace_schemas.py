@@ -41,6 +41,7 @@ class LibraryWorld(Schema):
     preview_available: bool = False
     physics_scope: str
     mapping: dict | None = None
+    appearance: dict | None = None
     deleted: bool = False
     editable: bool = True
 

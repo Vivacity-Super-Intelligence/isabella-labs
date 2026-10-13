@@ -209,7 +209,7 @@
   "vivacity/credentials.py": "17efbf80e3c81106c7751eab39057ad28ab4484198c20b3423570686d89f03fe",
   "vivacity/import_physics.py": "40f7e1376166827f84c23bf3ee1c7bd7d41507dda4921500bc8858ed3e69e100",
   "vivacity/import_worker.py": "04128de6e37bb7a620f3ce1911f966c62804bae7d13b9f1fded0047a56fd88e2",
-  "vivacity/imports.py": "831d39e1af2cf376f5cb97bb4c653d7b67e8caa04a100ab4b7f334d8a6179dea",
+  "vivacity/imports.py": "c82aaaebaec9963b4335c5f502a6714ee220e590ea899cde5511eb4e274b39e7",
   "vivacity/legacy_cloth.py": "febfa2b692e4d0f8a4d8a5e7b3b878121568ed437457bcaef6acae1cc605e959",
   "vivacity/native_pick_place.py": "28b74778f3035c164a1692acdff83b6cfe0a0a2c1efcbbbfc50e8d820a4ca114",
   "vivacity/operation_evaluation.py": "8112b1e76a9c77b1de6914bfc627337b8fd783f01fc32fdca5cf4a3a24fa8a52",
@@ -228,9 +228,11 @@
   "vivacity/storage.py": "68d08cae9a1dc5a07ab5d238904d05b3c9652765498d42b3a08e571bb1669bb7",
   "vivacity/supervisor.py": "753d2ce6f3d94425dcbf4d9e60395a95be85fa7890f41a5306eca8ad11353556",
   "vivacity/templates.py": "6ed6af838f8c0f89c28a2ad3d7b7338028d5875c4a1328b3e9daf62a9d17351d",
-  "vivacity/workspace.py": "947e147e64b66ad9689dc414beaa9410975bf9789c0dcd518dcffccc94b72600",
-  "vivacity/workspace_api.py": "0d028177c6e65ebbc94ed04f6579a595c57e47b47b5c298606d9f3dcce66b69c",
-  "vivacity/workspace_schemas.py": "b04966e62746d2f3778668093a9d276099e3d599909665ba7a3bf51a03f74686",
-  "vivacity/world_presets.py": "bbaea81e34e7618d0c55a90c25e6d48a04e356dbf8dec367a3fb95f1825c2647",
-  ".github/workflows/backend-host-memory.yml": "b7757c00c074e880c4ca1fee0d9f0ac1615e87eb9bea6927069c0e2962970197"
+  "vivacity/workspace.py": "66d31edb7d626a2da66d23f0de96dbf1fc8897fb044a6ee0355b90831c3455f9",
+  "vivacity/workspace_api.py": "d06e4b189a98bb5d69057d661ddd7f963dcbbf333f70c0e8805db8db5d9c46e6",
+  "vivacity/workspace_schemas.py": "5ff95fe074273deb796cfb46dcac653f216d82fb5debcf930bde666e95d8fcb7",
+  "vivacity/world_presets.py": "74863cea8e2d22e451e85c1119166f8abf4b3f13da1a707f9cc1e5cb1896fe1e",
+  ".github/workflows/backend-host-memory.yml": "b7757c00c074e880c4ca1fee0d9f0ac1615e87eb9bea6927069c0e2962970197",
+  "vivacity/visual_catalog.json": "f32d6509c8c1e6b422fd89e93d4af2690cf8ef7b8a7d49d59bc35f5c7f1904d6",
+  "tests/test_visual_assets.py": "dbb2628c02232378b9580c5c781ccc290c01f493c68cc3a9cd645b51a3633e79"
 }

@@ -7,6 +7,7 @@ import os
 import threading
 import time
 import uuid
+from pathlib import Path
 import numpy as np
 
 from .schemas import CreateWorld, SessionRequest, EnvironmentProvenance
@@ -25,6 +26,7 @@ class WorkspaceService:
         self.runtime=runtime;self.store=runtime.store
         self.interpreter=interpreter or OpenAIInterpreter();self.worldlabs=worldlabs or WorldLabs()
         self.stop=threading.Event();self.executor=ThreadPoolExecutor(max_workers=1,thread_name_prefix='vivacity-generation')
+        self.visual_lock=threading.Lock()
         with self.store.connect() as db:
             db.executescript('''CREATE TABLE IF NOT EXISTS library_items(id TEXT PRIMARY KEY, owner TEXT NOT NULL, kind TEXT NOT NULL, payload TEXT NOT NULL);
                 CREATE INDEX IF NOT EXISTS library_owner ON library_items(owner,kind);
@@ -63,6 +65,27 @@ class WorkspaceService:
         if result.get('deleted'):raise KeyError(identifier)
         return result
 
+    def visual_asset(self,identifier,token):
+        """Owned visual bytes, never provider credentials or signed URLs."""
+        record=self.world(identifier,token)
+        if (record.get('appearance') or {}).get('format')=='glb':
+            self.runtime.imports.get(record['import_id'])
+            path=self.runtime.imports.root/(record['import_id']+'.glb')
+            if not path.exists():raise ProviderError('Original embedded GLB is no longer available. Import it again.')
+            return path
+        if not record.get('appearance') or not record.get('_visual_url'):
+            raise ValueError('This environment has no supported SPZ appearance. Generate a new World Labs environment.')
+        target=self.runtime.imports.root/(record['id']+'.spz')
+        with self.visual_lock:
+            if not target.exists():
+                content=download_asset(record['_visual_url'])
+                if not content.startswith(b'\x1f\x8b'):raise ProviderError('World Labs visual output is not a compressed SPZ file.')
+                cached=list(self.runtime.imports.root.glob('*.spz'))
+                if sum(p.stat().st_size for p in cached)+len(content)>128*1024*1024:
+                    raise ProviderError('Generated visual asset storage quota reached.')
+                temporary=target.with_suffix('.spz.tmp');temporary.write_bytes(content);temporary.replace(target)
+        return target
+
     def save_world(self,spec,token,source,**fields):
         record=LibraryWorld(id=str(uuid.uuid4()),name=spec.name,description=spec.description,source=source,
             spec=spec,sha256=digest(spec.model_dump()),created_unix_s=time.time(),
@@ -85,9 +108,13 @@ class WorkspaceService:
 
     def duplicate(self,identifier,token):
         original=self.world(identifier,token);spec=EnvironmentSpec.model_validate(original['spec']);spec.name=(original['name'][:56]+' copy')
-        return self.save_world(spec,token,original['source'],import_id=original.get('import_id'),
+        result=self.save_world(spec,token,original['source'],import_id=original.get('import_id'),
             provider_world_id=original.get('provider_world_id'),provider_url=original.get('provider_url'),
-            preview_available=original['preview_available'],physics_scope=original['physics_scope'],mapping=deepcopy(original.get('mapping')))
+            preview_available=original['preview_available'],physics_scope=original['physics_scope'],mapping=deepcopy(original.get('mapping')),
+            appearance=deepcopy(original.get('appearance')))
+        if original.get('_visual_url'):
+            result['_visual_url']=original['_visual_url'];self._put('world',owner(token),result)
+        return result
 
     def map_import(self,record,preview,mapping,token,source='imported',**fields):
         vertices=np.asarray(preview.get('source_bounds_m') or preview['positions'],dtype=float)*mapping.scale
@@ -102,6 +129,8 @@ class WorkspaceService:
             physics_scope='Original triangles are a visual preview. Physics uses a solid axis-aligned bounding-box proxy, centered at the chosen position and scale, plus the standard Panda workbench. A concave room must not be treated as an accurate solid-box reconstruction.',**fields)
         result['mapping']={'scale':mapping.scale,'position_m':mapping.position_m,'up_axis':mapping.up_axis,
                            'original_center_m':((lo+hi)/2).tolist(),'source_sha256':record['sha256']}
+        if source=='imported' and (self.runtime.imports.root/(record['id']+'.glb')).is_file():
+            result['appearance']={'format':'glb','embedded_resources':True}
         self._put('world',owner(token),result)
         return result
 
@@ -254,9 +283,10 @@ class WorkspaceService:
             if result.get('done'):
                 job['provider_cost_credits']=(result.get('cost') or {}).get('total_credits')
                 if result.get('error'):raise ProviderError('World Labs reported generation failure; no world was saved.')
-                response=result.get('response') or {};world_id=response.get('world_id')
+                response=result.get('response') or {};world_id=response.get('world_id') or response.get('id')
                 if not world_id:raise ProviderError('World Labs completed without a world identifier.')
                 world=self.worldlabs.world(world_id)
+                world=world.get('world',world)
                 assets=world.get('assets') or {};mesh=assets.get('mesh') or {}
                 url=mesh.get('collider_mesh_url') or mesh.get('full_res_mesh_url')
                 if not url:raise ProviderError('World Labs produced no compatible collider mesh. Gaussian splats alone are not collision geometry.')
@@ -270,9 +300,20 @@ class WorkspaceService:
                 library=self.map_import(record,preview,ImportMapping(name=world.get('display_name') or job['interpretation']['name'],scale=scale),job['_token'],'worldlabs',
                     provider_world_id=world_id,provider_url=world.get('world_marble_url'))
                 library['description']=assets.get('caption') or job['interpretation']['description']
+                splats=assets.get('splats') or {}
+                urls=splats.get('spz_urls') or {}
+                visual_url=urls.get('500k') or urls.get('100k')
+                if not visual_url:raise ProviderError('World Labs returned collision geometry but no supported visual SPZ asset. No primitive visual substitute was saved.')
+                from .providers import asset_url
+                asset_url(visual_url)
+                library['appearance']={'format':'spz','quality':'500k' if urls.get('500k') else '100k',
+                    'semantics':splats.get('semantics_metadata'),'coordinate_system':'marble_raw_opencv',
+                    'metric_scale_verified':bool(splats.get('semantics_metadata'))}
+                library['_visual_url']=visual_url
                 self._put('world',job['_owner'],library)
+                self.visual_asset(library['id'],job['_token'])
                 job['world_id']=library['id'];job['provider_cost_credits']=(result.get('cost') or {}).get('total_credits')
-                self._stage(job,'completed','Actual World Labs mesh retrieved. Review the conservative collision mapping before experimentation.');return
+                self._stage(job,'completed','World Labs colored SPZ appearance and separate collision mesh retrieved. Review the conservative collision mapping before experimentation.');return
             job['updated_unix_s']=time.time();self._put('generation',job['_owner'],job)
             self.stop.wait(5.)
         raise ProviderError('Generation polling stopped or exceeded 15 minutes; the provider operation ID is retained and never automatically resubmitted.')

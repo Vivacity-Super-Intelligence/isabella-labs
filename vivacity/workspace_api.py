@@ -3,6 +3,7 @@ from typing import Annotated
 import os
 import asyncio
 from fastapi import APIRouter, Header, Request, Query, HTTPException
+from fastapi.responses import FileResponse
 
 from .workspace_schemas import (LibraryWorld, RenameRequest, GenerationRequest, GenerationResponse, ImportMapping,
     ExperimentConfiguration, ConfigurationResponse, ResolvedConfiguration, CustomOperationRequest, RunOverrides)
@@ -16,6 +17,10 @@ Token=Annotated[str,Header(alias='X-Workspace-Token',min_length=32,max_length=12
 Key=Annotated[str,Header(alias='Idempotency-Key',min_length=8,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')]
 router=APIRouter(prefix='/v1/workspace',tags=['Worlds and experiment workspace'])
 
+def public_world(record):
+    return {k:v for k,v in record.items() if not k.startswith('_')}
+
+
 
 @router.get('/capabilities')
 def capabilities(request:Request):
@@ -28,29 +33,29 @@ def capabilities(request:Request):
 
 
 @router.get('/worlds',response_model=list[LibraryWorld])
-def worlds(request:Request,x_workspace_token:Token):return request.app.state.workspace.worlds(x_workspace_token)
+def worlds(request:Request,x_workspace_token:Token):return [public_world(w) for w in request.app.state.workspace.worlds(x_workspace_token)]
 
 
 @router.get('/worlds/{identifier}',response_model=LibraryWorld)
-def world(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.world(identifier,x_workspace_token)
+def world(identifier:str,request:Request,x_workspace_token:Token):return public_world(request.app.state.workspace.world(identifier,x_workspace_token))
 
 
 @router.post('/worlds',response_model=LibraryWorld,status_code=201)
 def duplicate_world(body:dict,request:Request,x_workspace_token:Token):
     if set(body)!={'source_id'} or not isinstance(body['source_id'],str):raise ValueError('supply a source_id to duplicate')
-    return request.app.state.workspace.duplicate(body['source_id'],x_workspace_token)
+    return public_world(request.app.state.workspace.duplicate(body['source_id'],x_workspace_token))
 
 
 @router.patch('/worlds/{identifier}',response_model=LibraryWorld)
-def rename(identifier:str,body:RenameRequest,request:Request,x_workspace_token:Token):return request.app.state.workspace.rename(identifier,x_workspace_token,body.name)
+def rename(identifier:str,body:RenameRequest,request:Request,x_workspace_token:Token):return public_world(request.app.state.workspace.rename(identifier,x_workspace_token,body.name))
 
 
 @router.post('/worlds/{identifier}/archive',response_model=LibraryWorld)
-def archive(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.set_deleted(identifier,x_workspace_token,True)
+def archive(identifier:str,request:Request,x_workspace_token:Token):return public_world(request.app.state.workspace.set_deleted(identifier,x_workspace_token,True))
 
 
 @router.post('/worlds/{identifier}/restore',response_model=LibraryWorld)
-def restore(identifier:str,request:Request,x_workspace_token:Token):return request.app.state.workspace.set_deleted(identifier,x_workspace_token,False)
+def restore(identifier:str,request:Request,x_workspace_token:Token):return public_world(request.app.state.workspace.set_deleted(identifier,x_workspace_token,False))
 
 
 @router.get('/worlds/{identifier}/preview',response_model=ImportPreview)
@@ -58,6 +63,15 @@ def preview(identifier:str,request:Request,x_workspace_token:Token):
     record=request.app.state.workspace.world(identifier,x_workspace_token)
     if not record.get('import_id'):raise ValueError('primitive scenes use their typed scene specification for preview')
     return request.app.state.imports.get(record['import_id'],preview=True)
+
+
+@router.get('/worlds/{identifier}/appearance')
+def appearance(identifier:str,request:Request,x_workspace_token:Token):
+    try:
+        path=request.app.state.workspace.visual_asset(identifier,x_workspace_token)
+        return FileResponse(path,media_type='model/gltf-binary' if path.suffix=='.glb' else 'application/octet-stream',filename='world'+path.suffix,
+                            headers={'Cache-Control':'private, max-age=3600','X-Content-Type-Options':'nosniff'})
+    except ProviderError as error:raise HTTPException(502,str(error)) from None
 
 
 @router.post('/imports',status_code=201)
@@ -75,7 +89,7 @@ async def upload(request:Request,x_workspace_token:Token,filename:str=Query(min_
 def map_import(identifier:str,body:ImportMapping,request:Request,x_workspace_token:Token):
     record=request.app.state.workspace._get(identifier,x_workspace_token,'staged_import')
     preview=request.app.state.imports.get(identifier,preview=True)
-    return request.app.state.workspace.map_import(record,preview,body,x_workspace_token)
+    return public_world(request.app.state.workspace.map_import(record,preview,body,x_workspace_token))
 
 
 @router.post('/generations',response_model=GenerationResponse,status_code=202)
