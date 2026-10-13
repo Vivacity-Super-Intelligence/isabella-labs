@@ -105,7 +105,7 @@ class FactoryService:
                                 for i,frame in enumerate(frames)))
             row['_trace_offset']=offset+len(frames);row['trace']=[]
             total=row['_trace_offset']
-            if (total>=25 and (total-25)%100==0) or (total>=25 and row['status'] not in ('queued','running','paused')):
+            if total>=25:
                 self._schedule_discovery(row['id'],total,final=row['status'] not in ('queued','running','paused'))
 
     def _schedule_discovery(self,identifier,total,final=False):
