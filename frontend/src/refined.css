@@ -30,3 +30,5 @@ button{transition:background-color 120ms ease,color 120ms ease}button:hover:not(
 .fixture-toggle{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--muted);min-height:44px;margin-bottom:10px}.fixture-toggle input{accent-color:var(--blue)}.world-technical{font-size:12px}.world-technical summary{min-height:44px;cursor:pointer}.world-details .detail-heading{margin:14px 0}
 
 @media(max-width:700px){.main-nav{gap:0;margin-left:0}.main-nav button{flex-shrink:1}}
+
+.results .result-card:not(.selected) dl{display:none}.result-brief{font:11px GeistMono,monospace;color:var(--muted);margin:9px 0 0}.results .result-card:not(.selected){padding:14px 0}
