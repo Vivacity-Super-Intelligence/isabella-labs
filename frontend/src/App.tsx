@@ -95,7 +95,7 @@ export default function App(){
       <button className="nav-settings" aria-label="Runtime settings" onClick={()=>setPage('settings')}><SlidersHorizontal size={18}/></button>
     </nav></header>
     <main className="platform-main" id="workspace" tabIndex={-1}>
-      {page==='factory'?<Suspense fallback={<p>Loading sorting cell…</p>}><FactoryWorkspace frame={robotFrame(currentFrame)}/></Suspense>:
+      {page==='factory'?<Suspense fallback={<p>Loading sorting cell…</p>}><FactoryWorkspace/></Suspense>:
        page==='worlds'?<Suspense fallback={<p>Loading world library…</p>}><WorldLibrary choose={chooseWorld} nativeImport={async()=>{await rt.stop();setPage('import');}}/></Suspense>:
        page==='experiments'||page==='results'?<Suspense fallback={<p>Loading measured experiment history…</p>}><ExperimentLibrary load={loadConfiguration} current={compatible?rt.experiment:null} currentConfig={(branches[0]?.initial_state.config as Record<string,unknown>|undefined)??config} currentFriction={robotFrame(branches[0]?.trace.at(-1))?.inspection?.object.friction[0]}/></Suspense>:
        page==='settings'?<section className="library-area"><h1>Runtime settings</h1><p>API: {API}</p><p className="small">Provider keys stay in backend environment variables. World generation availability is shown in Worlds. This demo uses bounded shared compute and browser capabilities; it does not provide production user accounts or guaranteed uptime.</p><a href={`${BACKEND}/docs`} target="_blank" rel="noreferrer">API and schema reference</a></section>:
