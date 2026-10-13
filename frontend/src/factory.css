@@ -15,3 +15,15 @@
 .factory-project header { margin:1.5rem 0;max-width:65rem }
 .factory-project label { display:flex;flex-direction:column;gap:.4rem;max-width:30rem }
 .factory-project td button { margin:.25rem }
+
+.factory-file-controls{border:0;min-width:0;padding:18px 0;margin:0}
+.factory-file-controls legend{color:#b4b9ac;padding:12px 0 0}
+.factory-file-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.factory-file-actions button,.factory-file-actions input::file-selector-button{min-height:44px;padding:10px 14px;background:#222a29;border:1px solid #4b5550;color:#e6e8de;font:inherit;cursor:pointer}
+.factory-file-actions button:hover:not(:disabled),.factory-file-actions input::file-selector-button:hover{border-color:#d2ae70}
+.factory-file-actions label{display:flex;flex-direction:column;gap:10px;flex-basis:100%;min-width:0;margin-top:8px}
+.factory-file-actions input{max-width:100%;min-width:0;min-height:44px;color:#b4b9ac}
+.factory-file-actions input::file-selector-button{margin-right:12px}
+.factory-exchange p{line-height:1.7;max-width:90ch}
+.factory-workspace input:focus-visible,.factory-workspace summary:focus-visible{outline:2px solid var(--factory-accent);outline-offset:3px}
+@media(max-width:700px){.factory-file-actions>button{width:100%;text-align:left}.factory-file-actions input{width:100%}}
