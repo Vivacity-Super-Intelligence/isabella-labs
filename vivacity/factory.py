@@ -9,6 +9,7 @@ from pathlib import Path
 import hashlib
 import json
 import xml.etree.ElementTree as ET
+from typing import Literal
 
 import mujoco as mj
 import numpy as np
@@ -22,7 +23,7 @@ LAYOUT = json.loads(Path(__file__).with_name('factory_layout.json').read_text())
 
 class FactorySettings(BaseModel):
     model_config = ConfigDict(extra='forbid', allow_inf_nan=False)
-    schema_version: str = 'vivacity.factory-settings/1.0'
+    schema_version: Literal['vivacity.factory-settings/1.0'] = 'vivacity.factory-settings/1.0'
     name: str = Field('Carton sorting baseline', min_length=1, max_length=80)
     seed: int = Field(19, ge=0, le=4294967295)
     carton_count: int = Field(3, ge=1, le=3)
@@ -117,7 +118,9 @@ def _compiled(settings_json):
     configure_xml(root,{'physics':{'gripper_force_scale':settings['gripper_force_scale']}})
     # Only remove visual robot meshes; inertias and collision surfaces remain.
     collision_only(root,enabled=True)
-    digest=hashlib.sha256((ET.tostring(root,encoding='unicode')+asset_digest()+mj.__version__).encode()).hexdigest()
+    physical_root=deepcopy(root)
+    physical_root.find('compiler').set('meshdir','assets')
+    digest=hashlib.sha256((ET.tostring(physical_root,encoding='unicode')+asset_digest()+mj.__version__).encode()).hexdigest()
     return mj.MjModel.from_xml_string(ET.tostring(root,encoding='unicode')),digest
 
 

@@ -4,6 +4,7 @@ from copy import deepcopy
 import threading
 import time
 import uuid
+import json
 
 from .factory import FactoryBackend, FactorySettings, LAYOUT
 from .workspace import owner
@@ -22,28 +23,32 @@ class FactoryService:
         self.camera_lock=threading.Lock()
         # A process restart cannot resume an unrecorded native worker.
         with workspace.store.connect() as db:
-            rows=db.execute("SELECT owner,payload FROM library_items WHERE kind='factory_run'").fetchall()
-        import json
-        for owner_id,payload in rows:
+            rows=db.execute("SELECT owner,payload,kind FROM library_items WHERE kind IN ('factory_run','factory_benchmark') AND json_extract(payload,'$.status') IN ('running','paused','queued')").fetchall()
+        for owner_id,payload,kind in rows:
             row=json.loads(payload)
             if row['status'] in ('running','paused','queued'):
                 row.update(status='interrupted',error='Runtime restarted; start a new run from the saved configuration.')
-                workspace._put('factory_run',owner_id,row)
+                workspace._put(kind,owner_id,row)
 
     def create(self,settings,token):
+        return self._create_owned(settings,owner(token))
+
+    def _create_owned(self,settings,owner_id):
         settings=FactorySettings.model_validate(settings).model_dump()
         w=self.backend.create_world(settings)
         row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-cell/1.0','created_at':time.time(),
              'config':settings,'world_version':LAYOUT['version'],'engine':{'name':'MuJoCo','version':self.backend.version},
              'frame':self.backend.observe(w),'initial_state':self.backend.snapshot(w),'last_run_id':None,
              'collision_geometry':self.backend.machine_collision_geometry(w)}
-        self.workspace._put('factory_cell',owner(token),row)
+        self.workspace._put('factory_cell',owner_id,row)
         return row
 
     def cell(self,identifier,token):return self.workspace._get(identifier,token,'factory_cell')
 
     def start(self,identifier,token,mode='conveyor'):
         cell=self.cell(identifier,token)
+        if self.backend.create_world(cell['config']).model_hash!=cell['initial_state']['model_hash']:
+            raise Conflict('The physical model has changed since this cell was saved. Reset or apply its conditions to create a compatible initial state. Saved results remain inspectable.')
         with self.lock:
             if any(not c['done'].is_set() for c in self.controls.values()):
                 raise Busy('A factory run is already using the simulation worker.')
@@ -63,16 +68,26 @@ class FactoryService:
             return self._summary(row)
 
     @staticmethod
-    def _summary(row):return {k:deepcopy(v) for k,v in row.items() if k not in ('trace','initial_state','final_state')}
+    def _summary(row):return {k:deepcopy(v) for k,v in row.items() if k not in ('trace','initial_state','final_state','plans')}
+
+    def _authorize_run(self,identifier,token):
+        with self.workspace.store.connect() as db:
+            found=db.execute("SELECT 1 FROM library_items WHERE id=? AND owner=? AND kind='factory_run'",(identifier,owner(token))).fetchone()
+        if found is None:raise KeyError(identifier)
 
     def get(self,identifier,token,full=False):
-        stored=self.workspace._get(identifier,token,'factory_run')
+        self._authorize_run(identifier,token)
         with self.lock:
-            row=self.live.get(identifier,stored)
-            return deepcopy(row) if full else self._summary(row)
+            row=self.live.get(identifier)
+            if row is not None:return deepcopy(row) if full else self._summary(row)
+        if full:return self.workspace._get(identifier,token,'factory_run')
+        with self.workspace.store.connect() as db:
+            payload=db.execute("SELECT json_remove(payload,'$.trace','$.initial_state','$.final_state','$.plans') FROM library_items WHERE id=? AND owner=?",(identifier,owner(token))).fetchone()[0]
+        return json.loads(payload)
 
-    def command(self,identifier,token,action):
-        self.workspace._get(identifier,token,'factory_run')
+    def command(self,identifier,token,action,kind='factory_run'):
+        if kind=='factory_run':self._authorize_run(identifier,token)
+        else:self.workspace._get(identifier,token,kind)
         with self.lock:
             c=self.controls.get(identifier);row=self.live.get(identifier)
             if not c or c['done'].is_set():raise Conflict('This run has ended. Start a new run to execute it again.')
@@ -84,12 +99,18 @@ class FactoryService:
             return self._summary(row)
 
     def samples(self,identifier,token,after=-1,limit=400):
-        stored=self.workspace._get(identifier,token,'factory_run')
+        self._authorize_run(identifier,token)
         with self.lock:
-            row=self.live.get(identifier,stored);trace=row['trace'];end=min(len(trace),after+1+limit)
-            frames=deepcopy(trace[after+1:end])
-            return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':frames,
-                    'next_index':end-1,'total_samples':len(trace),'status':row['status']}
+            row=self.live.get(identifier)
+            if row is not None:
+                trace=row['trace'];end=min(len(trace),after+1+limit)
+                return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':deepcopy(trace[after+1:end]),
+                        'next_index':end-1,'total_samples':len(trace),'status':row['status']}
+        with self.workspace.store.connect() as db:
+            total,status=db.execute("SELECT json_array_length(payload,'$.trace'),json_extract(payload,'$.status') FROM library_items WHERE id=? AND owner=?",(identifier,owner(token))).fetchone()
+            rows=db.execute("SELECT value FROM library_items,json_each(payload,'$.trace') WHERE library_items.id=? AND owner=? AND CAST(key AS INTEGER)>? ORDER BY CAST(key AS INTEGER) LIMIT ?",(identifier,owner(token),after,limit)).fetchall()
+        return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':[json.loads(r[0]) for r in rows],
+                'next_index':min(total-1,after+len(rows)),'total_samples':total,'status':status}
 
     def _checkpoint(self,row,c):
         if c['stop'].is_set():return False
@@ -135,7 +156,7 @@ class FactoryService:
             self.workspace._put('factory_run',owner_id,row)
             c['done'].set()
 
-    def _production(self,identifier,owner_id,c):
+    def _production(self,identifier,owner_id,c,pace=True,finalize_control=True,checkpoint_record=None):
         from .factory_controller import ProductionController,FactoryFault
         row=self.live[identifier];wall=time.perf_counter();w=None;controller=None
         def event(value):
@@ -146,7 +167,7 @@ class FactoryService:
             with self.lock:row.update(status='running',phase='initializing')
             self._frame(row,w,'initializing')
             controller=ProductionController(self.backend,w,on_frame=lambda w,p:self._frame(row,w,p),
-                                           on_event=event,checkpoint=lambda:self._checkpoint(row,c))
+                                           on_event=event,checkpoint=lambda:self._checkpoint(checkpoint_record if checkpoint_record is not None else row,c),pace=pace)
             metrics=controller.run()
             with self.lock:row.update(status='completed',phase='completed',metrics=metrics)
         except InterruptedError:
@@ -163,14 +184,80 @@ class FactoryService:
                         station_arrivals=controller.arrivals if controller else 0,
                         simulation_steps=controller.steps if controller else 0,simulation_time_s=float(w.data.time),
                         wall_time_s=time.perf_counter()-wall)
-            self.workspace._put('factory_run',owner_id,row)
-            c['done'].set()
+            try:self.workspace._put('factory_run',owner_id,row)
+            finally:
+                if finalize_control:c['done'].set()
+
+    def start_benchmark(self,identifier,token,request):
+        from .factory_benchmark import BenchmarkRequest,definition
+        cell=self.cell(identifier,token);settings=BenchmarkRequest.model_validate(request).model_dump()
+        spec=definition(cell['config'],settings)
+        with self.lock:
+            if any(not c['done'].is_set() for c in self.controls.values()):raise Busy('A factory experiment is already using the simulation worker.')
+            self.controls.clear();self.live.clear();self.latest_states.clear()
+            row={'id':str(uuid.uuid4()),'schema_version':'vivacity.factory-benchmark-record/1.0','created_at':time.time(),
+                 'name':settings['name'],'status':'queued','phase':'queued','cell_id':identifier,
+                 'definition':spec,'request':settings,'engine':cell['engine'],'controller_version':'factory-1',
+                 'trials':[],'comparison':{},'error':None,'total_trials':len(spec['trial_configurations'])}
+            c={'stop':threading.Event(),'wake':threading.Event(),'done':threading.Event(),'paused':False,'emergency':False}
+            c['wake'].set();self.controls[row['id']]=c;self.live[row['id']]=row
+            self.workspace._put('factory_benchmark',owner(token),row)
+            self.pool.submit(self._benchmark,row,owner(token),c)
+            return deepcopy(row)
+
+    def benchmark(self,identifier,token):
+        row=self.workspace._get(identifier,token,'factory_benchmark')
+        with self.lock:return deepcopy(self.live.get(identifier,row))
+
+    def benchmarks(self,token):
+        rows=self.workspace.list(token,'factory_benchmark')
+        with self.lock:return [deepcopy(self.live.get(r['id'],r)) for r in rows]
+
+    def history(self,token):
+        with self.workspace.store.connect() as db:
+            rows=db.execute("SELECT json_remove(payload,'$.trace','$.initial_state','$.final_state','$.plans') FROM library_items WHERE owner=? AND kind='factory_run' ORDER BY rowid DESC LIMIT 30",(owner(token),)).fetchall()
+        return [json.loads(r[0]) for r in rows]
+
+    def _benchmark(self,row,owner_id,c):
+        from .factory_benchmark import comparison
+        started=time.perf_counter();cpu=time.thread_time()
+        try:
+            for number,trial in enumerate(row['definition']['trial_configurations']):
+                if not self._checkpoint(row,c):break
+                cell=self._create_owned(trial['config'],owner_id);identifier=str(uuid.uuid4())
+                run={'id':identifier,'schema_version':'vivacity.factory-run/1.0','cell_id':cell['id'],
+                     'benchmark_id':row['id'],'created_at':time.time(),'status':'queued','phase':'queued','config':trial['config'],
+                     'world_version':row['definition']['world_version'],'engine':row['engine'],'initial_state':cell['initial_state'],
+                     'frame':cell['frame'],'trace':[],'events':[],'metrics':{},'mode':'production','error':None}
+                cell['last_run_id']=identifier;self.workspace._put('factory_cell',owner_id,cell)
+                with self.lock:
+                    self.live[identifier]=run;row.update(phase=f'{trial["partition"]}: {trial["condition"]}',active_run_id=identifier)
+                self.workspace._put('factory_run',owner_id,run)
+                self._production(identifier,owner_id,c,pace=False,finalize_control=False,checkpoint_record=row)
+                result={k:trial[k] for k in ('partition','repeat','condition','config')}
+                result.update(run_id=identifier,status=run['status'],failure_kind=run['phase'] if run['status']!='completed' else None,
+                              metrics=run['metrics'],error=run['error'])
+                with self.lock:
+                    row['trials'].append(result);row['comparison']=comparison(row['trials'])
+                    self.live.pop(identifier,None);self.latest_states.pop(identifier,None)
+                self.workspace._put('factory_benchmark',owner_id,row)
+                del run
+                if c['stop'].is_set():break
+            with self.lock:row.update(status='stopped' if c['stop'].is_set() else 'completed',phase='finished',active_run_id=None,active_frame=None)
+        except Exception as exc:
+            with self.lock:row.update(status='failed',phase='failed',error=str(exc)[:500])
+        finally:
+            with self.lock:row.update(wall_time_s=time.perf_counter()-started,worker_cpu_time_s=time.thread_time()-cpu)
+            try:self.workspace._put('factory_benchmark',owner_id,row)
+            finally:c['done'].set()
 
     def _frame(self,row,w,phase):
         frame=self.backend.observe(w)|{'phase':phase}
         with self.lock:
             self.latest_states[row['id']]=self.backend.snapshot(w)
             row['frame']=frame;row['phase']=phase
+            parent=self.live.get(row.get('benchmark_id'))
+            if parent is not None:parent.update(active_phase=phase,active_time_s=frame['time'],active_frame=frame)
             if not row['trace'] or frame['time']>row['trace'][-1]['time']:row['trace'].append(frame)
 
     def observation(self,identifier,token,source='latest'):

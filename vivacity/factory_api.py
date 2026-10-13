@@ -3,6 +3,7 @@ from fastapi import APIRouter, Request, Query
 from pydantic import BaseModel,ConfigDict
 from .factory import FactorySettings
 from .workspace_api import Token
+from .factory_benchmark import BenchmarkRequest
 
 router=APIRouter(prefix='/v1/factory',tags=['Factory production'])
 
@@ -34,6 +35,10 @@ def start(identifier:str,body:RunRequest,request:Request,x_workspace_token:Token
 def run(identifier:str,request:Request,x_workspace_token:Token):
     return request.app.state.factory.get(identifier,x_workspace_token)
 
+@router.get('/runs')
+def history(request:Request,x_workspace_token:Token):
+    return request.app.state.factory.history(x_workspace_token)
+
 @router.get('/runs/{identifier}/record')
 def record(identifier:str,request:Request,x_workspace_token:Token):
     return request.app.state.factory.get(identifier,x_workspace_token,full=True)
@@ -45,3 +50,19 @@ def samples(identifier:str,request:Request,x_workspace_token:Token,after:int=Que
 @router.post('/runs/{identifier}/control')
 def control(identifier:str,body:Command,request:Request,x_workspace_token:Token):
     return request.app.state.factory.command(identifier,x_workspace_token,body.action)
+
+@router.post('/cells/{identifier}/benchmarks',status_code=202)
+def start_benchmark(identifier:str,body:BenchmarkRequest,request:Request,x_workspace_token:Token):
+    return request.app.state.factory.start_benchmark(identifier,x_workspace_token,body.model_dump())
+
+@router.get('/benchmarks')
+def benchmarks(request:Request,x_workspace_token:Token):
+    return request.app.state.factory.benchmarks(x_workspace_token)
+
+@router.get('/benchmarks/{identifier}')
+def benchmark(identifier:str,request:Request,x_workspace_token:Token):
+    return request.app.state.factory.benchmark(identifier,x_workspace_token)
+
+@router.post('/benchmarks/{identifier}/control')
+def benchmark_control(identifier:str,body:Command,request:Request,x_workspace_token:Token):
+    return request.app.state.factory.command(identifier,x_workspace_token,body.action,kind='factory_benchmark')

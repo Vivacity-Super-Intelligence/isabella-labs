@@ -14,6 +14,11 @@ async function request<T>(path:string,method='GET',body?:unknown):Promise<T>{
  return await readAPIResponse(response) as T;
 }
 export const factoryApi={
+ history:()=>request<FactoryRun[]>('/runs'),
+ benchmarks:()=>request<FactoryBenchmarkRecord[]>('/benchmarks'),
+ benchmark:(id:string)=>request<FactoryBenchmarkRecord>('/benchmarks/'+encodeURIComponent(id)),
+ startBenchmark:(id:string,settings:{name:string;repeats:number;held_out_repeats:number;changes:Record<string,number>})=>request<FactoryBenchmarkRecord>(`/cells/${encodeURIComponent(id)}/benchmarks`,'POST',settings),
+ benchmarkControl:(id:string,action:'pause'|'resume'|'stop')=>request<FactoryBenchmarkRecord>(`/benchmarks/${encodeURIComponent(id)}/control`,'POST',{action}),
  samples:(id:string,after=-1)=>request<{frames:FactoryFrame[];next_index:number;total_samples:number;status:string}>(`/runs/${encodeURIComponent(id)}/samples?after=${after}`),
  observation:(id:string)=>request<FactoryObservationRecord>(`/cells/${encodeURIComponent(id)}/observation`),
  create:(settings:FactorySettings)=>request<FactoryCell>('/cells','POST',settings),
@@ -27,3 +32,6 @@ export const factoryApi={
 export type FactoryObservationRecord={ground_truth:FactoryFrame;camera:{time_s:number;image_data_url:string;width_px:number;height_px:number;method:string;centre_assumption:string;detections:{id:string;detected:boolean;visibility:string;visible_pixels:number;bbox_xyxy_px:number[]|null;estimated_center_m:number[]|null}[]}};
 
 export type FactoryMeasurements={state_time_s:number;dynamics_time_s:number;robot:{joint_position_rad:number[];joint_velocity_rad_s:number[];joint_acceleration_rad_s2:number[];joint_torque_nm:number[];gripper_contact_normal_force_n:number};objects:{id:string;center_of_mass_m:number[];mass_kg:number;principal_inertia_kg_m2:number[];friction:number[];linear_acceleration_m_s2:number[];kinetic_energy_j:number;potential_energy_j:number;contact_count:number}[];contacts:{bodies:string[];position_m:number[];normal_force_n:number;force_on_geom2_world_n:number[]}[];actuator_power_w:number;robot_actuator_power_w:number;mechanical_work_j:number;positive_actuator_work_j:number;robot_mechanical_work_j:number;electrical_energy_j:null;scope:string};
+
+export type BenchmarkGroup={trials:number;successes:number;success_rate:number|null;successful_duration_mean_s:number|null;successful_duration_variance_s2:number|null;failures:Record<string,number>};
+export type FactoryBenchmarkRecord={id:string;name:string;status:string;phase:string;total_trials:number;active_phase?:string;active_time_s?:number;active_frame?:FactoryFrame|null;error:string|null;trials:{run_id:string;partition:string;condition:string;config:FactorySettings;status:string;failure_kind:string|null;metrics:FactoryRun['metrics'];error:string|null}[];comparison:{selected_condition?:string|null;selection_reason?:string;scope?:string;partitions?:Record<string,Record<string,BenchmarkGroup>>}};
