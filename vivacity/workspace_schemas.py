@@ -91,8 +91,8 @@ class ExperimentConfiguration(Schema):
     schema_version: Literal['vivacity.configuration/1.0'] = 'vivacity.configuration/1.0'
     name: str = Field(min_length=1, max_length=80)
     environment_id: str
-    robot_id: str = 'panda'
-    gripper_id: str = 'panda_parallel'
+    robot_id: Literal['panda','ur5e','iiwa','gen3','xarm7','scara','dual_arm'] = 'panda'
+    gripper_id: Literal['panda_parallel','fold_fixture'] = 'panda_parallel'
     operation_id: Literal['pick_place', 'object_transfer', 'reach', 'randomized_manipulation', 'cloth_fold','sorting','assembly','stacking','insertion','machine_tending'] = 'pick_place'
     seed: int = Field(7, ge=0, le=2**32-1)
     target_position: Vec3 = [.5, -.15, .026]

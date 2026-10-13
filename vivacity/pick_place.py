@@ -275,7 +275,7 @@ class PickPlaceBackend(RoboticsBackend):
         for i in range(total):
             if settings.get('checkpoint') and not settings['checkpoint']():raise InterruptedError('cancelled while generating candidates')
             action=deepcopy(templates[i%len(templates)])
-            speed=float(rng.uniform(.27,.36));action['speed_rad_s']=speed;action['candidate_index']=i
+            speed=float(rng.uniform(*getattr(self,'search_speed_bounds',(.27,.36))));action['speed_rad_s']=speed;action['candidate_index']=i
             action['lift_template_index']=i%len(templates)
             for stage in action['stages']:
                 if stage['duration_s']:

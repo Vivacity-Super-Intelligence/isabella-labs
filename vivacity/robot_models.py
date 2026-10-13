@@ -123,6 +123,7 @@ def trusted_root(identifier):
 
 
 class ModelPickupBackend(PickPlaceBackend):
+    search_speed_bounds=(.16,.2)
     def __init__(self,identifier):
         self.identifier=identifier;self.arm_dof=MODELS[identifier][2]
         self.action_schema=super().action_schema|{'joints':self.arm_dof,'robot_model':identifier,'gripper':'modeled Panda parallel-jaw flange fixture'}
