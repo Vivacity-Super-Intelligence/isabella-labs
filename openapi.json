@@ -3456,7 +3456,9 @@
           },
           "dimensions_m": {
             "items": {
-              "type": "number"
+              "type": "number",
+              "maximum": 16.0,
+              "minimum": 1.0
             },
             "type": "array",
             "maxItems": 3,
@@ -5539,7 +5541,9 @@
           },
           "position": {
             "items": {
-              "type": "number"
+              "type": "number",
+              "maximum": 8.0,
+              "minimum": -8.0
             },
             "type": "array",
             "maxItems": 3,
@@ -5548,7 +5552,9 @@
           },
           "size": {
             "items": {
-              "type": "number"
+              "type": "number",
+              "maximum": 8.0,
+              "minimum": 0.005
             },
             "type": "array",
             "maxItems": 3,

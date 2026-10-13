@@ -1,0 +1,187 @@
+{
+  "spec": {
+    "name": "CompactIndustrialWarehouse",
+    "description": "A simplified compact industrial warehouse with metal racks arranged around an empty central Panda robotics workbench area. Workbench area is kept free. Metal racks are modeled as static box geometries with valid size and opaque RGBA colors. Floor is concrete grey. All parameters meet the constraints.",
+    "dimensions_m": [
+      10.0,
+      8.0,
+      3.0
+    ],
+    "lighting": {
+      "ambient": 0.4,
+      "key_intensity": 0.7
+    },
+    "geometries": [
+      {
+        "name": "Floor",
+        "type": "box",
+        "position": [
+          5.0,
+          4.0,
+          -0.8
+        ],
+        "size": [
+          5.0,
+          4.0,
+          0.1
+        ],
+        "rgba": [
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ],
+        "friction": 0.8
+      },
+      {
+        "name": "PandaWorkbenchArea",
+        "type": "box",
+        "position": [
+          0.4,
+          0.0,
+          0.0
+        ],
+        "size": [
+          0.7,
+          0.65,
+          0.01
+        ],
+        "rgba": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "friction": 0.7
+      },
+      {
+        "name": "MetalRack_Left",
+        "type": "box",
+        "position": [
+          -0.9,
+          0.0,
+          0.75
+        ],
+        "size": [
+          0.4,
+          3.5,
+          1.5
+        ],
+        "rgba": [
+          0.6,
+          0.6,
+          0.6,
+          1.0
+        ],
+        "friction": 0.8
+      },
+      {
+        "name": "MetalRack_Right",
+        "type": "box",
+        "position": [
+          1.7,
+          0.0,
+          0.75
+        ],
+        "size": [
+          0.4,
+          3.5,
+          1.5
+        ],
+        "rgba": [
+          0.6,
+          0.6,
+          0.6,
+          1.0
+        ],
+        "friction": 0.8
+      },
+      {
+        "name": "MetalRack_Back",
+        "type": "box",
+        "position": [
+          0.4,
+          4.5,
+          0.75
+        ],
+        "size": [
+          2.1,
+          0.4,
+          1.5
+        ],
+        "rgba": [
+          0.6,
+          0.6,
+          0.6,
+          1.0
+        ],
+        "friction": 0.8
+      },
+      {
+        "name": "MetalRack_Front",
+        "type": "box",
+        "position": [
+          0.4,
+          -4.5,
+          0.75
+        ],
+        "size": [
+          2.1,
+          0.4,
+          1.5
+        ],
+        "rgba": [
+          0.6,
+          0.6,
+          0.6,
+          1.0
+        ],
+        "friction": 0.8
+      }
+    ]
+  },
+  "provenance": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini",
+    "response_id": "resp_0149dc746b8ced24016ace55d10cc887d2a71f376a9baa90e6",
+    "usage": {
+      "input_tokens": 1589,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 441,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 2030
+    },
+    "attempts": 2,
+    "attempt_usage": [
+      {
+        "input_tokens": 446,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 1053,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1499
+      },
+      {
+        "input_tokens": 1589,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 441,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 2030
+      }
+    ]
+  }
+}

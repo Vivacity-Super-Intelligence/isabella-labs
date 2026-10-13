@@ -27,7 +27,9 @@ function SparkEngine({onStatus,quality}:{onStatus:(message:string,error?:boolean
   useEffect(()=>{
     const spark=new SparkRenderer({renderer:gl,autoUpdate:false,minSortIntervalMs:0,maxPixelRadius:128,
       enableLod:true,lodSplatCount:qualityProfiles[quality].splats,lodRenderScale:qualityProfiles[quality].renderScale,
-      onDirty:()=>{if(state.current?.active){state.current.dirty=true;invalidate();}}});
+      // A completed sort/LoD update needs a draw, not another collection.
+      // Marking collection dirty here recursively drives work while idle.
+      onDirty:()=>{if(state.current?.active)invalidate();}});
     const current={spark,active:true,pending:null as Promise<void>|null,signature:'',dirty:true};state.current=current;scene.add(spark);
     return()=>{
       current.active=false;scene.remove(spark);state.current=null;
@@ -40,10 +42,14 @@ function SparkEngine({onStatus,quality}:{onStatus:(message:string,error?:boolean
   useFrame(()=>{
     const current=state.current;if(!current?.active||current.pending)return;
     const keys=[...camera.position.toArray(),...camera.quaternion.toArray(),(camera as PerspectiveCamera).zoom,...camera.projectionMatrix.elements];
-    const splats:string[]=[];scene.traverse(o=>{if(o instanceof SplatMesh&&o.isInitialized)splats.push(o.uuid+':'+o.numSplats+':'+o.position.toArray()+':'+o.scale.toArray()+':'+o.quaternion.toArray());});
+    const splats:string[]=[];scene.traverse(o=>{if(o instanceof SplatMesh&&o.isInitialized)splats.push(o.uuid+':'+o.version+':'+o.mappingVersion+':'+o.numSplats+':'+o.position.toArray()+':'+o.scale.toArray()+':'+o.quaternion.toArray());});
     const signature=keys.join(',')+'|'+splats.join('|');if(signature===current.signature&&!current.dirty)return;current.signature=signature;current.dirty=false;
     if(!splats.length){current.spark.clearSplats();invalidate();return;}
-    current.pending=current.spark.update({scene,camera}).catch(e=>{if(current.active)status.current('Environment rendering failed: '+e.message,true);}).finally(()=>{current.pending=null;if(current.active)invalidate();});
+    current.pending=current.spark.update({scene,camera}).then(async()=>{
+      // update() awaits sorting but starts LoD asynchronously. Queue a public
+      // worker barrier so teardown cannot dispose textures during LoD upload.
+      await current.spark.lodWorker?.exclusive(async()=>{});
+    }).catch(e=>{if(current.active)status.current('Environment rendering failed: '+e.message,true);}).finally(()=>{current.pending=null;if(current.active)invalidate();});
     updates.set(gl,current.pending);
   },-2);
   return null;

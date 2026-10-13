@@ -7,13 +7,15 @@ class Schema(BaseModel):
 
 
 Vec3 = Annotated[list[float], Field(min_length=3, max_length=3)]
+ScenePosition = Annotated[list[Annotated[float,Field(ge=-8,le=8)]],Field(min_length=3,max_length=3)]
+SceneSize = Annotated[list[Annotated[float,Field(ge=.005,le=8)]],Field(min_length=3,max_length=3)]
 
 
 class StaticGeometry(Schema):
     name: str = Field(min_length=1, max_length=60, pattern=r'^[A-Za-z][A-Za-z0-9_-]*$')
     type: Literal['box', 'cylinder'] = 'box'
-    position: Vec3
-    size: Vec3
+    position: ScenePosition
+    size: SceneSize
     rgba: Annotated[list[float], Field(min_length=4, max_length=4)] = [.4, .45, .5, 1.]
     friction: float = Field(.8, ge=.05, le=2.)
 

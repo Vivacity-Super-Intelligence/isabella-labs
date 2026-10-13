@@ -150,6 +150,14 @@ def test_geometry_evidence_open_and_closed_and_sample_scope():
     assert opened['self_intersections']=='not checked' and opened['physical_properties']['mass']=='unknown'
 
 
+def test_provider_schema_contains_actual_geometry_bounds():
+    schema=EnvironmentSpec.model_json_schema()
+    geometry=schema['$defs']['StaticGeometry']['properties']
+    assert geometry['size']['items']['minimum']==.005 and geometry['size']['items']['maximum']==8
+    assert geometry['position']['items']['minimum']==-8 and geometry['position']['items']['maximum']==8
+    assert schema['properties']['dimensions_m']['items']['minimum']==1
+
+
 def test_generated_collider_preserved_detail_cached_and_private_thumbnail(tmp_path,monkeypatch):
     monkeypatch.setattr('vivacity.workspace.download_asset',lambda url:PNG if 'thumbnail' in url else gzip.compress(b'NGSPtest'))
     with TestClient(create_app(tmp_path/'assets.sqlite')) as client:
