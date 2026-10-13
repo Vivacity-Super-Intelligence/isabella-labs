@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import math
 import time
+from decimal import Decimal
 
 import numpy as np
 from .factory_discovery_data import QUANTITIES
@@ -24,7 +25,8 @@ def _metrics(actual, predicted, reference_variation=0.):
 
 
 def _number(value):
-    return format(float(value), '.8g')
+    # Desmos expressions use decimal literals, not Python's 1e-7 notation.
+    return format(Decimal(format(float(value), '.8g')), 'f')
 
 
 def _candidate(kind, x, y, t0, scale):

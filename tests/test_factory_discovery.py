@@ -46,6 +46,13 @@ def test_nearly_flat_heldout_interval_has_no_misleading_r_squared():
     assert all(math.isfinite(model['validation']['rmse']) for model in result['models'])
 
 
+def test_desmos_equations_expand_scientific_notation():
+    result=discover([(i*.1,.025+1e-6*i*.1) for i in range(100)],'tiny-motion','z')
+    model=next(row for row in result['models'] if row['model']=='linear')
+    assert 'e-' not in model['equation_latex'].lower()
+    assert '0.000' in model['equation_latex']
+
+
 def test_missing_values_are_not_invented():
     assert scalar({'cartons': [], 'measurements': {}}, 'z') is None
     assert scalar({'cartons': [], 'measurements': {}}, 'work') is None
