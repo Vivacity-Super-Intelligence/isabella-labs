@@ -1,3 +1,38 @@
+# Factory configurator release verification — 2026-10-14
+
+Working in the deployed Factory page: editing mass, friction and other bounded
+production conditions creates a fresh MuJoCo cell; previous run analysis and
+benchmark frames clear when the cell changes. Empty or out-of-range values
+show a specific validation message and cannot be applied. Factory startup no
+longer starts an unrelated robotics world. The decorative scanner mast beside
+the High fidelity conveyor was removed. The local development server now runs
+without per-request access-log output to avoid a blocked terminal pipe.
+
+Verification on this Windows checkout: **296 passed, 1 skipped** in the full
+Python suite (20:06). The skipped test requires a Linux syscall sandbox. The
+focused Factory suite passed 10/10; frontend API, template and settings tests
+passed 19/19, 5/5 and 3/3; TypeScript and Vite production builds passed. Both
+Factory Playwright browser cases passed individually: a one-carton physical
+production/configuration/replay journey, and invalid-input/mobile reflow. The
+physical browser run recorded 696 MuJoCo samples from 17,086 simulation steps.
+One measured run consumed 22.7 seconds of worker CPU and 479 seconds of wall
+time on this memory-constrained host; wall time is not a representative service
+latency benchmark.
+
+Vercel deployment `dpl_G9Mxdzxxwe146vhoPLeZkytwKWqY` serves
+https://demo.tryvivacity.com/. Its production build passed; live HTML used the
+new asset hash, the page and `/runtime/health` returned HTTP 200, and an
+in-app browser showed the High fidelity workcell, validation behavior and no
+console errors. Local preview `http://127.0.0.1:5173/` was restored with its
+documented port-8010 backend; the browser loaded a persisted three-carton run
+and all 2,200 replay samples without a console error. The work was committed
+as `040b938`; this status note is a follow-up documentation change.
+
+Known limits: headless MuJoCo/browser integration is slow on this 8 GB Windows
+host. A passing finite test suite cannot rule out every runtime failure.
+Optional Desmos embedding remains unconfigured. Unrelated existing artifact
+files were left untouched.
+
 # Mathematical discovery verification — 2026-10-14
 
 Implemented locally: MuJoCo-frame scalar projection; automatic 25-sample
