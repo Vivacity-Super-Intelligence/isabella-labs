@@ -89,7 +89,7 @@ def table(rows,widths=None):
         ('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),4)]))
     return t
 
-def report_pdf(run,benchmark=None,attribution=None):
+def report_pdf(run,benchmark=None,attribution=None,discovery=None):
     """Return an editorial PDF whose plots and tables use exactly the saved record."""
     out=io.BytesIO();record=benchmark or run;config=run['config'];metrics=run['metrics'];trace=run.get('trace',[])
     title=record.get('name',config['name']);when=datetime.fromtimestamp(record['created_at'],timezone.utc).strftime('%d %B %Y / %H:%M UTC')
@@ -136,6 +136,23 @@ def report_pdf(run,benchmark=None,attribution=None):
         story += [PageBreak(),p(f'0{page+2} / PHYSICS ANALYSIS','label'),p('Motion and contact' if page==0 else 'Force and mechanical work','h1'),p('Source run '+run['id']+f" / {len(trace)} stored samples",'small')]
         for name,unit,read in graphs[page*4:(page+1)*4]:story.append(Plot(name,unit,[(f['time'],read(f)) for f in trace],height=134))
         story.append(p('Pose time is shown. Forces and acceleration refer to the preceding 2 ms physics solve. Work is accumulated every integration step; other plotted quantities are sampled. Gaps mean unavailable data.','small'))
+    series=(discovery or {}).get('series',{})
+    if series:
+        story += [PageBreak(),p('DISCOVERY / DESCRIPTIVE FITS','label'),p('Equations from saved measurements','h1'),
+                  p('Source run '+run['id']+f" / {discovery['sample_count']} persisted scalar samples",'small'),
+                  p('Each equation is a fitted approximation to this simulation, not a physical law. Training uses the first 80% of samples; the final 20% is held out in time order.')]
+        for quantity in ('x','y','z','speed','torque','force','power','work'):
+            series_record=series.get(quantity)
+            if not series_record:continue
+            selected=next((model for model in series_record.get('models',[]) if model['model']==series_record.get('selected_model')),None)
+            story.append(p(series_record['label']+' / '+series_record['unit']+' / '+str(series_record.get('fit_stage') or 'unknown')+' / '+series_record['status'],'label'))
+            if selected:
+                story.append(p(selected['equation_text'],'small'))
+                story.append(p('Held-out RMSE '+num(selected['validation']['rmse'],series_record['unit'],5)
+                               +' / MAE '+num(selected['validation']['mae'],series_record['unit'],5)
+                               +' / R² '+num(selected['validation']['r2'],digits=3)
+                               +' / '+str(series_record.get('sample_count',0))+' measured samples','small'))
+            else:story.append(p(series_record.get('reason','No fitted model available.'),'small'))
     story += [PageBreak(),p('04 / MOTION & EVENTS','label'),p('The recorded operation','h1')]
     story.append(Plot('Joint 1 position','rad',[(f['time'],(f.get('qpos') or [None])[0]) for f in trace],135))
     story.append(table([['Simulation time','Recorded event']]+[[num(e['time_s'],'s'),e['kind'].replace('_',' ')] for e in run['events']],[110,389]))
@@ -147,7 +164,7 @@ def report_pdf(run,benchmark=None,attribution=None):
         story += [table(rows,[179,60,125,135]),Spacer(1,12),p(benchmark['comparison'].get('selection_reason','No selection available.')),p('Trial outcomes','h2'),table([['Trial / seed','Condition','Outcome']]+[[str(i+1)+' / '+str(t['config']['seed']),t['partition'].replace('_',' ')+' / '+t['condition'],t['failure_kind'] or t['status']] for i,t in enumerate(benchmark['trials'])],[90,210,199]),p(benchmark['comparison'].get('scope','Incomplete benchmark; no complete comparison available.'),'small')]
     story += [PageBreak(),p('APPENDIX / REPRODUCIBILITY','label'),p('Evidence and physical assumptions','h1'),p('Saved record: '+record['id']),p('Record SHA-256: '+digest(record),'small'),p('Native initial model SHA-256: '+run['initial_state']['model_hash'],'small'),p('Full integration state, controls, configuration, events and all stored samples are included in the JSON archive. The ZIP also contains a flat CSV of measured samples. No random data is generated during reporting.')]
     for name,meaning in METRICS.items():story.append(p(name+' — '+meaning))
-    story += [p('Equations','h2'),p('Actuator mechanical power P = sum(force × actuator velocity). Net work W = sum(P × 0.002 s). Kinetic energy includes translation and rotation; potential energy uses the cell ground plane as its height reference.'),p('Limits and next experiment','h2'),p('Results apply to this small-carton model and its configured controller. They do not establish hardware safety, perception generalization, electrical consumption or industrial uptime. Camera semantic labels are simulator annotations; control uses simulator pose and mass.'),p('Next: compare one physical condition at a time using matched seeds, retain all failures and evaluate the frozen choice on held-out starting positions. More repetitions are needed before making reliability claims.'),p('Report generator: vivacity.factory-report/1.0. Missing or legacy provenance remains unavailable; it is never reconstructed as a claim about a past execution.','small')]
+    story += [p('Physical equations','h2'),p('Actuator mechanical power P = sum(force × actuator velocity). Net work W = sum(P × 0.002 s). Kinetic energy includes translation and rotation; potential energy uses the cell ground plane as its height reference.'),p('Limits and next experiment','h2'),p('Results apply to this small-carton model and its configured controller. They do not establish hardware safety, perception generalization, electrical consumption or industrial uptime. Camera semantic labels are simulator annotations; control uses simulator pose and mass.'),p('Next: compare one physical condition at a time using matched seeds, retain all failures and evaluate the frozen choice on held-out starting positions. More repetitions are needed before making reliability claims.'),p('Report generator: vivacity.factory-report/1.0. Missing or legacy provenance remains unavailable; it is never reconstructed as a claim about a past execution.','small')]
     def footer(c,doc):
         c.setStrokeColor(LINE);c.line(48,42,547,42);c.setFillColor(MUTED);c.setFont('Factory',8)
         c.drawString(48,28,'VIVACITY / Simulation evidence');c.drawRightString(547,28,f'{record["id"][:8]}  /  {doc.page}')
