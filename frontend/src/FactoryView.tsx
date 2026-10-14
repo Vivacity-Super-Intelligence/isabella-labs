@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {Canvas,useThree} from '@react-three/fiber';
 import {OrbitControls,RoundedBox,Line} from '@react-three/drei';
-import {Group,Quaternion,Vector3,PCFSoftShadowMap,ACESFilmicToneMapping,ExtrudeGeometry,Shape} from 'three';
+import {Group,Quaternion,Vector3,PCFShadowMap,ACESFilmicToneMapping,ExtrudeGeometry,Shape} from 'three';
 import type {OrbitControls as Controls} from 'three-stdlib';
 import {loadAssets,GeomMesh,type Assets} from './RobotAssets';
 import type {BodyPose,RobotFrame,Vec3} from './domain';
@@ -94,7 +94,7 @@ export default function FactoryView({frame,mode='fidelity',status='idle',geometr
  const cartons=[...poses.values()].filter(p=>p.name==='target'||/^carton_\d+$/.test(p.name));
  const rollerAngles=(prefix:string)=>frame?.conveyors?.[prefix.replace('_roller_','')]?.roller_angles_rad;
  return <section className="factory-scene" aria-label="Factory simulation">
-  <div className="factory-canvas"><SceneBoundary><Canvas frameloop="demand" shadows={detailed?{type:PCFSoftShadowMap}:false} dpr={detailed?1.5:1} camera={{position:[2.6,-3.3,2.05],fov:42,near:.01,far:80}} gl={{antialias:detailed,toneMapping:ACESFilmicToneMapping}} onCreated={({camera,gl})=>{camera.up.set(0,0,1);gl.setClearColor(detailed?'#a5aca5':'#1a2328');gl.toneMappingExposure=1.05;}}>
+  <div className="factory-canvas"><SceneBoundary><Canvas frameloop="demand" shadows={detailed?{type:PCFShadowMap}:false} dpr={detailed?1.5:1} camera={{position:[2.6,-3.3,2.05],fov:42,near:.01,far:80}} gl={{antialias:detailed,toneMapping:ACESFilmicToneMapping}} onCreated={({camera,gl})=>{camera.up.set(0,0,1);gl.setClearColor(detailed?'#a5aca5':'#1a2328');gl.toneMappingExposure=1.05;}}>
    <hemisphereLight args={['#f5f3e9','#6d776c',2]}/><directionalLight position={[1.5,-2,4]} intensity={4} castShadow={detailed} shadow-mapSize={[2048,2048]} shadow-camera-left={-3} shadow-camera-right={3} shadow-camera-top={3} shadow-camera-bottom={-3} shadow-normalBias={.004}/><directionalLight position={[-2,2,2]} intensity={1.5}/>
    {detailed?<><Room/><Guarding/></>:<mesh position={[0,0,-.8]}><planeGeometry args={[8,8]}/><meshStandardMaterial color="#303c41"/></mesh>}
    {mode!=='engineering'&&<><Plate position={[0,0,-.4]} size={[.32,.32,.8]} color={colors.dark}/><Plate position={[0,0,-.02]} size={[.37,.37,.04]}/>
@@ -104,7 +104,6 @@ export default function FactoryView({frame,mode='fidelity',status='idle',geometr
    </>}
    {mode==='engineering'&&geometry.map(g=><group key={g.name} position={[g.position[0]+(g.moving_with_shuttle?(poses.get('shuttle')?.position[0]??0):0),g.position[1],g.position[2]]} quaternion={new Quaternion(g.quaternion_wxyz[1],g.quaternion_wxyz[2],g.quaternion_wxyz[3],g.quaternion_wxyz[0])}><mesh rotation={g.shape==='cylinder'?[Math.PI/2,0,0]:[0,0,0]}>{g.shape==='box'?<boxGeometry args={[2*g.size[0],2*g.size[1],2*g.size[2]]}/>:g.shape==='cylinder'?<cylinderGeometry args={[g.size[0],g.size[0],2*g.size[1],12]}/>:<sphereGeometry args={[g.size[0],12,8]}/>}<meshStandardMaterial color="#78978e" wireframe/></mesh></group>)}
    {mode==='engineering'&&frame?.measurements?.contacts.map((c,i)=>{const force=new Vector3(...c.force_on_geom2_world_n as Vec3),length=force.length();return <group key={i}><mesh position={c.position_m as Vec3}><sphereGeometry args={[.003,6,6]}/><meshBasicMaterial color="#f3b158"/></mesh>{length>0&&<arrowHelper args={[force.normalize(),new Vector3(...c.position_m as Vec3),Math.min(.15,length*.002),0xf3b158,.008,.005]}/>}</group>;})}
-   {detailed&&<><Profile position={[.78,-.24,-.8]} length={1.95}/><Tube a={[.78,-.24,1.15]} b={[.5,-.24,1.15]} r={.016}/><Plate position={[.5,-.24,1.14]} size={[.085,.07,.07]} color="#35464d"/><mesh position={[.5,-.24,1.09]}><cylinderGeometry args={[.019,.019,.025,20]}/><meshStandardMaterial color="#15242c" metalness={.65} roughness={.12}/></mesh><Profile position={[-.2,.25,-.8]} length={1.45}/>{['#845b4d','#be9444','#4d857a'].map((c,i)=><mesh key={c} position={[-.2,.25,.49+i*.043]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.023,.023,.037,20]}/><meshStandardMaterial color={c} emissive={status==='running'&&i===2?c:'#000000'} emissiveIntensity={.6}/></mesh>)}</>}
    {frame&&assets&&<FactoryRobot assets={assets} frame={frame} engineering={mode==='engineering'}/>}
    {cartons.map(cube=><group key={cube.name} scale={(frame?.carton_half_size_m??.025)/.025} position={cube.position} quaternion={new Quaternion(cube.quaternion_wxyz[1],cube.quaternion_wxyz[2],cube.quaternion_wxyz[3],cube.quaternion_wxyz[0])}><Plate position={[0,0,0]} size={[.05,.05,.05]} color={colors.carton} metal={0}/>{detailed&&<><Plate position={[0,0,.02515]} size={[.012,.0502,.0004]} color="#ccba87" metal={0}/><Plate position={[.0251,0,0]} size={[.0004,.024,.019]} color="#ede6cf" metal={0}/></>}</group>)}
    {mode==='engineering'&&trajectory.length>1&&<Line points={trajectory} color="#a6cec0" lineWidth={1.5}/>}

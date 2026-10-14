@@ -37,9 +37,14 @@ export default function App(){
   const [setupStep,setSetupStep]=useState(0);
   const [preparing,setPreparing]=useState(false);
   const [visualWorld,setVisualWorld]=useState<LibraryWorld|undefined>();
-  useEffect(()=>{workspaceApi.world('warehouse').then(setVisualWorld).catch(()=>{});},[]);
+  useEffect(()=>{
+    if(page!=='workspace'||visualWorld)return;
+    let active=true;
+    workspaceApi.world(draft.environment_id).then(world=>{if(active)setVisualWorld(world);}).catch(()=>{});
+    return()=>{active=false;};
+  },[page,draft.environment_id,visualWorld]);
   const backend=activeTemplate.backend,cloth=backend==='cloth';
-  const rt=useRuntime(backend,activeTemplate.key??selectionKey(activeTemplate.selection),activeTemplate.config,activeTemplate.configurationId);
+  const rt=useRuntime(backend,activeTemplate.key??selectionKey(activeTemplate.selection),activeTemplate.config,activeTemplate.configurationId,page!=='factory');
   const [branchId,setBranchId]=useState<string|null>(null),[editing,setEditing]=useState(false),[downloadError,setDownloadError]=useState<string|null>(null);
   const compatible=rt.world?.backend===backend&&(rt.world.config.robot_model??'panda')===(activeTemplate.config.robot_model??'panda'),branches=compatible?rt.branches:[];
   const ranked=useMemo(()=>{

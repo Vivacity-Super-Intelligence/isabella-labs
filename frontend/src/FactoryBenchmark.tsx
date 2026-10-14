@@ -9,7 +9,7 @@ export default function FactoryBenchmark({cellId,disabled,load,onBusy,onFrame,pr
  useEffect(()=>{if(preset){setName(preset.name);setRepeat(preset.repeats);setForce(preset.changes.gripper_force_scale??baseline.gripper_force_scale);setFriction(preset.changes.carton_friction??baseline.carton_friction);setMass(preset.changes.carton_mass_kg??baseline.carton_mass_kg);}},[preset]);
  useEffect(()=>onSelect(job?.id),[job?.id,onSelect]);
  const active=!!job&&['queued','running','paused'].includes(job.status);
- async function refresh(){const [benchmarks,runs]=await Promise.all([factoryApi.benchmarks(),factoryApi.history()]);setRecords(benchmarks);setHistory(runs);if(!job)setJob(benchmarks[0]??null);}
+ async function refresh(){const [allBenchmarks,runs]=await Promise.all([factoryApi.benchmarks(),factoryApi.history()]);const benchmarks=allBenchmarks.filter(r=>r.cell_id===cellId);setRecords(benchmarks);setHistory(runs.filter(r=>r.cell_id===cellId));if(!job||job.cell_id!==cellId)setJob(benchmarks[0]??null);}
  useEffect(()=>{refresh().catch(e=>setError(errorMessage(e)));},[cellId]);
  useEffect(()=>{onFrame(active&&job?.active_frame?{frame:job.active_frame,status:job.status}:null);},[active,job?.active_frame,job?.status,onFrame]);
  useEffect(()=>{onBusy(active);return()=>onBusy(false);},[active,onBusy]);

@@ -10,6 +10,8 @@
     "generate:api": "openapi-typescript ../openapi.json -o src/generated/api.d.ts",
     "generate:factory": "node ../scripts/generate-factory-layout.mjs",
     "test:templates": "node --experimental-strip-types ../scripts/test-template-selection.mjs",
+    "test:factory-settings": "node --experimental-strip-types ../scripts/test-factory-settings.mjs",
+    "test:factory-e2e": "npm run build && playwright test --config playwright.factory.config.ts",
     "test:e2e": "node ../scripts/check-master-live.mjs",
     "test:e2e:legacy": "node scripts/run-e2e.mjs",
     "test:api": "node --experimental-strip-types --test ../scripts/test-api-responses.mjs ../scripts/test-api-transport.mjs"

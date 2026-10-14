@@ -10,4 +10,4 @@ if __name__=='__main__':
     os.environ.setdefault('VIVACITY_CORS_ORIGINS','http://127.0.0.1:5174,http://localhost:5174,https://demo.tryvivacity.com')
     os.environ.setdefault('VIVACITY_IMMUTABLE_MODEL_FORKS','1')
     os.environ.setdefault('VIVACITY_MAX_PHYSICS_TRIALS','8')
-    uvicorn.run('vivacity.api:app',host='127.0.0.1',port=int(os.getenv('VIVACITY_DEV_PORT','8010')))
+    uvicorn.run('vivacity.api:app',host='127.0.0.1',port=int(os.getenv('VIVACITY_DEV_PORT','8010')),access_log=False)

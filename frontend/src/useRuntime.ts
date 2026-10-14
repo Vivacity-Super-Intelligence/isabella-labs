@@ -30,7 +30,7 @@ async function ensureSession(backend:Backend,storageKey:string,config?:Dict,fres
   return pending.get(storageKey)!;
 }
 export const isBusy=(e:Experiment|null)=>e?.status==='queued'||e?.status==='running';
-export function useRuntime(backend:Backend,templateKey="default",initialConfig?:Dict,configurationId?:string){
+export function useRuntime(backend:Backend,templateKey="default",initialConfig?:Dict,configurationId?:string,enabled=true){
   const storageKey=`robotics-v2:${backend}:${templateKey}`;
   const [session,setSession]=useState<Session|null>(null),[world,setWorld]=useState<World|null>(null);
   const [observation,setObservation]=useState<Dict|null>(null),[experiment,setExperiment]=useState<Experiment|null>(null);
@@ -60,13 +60,14 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
   },[storageKey]);
 
   useEffect(()=>{
+    if(!enabled)return;
     let active=true;
     setHostPhysicsLimit(null);
     const probe=()=>api.health().then(health=>{if(active){setHostPhysicsLimit(health.limits?.max_physics_trials??null);clearInterval(retry);}}).catch(()=>{});
     const retry=setInterval(probe,5000);
     probe();
     return()=>{active=false;clearInterval(retry);};
-  },[backend,epoch]);
+  },[backend,epoch,enabled]);
 
   const adopt=useCallback(async(s:Session,version:number)=>{
     if(version!==generation.current)return;
@@ -85,6 +86,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
   },[backend,storageKey]);
 
   useEffect(()=>{
+    if(!enabled)return;
     const version=++generation.current;let active=true,refreshing=false;
     inspecting.current=false;
     stagedConfig.current=initialConfig??null;
@@ -137,10 +139,10 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
     };
     refresh();const interval=setInterval(refresh,1000);
     return()=>{active=false;clearInterval(interval);};
-  },[backend,storageKey,initialConfig,epoch,adopt,recoverExpired]);
+  },[backend,storageKey,initialConfig,epoch,adopt,recoverExpired,enabled]);
 
   useEffect(()=>{
-    const id=experiment?.id;if(!id)return;
+    const id=experiment?.id;if(!id||!enabled)return;
     let active=true,terminal=false,refreshing=false,sequence=-1,eventCursor=0,lastBranches=0;
     let eventSocket:WebSocket|null=null,liveSocket:WebSocket|null=null;
     let reconnect:ReturnType<typeof setTimeout>|null=null;
@@ -187,7 +189,7 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
     refresh();if(isBusy(experiment))connect();
     const poll=setInterval(refresh,1000);
     return()=>{active=false;clearInterval(poll);if(reconnect)clearTimeout(reconnect);liveSocket?.close();eventSocket?.close();};
-  },[experiment?.id,recoverExpired]);
+  },[experiment?.id,recoverExpired,enabled]);
 
   const perform=useCallback(async(operation:()=>Promise<void>)=>{
     if(lock.current)return false;lock.current=true;setMutating(true);setError(null);setRecoveryNotice(null);
