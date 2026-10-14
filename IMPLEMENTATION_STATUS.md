@@ -1,3 +1,45 @@
+# Final Factory discovery release — 2026-10-14
+
+The current public build is https://demo.tryvivacity.com/ (Vercel deployment
+`dpl_3NVSBD53rJK3fznForaNu8ic9Axz`). Its `/`, `/runtime/health` and
+`/runtime/openapi.json` routes returned HTTP 200 after promotion. Render deploy
+`dep-db7j6u6k1f9s73fv66g0` is Live on backend commit `0ed1e94`; the source
+manifest, Docker build and Linux CI passed. The scoped checkout changes are
+documented in `docs/FINAL_PRODUCT_AUDIT.md`.
+
+Working and directly verified in this release: a browser-started public
+MuJoCo conveyor run completed at 2.100 s simulated time, displayed 43 saved
+frames, and published eight descriptive model series with a genuine poor-fit
+label for carton height. A separate public run returned all 43 frames in eight
+pages of at most seven, without cursor gaps, and a 177,046-byte ZIP containing
+matching `discovery.json` plus a 57,643-byte PDF. The local equivalent executed
+1,050 MuJoCo steps and produced 43 frames. The production browser logged zero
+JavaScript errors; at a 375 px client width it had no horizontal overflow.
+The released robotics API sent nine WebSocket events for a completed four-branch
+experiment, including collision/planning failures and an execution success.
+All four branches were replayable. Changing its obstacle invalidated the old
+result, and a new two-branch experiment completed with a selected branch.
+
+Tests actually executed: full Windows Pytest **297 passed, 1 skipped, 1
+warning** in 1,298.49 s. The skip is Linux-specific; the warning is the
+existing Starlette TestClient/httpx deprecation. Linux GitHub Actions
+[run 38529411185](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38529411185)
+passed **298 backend tests** across three shards (87 + 102 + 109) and **4/4
+hard 512 MiB host checks**. The focused Factory API/discovery/report/paging
+suite passed 15 tests. Frontend API/template/settings/numerical/snapshot
+checks passed **36**, and TypeScript/Vite and Vercel production builds passed.
+The 512 MiB host peaked at its exact memory cap without an OOM kill, leaving
+no measured memory headroom for larger simultaneous reports.
+
+Limits: the official interactive Desmos adapter has no authorized production
+key or commercial agreement and was not browser-tested. Its local equation
+view, MathML, CSV and JSON export remain available; opaque calculator-state
+reopen has unit tests only. A 5,000–6,000 experiment-definition campaign and
+cross-run causal law discovery are not implemented. Render currently uses a
+Free instance with ephemeral SQLite and possible sleep; always-on uptime and
+durable storage cannot be claimed. The remaining web-preview chunk is about
+901 KiB gzip. This release did not establish a p95 latency or throughput SLO.
+
 # Factory configurator release verification — 2026-10-14
 
 Working in the deployed Factory page: editing mass, friction and other bounded
@@ -637,3 +679,44 @@ Active jobs do not resume after a server restart. Account auth, lifetime disk
 quotas, automated retention/backup restore, load/soak tests and a zero-downtime
 architecture remain incomplete. A paid always-running instance is not a 100%
 uptime guarantee.
+# Final Factory discovery release — 2026-10-14
+
+The current public build is https://demo.tryvivacity.com/ (Vercel deployment
+`dpl_3NVSBD53rJK3fznForaNu8ic9Axz`). Its `/`, `/runtime/health` and
+`/runtime/openapi.json` routes returned HTTP 200 after promotion. Render deploy
+`dep-db7j6u6k1f9s73fv66g0` is Live on backend commit `0ed1e94`; the source
+manifest, Docker build and Linux CI passed. The scoped root checkout change is
+documented in `docs/FINAL_PRODUCT_AUDIT.md`.
+
+Working and directly verified in this release: a browser-started public
+MuJoCo conveyor run completed at 2.100 s simulated time, displayed 43 saved
+frames, and published eight descriptive model series with a genuine poor-fit
+label for carton height. A separate public run returned all 43 frames in eight
+pages of at most seven, without cursor gaps, and a 177,046-byte ZIP containing
+matching `discovery.json` plus a 57,643-byte PDF. The local equivalent executed
+1,050 MuJoCo steps and produced 43 frames. The production browser logged zero
+JavaScript errors; at a 375 px client width it had no horizontal overflow.
+The released robotics API sent nine WebSocket events for a completed four-branch
+experiment, including collision/planning failures and an execution success.
+All four branches were replayable. Changing its obstacle invalidated the old
+result, and a new two-branch experiment completed with a selected branch.
+
+Tests actually executed: full Windows Pytest **297 passed, 1 skipped, 1
+warning** in 1,298.49 s. The skip is Linux-specific; the warning is the
+existing Starlette TestClient/httpx deprecation. Linux GitHub Actions
+[run 38529411185](https://github.com/Tanish-Anand1/vivacity-runtime/actions/runs/38529411185)
+passed **298 backend tests** across three shards (87 + 102 + 109) and **4/4
+hard 512 MiB host checks**. The focused Factory API/discovery/report/paging
+suite passed 15 tests. Frontend API/template/settings/numerical/snapshot
+checks passed **36**, and TypeScript/Vite and Vercel production builds passed.
+The 512 MiB host peaked at its exact memory cap without an OOM kill, leaving
+no measured memory headroom for larger simultaneous reports.
+
+Limits: the official interactive Desmos adapter has no authorized production
+key or commercial agreement and was not browser-tested. Its local equation
+view, MathML, CSV and JSON export remain available; opaque calculator-state
+reopen has unit tests only. A 5,000–6,000 experiment-definition campaign and
+cross-run causal law discovery are not implemented. Render currently uses a
+Free instance with ephemeral SQLite and possible sleep; always-on uptime and
+durable storage cannot be claimed. The remaining web-preview chunk is about
+901 KiB gzip. This release did not establish a p95 latency or throughput SLO.

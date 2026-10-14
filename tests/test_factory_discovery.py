@@ -1,9 +1,13 @@
 """Equation discovery works on real frame data and keeps held-out evidence."""
 import math
 import time
+import io
+import json
+import zipfile
 
 import numpy as np
 from fastapi.testclient import TestClient
+from pypdf import PdfReader
 
 from vivacity.api import create_app
 from vivacity.factory_discovery import discover
@@ -137,6 +141,17 @@ def test_real_mujoco_run_discovery_persists_and_is_owned(tmp_path):
         with client.app.state.runtime.store.connect() as db:
             saved = db.execute('SELECT count(*) FROM factory_discoveries WHERE run_id=?', (run_id,)).fetchone()[0]
             assert saved == 8
+        archive = client.get(f'/v1/factory/reports/run/{run_id}?format=zip', headers=OWNER)
+        assert archive.status_code == 200, archive.text[:500]
+        with zipfile.ZipFile(io.BytesIO(archive.content)) as bundle:
+            archived_discovery = json.loads(bundle.read('discovery.json'))
+            assert archived_discovery['run_id'] == run_id
+            assert archived_discovery['sample_count'] == discovery['sample_count']
+            assert archived_discovery['series'] == discovery['series']
+            pdf_text = '\n'.join(page.extract_text() for page in PdfReader(io.BytesIO(bundle.read('report.pdf'))).pages)
+            assert 'DESCRIPTIVE FITS' in pdf_text
+            assert measured['label'] in pdf_text
+            assert 'Held-out RMSE' in pdf_text
     with TestClient(create_app(path)) as client:
         restored = client.get(url, headers=OWNER).json()
         assert restored['series']['y'] == measured

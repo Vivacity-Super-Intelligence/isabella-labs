@@ -305,10 +305,11 @@ class FactoryService:
                 trace=row['trace'];offset=row.get('_trace_offset',0);total=offset+len(trace)
                 with self.workspace.store.connect() as db:
                     saved=db.execute('SELECT payload FROM factory_samples WHERE run_id=? AND sample_index>? AND sample_index<? ORDER BY sample_index LIMIT ?',(identifier,after,offset,limit)).fetchall()
-                frames=[json.loads(r[0]) for r in saved]+deepcopy(trace[max(0,after+1-offset):max(0,after+1+limit-offset)])
-                end=min(total,after+1+limit)
+                remaining=limit-len(saved)
+                tail_start=max(0,after+1-offset)
+                frames=[json.loads(r[0]) for r in saved]+deepcopy(trace[tail_start:tail_start+remaining])
                 return {'schema_version':'vivacity.factory-samples/1.0','run_id':identifier,'frames':frames,
-                        'next_index':end-1,'total_samples':total,'status':row['status']}
+                        'next_index':min(total-1,after+len(frames)),'total_samples':total,'status':row['status']}
         with self.workspace.store.connect() as db:
             indexed=db.execute('SELECT sample_count,summary FROM factory_run_index WHERE run_id=? AND owner=?',(identifier,owner(token))).fetchone()
             if indexed:
@@ -565,18 +566,20 @@ class FactoryService:
             if benchmark and not benchmark['trials']:raise Conflict('This benchmark has no recorded trials to report.')
             run=self.get(benchmark['trials'][0]['run_id'] if benchmark else identifier,token,full=True)
             if run['status'] in ('running','paused','queued'):raise Conflict('Finish or stop this run before preparing a report.')
+            discovery=self.discovery(run['id'],token)
             attribution=None
             if project_id:
                 from .factory_projects import FactoryProjects
                 project=FactoryProjects(self).get(project_id,token)
                 if not any(a['kind']==kind and a['record_id']==identifier for a in project['attachments']):raise Conflict('This result is not attached to the selected project.')
                 attribution={'project':project['name']+' / '+project['team_label'],'creator':run.get('creator_label') or 'Not recorded'}
-            pdf=report_pdf(run,benchmark,attribution)
+            pdf=report_pdf(run,benchmark,attribution,discovery)
             if not archive:return pdf
             handle=tempfile.NamedTemporaryFile(prefix='vivacity-report-',suffix='.zip',delete=False);target=Path(handle.name);handle.close()
             encoder=json.JSONEncoder(ensure_ascii=False,allow_nan=False,separators=(',',':'))
             with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=4) as z:
                 z.writestr('report.pdf',pdf)
+                z.writestr('discovery.json',json.dumps(discovery,allow_nan=False))
                 z.writestr('README.txt','Saved MuJoCo evidence. CSV uses SI units and blank cells for unavailable measurements. Complete JSON retains every stored sample and full integration states. Definitions can be imported; measured results cannot be imported as verified executions.')
                 if benchmark:z.writestr('benchmark-results.json',json.dumps(benchmark,allow_nan=False))
                 try:z.writestr('definition.json',json.dumps(self.export_configuration(identifier if benchmark else run['cell_id'],token,'benchmark' if benchmark else 'configuration'),allow_nan=False))

@@ -90,6 +90,11 @@ and JSON snapshot downloads are client-generated from the received canonical
 samples. The snapshot includes the selected backend model and, if an embedded
 calculator is active, its `getState()` output. Editing that calculator is an
 exploratory scratch operation and never writes to the physical experiment.
+With an authorized calculator key, the user can reopen that opaque state with
+`setState()` from a saved Vivacity snapshot. The import is limited to 1 MiB and
+requires the same run and measured quantity to be selected. A snapshot saved
+without an active calculator has no editable state to restore. Original
+MuJoCo samples and persisted fits are never replaced by imported expressions.
 The UI typesets `display_latex` with KaTeX and accessible MathML. This is a
 presentation of the same fitted parameters as `equation_latex`, which remains
 the Desmos-compatible expression. The conventional display uses simulation
@@ -112,6 +117,12 @@ interactive Desmos embed is unavailable. The actual Desmos edit interaction
 cannot be accepted as working until tested with an authorized key.
 Both backend equations and browser parameter values expand scientific
 notation into plain decimal literals before being sent to Desmos.
+Completed run reports include the persisted equation snapshot available when
+the report is prepared. The PDF labels provisional and poor fits, shows the
+selected descriptive equations and held-out errors, and the ZIP includes that
+same snapshot as `discovery.json`. A report prepared before background fitting
+finishes may contain provisional or no fitted series; it does not invent a
+final result.
 
 ## Verification and limits
 

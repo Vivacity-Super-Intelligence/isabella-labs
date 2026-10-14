@@ -1,5 +1,10 @@
 import type {FactorySettings} from './factoryApi';
 
+/** Older saved cells may lack fields added to the editable configuration. */
+export function editableFactorySettings(defaults:FactorySettings,saved:Partial<FactorySettings>):FactorySettings{
+ return {...defaults,...saved};
+}
+
 const numericBounds:Partial<Record<keyof FactorySettings,[string,number,number,boolean]>>={
  carton_count:['Cartons',1,3,true],carton_start_x_m:['Initial carton X (m)',.465,.535,false],carton_start_y_m:['Initial carton Y (m)',-1.28,-.35,false],
  carton_mass_kg:['Reference mass (kg)',.02,.15,false],carton_half_size_m:['Carton half-width (m)',.02,.03,false],carton_friction:['Contact friction',.05,1.5,false],

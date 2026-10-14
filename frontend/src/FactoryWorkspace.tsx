@@ -9,7 +9,7 @@ import FactoryExchange from './FactoryExchange';
 import FactoryProjects from './FactoryProjects';
 import type {FactoryImport} from './factoryApi';
 import type {Vec3} from './domain';
-import {factorySettingsIssue} from './factorySettings';
+import {editableFactorySettings,factorySettingsIssue} from './factorySettings';
 import './factory.css';
 
 export default function FactoryWorkspace(){
@@ -20,7 +20,7 @@ export default function FactoryWorkspace(){
  async function load(){
   const id=localStorage.getItem('vivacity:factory-cell');let value:FactoryCell;
   try{value=id?await factoryApi.cell(id):await factoryApi.create(factoryDefaults);}catch(e){if(e instanceof APIError&&e.status===404)value=await factoryApi.create(factoryDefaults);else throw e;}
-  setCell(value);setDraft(value.config);localStorage.setItem('vivacity:factory-cell',value.id);
+  setCell(value);setDraft(editableFactorySettings(factoryDefaults,value.config));localStorage.setItem('vivacity:factory-cell',value.id);
   if(value.last_run_id)setRun(await factoryApi.run(value.last_run_id));
  }
  useEffect(()=>{load().catch(e=>setError(errorMessage(e)));},[]);
@@ -30,7 +30,7 @@ export default function FactoryWorkspace(){
  },[run?.id,active]);
  async function action(fn:()=>Promise<void>){setBusy(true);setError(null);try{await fn();}catch(e){setError(errorMessage(e));}finally{setBusy(false);}}
  function showCell(value:FactoryCell,nextRun:FactoryRun|null=null){
-  setCell(value);setDraft(value.config);setRun(nextRun);setInspected(null);setTrajectory([]);setBenchmarkView(null);setBenchmarkId(undefined);
+  setCell(value);setDraft(editableFactorySettings(factoryDefaults,value.config));setRun(nextRun);setInspected(null);setTrajectory([]);setBenchmarkView(null);setBenchmarkId(undefined);
   localStorage.setItem('vivacity:factory-cell',value.id);
  }
  const settingsIssue=factorySettingsIssue(draft);
