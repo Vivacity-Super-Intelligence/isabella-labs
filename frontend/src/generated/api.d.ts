@@ -931,6 +931,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/robotics/humanoids/models/{robot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Humanoid Model */
+        get: operations["humanoid_model_v1_robotics_humanoids_models__robot_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/robotics/humanoids/experiments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Humanoid */
+        get: operations["list_humanoid_v1_robotics_humanoids_experiments_get"];
+        put?: never;
+        /** Submit Humanoid */
+        post: operations["submit_humanoid_v1_robotics_humanoids_experiments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/robotics/humanoids/experiments/{trial_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Humanoid */
+        get: operations["get_humanoid_v1_robotics_humanoids_experiments__trial_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/robotics/humanoids/experiments/{trial_id}/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Replay Humanoid */
+        get: operations["replay_humanoid_v1_robotics_humanoids_experiments__trial_id__replay_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/robotics/experiments/{experiment_id}/report": {
         parameters: {
             query?: never;
@@ -2627,6 +2696,104 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HumanoidModelResponse */
+        HumanoidModelResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.humanoid-model/1.0
+             */
+            schema_version: string;
+            /** Robot Id */
+            robot_id: string;
+            /** Name */
+            name: string;
+            /** Environment Id */
+            environment_id: string;
+            /** Model Hash */
+            model_hash: string;
+            /** Simulator Version */
+            simulator_version: string;
+            /** Dof */
+            dof: number;
+            /** Actuators */
+            actuators: number;
+            /** Mesh Count */
+            mesh_count: number;
+            /** Joint Names */
+            joint_names: string[];
+            /** Initial Frame */
+            initial_frame: {
+                [key: string]: unknown;
+            };
+            /** Geometry Url */
+            geometry_url: string;
+            /** Task Scope */
+            task_scope: string;
+        };
+        /** HumanoidTrialRequest */
+        HumanoidTrialRequest: {
+            /** Robot Id */
+            robot_id: string;
+            /**
+             * Action
+             * @default attempt_task
+             */
+            action: string;
+            /**
+             * Duration S
+             * @default 2
+             */
+            duration_s: number;
+            /**
+             * Movement Scale
+             * @default 0.6
+             */
+            movement_scale: number;
+            /**
+             * Floor Friction
+             * @default 0.8
+             */
+            floor_friction: number;
+            /**
+             * Parcel Mass Kg
+             * @default 0.5
+             */
+            parcel_mass_kg: number;
+            /**
+             * Perturbation N
+             * @default 0
+             */
+            perturbation_n: number;
+            /**
+             * Seed
+             * @default 7
+             */
+            seed: number;
+        };
+        /** HumanoidTrialResponse */
+        HumanoidTrialResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.humanoid-job/1.0
+             */
+            schema_version: string;
+            /** Id */
+            id: string;
+            /** Status */
+            status: string;
+            /** Request */
+            request: {
+                [key: string]: unknown;
+            };
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Result */
+            result?: {
+                [key: string]: unknown;
+            } | null;
+            /** Error */
+            error?: string | null;
         };
         /** ImportMapping */
         ImportMapping: {
@@ -6068,6 +6235,171 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoboticsProgramCatalog"];
+                };
+            };
+        };
+    };
+    humanoid_model_v1_robotics_humanoids_models__robot_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                robot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanoidModelResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_humanoid_v1_robotics_humanoids_experiments_get: {
+        parameters: {
+            query: {
+                robot_id: string;
+            };
+            header: {
+                "x-workspace-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanoidTrialResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_humanoid_v1_robotics_humanoids_experiments_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-workspace-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HumanoidTrialRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanoidTrialResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_humanoid_v1_robotics_humanoids_experiments__trial_id__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-workspace-token": string;
+            };
+            path: {
+                trial_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanoidTrialResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    replay_humanoid_v1_robotics_humanoids_experiments__trial_id__replay_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-workspace-token": string;
+            };
+            path: {
+                trial_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

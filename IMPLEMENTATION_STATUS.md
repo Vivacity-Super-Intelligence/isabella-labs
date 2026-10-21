@@ -1,5 +1,10 @@
 # Isabella Labs: The Impossible Shot — current production release, 2026-10-21
 
+The separate [humanoid lab implementation status](HUMANOID_IMPLEMENTATION_STATUS.md)
+records the 2026-10-22 local rebuild, actual physics outcomes, browser
+screenshots, and incomplete G1/H1 task controllers. That work has **not**
+replaced the public production release documented here.
+
 The homepage opening is an authored 7.500-second 3D film. A single metallic
 cube moves through a Panda arm, an enlarged UR5e, a custom delta mechanism,
 and an xArm7. The cube settles on a plinth, structural layers separate, an

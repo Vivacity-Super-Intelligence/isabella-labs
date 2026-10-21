@@ -14,7 +14,7 @@ import { DEFAULT_SELECTION, selectionKey, type Selection } from './TemplatePicke
 import ExperimentSetup from './ExperimentSetup';
 import VRoboticsPrograms from './VRoboticsPrograms';
 import PrecisionAssemblyResult from './PrecisionAssemblyResult';
-import {workspaceApi,defaultConfiguration,type Configuration,type SavedConfiguration,type LibraryWorld} from './workspaceApi';
+import {workspaceApi,defaultConfiguration,type Configuration,type SavedConfiguration,type LibraryWorld,type RoboticsProgram} from './workspaceApi';
 import './studio.css';
 import defaultWorkcell from './generated/defaultWorkcell.json';
 import EngineeringPanel from './EngineeringPanel';
@@ -31,6 +31,7 @@ const ClothView=lazy(()=>import('./ClothView'));
 const ImportWorld=lazy(()=>import('./ImportWorld'));
 const WorldLibrary=lazy(()=>import('./WorldLibrary'));
 const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
+const HumanoidLab=lazy(()=>import('./HumanoidLab'));
 
 export default function App(){
   const [showOpening,setShowOpening]=useState(()=>window.location.pathname==='/'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -39,7 +40,7 @@ export default function App(){
   const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:defaultWorkcell,key:'curated-warehouse-v1',name:'Franka Panda / Industrial warehouse / Pick and place'});
   const [draft,setDraft]=useState<Configuration>(defaultConfiguration('warehouse'));
   type Page='home'|'laboratory'|'discovery'|'factory'|'workspace'|'worlds'|'experiments'|'results'|'settings'|'import';
-  const routePage=(path:string):Page=>path==='/laboratory'?'laboratory':path==='/discovery'?'discovery':path==='/lab'?'factory':path==='/workspace'?'workspace':path==='/worlds'?'worlds':path==='/experiments'?'experiments':path==='/settings'?'settings':path==='/import'?'import':'home';
+  const routePage=(path:string):Page=>path==='/laboratory'?'laboratory':path==='/discovery'?'discovery':path==='/lab'?'factory':path==='/workspace'||path==='/works'?'workspace':path==='/worlds'?'worlds':path==='/experiments'?'experiments':path==='/settings'?'settings':path==='/import'?'import':'home';
   const [page,setPage]=useState<Page>(()=>routePage(window.location.pathname));
   const navigate=useCallback((next:Page,path:string,guided=false)=>{window.history.pushState({},'',path);setGuidedAutostart(guided);setPage(next);window.scrollTo(0,0);},[]);
   const navigateFromLink=(event:MouseEvent<HTMLAnchorElement>,next:Page,path:string)=>{
@@ -47,7 +48,7 @@ export default function App(){
     event.preventDefault();
     if(!rt.mutating)navigate(next,path);
   };
-  useEffect(()=>{const back=()=>{setPage(routePage(window.location.pathname));setGuidedAutostart(new URLSearchParams(window.location.search).get('guided')==='1');};window.addEventListener('popstate',back);return()=>window.removeEventListener('popstate',back);},[]);
+  useEffect(()=>{const back=()=>{setPage(routePage(window.location.pathname));setGuidedAutostart(new URLSearchParams(window.location.search).get('guided')==='1');if(window.location.pathname==='/works')setRobotCategory('humanoids');else if(window.location.pathname==='/workspace'){setRobotCategory('robotic_arms');setSelectedHumanoid(null);}};window.addEventListener('popstate',back);return()=>window.removeEventListener('popstate',back);},[]);
   const [inspecting,setInspecting]=useState(false),[inspectSelection,setInspectSelection]=useState<'object'|'robot'|'experiment'>('object');
   const [overlays,setOverlays]=useState<OverlayOptions>(defaultOverlays);
   const setupSummary=useRef<HTMLElement>(null);
@@ -55,6 +56,8 @@ export default function App(){
   const [setupStep,setSetupStep]=useState(0);
   const [preparing,setPreparing]=useState(false);
   const [visualWorld,setVisualWorld]=useState<LibraryWorld|undefined>();
+  const [robotCategory,setRobotCategory]=useState<RoboticsProgram['category']>(()=>window.location.pathname==='/works'?'humanoids':'robotic_arms');
+  const [selectedHumanoid,setSelectedHumanoid]=useState<RoboticsProgram|null>(null);
   useEffect(()=>{
     if(page!=='workspace'||visualWorld)return;
     let active=true;
@@ -62,7 +65,7 @@ export default function App(){
     return()=>{active=false;};
   },[page,draft.environment_id,visualWorld]);
   const backend=activeTemplate.backend,cloth=backend==='cloth';
-  const rt=useRuntime(backend,activeTemplate.key??selectionKey(activeTemplate.selection),activeTemplate.config,activeTemplate.configurationId,page!=='factory'&&page!=='home'&&page!=='laboratory'&&page!=='discovery');
+  const rt=useRuntime(backend,activeTemplate.key??selectionKey(activeTemplate.selection),activeTemplate.config,activeTemplate.configurationId,page!=='factory'&&page!=='home'&&page!=='laboratory'&&page!=='discovery'&&robotCategory!=='humanoids'&&!selectedHumanoid);
   const [branchId,setBranchId]=useState<string|null>(null),[editing,setEditing]=useState(false),[downloadError,setDownloadError]=useState<string|null>(null);
   const compatible=rt.world?.backend===backend&&(rt.world.config.robot_model??'panda')===(activeTemplate.config.robot_model??'panda'),branches=compatible?rt.branches:[];
   const ranked=useMemo(()=>{
@@ -130,6 +133,7 @@ export default function App(){
   useEffect(()=>{setBranchId(null);setEditing(false);},[backend,rt.experiment?.id]);
   const loadConfiguration=async(saved:SavedConfiguration,world:LibraryWorld)=>{
     await rt.stop();const resolved=await workspaceApi.resolve(saved.configuration);
+    setSelectedHumanoid(null);setRobotCategory('robotic_arms');
     setVisualWorld(world);
     setDraft(saved.configuration);setActiveTemplate({selection:DEFAULT_SELECTION,backend:resolved.world.backend,
       config:resolved.world.config as Record<string,unknown>,key:'configuration:'+saved.id,configurationId:saved.id,
@@ -163,8 +167,9 @@ export default function App(){
        page==='experiments'||page==='results'?<Suspense fallback={<p>Loading measured experiment history…</p>}><ExperimentLibrary load={loadConfiguration} current={compatible?rt.experiment:null} currentConfig={(branches[0]?.initial_state.config as Record<string,unknown>|undefined)??config} currentFriction={robotFrame(branches[0]?.trace.at(-1))?.inspection?.object.friction[0]}/></Suspense>:
        page==='settings'?<section className="library-area"><h1>Runtime settings</h1><p>API: {API}</p><p className="small">Provider keys stay in backend environment variables. Robotics world generation availability is shown in Worlds. Discovery runs bounded SciPy computations. This demo uses shared compute and browser capabilities; it does not provide production user accounts or guaranteed uptime.</p><a href={`${BACKEND}/docs`} target="_blank" rel="noreferrer">API and schema reference</a></section>:
        page==='import'?<><button className="secondary" onClick={()=>navigate('worlds','/worlds')}>Back to world library</button><Suspense fallback={<div className="viewport-loading">Loading import tools…</div>}><ImportWorld/></Suspense></>:<>
-        <div className="workspace-heading"><div><h1>Physical experiments</h1><p>Configure a task. Test alternatives. Inspect measured results.</p></div><span className="connection" role="status">{rt.online?'Physics connected':'Connecting to runtime…'}</span></div>
-        <VRoboticsPrograms busy={preparing||rt.active||rt.mutating} onOpen={configuration=>prepare(configuration,3)}/>
+        <div className="workspace-heading"><div><h1>Physical experiments</h1><p>Configure a task. Test alternatives. Inspect measured results.</p></div><span className="connection" role="status">{robotCategory==='humanoids'?'Humanoid physics lab':rt.online?'Physics connected':'Connecting to runtime…'}</span></div>
+        <VRoboticsPrograms busy={preparing||rt.active||rt.mutating} category={robotCategory} setCategory={category=>{setRobotCategory(category);if(category==='humanoids'&&window.location.pathname!=='/works')navigate('workspace','/works');if(category==='robotic_arms'&&window.location.pathname==='/works')navigate('workspace','/workspace');}} onInspect={setSelectedHumanoid} onArms={()=>setSelectedHumanoid(null)} onOpen={configuration=>prepare(configuration,3)}/>
+        {robotCategory==='humanoids'?(selectedHumanoid?<Suspense fallback={<p role="status">Loading full-body physical model…</p>}><HumanoidLab key={selectedHumanoid.id} program={selectedHumanoid} back={()=>{setSelectedHumanoid(null);setRobotCategory('robotic_arms');if(window.location.pathname==='/works')navigate('workspace','/workspace');}}/></Suspense>:<p role="status">Loading the humanoid programs and physical model…</p>):<>
         {preparing&&<p role="status" className="small">Loading the selected physical configuration…</p>}
         {rt.recoveryNotice&&<p role="status" className="small">{rt.recoveryNotice}</p>}
         <nav className="journey" aria-label="Experiment stages">{['Environment','Robot','Operation','Experiment'].map((label,i)=><button key={label} aria-pressed={setupOpen&&setupStep===i} disabled={rt.active} onClick={()=>{setInspecting(false);setSetupStep(i);setSetupOpen(true);setEditing(false);}}><span>0{i+1}</span>{label}</button>)}</nav>
@@ -213,7 +218,7 @@ export default function App(){
         </div>
         {counters.generated!==undefined&&<dl className="search-counts" aria-label="Actual search work">{[['Generated','generated'],['Screened','screened'],['Passed screening','screening_passed'],[cloth?'Validation rollouts':'Physics trials','fully_simulated'],['Verified feasible','verified_feasible']].map(([name,key])=><div key={key}><dt>{name}</dt><dd data-testid={`count-${key}`}>{Number(counters[key]??0).toLocaleString()}{!cloth&&!counters.adaptive_stopping&&key==='fully_simulated'&&Number(counters.physics_target)>0?` / ${Number(counters.physics_target).toLocaleString()}`:''}</dd></div>)}</dl>}
         <TechnicalInspector events={rt.events} initialized={compatible} playing={false} branches={branches} select={setBranchId} history={{ids:rt.session?.experiments??[],open:rt.history,disabled:rt.mutating}}/>
-        
+        </>}
       </>}
     </main>
     </>}

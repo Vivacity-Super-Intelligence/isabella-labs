@@ -3584,6 +3584,250 @@
         }
       }
     },
+    "/v1/robotics/humanoids/models/{robot_id}": {
+      "get": {
+        "summary": "Humanoid Model",
+        "operationId": "humanoid_model_v1_robotics_humanoids_models__robot_id__get",
+        "parameters": [
+          {
+            "name": "robot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Robot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanoidModelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/robotics/humanoids/experiments": {
+      "post": {
+        "summary": "Submit Humanoid",
+        "operationId": "submit_humanoid_v1_robotics_humanoids_experiments_post",
+        "parameters": [
+          {
+            "name": "x-workspace-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanoidTrialRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanoidTrialResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Humanoid",
+        "operationId": "list_humanoid_v1_robotics_humanoids_experiments_get",
+        "parameters": [
+          {
+            "name": "robot_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Robot Id"
+            }
+          },
+          {
+            "name": "x-workspace-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HumanoidTrialResponse"
+                  },
+                  "title": "Response List Humanoid V1 Robotics Humanoids Experiments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/robotics/humanoids/experiments/{trial_id}": {
+      "get": {
+        "summary": "Get Humanoid",
+        "operationId": "get_humanoid_v1_robotics_humanoids_experiments__trial_id__get",
+        "parameters": [
+          {
+            "name": "trial_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trial Id"
+            }
+          },
+          {
+            "name": "x-workspace-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanoidTrialResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/robotics/humanoids/experiments/{trial_id}/replay": {
+      "get": {
+        "summary": "Replay Humanoid",
+        "operationId": "replay_humanoid_v1_robotics_humanoids_experiments__trial_id__replay_get",
+        "parameters": [
+          {
+            "name": "trial_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trial Id"
+            }
+          },
+          {
+            "name": "x-workspace-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/robotics/experiments/{experiment_id}/report": {
       "get": {
         "summary": "Robotics Experiment Report",
@@ -7529,6 +7773,201 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HumanoidModelResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "vivacity.humanoid-model/1.0"
+          },
+          "robot_id": {
+            "type": "string",
+            "title": "Robot Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "environment_id": {
+            "type": "string",
+            "title": "Environment Id"
+          },
+          "model_hash": {
+            "type": "string",
+            "title": "Model Hash"
+          },
+          "simulator_version": {
+            "type": "string",
+            "title": "Simulator Version"
+          },
+          "dof": {
+            "type": "integer",
+            "title": "Dof"
+          },
+          "actuators": {
+            "type": "integer",
+            "title": "Actuators"
+          },
+          "mesh_count": {
+            "type": "integer",
+            "title": "Mesh Count"
+          },
+          "joint_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Joint Names"
+          },
+          "initial_frame": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Initial Frame"
+          },
+          "geometry_url": {
+            "type": "string",
+            "title": "Geometry Url"
+          },
+          "task_scope": {
+            "type": "string",
+            "title": "Task Scope"
+          }
+        },
+        "type": "object",
+        "required": [
+          "robot_id",
+          "name",
+          "environment_id",
+          "model_hash",
+          "simulator_version",
+          "dof",
+          "actuators",
+          "mesh_count",
+          "joint_names",
+          "initial_frame",
+          "geometry_url",
+          "task_scope"
+        ],
+        "title": "HumanoidModelResponse"
+      },
+      "HumanoidTrialRequest": {
+        "properties": {
+          "robot_id": {
+            "type": "string",
+            "title": "Robot Id"
+          },
+          "action": {
+            "type": "string",
+            "pattern": "^(attempt_task|hold_stance)$",
+            "title": "Action",
+            "default": "attempt_task"
+          },
+          "duration_s": {
+            "type": "number",
+            "maximum": 3.0,
+            "minimum": 0.5,
+            "title": "Duration S",
+            "default": 2.0
+          },
+          "movement_scale": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Movement Scale",
+            "default": 0.6
+          },
+          "floor_friction": {
+            "type": "number",
+            "maximum": 1.5,
+            "minimum": 0.2,
+            "title": "Floor Friction",
+            "default": 0.8
+          },
+          "parcel_mass_kg": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 0.1,
+            "title": "Parcel Mass Kg",
+            "default": 0.5
+          },
+          "perturbation_n": {
+            "type": "number",
+            "maximum": 80.0,
+            "minimum": 0.0,
+            "title": "Perturbation N",
+            "default": 0
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 7
+          }
+        },
+        "type": "object",
+        "required": [
+          "robot_id"
+        ],
+        "title": "HumanoidTrialRequest"
+      },
+      "HumanoidTrialResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "vivacity.humanoid-job/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "request": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Request"
+          },
+          "created_unix_s": {
+            "type": "number",
+            "title": "Created Unix S"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "request",
+          "created_unix_s"
+        ],
+        "title": "HumanoidTrialResponse"
       },
       "ImportMapping": {
         "properties": {

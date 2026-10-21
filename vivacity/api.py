@@ -13,6 +13,8 @@ from pathlib import Path
 from starlette.requests import HTTPConnection
 from .templates import TemplateSelection, TemplateCatalog, catalog, resolve
 from .v_robotics import RoboticsProgramCatalog, RoboticsExperimentReport, catalog as robotics_catalog, experiment_report as robotics_report
+from .humanoids import HumanoidModelResponse, HumanoidTrialRequest, HumanoidTrialResponse, HumanoidTrialService, model_info as humanoid_model_info
+from .workspace import owner as workspace_owner
 
 
 def create_app(database=None):
@@ -22,12 +24,14 @@ def create_app(database=None):
     async def lifespan(app):
         path=database or os.getenv('VIVACITY_DATABASE', 'data/vivacity.sqlite3')
         app.state.runtime = Runtime(path)
+        app.state.humanoids = HumanoidTrialService(app.state.runtime.store)
         app.state.imports = app.state.runtime.imports
         from .workspace import WorkspaceService
         app.state.workspace = WorkspaceService(app.state.runtime)
         from .factory_service import FactoryService
         app.state.factory = FactoryService(app.state.workspace)
         yield
+        await asyncio.to_thread(app.state.humanoids.close)
         await asyncio.to_thread(app.state.factory.close)
         await asyncio.to_thread(app.state.workspace.close)
         await asyncio.to_thread(app.state.runtime.close)
@@ -109,6 +113,40 @@ def create_app(database=None):
     @app.get('/v1/robotics/programs', response_model=RoboticsProgramCatalog)
     def robotics_programs():
         return robotics_catalog()
+
+    @app.get('/v1/robotics/humanoids/models/{robot_id}', response_model=HumanoidModelResponse)
+    def humanoid_model(robot_id: str):
+        try:
+            return humanoid_model_info(robot_id)
+        except FileNotFoundError as exc:
+            raise HTTPException(503, str(exc)) from exc
+
+    HumanoidToken = Annotated[str, Header(min_length=32, max_length=128, pattern=r'^[A-Za-z0-9_-]+$')]
+
+    @app.post('/v1/robotics/humanoids/experiments', response_model=HumanoidTrialResponse, status_code=202)
+    def submit_humanoid(request: HumanoidTrialRequest, x_workspace_token: HumanoidToken):
+        try:
+            return app.state.humanoids.submit(workspace_owner(x_workspace_token), request)
+        except FileNotFoundError as exc:
+            raise HTTPException(503, str(exc)) from exc
+
+    @app.get('/v1/robotics/humanoids/experiments', response_model=list[HumanoidTrialResponse])
+    def list_humanoid(robot_id: str, x_workspace_token: HumanoidToken):
+        return app.state.humanoids.list(workspace_owner(x_workspace_token), robot_id)
+
+    @app.get('/v1/robotics/humanoids/experiments/{trial_id}', response_model=HumanoidTrialResponse)
+    def get_humanoid(trial_id: str, x_workspace_token: HumanoidToken):
+        return app.state.humanoids.get(workspace_owner(x_workspace_token), trial_id)
+
+    @app.get('/v1/robotics/humanoids/experiments/{trial_id}/replay')
+    def replay_humanoid(trial_id: str, x_workspace_token: HumanoidToken):
+        trial = app.state.humanoids.get(workspace_owner(x_workspace_token), trial_id)
+        if trial['status'] != 'completed':
+            raise HTTPException(409, 'This trial has no completed physics trace')
+        result = trial['result']
+        return {'schema_version': 'vivacity.humanoid-replay/1.0', 'trial_id': trial_id,
+                'model_hash': result['model_hash'], 'frames': result['frames'],
+                'measurements': result['measurements'], 'task_success': result['task_success']}
 
     @app.get('/v1/robotics/experiments/{experiment_id}/report', response_model=RoboticsExperimentReport)
     def robotics_experiment_report(experiment_id:str, x_session_token:Annotated[str | None,Header()]=None):
