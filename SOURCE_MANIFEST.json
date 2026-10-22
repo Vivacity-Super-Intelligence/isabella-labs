@@ -294,7 +294,7 @@
   "assets/menagerie/universal_robots_ur5e/scene.xml": "b8909cfccf357f8b586ad5a9ceea190c4aeec11ee90e0dd291845976655c8b30",
   "assets/menagerie/universal_robots_ur5e/ur5e.png": "90310086f1187fcda94252ff68f8c4f8be97f65bec8f4eea449179b0979da795",
   "assets/menagerie/universal_robots_ur5e/ur5e.xml": "b7320db33754bc9183b5b50135b493d5dfb313c96ce9e32bbaea2b94d187f585",
-  "Dockerfile": "fecf0804a80645a6732cea7885c7f3f62a2607816a160575e36ca5d53fd5e75c",
+  "Dockerfile": "14600d387f82c39780c4a0b691059530eb1c9903ab587411fcd8e8d0e8497869",
   "docs/HUMANOID_CAPABILITY_AUDIT.md": "43b4da709f9030db4e2dd0d97f9bd118ae0f0e57d5bfc79411f0bb7f67ccf8b3",
   "fixtures/imports/embedded_material.glb": "bc5b00f66b2996d95ade0a195d86d1e75986e616c58651b0ede5e170dba18a4e",
   "fixtures/imports/orbital_salvage_lab.zip": "6d623c9fbd7aa337b195282f55dbbcc83432ffad69a95090dde2a831a4763354",
@@ -380,8 +380,8 @@
   "vivacity/fulfillment.py": "180ce2fddfa65ecc5d0f020a859be711b60cde883177a1f5184de0245020ce79",
   "vivacity/fulfillment_api.py": "b107586e7d31eb1273568400eb7d3d3ac737ab88e9041664206d17f7e974827d",
   "vivacity/headless.py": "d77326e50c3e097a2041bf6bb791632bc1e3656b3bd570650ae8712e7dbfe4b6",
-  "vivacity/humanoid_pickup.py": "4958ad7b89a598d3a6785bf224cf61c8217b7632815b7d8946045b6895f4c373",
-  "vivacity/humanoids.py": "0e1baab40b94b7c4694612bbaa1da88988eedd43367cb733023171a96cee22cd",
+  "vivacity/humanoid_pickup.py": "a34db707b4070bfb438a76da0e0cbcd140fcc860d0b619650f966987675ce339",
+  "vivacity/humanoids.py": "404ff8fe895ed59809b0bfa98953b2cee84816a73ef399fb7fefd151ffb9daf0",
   "vivacity/import_physics.py": "40f7e1376166827f84c23bf3ee1c7bd7d41507dda4921500bc8858ed3e69e100",
   "vivacity/import_worker.py": "04128de6e37bb7a620f3ce1911f966c62804bae7d13b9f1fded0047a56fd88e2",
   "vivacity/imports.py": "db7f51aab2de9b663ad11b7650942a2c34fc1b0b1c7dc433c3d11806cc5cd925",
@@ -415,5 +415,7 @@
   "vivacity/workspace_api.py": "825db2d97859cf117d2aa501b1f863b472a7cfbe4e85b273f38f05d89de8e063",
   "vivacity/workspace_schemas.py": "2b8a41ce5b44ccea1d6479b13970eea1d4859ee378dea6ff344cfe1f3f62e8de",
   "vivacity/world_editor.py": "6e07c66bc368e2ca10a9153e08e546223b17ea701885b57928edc0c7f92d82ed",
-  "vivacity/world_presets.py": "74863cea8e2d22e451e85c1119166f8abf4b3f13da1a707f9cc1e5cb1896fe1e"
+  "vivacity/world_presets.py": "74863cea8e2d22e451e85c1119166f8abf4b3f13da1a707f9cc1e5cb1896fe1e",
+  "scripts/build_humanoid_models.py": "e0210db0d93f981bb2c3fc1f733e12bf630fe2ff8a6c72b1574684f7d1d5aaf8",
+  "tests/test_humanoid_binary.py": "18d72db3df776eee2014f52326972ea2a6c35c828e9b2499936fb9658e6a79c6"
 }
