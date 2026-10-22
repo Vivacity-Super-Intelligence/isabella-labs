@@ -102,8 +102,8 @@ def catalog() -> RoboticsProgramCatalog:
         RoboticsProgram(id='humanoid_logistics', category='humanoids', name='Warehouse logistics',
                         robot_type='Unitree G1 with hands · 43 actuators', environment_id='warehouse_logistics',
                         task_id='parcel_navigation_and_place', status='not_implemented',
-                        scope='Full-body model, 3D warehouse and joint-driven parcel reach probe are available. Contact and delivery are measured.',
-                        missing_capability='Walking, contact-rich grasp, transport and placement controller.'),
+                        scope='A separate stationary G1 parcel pickup-and-placement trial executes in MuJoCo with measured bilateral contact, a documented rigid-grasp constraint and destination support. Full warehouse logistics is not validated.',
+                        missing_capability='Validated walking/carrying controller and same-world handoff from the sorting arm to the humanoid.'),
     ]
     return RoboticsProgramCatalog(programs=records)
 

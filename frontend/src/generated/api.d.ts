@@ -3052,6 +3052,33 @@ export interface components {
              */
             parcel_mass_kg: number;
             /**
+             * Parcel Xy M
+             * @default [
+             *       0.35,
+             *       0
+             *     ]
+             */
+            parcel_xy_m: [
+                number,
+                number
+            ];
+            /**
+             * Destination Xy M
+             * @default [
+             *       0.66,
+             *       -0.47
+             *     ]
+             */
+            destination_xy_m: [
+                number,
+                number
+            ];
+            /**
+             * Task Timeout S
+             * @default 8
+             */
+            task_timeout_s: number;
+            /**
              * Perturbation N
              * @default 0
              */

@@ -1,8 +1,11 @@
-# Humanoid lab — local verification, 2026-10-22
+# Humanoid lab — probe verification, 2026-10-22
 
-This is a **local implementation candidate**. It has not been deployed to
-`demo.tryvivacity.com`. The existing public site was left intact while the
-new models, controller probes, and browser experience were verified.
+This document records the earlier reach/switch/terrain probes. The separate
+stationary G1 pickup-and-placement milestone, its physical assumptions, tests,
+and current validation matrix are in
+[`docs/HUMANOID_CAPABILITY_AUDIT.md`](docs/HUMANOID_CAPABILITY_AUDIT.md).
+The G1 reach probe below remains a failed *probe*, while the newer bounded
+pickup action can succeed with a documented contact-gated rigid grasp.
 
 ## Working and measured
 
@@ -118,8 +121,9 @@ probe**. For the HTTP-only acceptance, run:
   assets carry their bundled BSD-style licenses; [Apollo](https://github.com/google-deepmind/mujoco_menagerie/tree/main/apptronik_apollo)
   carries Apache 2.0. Original license files are included next to source and
   exported visual assets. No purchased assets or Cosmos checkpoints were used.
-- G1 reaches and nudges the parcel but does not close a validated grasp,
-  walk, transport, or place it. The H1 gait probe falls and cannot traverse
+- The original G1 reach probe only reaches and nudges the parcel. The new
+  stationary pickup task is separate and does not establish walking or
+  shared-world warehouse logistics. The H1 gait probe falls and cannot traverse
   the ramp, steps, or uneven blocks. Apollo's nominal actuation works; robust
   balance and success across varying conditions have not been established.
 - Jobs run on one in-process worker with a two-job active cap. SQLite and

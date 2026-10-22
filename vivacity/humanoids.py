@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 
 import mujoco as mj
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from .storage import Store, encode
 
@@ -36,13 +36,28 @@ STATE = mj.mjtState.mjSTATE_INTEGRATION
 
 class HumanoidTrialRequest(BaseModel):
     robot_id: str
-    action: str = Field(default='attempt_task', pattern='^(attempt_task|hold_stance)$')
+    action: str = Field(default='attempt_task', pattern='^(attempt_task|hold_stance|pickup_place)$')
     duration_s: float = Field(default=2.0, ge=.5, le=3.0)
     movement_scale: float = Field(default=.6, ge=0, le=1)
     floor_friction: float = Field(default=.8, ge=.2, le=1.5)
     parcel_mass_kg: float = Field(default=.5, ge=.1, le=2)
+    parcel_xy_m: tuple[float, float] = (.35, 0.)
+    destination_xy_m: tuple[float, float] = (.66, -.47)
+    task_timeout_s: float = Field(default=8., ge=6., le=12.)
     perturbation_n: float = Field(default=0, ge=0, le=80)
     seed: int = Field(default=7, ge=0, le=2**31-1)
+
+    @model_validator(mode='after')
+    def valid_task_configuration(self):
+        if self.action == 'pickup_place' and self.robot_id != 'unitree_g1':
+            raise ValueError('Stationary pickup is validated only for Unitree G1 with hands')
+        if self.action == 'pickup_place' and 'movement_scale' not in self.model_fields_set:
+            self.movement_scale = 1.
+        if not (.18 <= self.parcel_xy_m[0] <= 1.0 and -.22 <= self.parcel_xy_m[1] <= .22):
+            raise ValueError('Parcel center must be inside the bounded collection workspace')
+        if not (.48 <= self.destination_xy_m[0] <= .76 and -.62 <= self.destination_xy_m[1] <= -.32):
+            raise ValueError('Destination center must be on the placement stand')
+        return self
 
 
 class HumanoidModelResponse(BaseModel):
@@ -98,10 +113,20 @@ def _scene(root, robot_id, friction, parcel_mass):
         for y in (-.8, .8):
             _add_box(world, f'pallet_{y}', [1.6,y,.08],[.4,.34,.08],[.43,.29,.18,1])
         _add_box(world, 'pickup_stand', [.35,0,.3],[.22,.23,.3],[.36,.37,.36,1])
+        # A separate support fixture keeps the robot's starting stance clear.
+        _add_box(world, 'placement_stand', [.66,-.47,.3],[.24,.35,.3],[.28,.43,.35,1])
         package = ET.SubElement(world, 'body', name='parcel', pos='.35 0 .68')
         ET.SubElement(package, 'freejoint', name='parcel_free')
         ET.SubElement(package, 'geom', name='parcel_box', type='box', size='.09 .09 .08',
                       mass=str(parcel_mass), rgba='.6 .39 .19 1', friction='0.8 0.005 0.0001')
+        # This disabled weld is activated only after measured bilateral hand
+        # contact. Its rest pose is set from the live relative transforms.
+        equality = root.find('equality')
+        if equality is None:
+            equality = ET.SubElement(root, 'equality')
+        ET.SubElement(equality, 'weld', name='parcel_grasp',
+                      body1='right_wrist_yaw_link', body2='parcel', active='false',
+                      relpose='0 0 0 1 0 0 0')
         _add_box(world, 'drop_zone', [1.65,0,.055],[.3,.3,.055],[.21,.43,.34,1])
     elif robot_id == 'apptronik_apollo':
         _add_box(world, 'cabinet', [.85,0,.85],[.22,.47,.85],[.23,.29,.31,1])
@@ -227,7 +252,9 @@ def model_info(robot_id):
             'joint_names': [mj.mj_id2name(model, mj.mjtObj.mjOBJ_JOINT, i) or f'joint_{i}' for i in range(model.njnt)],
             'initial_frame': _frame(model, data),
             'geometry_url': f'/vivacity/humanoids/{robot_id}/robot-geometry.json',
-            'task_scope': 'Physical task probe. Parcel transport, switch actuation, and terrain traversal require measured completion; previews alone are not success.'}
+            'task_scope': ('Stationary G1 parcel pickup and placement uses measured bilateral contact and an explicit rigid-grasp fixture. Walking and warehouse fulfillment are unvalidated.'
+                           if robot_id == 'unitree_g1' else
+                           'Physical task probe. Switch actuation and terrain traversal require measured completion; previews alone are not success.')}
 
 
 def _actuator_target(model, data, index):
@@ -362,6 +389,9 @@ def _terrain_foot_contacts(model, data):
 def simulate(request: HumanoidTrialRequest):
     if request.robot_id not in MODELS:
         raise ValueError('Unknown humanoid model')
+    if request.action == 'pickup_place':
+        from .humanoid_pickup import simulate_pickup
+        return simulate_pickup(request)
     model, digest = compiled_model(request.robot_id, request.floor_friction, request.parcel_mass_kg)
     data = initial_data(model)
     reach_targets, planning = _reach_plan(model, request.robot_id) if request.robot_id in ('unitree_g1', 'apptronik_apollo') and request.action == 'attempt_task' else (None, None)

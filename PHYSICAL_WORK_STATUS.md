@@ -13,7 +13,7 @@ Verified locally on 2026-10-22. This is a staged implementation, not a claim tha
 
 ## Not implemented
 
-- One physically shared factory world containing both Panda and a humanoid; humanoid collection, stable carrying, packing, carton closure, sealing, label application, dispatch, coordinated multi-robot timing, and running are **not validated controllers**. The order API keeps these stages blocked. Existing humanoid probes are separate experiments and do not count as fulfillment.
+- One physically shared factory world containing both Panda and a humanoid; humanoid collection from the Panda's sorted items, walking/carrying, packing, carton closure, sealing, label application, dispatch, coordinated multi-robot timing, and running are **not validated controllers**. The order API keeps these stages blocked. A separate stationary G1 pickup-and-placement experiment now passes its bounded MuJoCo acceptance tests with a documented contact-gated rigid grasp; it does not transfer the same sorted object or count as fulfillment. See `docs/HUMANOID_CAPABILITY_AUDIT.md`.
 - The world editor is supported for the MuJoCo pick-and-place **workcell**. It is not universal across the factory, humanoid, cloth, imported, or SciPy worlds. It does not add arbitrary dynamic rigid bodies or modify articulated robot topology, actuators, sensors, adhesion, or independent static/dynamic friction.
 - Browser undo/redo lasts for the current editor session; the saved-version list remains in SQLite. JSON export is available, but a dedicated re-import of that world-definition format is not implemented.
 - Physical results are simulation evidence, not hardware validation or calibrated material measurements.

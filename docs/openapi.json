@@ -8777,7 +8777,7 @@
           },
           "action": {
             "type": "string",
-            "pattern": "^(attempt_task|hold_stance)$",
+            "pattern": "^(attempt_task|hold_stance|pickup_place)$",
             "title": "Action",
             "default": "attempt_task"
           },
@@ -8808,6 +8808,49 @@
             "minimum": 0.1,
             "title": "Parcel Mass Kg",
             "default": 0.5
+          },
+          "parcel_xy_m": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Parcel Xy M",
+            "default": [
+              0.35,
+              0.0
+            ]
+          },
+          "destination_xy_m": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Destination Xy M",
+            "default": [
+              0.66,
+              -0.47
+            ]
+          },
+          "task_timeout_s": {
+            "type": "number",
+            "maximum": 12.0,
+            "minimum": 6.0,
+            "title": "Task Timeout S",
+            "default": 8.0
           },
           "perturbation_n": {
             "type": "number",
