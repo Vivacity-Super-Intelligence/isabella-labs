@@ -55,14 +55,18 @@ Actual checks executed for this candidate:
 - Manual browser inspection confirmed the homepage and laboratory route work
   after playback, with no page errors. The backend physics suite was not rerun
   for this opening-only change.
-- Vercel deployment `dpl_AE2ojDarMpsouHFfPSirfBnL1GJV` reached `READY` and was
-  assigned to the production domain. A clean live Chrome verification passed:
-  main film HTTP 206 and natural media end 7.500 s; later visit skipped with no
-  film request; portrait lite selected on mobile; reduced motion skipped; and
-  Enter the Lab reached `/laboratory`. The live `/runtime/health` returned 200
-  and listed MuJoCo, SciPy, and cloth. The first request at the unprimed edge
-  did not reach the natural end before recovery; the clean rerun after edge
-  warming passed. Both outcomes are preserved in the `the-one-live-*` evidence.
+- Initial Vercel deployment `dpl_AE2ojDarMpsouHFfPSirfBnL1GJV` and its health,
+  mobile, and full-playback results are historical; its former repeat-visit
+  bypass was replaced by this refresh behavior.
+- Vercel deployment `dpl_He1JeBQxtrqdQi1f5M8fHL18V897` reached `READY` and was
+  assigned to `https://demo.tryvivacity.com/`. A live browser check with normal
+  motion enabled verified: opening present on initial load; Skip dismissed the
+  current playback; a full refresh showed the opening again, with media time
+  already greater than zero. The browser originally had reduced motion enabled;
+  that setting was restored after verification, and the intro correctly bypasses
+  playback under that preference. The automated Playwright suite was not rerun
+  for this update. The production TypeScript/Vite build passed locally and in
+  Vercel; the existing large-chunk warning remains.
 
 Performance and evidence: offline capture of 450 frames took **34.845 s** for
 landscape and **35.257 s** for portrait on this machine. Delivered files are

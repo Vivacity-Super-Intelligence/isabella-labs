@@ -112,17 +112,17 @@ All four files are H.264/AAC, fast-start, and exactly 7.500 seconds according to
 
 Current test totals, initial failure history, and release status are in `IMPLEMENTATION_STATUS.md`. Evidence includes `artifacts/the-one-source-check.json`, `artifacts/the-one-browser-tests.json`, encoded contact sheets, and browser journey recordings. The initial failed test artifact is preserved alongside the subsequent corrected run.
 
-Vercel production deployment `dpl_AE2ojDarMpsouHFfPSirfBnL1GJV` reached
-`READY` and was assigned to `demo.tryvivacity.com`. The live production check
-passed: document HTTP 200, main film HTTP 206 and natural media end 7.500 s,
-repeat visit skipped with no film request, mobile selected portrait lite with
-no horizontal overflow, reduced motion bypassed, and Enter the Lab reached
-`/laboratory`. `/runtime/health` returned HTTP 200 with MuJoCo, SciPy, and cloth
-backends listed. The first public playback check on the unprimed deployment
-did not record natural completion; it did pass on rerun after the CDN edge had
-been contacted. See `artifacts/the-one-live-first-attempt.json` and
-`artifacts/the-one-live-verification.json` for both outcomes. The live homepage
-capture is `artifacts/the-one-production-live.png`.
+The initial Vercel release `dpl_AE2ojDarMpsouHFfPSirfBnL1GJV` was superseded on
+2026-10-22 by `dpl_He1JeBQxtrqdQi1f5M8fHL18V897`, now assigned to
+`demo.tryvivacity.com`. On the live site, a browser check with standard motion
+enabled confirmed the film appears on load, **Skip intro** dismisses it for that
+visit, and a subsequent full refresh starts the film again. The check's
+browser-reported media time was already greater than zero on both loads. The
+browser originally had reduced motion enabled; that preference was restored
+after verification, and the site correctly bypasses autoplay while it is set.
+The prior release's production health, mobile, and full-playback checks are
+recorded in `IMPLEMENTATION_STATUS.md` and the `artifacts/the-one-live-*` files;
+they were not repeated for this playback-policy-only change.
 
 ## Limits
 
