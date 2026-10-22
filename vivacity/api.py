@@ -5,7 +5,7 @@ import os
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
-from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport
+from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport, WorldEditorResponse, EditorChange, EditorGeometryAction, EditorMove, WorldVersion, RestoreWorldVersion
 from .schemas import ImportResponse,ImportPreview
 from .schemas import SessionRequest,SessionResponse,LiveState,TrialsResponse
 from .imports import ImportService,MAX_UPLOAD
@@ -30,6 +30,8 @@ def create_app(database=None):
         app.state.workspace = WorkspaceService(app.state.runtime)
         from .factory_service import FactoryService
         app.state.factory = FactoryService(app.state.workspace)
+        from .fulfillment import FulfillmentService
+        app.state.fulfillment = FulfillmentService(app.state.factory)
         yield
         await asyncio.to_thread(app.state.humanoids.close)
         await asyncio.to_thread(app.state.factory.close)
@@ -65,6 +67,8 @@ def create_app(database=None):
     app.include_router(router)
     from .factory_api import router as factory_router
     app.include_router(factory_router)
+    from .fulfillment_api import router as fulfillment_router
+    app.include_router(fulfillment_router)
 
     @app.exception_handler(PermissionError)
     async def permission(request,exc):
@@ -292,7 +296,31 @@ def create_app(database=None):
 
     @app.patch('/v1/worlds/{world_id}/environment', response_model=WorldResponse)
     def environment(world_id: str, request: EnvironmentPatch):
-        return app.state.runtime.environment(world_id, request.config)
+        return app.state.runtime.environment(world_id, request.config, request.expected_revision)
+
+    @app.get('/v1/worlds/{world_id}/editor', response_model=WorldEditorResponse)
+    def world_editor(world_id: str):
+        return app.state.runtime.editor(world_id)
+
+    @app.patch('/v1/worlds/{world_id}/editor/properties', response_model=WorldResponse)
+    def edit_world_property(world_id: str, request: EditorChange):
+        return app.state.runtime.edit_property(world_id, request)
+
+    @app.post('/v1/worlds/{world_id}/editor/geometries', response_model=WorldResponse)
+    def edit_world_geometry(world_id: str, request: EditorGeometryAction):
+        return app.state.runtime.edit_geometry(world_id, request)
+
+    @app.patch('/v1/worlds/{world_id}/editor/geometry-position', response_model=WorldResponse)
+    def move_world_geometry(world_id: str, request: EditorMove):
+        return app.state.runtime.move_geometry(world_id, request)
+
+    @app.get('/v1/worlds/{world_id}/versions', response_model=list[WorldVersion])
+    def world_versions(world_id: str):
+        return app.state.runtime.world_versions(world_id)
+
+    @app.post('/v1/worlds/{world_id}/versions/{revision}/restore', response_model=WorldResponse)
+    def restore_world_version(world_id: str, revision: int, request: RestoreWorldVersion):
+        return app.state.runtime.restore_world_version(world_id, revision, request.expected_revision)
 
     @app.get('/v1/experiments/{experiment_id}/replay', response_model=ReplayResponse)
     def replay(experiment_id: str):

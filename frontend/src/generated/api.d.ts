@@ -863,6 +863,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/fulfillment/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Orders */
+        get: operations["orders_v1_fulfillment_orders_get"];
+        put?: never;
+        /** Create Order */
+        post: operations["create_order_v1_fulfillment_orders_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/fulfillment/orders/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Order */
+        get: operations["order_v1_fulfillment_orders__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/fulfillment/orders/{identifier}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Order */
+        post: operations["start_order_v1_fulfillment_orders__identifier__start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1425,6 +1477,108 @@ export interface paths {
         patch: operations["environment_v1_worlds__world_id__environment_patch"];
         trace?: never;
     };
+    "/v1/worlds/{world_id}/editor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** World Editor */
+        get: operations["world_editor_v1_worlds__world_id__editor_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/worlds/{world_id}/editor/properties": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit World Property */
+        patch: operations["edit_world_property_v1_worlds__world_id__editor_properties_patch"];
+        trace?: never;
+    };
+    "/v1/worlds/{world_id}/editor/geometries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Edit World Geometry */
+        post: operations["edit_world_geometry_v1_worlds__world_id__editor_geometries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/worlds/{world_id}/editor/geometry-position": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Move World Geometry */
+        patch: operations["move_world_geometry_v1_worlds__world_id__editor_geometry_position_patch"];
+        trace?: never;
+    };
+    "/v1/worlds/{world_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** World Versions */
+        get: operations["world_versions_v1_worlds__world_id__versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/worlds/{world_id}/versions/{revision}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore World Version */
+        post: operations["restore_world_version_v1_worlds__world_id__versions__revision__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/experiments/{experiment_id}/replay": {
         parameters: {
             query?: never;
@@ -1882,10 +2036,109 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** EditorChange */
+        EditorChange: {
+            /** Expected Revision */
+            expected_revision: number;
+            /** Entity Id */
+            entity_id: string;
+            /** Property Key */
+            property_key: string;
+            /** Value */
+            value: number | boolean | string | null;
+        };
+        /** EditorEntity */
+        EditorEntity: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "object" | "obstacle" | "surface" | "robot" | "environment";
+            /** Properties */
+            properties: components["schemas"]["EditorProperty"][];
+        };
+        /** EditorGeometryAction */
+        EditorGeometryAction: {
+            /** Expected Revision */
+            expected_revision: number;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "add" | "duplicate" | "delete";
+            /** Entity Id */
+            entity_id?: string | null;
+            /**
+             * Geometry Type
+             * @default box
+             * @enum {string}
+             */
+            geometry_type: "box" | "cylinder";
+        };
+        /** EditorMove */
+        EditorMove: {
+            /** Expected Revision */
+            expected_revision: number;
+            /** Entity Id */
+            entity_id: string;
+            /** Position */
+            position: number[];
+        };
+        /** EditorProperty */
+        EditorProperty: {
+            /** Key */
+            key: string;
+            /** Path */
+            path: (string | number)[];
+            /** Label */
+            label: string;
+            /** Meaning */
+            meaning: string;
+            /** Unit */
+            unit: string;
+            /**
+             * Data Type
+             * @enum {string}
+             */
+            data_type: "number" | "boolean" | "choice";
+            /** Value */
+            value: number | boolean | string | null;
+            /** Minimum */
+            minimum?: number | null;
+            /** Maximum */
+            maximum?: number | null;
+            /** Step */
+            step?: number | null;
+            /**
+             * Choices
+             * @default []
+             */
+            choices: string[];
+            /**
+             * Editable
+             * @default true
+             */
+            editable: boolean;
+            /**
+             * Requires Reset
+             * @default true
+             */
+            requires_reset: boolean;
+            /** Dependency */
+            dependency: string;
+            /** Physics Effect */
+            physics_effect: string;
+        };
         /** EnvironmentPatch */
         EnvironmentPatch: {
             /** Config */
             config: components["schemas"]["RoboticsConfig"] | components["schemas"]["ScienceConfig"] | components["schemas"]["ClothConfig"];
+            /** Expected Revision */
+            expected_revision?: number | null;
         };
         /** EnvironmentProvenance */
         EnvironmentProvenance: {
@@ -2604,6 +2857,44 @@ export interface components {
              */
             gripper_force_scale: number;
         };
+        /** FulfillmentOrderResponse */
+        FulfillmentOrderResponse: {
+            /** Schema Version */
+            schema_version: string;
+            /** Id */
+            id: string;
+            /** Order Label */
+            order_label: string;
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Cell Id */
+            cell_id: string;
+            /** Run Id */
+            run_id: string | null;
+            /** Attempts */
+            attempts: string[];
+            settings: components["schemas"]["FactorySettings"];
+            /** Initial State Hash */
+            initial_state_hash: string;
+            /** Status */
+            status: string;
+            /** Items */
+            items: components["schemas"]["OrderItem"][];
+            /** Tasks */
+            tasks: components["schemas"]["TaskState"][];
+            /** Sorted Count */
+            sorted_count: number;
+            /** Metrics */
+            metrics: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Events */
+            events: {
+                [key: string]: components["schemas"]["JsonValue"];
+            }[];
+            /** Scope */
+            scope: string;
+        };
         /** GenerationRequest */
         GenerationRequest: {
             /** Prompt */
@@ -3032,6 +3323,29 @@ export interface components {
             /** Samples */
             samples: components["schemas"]["MeasurementPoint"][];
         };
+        /** OrderItem */
+        OrderItem: {
+            /** Item Id */
+            item_id: string;
+            /** Carton Id */
+            carton_id: string;
+            /** Status */
+            status: string;
+            /** Lane */
+            lane: string | null;
+            /** Mass Kg */
+            mass_kg: number | null;
+            /** Verified Simulation Time S */
+            verified_simulation_time_s: number | null;
+        };
+        /** OrderRequest */
+        OrderRequest: {
+            /** Order Label */
+            order_label: string;
+            /** Item Ids */
+            item_ids: string[];
+            settings: components["schemas"]["FactorySettings"];
+        };
         /** PhysicsSettings */
         PhysicsSettings: {
             /**
@@ -3200,6 +3514,11 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** RestoreWorldVersion */
+        RestoreWorldVersion: {
+            /** Expected Revision */
+            expected_revision: number;
+        };
         /** RoboticsConfig */
         RoboticsConfig: {
             /**
@@ -3300,11 +3619,18 @@ export interface components {
              * @default 0.06
              */
             cube_mass: number;
+            /** Cube Density Kg M3 */
+            cube_density_kg_m3?: number | null;
             /**
              * Cube Friction
              * @default 1
              */
             cube_friction: number;
+            /**
+             * Table Friction
+             * @default 1
+             */
+            table_friction: number;
             /**
              * Obstacle Position
              * @default [
@@ -3731,6 +4057,16 @@ export interface components {
             /** Size */
             size: number[];
             /**
+             * Quaternion Wxyz
+             * @default [
+             *       1,
+             *       0,
+             *       0,
+             *       0
+             *     ]
+             */
+            quaternion_wxyz: number[];
+            /**
              * Rgba
              * @default [
              *       0.4,
@@ -3745,6 +4081,15 @@ export interface components {
              * @default 0.8
              */
             friction: number;
+        };
+        /** TaskState */
+        TaskState: {
+            /** Stage */
+            stage: string;
+            /** Status */
+            status: string;
+            /** Reason */
+            reason: string | null;
         };
         /** TemplateCatalog */
         TemplateCatalog: {
@@ -3973,6 +4318,23 @@ export interface components {
              */
             note: string;
         };
+        /** WorldEditorResponse */
+        WorldEditorResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.world_editor/1.0
+             * @constant
+             */
+            schema_version: "vivacity.world_editor/1.0";
+            /** World Id */
+            world_id: string;
+            /** Revision */
+            revision: number;
+            /** Entities */
+            entities: components["schemas"]["EditorEntity"][];
+            /** Scope */
+            scope: string;
+        };
         /** WorldResponse */
         WorldResponse: {
             /**
@@ -4019,6 +4381,29 @@ export interface components {
             }[];
             /** Performance */
             performance: {
+                [key: string]: unknown;
+            };
+        };
+        /** WorldVersion */
+        WorldVersion: {
+            /**
+             * Schema Version
+             * @default vivacity.world_version/1.0
+             * @constant
+             */
+            schema_version: "vivacity.world_version/1.0";
+            /** World Id */
+            world_id: string;
+            /** Revision */
+            revision: number;
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Reason */
+            reason: string;
+            /** Source Revision */
+            source_revision?: number | null;
+            /** Config */
+            config: {
                 [key: string]: unknown;
             };
         };
@@ -6146,6 +6531,138 @@ export interface operations {
             };
         };
     };
+    orders_v1_fulfillment_orders_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FulfillmentOrderResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_order_v1_fulfillment_orders_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FulfillmentOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    order_v1_fulfillment_orders__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FulfillmentOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_order_v1_fulfillment_orders__identifier__start_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FulfillmentOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_health_get: {
         parameters: {
             query?: never;
@@ -7192,6 +7709,209 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["EnvironmentPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorldResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    world_editor_v1_worlds__world_id__editor_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                world_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorldEditorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_world_property_v1_worlds__world_id__editor_properties_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                world_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditorChange"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorldResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_world_geometry_v1_worlds__world_id__editor_geometries_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                world_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditorGeometryAction"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorldResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    move_world_geometry_v1_worlds__world_id__editor_geometry_position_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                world_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditorMove"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorldResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    world_versions_v1_worlds__world_id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                world_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorldVersion"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_world_version_v1_worlds__world_id__versions__revision__restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                world_id: string;
+                revision: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreWorldVersion"];
             };
         };
         responses: {

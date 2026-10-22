@@ -33,6 +33,7 @@ const ImportWorld=lazy(()=>import('./ImportWorld'));
 const WorldLibrary=lazy(()=>import('./WorldLibrary'));
 const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
 const HumanoidLab=lazy(()=>import('./HumanoidLab'));
+const PhysicalWorldEditor=lazy(()=>import('./PhysicalWorldEditor'));
 
 export default function App(){
   const [showOpening,setShowOpening]=useState(()=>shouldShowLabOpening(ISABELLA_OPENING_CONFIG,import.meta.env.DEV));
@@ -68,6 +69,7 @@ export default function App(){
   const backend=activeTemplate.backend,cloth=backend==='cloth';
   const rt=useRuntime(backend,activeTemplate.key??selectionKey(activeTemplate.selection),activeTemplate.config,activeTemplate.configurationId,page!=='factory'&&page!=='home'&&page!=='laboratory'&&page!=='discovery'&&robotCategory!=='humanoids'&&!selectedHumanoid);
   const [branchId,setBranchId]=useState<string|null>(null),[editing,setEditing]=useState(false),[downloadError,setDownloadError]=useState<string|null>(null);
+  const [editorSelection,setEditorSelection]=useState('object');
   const compatible=rt.world?.backend===backend&&(rt.world.config.robot_model??'panda')===(activeTemplate.config.robot_model??'panda'),branches=compatible?rt.branches:[];
   const ranked=useMemo(()=>{
     const ids=rt.experiment?.result.top_feasible_branch_ids as string[]|undefined;
@@ -113,6 +115,7 @@ export default function App(){
   const currentFrame=replayFrame??liveFrame;
   const frames=useMemo(()=>replay?.frames??(liveFrame?[liveFrame]:[]),[replay?.frames,liveFrame]);
   const config=compatible?rt.world?.config??{}:{};
+  const editorSupported=backend==='mujoco'&&config.task==='pick_place'&&config.scene_profile==='workcell';
   const terminal=compatible&&rt.experiment&&!isBusy(rt.experiment);
   const status=replay?(replay.playing?'Replaying measured trajectory':'Replay paused'):!rt.loaded?'Initializing':!rt.online?'Connection lost':rt.mutating?'Applying change':
     rt.session?.status==='stopping'?'Stopping safely':rt.session?.paused?'Simulation paused':
@@ -130,6 +133,11 @@ export default function App(){
     const sizes=objectHalfSizes(config),destination=placementAwayFrom(point,config.placement_position as Vec3,sizes);
     if(config.physical_operation==='stacking')destination[2]=3*sizes[2]+.001;
     return rt.apply({...config,cube_position:point,placement_position:destination});
+  };
+  const moveSceneGeometry=async(name:string,point:Vec3)=>{
+    const geom=(config.scene_geometries as {name:string;position:Vec3}[]|undefined)?.find(item=>item.name===name);
+    if(!geom)return false;
+    return rt.moveGeometry(`geometry:${name}`,point);
   };
   useEffect(()=>{setBranchId(null);setEditing(false);},[backend,rt.experiment?.id]);
   const loadConfiguration=async(saved:SavedConfiguration,world:LibraryWorld)=>{
@@ -180,14 +188,14 @@ export default function App(){
         <div className="workbench">
           <section className="visual-area" aria-label="Live simulation">
             {cloth?<Suspense fallback={<div className="viewport-loading">Loading cloth…</div>}><ClothView frames={frames as ClothFrame[]} cursor={cursor} time={currentFrame?.time??0} playing={false} config={config}/></Suspense>:
-              <Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={Boolean(replay)} playing={Boolean(replay?.playing)} renderTime={currentFrame?.time??0} canMoveCube={canMoveCube} onMoveCube={moveCube} visualWorld={visualWorld} overlays={inspecting?overlays:undefined} trace={rt.experiment?.stale?[]:(selected?.trace??[]).filter((f):f is RobotFrame=>!!robotFrame(f))} onSelect={s=>{setInspectSelection(s);setInspecting(true);setSetupOpen(false);}}/></Suspense>}
+              <Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={Boolean(replay)} playing={Boolean(replay?.playing)} renderTime={currentFrame?.time??0} canMoveCube={canMoveCube} onMoveCube={moveCube} canEditScene={editorSupported&&editing&&!disabled&&!rt.active&&!replay} onMoveGeometry={moveSceneGeometry} visualWorld={visualWorld} overlays={inspecting?overlays:undefined} trace={rt.experiment?.stale?[]:(selected?.trace??[]).filter((f):f is RobotFrame=>!!robotFrame(f))} onSelect={s=>{if(editorSupported){setEditorSelection(s);setEditing(true);setInspecting(false);}else{setInspectSelection(s==='robot'?'robot':'object');setInspecting(true);}setSetupOpen(false);}}/></Suspense>}
             <div className="simulation-strip"><div><span>Simulation time</span><strong>{format(replay?replay.frames[0].time+replayPosition:currentFrame?.time??0)} s</strong><small>{status}</small></div>{!cloth&&<button className="secondary" aria-pressed={inspecting} onClick={()=>{setInspecting(v=>!v);setSetupOpen(false);}}>Engineering inspection</button>}</div>
             {inspecting&&!cloth&&<details className="overlay-controls"><summary>Inspection overlays & legend</summary><div>{Object.entries(overlays).map(([id,on])=><label key={id}><input type="checkbox" checked={on} onChange={e=>setOverlays(o=>({...o,[id]:e.target.checked}))}/>{({forces:'Contact / applied forces',velocity:'Linear / angular velocity',center:'Center of mass',trajectory:'Recorded object trajectory',collision:'Robot collision geometry'} as Record<string,string>)[id]}</label>)}</div><p className="small">Amber: contact forces. Coral: applied force. Purple: torque. Teal: velocity / path. Blue: angular velocity. Vector lengths are scaled and capped for visibility. Trajectories use recorded samples from this experiment; this is not a video.</p></details>}
             <div className="experiment-actions">
               <button className="primary run-button" disabled={disabled||rt.active} onClick={()=>{setSetupOpen(false);void rt.run();}}>Start experiments<ArrowRight size={18}/></button>
               {rt.active&&<button className="secondary" disabled={disabled||rt.session?.status==='stopping'} onClick={rt.togglePause}>{rt.session?.pause_requested?'Resume simulation':'Pause simulation'}</button>}
               {rt.active&&<button className="secondary" disabled={disabled||rt.session?.status==='stopping'} onClick={async()=>{try{await rt.stop();}catch(e){setDownloadError(errorMessage(e));}}}>Stop experiments</button>}
-              <button className="secondary" disabled={disabled} onClick={()=>{setInspecting(false);setSetupOpen(false);setEditing(e=>!e);}}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':'Change conditions'}</button>
+              <button className="secondary" disabled={disabled} onClick={()=>{setInspecting(false);setSetupOpen(false);setEditing(e=>!e);}}><SlidersHorizontal size={18}/>{cloth?'Cloth settings':editorSupported?'Edit physical world':'Change conditions'}</button>
               <button className="secondary" disabled={disabled} onClick={rt.reset}><ArrowsClockwise size={18}/>Reset world</button>
             </div>
             {backend==='mujoco'&&terminal&&!rt.active&&!rt.experiment?.stale&&selected&&<div className="workspace-replay">
@@ -206,6 +214,7 @@ export default function App(){
             <div className="section-heading"><h2>{cloth?'Best verified folds':'Best verified placements'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
             {backend==='mujoco'&&config.task==='pick_place'&&config.scene_profile!=='orbital_salvage'&&<details className="sensor-details"><summary>Simulator object localization</summary><p className="sensor-summary" data-testid="object-perception" role="status">{rt.active?'Object localization pauses during physical execution.':rt.perception?.detected&&rt.perception.estimated_xy_m?`Simulated depth sensing: object at X ${format(rt.perception.estimated_xy_m[0])} m, Y ${format(rt.perception.estimated_xy_m[1])} m from ${rt.perception.visible_cube_rays} simulated depth rays.`:rt.perception?'Object is not visible to the simulated overhead sensor.':'Locating the object…'} <span>Simulator labels, not a real camera.</span></p></details>}
             {editing&&rt.world?cloth?<ClothSettings key={rt.world.id} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:
+              editorSupported?<Suspense fallback={<p role="status">Loading world editor…</p>}><PhysicalWorldEditor key={rt.world.id} world={rt.world} selected={editorSelection} select={setEditorSelection} disabled={disabled||Boolean(replay)} editProperty={rt.editProperty} editGeometry={rt.editGeometry} restoreVersion={rt.restoreVersion} apply={rt.apply} close={()=>setEditing(false)}/></Suspense>:
               <Settings key={rt.world.id} config={rt.world.config} disabled={disabled} apply={rt.apply} close={()=>setEditing(false)}/>:<>
               {!ranked.length?<p className="results-empty">{rt.busy?'Computing and validating independent alternatives…':terminal&&rt.experiment?.selected_branch_id?'Loading measured results…':terminal?'No feasible candidate. Measured failures are retained below.':rt.loaded?'Choose Start experiments when you’re ready. You can change the settings first.':'Initializing an actual physical world…'}</p>:
                 ranked.map((b,i)=><ResultCard key={b.id} branch={b} rank={i} selected={b.id===selected?.id} choose={()=>setBranchId(b.id)} download={()=>{setDownloadError(null);api.download(b.experiment_id,b.id).catch(e=>setDownloadError(errorMessage(e)));}}/>)}
