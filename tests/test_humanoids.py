@@ -34,7 +34,14 @@ def test_distinct_full_body_models_and_frontend_geometry(robot_id, minimum_dof, 
     assert model.geom('floor').id >= 0
     assert info['initial_frame']['contacts'] >= 0
     assert digest == info['model_hash']
+
+
+@pytest.mark.parametrize('robot_id', ['unitree_g1', 'apptronik_apollo', 'unitree_h1'])
+def test_exported_frontend_geometry_matches_compiled_model_when_packaged(robot_id):
+    model, digest = compiled_model(robot_id)
     directory = Path(__file__).resolve().parents[1] / 'frontend/public/vivacity/humanoids' / robot_id
+    if not directory.is_dir():
+        pytest.skip('Frontend visual assets are shipped by the separate web build, not the backend image')
     manifest = json.loads((directory / 'robot-geometry.json').read_text())
     assert manifest['model_hash'] == digest
     assert manifest['simulator_version'] == mj.__version__
