@@ -365,7 +365,7 @@
   "tests/test_host_limits.py": "9fbddd6649675161571363654683d260f4b037ac90e846417f3164e70937641f",
   "tests/test_humanoid_binary.py": "a99686d5d9ee8772cdabe7663a6a3aefbf06d81956760b8ec3aee3c626d452a0",
   "tests/test_humanoid_host_capacity.py": "ee276f70965eef6e5210a3966fe8b391dc3e9ed7538bafe45fa76484ab9d0a8a",
-  "tests/test_humanoid_live.py": "185d6cca0206abb83b40c4d1b207681b1fbfc336b4a1da2be4d08988af931f69",
+  "tests/test_humanoid_live.py": "0add4e2a70a631832ef97fc5be098ec8eb87999121c3ad4b449c39bb87a46f7f",
   "tests/test_humanoid_pickup.py": "742989a3e04e45c1bece89fbf1837d79e50f738d87263497a8a2453fbb8cbf9b",
   "tests/test_humanoids.py": "8f6c102682471d853ba97aedf467e7c8d54d71a7365071ea090520d81c3c9c59",
   "tests/test_import_physics.py": "4c392d1fd7d2b2f992f8f4d82965ada232a375f4a0ee1696aa3f1c2950d24b7a",
