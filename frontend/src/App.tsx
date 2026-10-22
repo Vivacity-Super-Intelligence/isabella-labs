@@ -10,6 +10,7 @@ import TechnicalInspector from './TechnicalInspector';
 import ResultCard from './ResultCard';
 import IsabellaHome from './IsabellaHome';
 import LabOpening from './LabOpening';
+import { ISABELLA_OPENING_CONFIG, shouldShowLabOpening } from './openingConfig';
 import { DEFAULT_SELECTION, selectionKey, type Selection } from './TemplatePicker';
 import ExperimentSetup from './ExperimentSetup';
 import VRoboticsPrograms from './VRoboticsPrograms';
@@ -34,8 +35,8 @@ const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
 const HumanoidLab=lazy(()=>import('./HumanoidLab'));
 
 export default function App(){
-  const [showOpening,setShowOpening]=useState(()=>window.location.pathname==='/'&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const finishOpening=useCallback(()=>{document.querySelector<HTMLElement>('.isabella-home')?.removeAttribute('inert');document.getElementById('isabella-main')?.focus({preventScroll:true});setShowOpening(false);},[]);
+  const [showOpening,setShowOpening]=useState(()=>shouldShowLabOpening(ISABELLA_OPENING_CONFIG,import.meta.env.DEV));
+  const finishOpening=useCallback(()=>{document.querySelector<HTMLElement>(ISABELLA_OPENING_CONFIG.homeRootSelector)?.removeAttribute('inert');document.getElementById(ISABELLA_OPENING_CONFIG.homeFocusTarget)?.focus({preventScroll:true});setShowOpening(false);},[]);
   const [guidedAutostart,setGuidedAutostart]=useState(()=>new URLSearchParams(window.location.search).get('guided')==='1');
   const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:defaultWorkcell,key:'curated-warehouse-v1',name:'Franka Panda / Industrial warehouse / Pick and place'});
   const [draft,setDraft]=useState<Configuration>(defaultConfiguration('warehouse'));
@@ -222,6 +223,6 @@ export default function App(){
       </>}
     </main>
     </>}
-    {showOpening&&page==='home'&&<LabOpening finish={finishOpening}/>}
+    {showOpening&&page==='home'&&<LabOpening config={ISABELLA_OPENING_CONFIG} finish={finishOpening}/>}
   </>;
 }

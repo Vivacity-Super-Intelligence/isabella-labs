@@ -1,0 +1,64 @@
+{
+  "url": "http://127.0.0.1:5178/",
+  "kind": "actual_browser_recording",
+  "formats": [
+    {
+      "format": "landscape",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "mediaResponses": [
+        {
+          "status": 206,
+          "url": "http://127.0.0.1:5178/vivacity/the-one-isabella-landscape-lite.mp4"
+        }
+      ],
+      "uncaughtErrors": [],
+      "physicsStarts": 0,
+      "documentStatus": 200,
+      "clientBundle": "/assets/index-CDlTsRId.js",
+      "mediaSource": "/vivacity/the-one-isabella-landscape-lite.mp4",
+      "playback": {
+        "mediaEnd": 7.5,
+        "wallMs": 7545,
+        "homeInert": false,
+        "focused": "isabella-main",
+        "overflow": false
+      },
+      "homepageScreenshot": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-browser-home-landscape.png",
+      "labRoute": "http://127.0.0.1:5178/laboratory",
+      "recording": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-browser-recordings\\the-one-landscape-journey.webm"
+    },
+    {
+      "format": "portrait",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mediaResponses": [
+        {
+          "status": 206,
+          "url": "http://127.0.0.1:5178/vivacity/the-one-isabella-portrait-lite.mp4"
+        }
+      ],
+      "uncaughtErrors": [],
+      "physicsStarts": 0,
+      "documentStatus": 200,
+      "clientBundle": "/assets/index-CDlTsRId.js",
+      "mediaSource": "/vivacity/the-one-isabella-portrait-lite.mp4",
+      "playback": {
+        "mediaEnd": 7.5,
+        "wallMs": 7546.100000023842,
+        "homeInert": false,
+        "focused": "isabella-main",
+        "overflow": false
+      },
+      "homepageScreenshot": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-browser-home-portrait.png",
+      "labRoute": "http://127.0.0.1:5178/laboratory",
+      "recording": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-browser-recordings\\the-one-portrait-journey.webm"
+    }
+  ],
+  "passed": true,
+  "errors": []
+}

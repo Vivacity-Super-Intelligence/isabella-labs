@@ -1,0 +1,184 @@
+{
+  "schema_version": "vivacity.the-one-review/1.0",
+  "complete": true,
+  "formats": [
+    {
+      "format": "landscape",
+      "film": "P:\\VIVACITY\\DEMO-\\frontend\\public\\vivacity\\the-one-isabella-landscape.mp4",
+      "contact": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\contact.png",
+      "complete": true,
+      "frames": [
+        {
+          "time_s": 0.4,
+          "beat": "FIRST CONTACT",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\0.40s.png"
+        },
+        {
+          "time_s": 1.4,
+          "beat": "THE MACHINE",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\1.40s.png"
+        },
+        {
+          "time_s": 2.65,
+          "beat": "THE INTERRUPTION",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\2.65s.png"
+        },
+        {
+          "time_s": 3.65,
+          "beat": "WORLD FRACTURE",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\3.65s.png"
+        },
+        {
+          "time_s": 4.4,
+          "beat": "ALTERNATE WORLDS",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\4.40s.png"
+        },
+        {
+          "time_s": 5.1,
+          "beat": "CONVERGENCE",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\5.10s.png"
+        },
+        {
+          "time_s": 6.0,
+          "beat": "VIVACITY",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\6.00s.png"
+        },
+        {
+          "time_s": 6.9,
+          "beat": "ENTER ISABELLA LABS",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-landscape\\6.90s.png"
+        },
+        {
+          "time_s": 7.5,
+          "beat": "ACTIVE HOMEPAGE",
+          "kind": "browser_screenshot",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-browser-home-landscape.png",
+          "capture_semantics": "Browser screenshot after natural media completion; screenshot wall time can be later than 7.500s."
+        }
+      ],
+      "video": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1440,
+            "height": 810,
+            "avg_frame_rate": "60/1",
+            "nb_frames": "450",
+            "side_data_list": [
+              {}
+            ]
+          },
+          {
+            "codec_name": "aac",
+            "avg_frame_rate": "0/0",
+            "nb_frames": "353"
+          }
+        ],
+        "format": {
+          "duration": "7.500000",
+          "size": "5095243"
+        }
+      },
+      "limits": "Contact sheets support visual inspection. They do not establish motion quality, accessibility, or interactivity on their own."
+    },
+    {
+      "format": "portrait",
+      "film": "P:\\VIVACITY\\DEMO-\\frontend\\public\\vivacity\\the-one-isabella-portrait.mp4",
+      "contact": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\contact.png",
+      "complete": true,
+      "frames": [
+        {
+          "time_s": 0.4,
+          "beat": "FIRST CONTACT",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\0.40s.png"
+        },
+        {
+          "time_s": 1.4,
+          "beat": "THE MACHINE",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\1.40s.png"
+        },
+        {
+          "time_s": 2.65,
+          "beat": "THE INTERRUPTION",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\2.65s.png"
+        },
+        {
+          "time_s": 3.65,
+          "beat": "WORLD FRACTURE",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\3.65s.png"
+        },
+        {
+          "time_s": 4.4,
+          "beat": "ALTERNATE WORLDS",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\4.40s.png"
+        },
+        {
+          "time_s": 5.1,
+          "beat": "CONVERGENCE",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\5.10s.png"
+        },
+        {
+          "time_s": 6.0,
+          "beat": "VIVACITY",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\6.00s.png"
+        },
+        {
+          "time_s": 6.9,
+          "beat": "ENTER ISABELLA LABS",
+          "kind": "decoded_film_frame",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-encoded-portrait\\6.90s.png"
+        },
+        {
+          "time_s": 7.5,
+          "beat": "ACTIVE HOMEPAGE",
+          "kind": "browser_screenshot",
+          "file": "P:\\VIVACITY\\DEMO-\\artifacts\\the-one-browser-home-portrait.png",
+          "capture_semantics": "Browser screenshot after natural media completion; screenshot wall time can be later than 7.500s."
+        }
+      ],
+      "video": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 720,
+            "height": 1280,
+            "avg_frame_rate": "60/1",
+            "nb_frames": "450",
+            "side_data_list": [
+              {}
+            ]
+          },
+          {
+            "codec_name": "aac",
+            "avg_frame_rate": "0/0",
+            "nb_frames": "353"
+          }
+        ],
+        "format": {
+          "duration": "7.500000",
+          "size": "3977039"
+        }
+      },
+      "limits": "Contact sheets support visual inspection. They do not establish motion quality, accessibility, or interactivity on their own."
+    }
+  ]
+}

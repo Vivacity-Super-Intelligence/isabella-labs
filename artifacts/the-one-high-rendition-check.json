@@ -1,0 +1,68 @@
+{
+  "url": "http://127.0.0.1:5178/",
+  "kind": "real_http_high_rendition_playback",
+  "formats": [
+    {
+      "format": "landscape",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "responses": [
+        {
+          "url": "http://127.0.0.1:5178/vivacity/the-one-isabella-landscape.mp4",
+          "status": 206
+        }
+      ],
+      "errors": [],
+      "documentStatus": 200,
+      "clientBundle": "/assets/index-CDlTsRId.js",
+      "source": "/vivacity/the-one-isabella-landscape.mp4",
+      "playback": {
+        "mediaEnd": 7.5,
+        "duration": 7.5,
+        "wallMs": 8208.100000023842,
+        "width": 1440,
+        "height": 810,
+        "totalVideoFrames": 450,
+        "droppedVideoFrames": 0
+      },
+      "home": {
+        "inert": false,
+        "focused": "isabella-main"
+      }
+    },
+    {
+      "format": "portrait",
+      "viewport": {
+        "width": 720,
+        "height": 1280
+      },
+      "responses": [
+        {
+          "url": "http://127.0.0.1:5178/vivacity/the-one-isabella-portrait.mp4",
+          "status": 206
+        }
+      ],
+      "errors": [],
+      "documentStatus": 200,
+      "clientBundle": "/assets/index-CDlTsRId.js",
+      "source": "/vivacity/the-one-isabella-portrait.mp4",
+      "playback": {
+        "mediaEnd": 7.5,
+        "duration": 7.5,
+        "wallMs": 7582,
+        "width": 720,
+        "height": 1280,
+        "totalVideoFrames": 450,
+        "droppedVideoFrames": 1
+      },
+      "home": {
+        "inert": false,
+        "focused": "isabella-main"
+      }
+    }
+  ],
+  "passed": true,
+  "errors": []
+}

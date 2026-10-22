@@ -27,3 +27,4 @@ frontend/cinematic/generated/*
 !frontend/cinematic/generated/xarm7.json
 !frontend/cinematic/generated/unitree_h1.bin
 !frontend/cinematic/generated/unitree_h1.json
+!frontend/cinematic/generated/the-one-panda-motion.json
