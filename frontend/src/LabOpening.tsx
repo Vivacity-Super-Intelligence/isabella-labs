@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
-import { markLabOpeningSeen, openingMediaSource, OPENING_TIMELINE, type LabOpeningConfig } from './openingConfig';
+import { openingMediaSource, OPENING_TIMELINE, type LabOpeningConfig } from './openingConfig';
 import './labOpening.css';
 
 export const OPENING_DURATION_MS = OPENING_TIMELINE.durationSeconds * 1000;
@@ -31,7 +31,6 @@ export default function LabOpening({ config, finish }: { config: LabOpeningConfi
     finished.current = true;
     if (finishTimer.current !== null) window.clearTimeout(finishTimer.current);
     video.current?.pause();
-    markLabOpeningSeen(config);
     finish();
   }, [config, finish]);
 

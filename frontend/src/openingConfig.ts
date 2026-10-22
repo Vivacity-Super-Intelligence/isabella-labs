@@ -35,30 +35,14 @@ export const ISABELLA_OPENING_CONFIG: Readonly<LabOpeningConfig> = Object.freeze
   homeFocusTarget: 'isabella-main',
 });
 
-const seenThisPage = new Set<string>();
-
-export const openingVisitKey = (config: LabOpeningConfig) =>
-  `vivacity:opening:${config.labId}:${config.version}`;
-
 export function shouldShowLabOpening(config: LabOpeningConfig, allowDebugReplay = false): boolean {
   if (window.location.pathname !== config.landingRoute ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
   const query = new URLSearchParams(window.location.search);
   if (query.get('intro') === 'replay' || (allowDebugReplay && query.has('introDebug'))) return true;
-  const key = openingVisitKey(config);
-  if (seenThisPage.has(key)) return false;
-  try {
-    return window.localStorage.getItem(key) !== 'seen';
-  } catch {
-    // Private browsing/storage policy must never prevent the application opening.
-    return true;
-  }
-}
-
-export function markLabOpeningSeen(config: LabOpeningConfig): void {
-  const key = openingVisitKey(config);
-  seenThisPage.add(key);
-  try { window.localStorage.setItem(key, 'seen'); } catch { /* Storage is optional. */ }
+  // The opening is part of each homepage load. Skip only dismisses this instance;
+  // a refresh starts a fresh playback without relying on storage state.
+  return true;
 }
 
 export function openingMediaSource(config: LabOpeningConfig, portrait: boolean, lite: boolean): string {

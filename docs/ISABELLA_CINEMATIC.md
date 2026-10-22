@@ -26,12 +26,12 @@ The aperture opens from 6.98 to 7.50 seconds. This is a **video-to-DOM transitio
 
 `LabOpening.tsx` selects landscape or portrait at mount and uses `object-fit: contain` to preserve composition. Portrait devices at 600 px or narrower, data saver, and slow connection hints select a lighter rendition. Rotating across the aspect breakpoint exits to the homepage instead of swapping shots midway.
 
-- First visits play muted. **Sound** requires a visitor gesture.
+- Each play starts muted. **Sound** requires a visitor gesture.
 - **Skip intro** and **Escape** reveal and focus the existing homepage.
-- A versioned local-storage marker bypasses later visits and refreshes.
-- `/?intro=replay` explicitly replays the current version.
+- Each homepage load, including refreshes, starts the opening again. **Skip intro** or **Escape** dismisses only that playback; it never creates a persistent skip preference.
+- `/?intro=replay` explicitly requests playback and remains useful for sharing/reviewing the opening.
 - Reduced motion bypasses playback, including explicit replay. Enabling it during playback exits immediately.
-- Storage denial cannot block the page. The fallback marker lasts only for the current page lifetime, so a fresh page may replay.
+- Playback does not depend on browser storage, so storage restrictions cannot block the page or change refresh behavior.
 - Homepage input is inert while the film owns focus. Completion restores input, scrolling, and focus. The intro never starts an experiment.
 - Metadata arrival requests playback; `canplay` is also supported. A download with no metadata exits after 2.3 seconds. A metadata-ready decoder has a bounded 5 seconds total to start. Media errors and autoplay refusal also exit safely.
 - Actual media completion owns the normal ending. A 15-second playback watchdog recovers a stalled decoder. Listeners, timers, and animation callbacks are released on unmount.

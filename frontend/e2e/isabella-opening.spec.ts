@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const FILM='/vivacity/the-one-isabella';
-const VISIT_KEY='vivacity:opening:isabella:the-one-v1';
 const homeHeading=/Let robots.*fail here.*first/i;
 const intro=(page:Page)=>page.getByRole('dialog',{name:'Isabella Labs introduction'});
 const film=(page:Page)=>page.locator('.lab-opening-video');
@@ -75,14 +74,14 @@ test('the actual film plays 7.5 seconds, hands off to the homepage, and starts n
  await expect(page).toHaveURL(/\/laboratory$/);
 });
 
-test('skip is immediate, repeat visits bypass, and explicit replay remains available',async({page})=>{
+test('skip is immediate and a refreshed homepage starts the opening again',async({page})=>{
  await useDataSaver(page);await warmFilm(page);
  await page.goto('/',{waitUntil:'domcontentloaded'});await expect(intro(page)).toBeVisible();
  await page.getByRole('button',{name:/Skip intro/i}).click();await usableHome(page);
- expect(await page.evaluate(key=>localStorage.getItem(key),VISIT_KEY)).toBe('seen');
  let repeatFilmRequests=0;page.on('request',request=>{if(request.url().includes(FILM))repeatFilmRequests++;});
- await page.reload({waitUntil:'domcontentloaded'});await usableHome(page,{focused:false});
- expect(repeatFilmRequests).toBe(0);
+ await page.reload({waitUntil:'domcontentloaded'});await expect(intro(page)).toBeVisible();
+ await expect.poll(()=>repeatFilmRequests).toBeGreaterThan(0);
+ await page.keyboard.press('Escape');await usableHome(page);
  await page.goto('/?intro=replay',{waitUntil:'domcontentloaded'});await expect(intro(page)).toBeVisible();
  await page.keyboard.press('Escape');await usableHome(page);
 });
@@ -153,10 +152,9 @@ test('resizing within the frame orientation preserves the film; rotation exits w
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
 });
 
-test('a failed media request leaves an interactive homepage and marks the attempted visit',async({page})=>{
+test('a failed media request leaves an interactive homepage',async({page})=>{
  await page.route(`**${FILM}-*.mp4`,route=>route.abort());
  await page.goto('/',{waitUntil:'domcontentloaded'});await expect(intro(page)).toHaveCount(0,{timeout:5_000});await usableHome(page);
- expect(await page.evaluate(key=>localStorage.getItem(key),VISIT_KEY)).toBe('seen');
  await page.locator('.isabella-hero-actions').getByRole('button',{name:/Enter the lab/i}).click();
  await expect(page).toHaveURL(/\/laboratory$/);
 });

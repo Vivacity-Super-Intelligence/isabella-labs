@@ -10,9 +10,16 @@ historical, not verification of this new opening.
 
 Working delivery includes separately framed landscape/portrait films, smaller
 30 fps variants, a reusable lab configuration, muted playback with gesture-based
-sound, Skip, Escape, repeat-visit bypass, explicit `/?intro=replay`, reduced
-motion, focus restoration, and failure recovery. The film never starts a physics
-experiment. A denied storage policy cannot block the homepage.
+sound, Skip, Escape, replay on every homepage load/refresh, explicit
+`/?intro=replay`, reduced motion, focus restoration, and failure recovery. Skip
+applies to the current playback only. The film never starts a physics experiment
+and does not depend on browser storage.
+
+On 2026-10-22 the one-time replay suppression was removed so refreshing the
+homepage starts the film again. The existing Playwright acceptance case now
+checks skip → refresh → opening playback. The production TypeScript/Vite build
+passes after this change. The automated browser suite has not yet been rerun for
+this update; its earlier **16/16** result below is historical.
 
 Actual checks executed for this candidate:
 
@@ -25,8 +32,9 @@ Actual checks executed for this candidate:
   before convergence was 0.0652365 m per 60 fps sample in the scaled scene.
 - All four MP4s passed ffprobe validation at exactly **7.500 seconds**. Main
   films have 450 frames at 60 fps; lighter films have 225 frames at 30 fps.
-- The final isolated production-preview Chrome suite passed **16/16 in 54.9 s**.
-  It covers actual timed playback and lab entry, repeat visits, sound, keyboard
+- Before the replay-on-refresh change, the isolated production-preview Chrome
+  suite passed **16/16 in 54.9 s**. That historical run covered timed playback
+  and lab entry, repeat visits, sound, keyboard
   focus/Escape, storage denial, reduced motion, 320/390 px framing, resize,
   network failure, stalled loading, autoplay refusal, rendition selection,
   metadata-triggered playback, and decoder-startup recovery.
