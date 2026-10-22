@@ -1,0 +1,30 @@
+{
+  "url": "https://demo.tryvivacity.com/",
+  "firstVisit": {
+    "documentStatus": 200,
+    "videoResponse": 206,
+    "videoSource": "/vivacity/the-one-isabella-landscape.mp4",
+    "mediaEnd": 7.5,
+    "homeVisible": true,
+    "homeInert": null
+  },
+  "repeatVisit": {
+    "introCount": 0,
+    "mediaRequests": 0
+  },
+  "mobile": {
+    "documentStatus": 200,
+    "videoSource": "/vivacity/the-one-isabella-portrait-lite.mp4",
+    "fit": "contain",
+    "homeVisible": true,
+    "horizontalOverflow": false
+  },
+  "reducedMotion": {
+    "documentStatus": 200,
+    "introCount": 0,
+    "homeVisible": true
+  },
+  "errors": [],
+  "labRoute": "https://demo.tryvivacity.com/laboratory",
+  "passed": true
+}

@@ -1,6 +1,6 @@
 # Vivacity — The One
 
-The Isabella Labs opening is a **7.500-second authored film**, rendered offline from a deterministic Three.js scene. One metallic cube connects a Panda arm, a divided industrial hall, four alternative states, and the Vivacity identity. This is a local release candidate; it has not been deployed. The homepage and experiment interfaces are preserved.
+The Isabella Labs opening is a **7.500-second authored film**, rendered offline from a deterministic Three.js scene. One metallic cube connects a Panda arm, a divided industrial hall, four alternative states, and the Vivacity identity. The verified production deployment is available at <https://demo.tryvivacity.com/>. The homepage and experiment interfaces are preserved.
 
 This is brand cinematography, not experiment footage or proof of a grasp. The arm uses actual MuJoCo forward kinematics over authored joint trajectories. The cube is explicitly attached until release, deliberately suspended, then follows a calculated gravity arc. The architectural transformation is authored. The film does not generate or display scientific results.
 
@@ -111,6 +111,18 @@ The first eight tiles decode the delivered MP4 at 0.40, 1.40, 2.65, 3.65, 4.40, 
 All four files are H.264/AAC, fast-start, and exactly 7.500 seconds according to ffprobe. The soundtrack is 48 kHz stereo, peak −11.75 dBFS with no clipping. Offline frame capture took 34.845 seconds for landscape and 35.257 seconds for portrait on this machine; those are render times, not client playback or backend performance claims.
 
 Current test totals, initial failure history, and release status are in `IMPLEMENTATION_STATUS.md`. Evidence includes `artifacts/the-one-source-check.json`, `artifacts/the-one-browser-tests.json`, encoded contact sheets, and browser journey recordings. The initial failed test artifact is preserved alongside the subsequent corrected run.
+
+Vercel production deployment `dpl_AE2ojDarMpsouHFfPSirfBnL1GJV` reached
+`READY` and was assigned to `demo.tryvivacity.com`. The live production check
+passed: document HTTP 200, main film HTTP 206 and natural media end 7.500 s,
+repeat visit skipped with no film request, mobile selected portrait lite with
+no horizontal overflow, reduced motion bypassed, and Enter the Lab reached
+`/laboratory`. `/runtime/health` returned HTTP 200 with MuJoCo, SciPy, and cloth
+backends listed. The first public playback check on the unprimed deployment
+did not record natural completion; it did pass on rerun after the CDN edge had
+been contacted. See `artifacts/the-one-live-first-attempt.json` and
+`artifacts/the-one-live-verification.json` for both outcomes. The live homepage
+capture is `artifacts/the-one-production-live.png`.
 
 ## Limits
 

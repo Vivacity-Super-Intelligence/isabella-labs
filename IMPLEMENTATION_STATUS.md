@@ -4,8 +4,9 @@ The homepage opening has been rebuilt as a 7.500-second authored film: Panda
 gripper contact, synchronized machinery, a suspended cube, a divided industrial
 hall, four alternative states, structural convergence, VIVACITY, and the
 Isabella Labs homepage handoff. The existing homepage, labs, experiment runtime,
-and backend were preserved. **This candidate has not been deployed.** The older
-production record below is historical, not verification of this new opening.
+and backend were preserved. The opening is deployed at
+`https://demo.tryvivacity.com/`. The older production record below is
+historical, not verification of this new opening.
 
 Working delivery includes separately framed landscape/portrait films, smaller
 30 fps variants, a reusable lab configuration, muted playback with gesture-based
@@ -46,6 +47,14 @@ Actual checks executed for this candidate:
 - Manual browser inspection confirmed the homepage and laboratory route work
   after playback, with no page errors. The backend physics suite was not rerun
   for this opening-only change.
+- Vercel deployment `dpl_AE2ojDarMpsouHFfPSirfBnL1GJV` reached `READY` and was
+  assigned to the production domain. A clean live Chrome verification passed:
+  main film HTTP 206 and natural media end 7.500 s; later visit skipped with no
+  film request; portrait lite selected on mobile; reduced motion skipped; and
+  Enter the Lab reached `/laboratory`. The live `/runtime/health` returned 200
+  and listed MuJoCo, SciPy, and cloth. The first request at the unprimed edge
+  did not reach the natural end before recovery; the clean rerun after edge
+  warming passed. Both outcomes are preserved in the `the-one-live-*` evidence.
 
 Performance and evidence: offline capture of 450 frames took **34.845 s** for
 landscape and **35.257 s** for portrait on this machine. Delivered files are

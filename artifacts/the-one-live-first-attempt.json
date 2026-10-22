@@ -1,0 +1,27 @@
+{
+  "url": "https://demo.tryvivacity.com/",
+  "deployment": "dpl_AE2ojDarMpsouHFfPSirfBnL1GJV",
+  "kind": "first_public_cold_edge_attempt",
+  "firstVisit": {
+    "documentStatus": 200,
+    "videoSource": "/vivacity/the-one-isabella-landscape.mp4",
+    "videoResponse": 206,
+    "mediaEnd": null,
+    "homeVisible": true,
+    "homeInert": null,
+    "result": "The home became usable, but the first natural-ending capture did not observe 7.500s."
+  },
+  "repeatVisit": {"introCount": 0, "mediaRequests": 0},
+  "mobile": {
+    "documentStatus": 200,
+    "videoSource": "/vivacity/the-one-isabella-portrait-lite.mp4",
+    "fit": "contain",
+    "homeVisible": true,
+    "horizontalOverflow": false
+  },
+  "reducedMotion": {"documentStatus": 200, "introCount": 0, "homeVisible": true},
+  "errors": [],
+  "labRoute": "https://demo.tryvivacity.com/laboratory",
+  "passed": false,
+  "followup": "A clean repeat after the edge was warm recorded mediaEnd 7.5 and passed all the same public checks."
+}
