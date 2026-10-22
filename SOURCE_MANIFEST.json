@@ -332,7 +332,7 @@
   "tests/test_host_capacity.py": "05fbaaf195deaa91bc97114048c8e24b40bf871cb903b0f074bd2ca66e0ec373",
   "tests/test_host_limits.py": "9fbddd6649675161571363654683d260f4b037ac90e846417f3164e70937641f",
   "tests/test_humanoid_pickup.py": "742989a3e04e45c1bece89fbf1837d79e50f738d87263497a8a2453fbb8cbf9b",
-  "tests/test_humanoids.py": "d6b64aec65477e8387cac78bcd2c30c30168e7b43877ee2bccb0fa0aec30dc78",
+  "tests/test_humanoids.py": "747d8afa9840644d9d023a0e63aa4739412611ebb75f72543f260b2e864e46d1",
   "tests/test_import_physics.py": "4c392d1fd7d2b2f992f8f4d82965ada232a375f4a0ee1696aa3f1c2950d24b7a",
   "tests/test_imports.py": "e35e8af9728cba3496adfcba2d451d359830fe2b8cefd32c9ceb8d53235517d2",
   "tests/test_orbital.py": "0ff4b24981be1215da1635dccab9bfa090d313af90fbe56829212208c248fe4d",
@@ -381,7 +381,7 @@
   "vivacity/fulfillment_api.py": "b107586e7d31eb1273568400eb7d3d3ac737ab88e9041664206d17f7e974827d",
   "vivacity/headless.py": "d77326e50c3e097a2041bf6bb791632bc1e3656b3bd570650ae8712e7dbfe4b6",
   "vivacity/humanoid_pickup.py": "a34db707b4070bfb438a76da0e0cbcd140fcc860d0b619650f966987675ce339",
-  "vivacity/humanoids.py": "404ff8fe895ed59809b0bfa98953b2cee84816a73ef399fb7fefd151ffb9daf0",
+  "vivacity/humanoids.py": "23b5e0c3254096bd3020cb730d230602dcb9f70bf76861149aa3a07c7675e8b2",
   "vivacity/import_physics.py": "40f7e1376166827f84c23bf3ee1c7bd7d41507dda4921500bc8858ed3e69e100",
   "vivacity/import_worker.py": "04128de6e37bb7a620f3ce1911f966c62804bae7d13b9f1fded0047a56fd88e2",
   "vivacity/imports.py": "db7f51aab2de9b663ad11b7650942a2c34fc1b0b1c7dc433c3d11806cc5cd925",
@@ -416,6 +416,6 @@
   "vivacity/workspace_schemas.py": "2b8a41ce5b44ccea1d6479b13970eea1d4859ee378dea6ff344cfe1f3f62e8de",
   "vivacity/world_editor.py": "6e07c66bc368e2ca10a9153e08e546223b17ea701885b57928edc0c7f92d82ed",
   "vivacity/world_presets.py": "74863cea8e2d22e451e85c1119166f8abf4b3f13da1a707f9cc1e5cb1896fe1e",
-  "scripts/build_humanoid_models.py": "e0210db0d93f981bb2c3fc1f733e12bf630fe2ff8a6c72b1574684f7d1d5aaf8",
-  "tests/test_humanoid_binary.py": "18d72db3df776eee2014f52326972ea2a6c35c828e9b2499936fb9658e6a79c6"
+  "scripts/build_humanoid_models.py": "ca7c4e6c57ce9950cf2917b4e14348ef960351dab9a701bbb708cd3f48c34790",
+  "tests/test_humanoid_binary.py": "a99686d5d9ee8772cdabe7663a6a3aefbf06d81956760b8ec3aee3c626d452a0"
 }
