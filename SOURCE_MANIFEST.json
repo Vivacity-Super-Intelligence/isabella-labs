@@ -333,7 +333,7 @@
   "fixtures/imports/triangle.gltf": "7da1487c92ff2979f13a1fa1429f9856b8b3953f00177721ba492e457690c9e7",
   "fixtures/imports/workspace_cabinet.obj": "492b3c708b18ce1d75bc6663cd97a87d1f52b40169241d701b25980f016c6349",
   "render.yaml": "5460dd2cf60769f738c690742a7625ed8c7619fda19e4af0e63d1c8fb69de6a2",
-  "requirements-lock.txt": "14e5defc0b65d2d3066b057d0c6991c7aa6367049b70e15bbccf565ea31b28fc",
+  "requirements-lock.txt": "93dbadb41078d29565ea2a6a4e1cb63e41db213bd2529b99b6a7aff2130ed9f1",
   "scripts/audit-varied-physics.py": "eaba22ab56d259c348077c14b6fee9f350382f00219bb289749e6647430802ff",
   "scripts/build_humanoid_models.py": "ca7c4e6c57ce9950cf2917b4e14348ef960351dab9a701bbb708cd3f48c34790",
   "scripts/convert_h1_policy.py": "1009fd9079a7cb730ea7aac37c10cf670e09e868c6fabe5004519af78ad3848c",
