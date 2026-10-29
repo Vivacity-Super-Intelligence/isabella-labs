@@ -46,7 +46,7 @@ main.platform-main{margin:0 auto!important;width:100%;max-width:1900px!important
   .platform-main .v-programs-top button{min-height:36px;padding:7px 12px;font-size:11px}
   .platform-main .journey{margin:6px 0 10px}
   .platform-main .workbench{grid-template-columns:minmax(0,1fr) minmax(300px,350px)!important;gap:18px!important;align-items:start}
-  .platform-main .robot-viewport{height:clamp(330px,48dvh,500px)!important}
+  .platform-main .robot-viewport{height:clamp(290px,43dvh,460px)!important}
   .platform-main .results{max-height:calc(100dvh - 300px);min-height:420px;padding:10px 12px;overflow:auto;display:flex;flex-direction:column;gap:10px}
   .platform-main .results>.section-heading{margin:0}
   .platform-main .results .result-card{padding:9px 0}

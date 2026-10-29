@@ -51,7 +51,7 @@ function MeasuredErrorGraph({branch,trace}:{branch?:Branch;trace:RobotFrame[]}){
   },[points]);
   const color=branch?(branch.evaluation.success?'#8bc7a4':'#f07870'):'#d1ad72';
   return <section className="measured-graph" aria-labelledby="measured-graph-heading">
-    <div className="graph-heading"><h3 id="measured-graph-heading">Measured reach error</h3><span>{branch?branch.evaluation.success?'SUCCESS':'FAILED':points.length?'LIVE':'WAITING'}</span></div>
+    <div className="graph-heading"><h3 id="measured-graph-heading">Measured end-effector error</h3><span>{branch?branch.evaluation.success?'SUCCESS':'FAILED':points.length?'LIVE':'WAITING'}</span></div>
     {plotted.length>1?<svg viewBox="0 0 320 112" role="img" aria-label={`Measured end-effector distance from target over ${points.length} physics samples. Final error ${points.at(-1)!.error.toFixed(1)} millimeters.`}>
       <path className="graph-grid" d="M16 21H304M16 56H304M16 91H304"/><text x="4" y="13">mm</text><text x="16" y="107">{points[0].time.toFixed(1)} s</text><text x="304" y="107" textAnchor="end">{points.at(-1)!.time.toFixed(1)} s</text>
       <polyline points={plotted.map(point=>`${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' ')} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke"/>
