@@ -86,9 +86,11 @@ function Splats({world,appearance,onStatus,onBounds}:{world?:LibraryWorld;appear
       const legacy=!semantics;
       const scale=semantics?.metric_scale_factor??appearance.visual_scale??3.2/Math.max(.1,rawBounds.max.y-rawBounds.min.y);
       next.scale.setScalar(scale);
-      // Marble raw OpenCV -> Three Y-up (180 X) -> runtime Z-up (90 X).
-      next.rotation.x=legacy?Math.PI/2:-Math.PI/2;
-      next.position.z=legacy?-.8-(appearance.visual_ground_y??rawBounds.min.y)*scale:-.8+semantics.ground_plane_offset;
+      // The legacy Marble export is still in OpenCV's Y-down frame. Convert
+      // through Y-up into this Z-up workcell; the prior +90 degree shortcut
+      // left the room vertically inverted relative to the physical table.
+      next.rotation.x=-Math.PI/2;
+      next.position.z=legacy?-.8+(appearance.visual_ground_y??rawBounds.min.y)*scale:-.8+semantics.ground_plane_offset;
       next.updateMatrixWorld(true);
       const bounds=next.getBoundingBox().applyMatrix4(next.matrixWorld);
       if(!Number.isFinite(bounds.getSize(new Vector3()).length())){release(next);throw new Error('Environment has invalid bounds.');}
