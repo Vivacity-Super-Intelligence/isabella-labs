@@ -436,7 +436,7 @@
   "vivacity/pickup_planning.py": "ed869bc88e42c64d071324993d2e40182ca77788fdde1f1be0ef11e0df8e8a65",
   "vivacity/providers.py": "6ae362d9b68104bd31ff2ec88eb7e513939ae513c59cdb83c7b7d04947505700",
   "vivacity/registry.py": "b90fa8ff3eee811cf989a83fe543d7e5868e6d6d981746a2ba40ea67602832ba",
-  "vivacity/robot_models.py": "1d483e4b7357101b601e2b6bb2e6826c80480a31cd8fbdaaa15c10c74c3201f2",
+  "vivacity/robot_models.py": "5e95f2215a0b0cc19e2d043698310169066b85f7d534aee46ba5e7d79dae15ef",
   "vivacity/robotics.py": "71c272d6d2ec6032eed4b0a5895423129abec6f468d8529d38a960932ecf5a91",
   "vivacity/runtime.py": "7f06b9d83bd0b338b979a0f262421977fb15b7500374d2ce9b525eee02dd8f85",
   "vivacity/scene.py": "fdbfde97304b31f47665198d07ed376f1bccbda2390431c1d69da10183d22df5",
