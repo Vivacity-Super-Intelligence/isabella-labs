@@ -18,7 +18,7 @@ import PrecisionAssemblyResult from './PrecisionAssemblyResult';
 import {workspaceApi,defaultConfiguration,type Configuration,type SavedConfiguration,type LibraryWorld,type RoboticsProgram} from './workspaceApi';
 import './studio.css';
 import defaultWorkcell from './generated/defaultWorkcell.json';
-import {withoutPresetBackWall} from './workspaceGeometry';
+import {cleanPresetGeometry} from './workspaceGeometry';
 import EngineeringPanel from './EngineeringPanel';
 import type {OverlayOptions} from './EngineeringOverlay';
 const defaultOverlays:OverlayOptions={forces:true,velocity:true,center:true,trajectory:false,collision:false};
@@ -41,7 +41,7 @@ export default function App(){
   const [showOpening,setShowOpening]=useState(()=>shouldShowLabOpening(ISABELLA_OPENING_CONFIG,import.meta.env.DEV));
   const finishOpening=useCallback(()=>{document.querySelector<HTMLElement>(ISABELLA_OPENING_CONFIG.homeRootSelector)?.removeAttribute('inert');document.getElementById(ISABELLA_OPENING_CONFIG.homeFocusTarget)?.focus({preventScroll:true});setShowOpening(false);},[]);
   const [guidedAutostart,setGuidedAutostart]=useState(()=>new URLSearchParams(window.location.search).get('guided')==='1');
-  const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:defaultWorkcell,key:'curated-warehouse-v2-open',name:'Franka Panda / Industrial warehouse / Pick and place'});
+  const [activeTemplate,setActiveTemplate]=useState<{selection:Selection;backend:Backend;config:Record<string,unknown>;key?:string;name?:string;configurationId?:string}>({selection:DEFAULT_SELECTION,backend:'mujoco',config:defaultWorkcell,key:'curated-warehouse-v3-clear',name:'Franka Panda / Industrial warehouse / Pick and place'});
   const [draft,setDraft]=useState<Configuration>(defaultConfiguration('warehouse'));
   type Page='home'|'laboratory'|'discovery'|'factory'|'workspace'|'worlds'|'experiments'|'results'|'settings'|'import';
   const routePage=(path:string):Page=>path==='/laboratory'?'laboratory':path==='/discovery'?'discovery':path==='/lab'?'factory':path==='/workspace'||path==='/works'?'workspace':path==='/worlds'?'worlds':path==='/experiments'?'experiments':path==='/settings'?'settings':path==='/import'?'import':'home';
@@ -142,7 +142,7 @@ export default function App(){
     setSelectedHumanoid(null);setRobotCategory('robotic_arms');
     setVisualWorld(world);
     setDraft(saved.configuration);setActiveTemplate({selection:DEFAULT_SELECTION,backend:resolved.world.backend,
-      config:withoutPresetBackWall(resolved.world.config as Record<string,unknown>),key:'configuration-open:'+saved.id,configurationId:saved.id,
+      config:cleanPresetGeometry(resolved.world.config as Record<string,unknown>),key:'configuration-clear:'+saved.id,configurationId:saved.id,
       name:`${saved.configuration.robot_id} / ${world.name} / ${saved.configuration.operation_id.replaceAll('_',' ')}`});
     setInspecting(false);setSetupOpen(false);if(window.location.pathname!=='/workspace')navigate('workspace','/workspace');else setPage('workspace');setupSummary.current?.focus();
   };
