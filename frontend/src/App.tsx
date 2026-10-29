@@ -160,7 +160,7 @@ export default function App(){
   return <>{page==='home'?<IsabellaHome deferScene={showOpening} enterLab={()=>navigate('laboratory','/laboratory')} openScience={()=>navigate('discovery','/discovery')} openRobotics={()=>navigate('factory','/lab')} openWorlds={()=>navigate('worlds','/worlds')}/>:<>
     <a className="skip-link" href="#workspace">Skip to workspace</a>
     <header className="site-header platform-nav">
-      <a className="isabella-lab-brand" href="/" aria-label="Isabella Labs home">ISABELLA LABS <small>BY VIVACITY</small></a>
+      <a className="isabella-lab-brand" href="/" aria-label="Vivacity home">VIVACITY</a>
       <nav className="main-nav" aria-label="Workspace navigation">
         <a href="/laboratory" aria-current={['laboratory','factory','discovery'].includes(page)?'page':undefined} aria-disabled={rt.mutating} onClick={event=>navigateFromLink(event,'laboratory','/laboratory')}>Lab</a>
         <a href="/worlds" aria-current={['worlds','workspace','import'].includes(page)?'page':undefined} aria-disabled={rt.mutating} onClick={event=>navigateFromLink(event,'worlds','/worlds')}>Worlds</a>
@@ -169,7 +169,7 @@ export default function App(){
       <a className="nav-settings" href="/settings" aria-label="Runtime settings" aria-current={page==='settings'?'page':undefined} aria-disabled={rt.mutating} onClick={event=>navigateFromLink(event,'settings','/settings')}><SlidersHorizontal size={18}/></a>
     </header>
     <main className="platform-main" id="workspace" tabIndex={-1}>
-      {page==='laboratory'?<Suspense fallback={<p role="status">Opening the laboratory…</p>}><LabIndex openScience={()=>navigate('discovery','/discovery')} openRobotics={()=>navigate('factory','/lab')} openWorlds={()=>navigate('worlds','/worlds')}/></Suspense>:
+      {page==='laboratory'?<Suspense fallback={<p role="status">Opening the laboratory…</p>}><LabIndex openScience={()=>navigate('discovery','/discovery')} openRobotics={()=>navigate('workspace','/workspace')} openWorlds={()=>navigate('worlds','/worlds')}/></Suspense>:
        page==='discovery'?<Suspense fallback={<p role="status">Preparing numerical laboratory…</p>}><ScienceLab/></Suspense>:
        page==='factory'?<Suspense fallback={<p role="status" className="lab-entry-status">Preparing the physical world…</p>}><FactoryWorkspace startGuided={guidedAutostart}/></Suspense>:
        page==='worlds'?<Suspense fallback={<p>Loading world library…</p>}><WorldLibrary choose={chooseWorld} nativeImport={async()=>{await rt.stop();navigate('import','/import');}}/></Suspense>:

@@ -24,7 +24,7 @@ export const OPENING_TIMELINE = Object.freeze({
 
 export const ISABELLA_OPENING_CONFIG: Readonly<LabOpeningConfig> = Object.freeze({
   labId: 'isabella',
-  labName: 'Isabella Labs',
+  labName: 'Vivacity',
   labSubtitle: 'By Vivacity',
   sceneAsset: '/vivacity/the-one-isabella',
   landingRoute: '/',

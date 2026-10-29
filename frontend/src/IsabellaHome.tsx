@@ -16,13 +16,13 @@ export default function IsabellaHome({enterLab,openScience,openRobotics,openWorl
  return <div className="isabella-home" id="top">
   <a className="skip-link" href="#isabella-main">Skip to content</a>
   <header className="isabella-header">
-   <a href="#top" className="isabella-wordmark" aria-label="Isabella Labs by Vivacity, home"><strong>ISABELLA<span>LABS</span></strong><small>BY VIVACITY</small></a>
+   <a href="#top" className="isabella-wordmark" aria-label="Vivacity home"><strong>VIVACITY</strong></a>
    <nav aria-label="Isabella navigation"><a href="#experiment">The experiment</a><button onClick={openWorlds}>Worlds</button><button className="isabella-nav-enter" onClick={enterLab}>Enter lab <span aria-hidden="true">↗</span></button></nav>
   </header>
   <main id="isabella-main" className="isabella-main" tabIndex={-1}>
    <section className="isabella-hero" aria-labelledby="isabella-headline">
     <div className="isabella-hero-copy">
-     <p className="isabella-eyebrow">ISABELLA LABS / BY VIVACITY</p>
+     <p className="isabella-eyebrow">VIVACITY</p>
      <h1 id="isabella-headline">Let robots<br/>fail here<br/><span>first.</span></h1>
      <p className="isabella-lede">Give a machine a world. Change the conditions. See what actually happens before it moves in yours.</p>
      <div className="isabella-hero-actions"><button className="isabella-primary" onClick={enterLab}>ENTER THE LAB <span aria-hidden="true">↗</span></button><button className="isabella-secondary" onClick={openRobotics}>OPEN ROBOTICS EXPERIMENT <span aria-hidden="true">↗</span></button></div>
@@ -38,8 +38,8 @@ export default function IsabellaHome({enterLab,openScience,openRobotics,openWorl
     <div className="isabella-experiment-evidence"><div className="isabella-condition-switch" role="group" aria-label="Recorded robotic condition">{robotics.map((item,i)=><button key={item.condition} aria-pressed={condition===i} onClick={()=>setCondition(i)}>{i===0?'Weak grip':'Full grip'} <span>{i===0?'01':'02'}</span></button>)}</div><div className="isabella-evidence-number" role="status"><strong>{trial.metrics.cartons_sorted}<span> / 1</span></strong><p>{delivered?'carton delivered':'carton not delivered'}</p></div><p className="isabella-evidence-detail">{delivered?'The recorded run reached the destination.':`The recorded run ended with ${trial.failure_kind?.replaceAll('_',' ')??'a measured failure'}.`} <span>{trial.metrics.simulation_steps.toLocaleString()} physics steps.</span></p><p className="isabella-evidence-provenance">Saved simulated result. A new test starts only after you choose to run one in the lab.</p>{sceneError&&<p role="alert" className="isabella-preview-error">The 3D preview could not load. Recorded measurements remain available.</p>}</div>
    </section>
    <section className="isabella-worlds" aria-labelledby="worlds-heading"><div className="isabella-worlds-image"><img src="/vivacity/isabella-scene-poster.webp" alt="Recorded view of a robot in an industrial sorting cell"/></div><div className="isabella-worlds-copy"><p className="isabella-eyebrow">POSSIBLE WORLDS</p><h2 id="worlds-heading">The world changes.<br/>The question changes.</h2><p>Move from one workcell to another, set the task and physical conditions, then compare the outcomes that follow.</p><button className="isabella-text-link" onClick={openWorlds}>Explore robotic worlds <span aria-hidden="true">↗</span></button></div></section>
-   <section className="isabella-invitation" aria-label="Enter Isabella Labs"><h2>Enter a world.<br/><span>See what holds.</span></h2><div><button onClick={enterLab}>Enter Isabella Labs <span aria-hidden="true">↗</span></button><button onClick={openScience}>Explore scientific experiments <span aria-hidden="true">↗</span></button></div></section>
+   <section className="isabella-invitation" aria-label="Enter Vivacity"><h2>Enter a world.<br/><span>See what holds.</span></h2><div><button onClick={enterLab}>Enter Vivacity <span aria-hidden="true">↗</span></button><button onClick={openScience}>Explore scientific experiments <span aria-hidden="true">↗</span></button></div></section>
   </main>
-  <footer className="isabella-footer"><span>ISABELLA LABS <span>BY VIVACITY</span></span><a href="https://www.tryvivacity.com/" target="_blank" rel="noreferrer">Vivacity ↗</a></footer>
+  <footer className="isabella-footer"><span>VIVACITY</span><a href="https://www.tryvivacity.com/" target="_blank" rel="noreferrer">Vivacity ↗</a></footer>
  </div>;
 }
