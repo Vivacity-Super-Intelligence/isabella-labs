@@ -39,14 +39,14 @@ function PropertyField({entity,property,disabled,commit}:{entity:EditorEntity;pr
           <input id={id} type="number" inputMode="decimal" min={property.minimum??undefined} max={property.maximum??undefined} step="any" value={draft as string} placeholder={property.value===null?'Not set':undefined} disabled={disabled||!property.editable} onChange={event=>setDraft(event.target.value)} onKeyDown={event=>{if(event.key==='Enter'){event.preventDefault();void save();}}}/>}
       {property.editable&&<button type="button" disabled={disabled||saving||!changed||invalid} onClick={()=>void save()}>{saving?'Applying…':'Apply'}</button>}
     </div>
-    <p>{property.meaning}</p>
+
     {changed&&property.editable&&<small>Applying resets the simulation and creates a new world version.</small>}
-    <details><summary>Physics dependency</summary><p>{property.dependency} {property.physics_effect}</p></details>
+    <details><summary>Details</summary><p>{property.meaning} {property.dependency} {property.physics_effect}</p></details>
     {error&&<p role="alert" className="negative">{error}</p>}
   </div>;
 }
 
-export default function PhysicalWorldEditor({world,selected,select,disabled,editProperty,editGeometry,restoreVersion,apply,close}:Props){
+export default function PhysicalWorldEditor({world,selected,select,disabled,editProperty,restoreVersion,apply,close}:Props){
   const [editor,setEditor]=useState<WorldEditor|null>(null),[versions,setVersions]=useState<WorldVersion[]>([]);
   const [loading,setLoading]=useState(true),[error,setError]=useState('');
   const [undo,setUndo]=useState<number[]>([]),[redo,setRedo]=useState<number[]>([]);
@@ -63,25 +63,18 @@ export default function PhysicalWorldEditor({world,selected,select,disabled,edit
     let active=true;setLoading(true);setError('');
     Promise.all([api.editor(world.id),api.worldVersions(world.id)]).then(([schema,history])=>{
       if(!active)return;setEditor(schema);setVersions(history);setLoading(false);
-      if(!schema.entities.some(entity=>entity.id===selected))select(schema.entities[0]?.id??'object');
+      if(!schema.entities.some(entity=>entity.id===selected && !entity.id.startsWith('geometry:')))select(schema.entities.find(entity=>entity.id==='object')?.id??schema.entities.find(entity=>!entity.id.startsWith('geometry:'))?.id??'object');
     }).catch(cause=>{if(active){setError(errorMessage(cause));setLoading(false);}});
     return()=>{active=false;};
   },[world.id,world.revision]);
-  const entity=editor?.entities.find(item=>item.id===selected)??editor?.entities[0];
+  const visibleEntities=editor?.entities.filter(item=>!item.id.startsWith('geometry:') && (item.id!=='obstacle'||world.config.obstacle_enabled===true))??[];
+  const entity=visibleEntities.find(item=>item.id===selected)??visibleEntities[0];
   const record=()=>{setUndo(stack=>[...stack,world.revision]);setRedo([]);};
   const change=async(entityId:string,key:string,value:number|boolean|string)=>{
     skipRevision.current=true;
     const okay=await editProperty(entityId,key,value);
     if(okay)record();else skipRevision.current=false;
     return okay;
-  };
-  const geometry=async(action:Action,kind:'box'|'cylinder'='box')=>{
-    setBusy(true);setError('');
-    skipRevision.current=true;
-    const okay=await editGeometry(action,action==='add'?undefined:selected,kind);
-    if(okay){record();if(action==='delete')select('object');}
-    else {skipRevision.current=false;setError('The geometry edit was rejected by the runtime. Check the world state and try again.');}
-    setBusy(false);
   };
   const restore=async(target:number,direction:'undo'|'redo'|'history')=>{
     setBusy(true);setError('');skipRevision.current=true;const okay=await restoreVersion(target);
@@ -108,19 +101,17 @@ export default function PhysicalWorldEditor({world,selected,select,disabled,edit
     {editor&&<>
       <label className="physical-select">Inspect
         <select value={entity?.id??''} onChange={event=>select(event.target.value)}>
-          {editor.entities.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}
+          {visibleEntities.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}
         </select>
       </label>
       {entity&&<div className="physical-fields" key={world.revision+'-'+entity.id}>
         <h3>{entity.name}</h3>
         {entity.properties.map(property=><PropertyField key={property.key} entity={entity} property={property} disabled={disabled||busy} commit={change}/>)}
-        {entity.id.startsWith('geometry:')&&<div className="physical-actions"><button type="button" disabled={disabled||busy} onClick={()=>void geometry('duplicate')}>Duplicate</button><button type="button" disabled={disabled||busy} onClick={()=>void geometry('delete')}>Delete primitive</button></div>}
       </div>}
-      <div className="physical-actions"><button type="button" disabled={disabled||busy||editor.entities.length>=29} onClick={()=>void geometry('add','box')}>Add box</button><button type="button" disabled={disabled||busy||editor.entities.length>=29} onClick={()=>void geometry('add','cylinder')}>Add cylinder</button></div>
       <div className="physical-actions"><button type="button" disabled={disabled||busy||!undo.length} onClick={()=>void restore(undo.at(-1)!,'undo')}>Undo</button><button type="button" disabled={disabled||busy||!redo.length} onClick={()=>void restore(redo.at(-1)!,'redo')}>Redo</button><button type="button" onClick={exportWorld}>Export world</button></div>
       <details className="physical-history"><summary>Saved physical versions ({versions.length})</summary><ol>{versions.slice(0,16).map(version=><li key={version.revision}><span>v{version.revision} · {version.reason.replaceAll('_',' ')}</span><button type="button" disabled={disabled||busy||version.revision===world.revision} onClick={()=>void restore(version.revision,'history')}>Restore</button></li>)}</ol></details>
       <details className="physical-advanced"><summary>Task coordinates and advanced conditions</summary><Settings key={world.id+'-'+world.revision} config={world.config} disabled={disabled||busy} apply={apply} close={close}/></details>
-      <p className="small">{editor.scope}</p>
+
     </>}
   </section>;
 }

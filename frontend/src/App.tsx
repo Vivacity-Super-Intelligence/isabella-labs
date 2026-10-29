@@ -23,6 +23,7 @@ import type {OverlayOptions} from './EngineeringOverlay';
 const defaultOverlays:OverlayOptions={forces:true,velocity:true,center:true,trajectory:false,collision:false};
 import './engineering.css';
 import './labOpening.css';
+import MeasuredErrorGraph from './RoboticsDiscovery';
 
 const FactoryWorkspace=lazy(()=>import('./FactoryWorkspace'));
 const LabIndex=lazy(()=>import('./LabIndex'));
@@ -34,32 +35,6 @@ const WorldLibrary=lazy(()=>import('./WorldLibrary'));
 const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
 const HumanoidLab=lazy(()=>import('./HumanoidLab'));
 const PhysicalWorldEditor=lazy(()=>import('./PhysicalWorldEditor'));
-
-function MeasuredErrorGraph({branch,trace}:{branch?:Branch;trace:RobotFrame[]}){
-  const points=useMemo(()=>trace.map(frame=>{
-    const goal=frame.target_pose?.position;
-    if(!goal||!frame.end_effector)return null;
-    const error=Math.hypot(frame.end_effector[0]-goal[0],frame.end_effector[1]-goal[1],frame.end_effector[2]-goal[2])*1000;
-    return Number.isFinite(error)?{time:frame.time,error}:null;
-  }).filter((point):point is {time:number;error:number}=>point!==null),[trace]);
-  const plotted=useMemo(()=>{
-    if(points.length<2)return [];
-    const stride=Math.max(1,Math.ceil(points.length/120)),sampled=points.filter((_,index)=>index%stride===0);
-    if(sampled.at(-1)!==points.at(-1))sampled.push(points.at(-1)!);
-    const minTime=points[0].time,maxTime=points.at(-1)!.time,minError=Math.min(0,...points.map(point=>point.error)),maxError=Math.max(...points.map(point=>point.error)),span=Math.max(1,maxError-minError);
-    return sampled.map(point=>({x:16+(point.time-minTime)/Math.max(.001,maxTime-minTime)*288,y:91-(point.error-minError)/span*70}));
-  },[points]);
-  const color=branch?(branch.evaluation.success?'#8bc7a4':'#f07870'):'#d1ad72';
-  return <section className="measured-graph" aria-labelledby="measured-graph-heading">
-    <div className="graph-heading"><h3 id="measured-graph-heading">Distance to reference pose</h3><span>{branch?branch.evaluation.success?'SUCCESS':'FAILED':points.length?'LIVE':'WAITING'}</span></div>
-    {plotted.length>1?<svg viewBox="0 0 320 112" role="img" aria-label={`Measured end-effector distance from the configured reference pose over ${points.length} physics samples. Final distance ${points.at(-1)!.error.toFixed(1)} millimeters.`}>
-      <path className="graph-grid" d="M16 21H304M16 56H304M16 91H304"/><text x="4" y="13">mm</text><text x="16" y="107">{points[0].time.toFixed(1)} s</text><text x="304" y="107" textAnchor="end">{points.at(-1)!.time.toFixed(1)} s</text>
-      <polyline points={plotted.map(point=>`${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' ')} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke"/>
-      <circle cx={plotted.at(-1)!.x} cy={plotted.at(-1)!.y} r="3.4" fill={color}/>
-    </svg>:<p className="graph-empty">Run an experiment to plot distance to the configured reference pose.</p>}
-    {points.length>1&&<p className="graph-caption">Final distance <strong style={{color}}>{points.at(-1)!.error.toFixed(1)} mm</strong> · {points.length.toLocaleString()} samples. Success uses the task evaluation.</p>}
-  </section>;
-}
 
 export default function App(){
   const [showOpening,setShowOpening]=useState(()=>shouldShowLabOpening(ISABELLA_OPENING_CONFIG,import.meta.env.DEV));
@@ -235,7 +210,7 @@ export default function App(){
             {replayError&&<p className="negative" role="alert">{replayError}</p>}
             {backend==='mujoco'&&<p className="small" role="status">The search tests physical alternatives until measured improvement levels off or this host reaches its compute budget. Progress below counts completed backend simulations.</p>}
           </section>
-          <aside className="results" aria-label="Verified results">
+          <aside className={`results ${editing||setupOpen||inspecting?'results-editing':''}`} aria-label="Verified results">
             <div className="ranked-results">
             {inspecting&&!cloth?<EngineeringPanel frame={robotFrame(currentFrame)} selection={inspectSelection} select={setInspectSelection}/>:setupOpen?<><div className="context-heading"><h2>Configure experiment</h2><button aria-label="Close configuration" className="icon-button" onClick={()=>setSetupOpen(false)}><X size={16}/></button></div><ExperimentSetup initial={draft} load={loadConfiguration} worldsPage={()=>navigate('worlds','/worlds')} step={setupStep} setStep={setSetupStep}/></>:<>
             <div className="section-heading"><h2>{cloth?'Best verified folds':'Best verified placements'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
