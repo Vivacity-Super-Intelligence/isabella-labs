@@ -136,11 +136,6 @@ export default function App(){
     if(config.physical_operation==='stacking')destination[2]=3*sizes[2]+.001;
     return rt.apply({...config,cube_position:point,placement_position:destination});
   };
-  const moveSceneGeometry=async(name:string,point:Vec3)=>{
-    const geom=(config.scene_geometries as {name:string;position:Vec3}[]|undefined)?.find(item=>item.name===name);
-    if(!geom)return false;
-    return rt.moveGeometry(`geometry:${name}`,point);
-  };
   useEffect(()=>{setBranchId(null);setEditing(false);},[backend,rt.experiment?.id]);
   const loadConfiguration=async(saved:SavedConfiguration,world:LibraryWorld)=>{
     await rt.stop();const resolved=await workspaceApi.resolve(saved.configuration);
@@ -190,7 +185,7 @@ export default function App(){
         <div className="workbench">
           <section className="visual-area" aria-label="Live simulation">
             {cloth?<Suspense fallback={<div className="viewport-loading">Loading cloth…</div>}><ClothView frames={frames as ClothFrame[]} cursor={cursor} time={currentFrame?.time??0} playing={false} config={config}/></Suspense>:
-              <Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={Boolean(replay)} playing={Boolean(replay?.playing)} renderTime={currentFrame?.time??0} canMoveCube={canMoveCube} onMoveCube={moveCube} canEditScene={editorSupported&&editing&&!disabled&&!rt.active&&!replay} onMoveGeometry={moveSceneGeometry} visualWorld={visualWorld} overlays={inspecting?overlays:undefined} trace={rt.experiment?.stale?[]:(selected?.trace??[]).filter((f):f is RobotFrame=>!!robotFrame(f))} onSelect={s=>{if(editorSupported){setEditorSelection(s);setEditing(true);setInspecting(false);}else{setInspectSelection(s==='robot'?'robot':'object');setInspecting(true);}setSetupOpen(false);}}/></Suspense>}
+              <Suspense fallback={<div className="viewport-loading">Loading workcell…</div>}><RobotView frames={frames as RobotFrame[]} cursor={cursor} config={config} replaying={Boolean(replay)} playing={Boolean(replay?.playing)} renderTime={currentFrame?.time??0} canMoveCube={canMoveCube} onMoveCube={moveCube} visualWorld={visualWorld} overlays={inspecting?overlays:undefined} trace={rt.experiment?.stale?[]:(selected?.trace??[]).filter((f):f is RobotFrame=>!!robotFrame(f))} onSelect={s=>{if(editorSupported){setEditorSelection(s);setEditing(true);setInspecting(false);}else{setInspectSelection(s==='robot'?'robot':'object');setInspecting(true);}setSetupOpen(false);}}/></Suspense>}
             <div className="simulation-strip"><div><span>Simulation time</span><strong>{format(replay?replay.frames[0].time+replayPosition:currentFrame?.time??0)} s</strong><small>{status}</small></div>{!cloth&&<button className="secondary" aria-pressed={inspecting} onClick={()=>{setInspecting(v=>!v);setSetupOpen(false);}}>Engineering inspection</button>}</div>
             {inspecting&&!cloth&&<details className="overlay-controls"><summary>Inspection overlays & legend</summary><div>{Object.entries(overlays).map(([id,on])=><label key={id}><input type="checkbox" checked={on} onChange={e=>setOverlays(o=>({...o,[id]:e.target.checked}))}/>{({forces:'Contact / applied forces',velocity:'Linear / angular velocity',center:'Center of mass',trajectory:'Recorded object trajectory',collision:'Robot collision geometry'} as Record<string,string>)[id]}</label>)}</div><p className="small">Amber: contact forces. Coral: applied force. Purple: torque. Teal: velocity / path. Blue: angular velocity. Vector lengths are scaled and capped for visibility. Trajectories use recorded samples from this experiment; this is not a video.</p></details>}
             <div className="experiment-actions">

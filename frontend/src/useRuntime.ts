@@ -244,11 +244,6 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
     if(!w)return;
     await acceptWorld(await api.editGeometry(w.id,w.revision,action,entityId,geometryType));
   });
-  const moveGeometry=(entityId:string,position:[number,number,number])=>perform(async()=>{
-    await stop();inspecting.current=false;const w=currentWorld.current;
-    if(!w)return;
-    await acceptWorld(await api.moveGeometry(w.id,w.revision,entityId,position));
-  });
   const restoreVersion=(revision:number)=>perform(async()=>{
     await stop();inspecting.current=false;const w=currentWorld.current;
     if(!w)return;
@@ -269,5 +264,5 @@ export function useRuntime(backend:Backend,templateKey="default",initialConfig?:
   });
   return {world,observation,perception,experiment,branches,events,session,liveState,hostPhysicsLimit,online,loaded,mutating,error,recoveryNotice,stream,
     busy:mutating||isBusy(experiment),active:session?.status==='active'||session?.status==='stopping',
-    run:start,stop,togglePause,apply,editProperty,editGeometry,moveGeometry,restoreVersion,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
+    run:start,stop,togglePause,apply,editProperty,editGeometry,restoreVersion,reset,history,reconnect:()=>setEpoch(e=>e+1),clearError:()=>setError(null)};
 }

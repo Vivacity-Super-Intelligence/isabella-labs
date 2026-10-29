@@ -72,8 +72,6 @@ export const api = {
     request<World>(`/v1/worlds/${encodeURIComponent(id)}/editor/properties`,json('PATCH',{expected_revision,entity_id,property_key,value})),
   editGeometry: (id:string, expected_revision:number, action:'add'|'duplicate'|'delete', entity_id?:string, geometry_type:'box'|'cylinder'='box') =>
     request<World>(`/v1/worlds/${encodeURIComponent(id)}/editor/geometries`,json('POST',{expected_revision,action,entity_id,geometry_type})),
-  moveGeometry: (id:string, expected_revision:number, entity_id:string, position:[number,number,number]) =>
-    request<World>(`/v1/worlds/${encodeURIComponent(id)}/editor/geometry-position`,json('PATCH',{expected_revision,entity_id,position})),
   worldVersions: (id:string) => request<WorldVersion[]>(`/v1/worlds/${encodeURIComponent(id)}/versions`),
   restoreWorldVersion: (id:string, revision:number, expected_revision:number) =>
     request<World>(`/v1/worlds/${encodeURIComponent(id)}/versions/${revision}/restore`,json('POST',{expected_revision})),
