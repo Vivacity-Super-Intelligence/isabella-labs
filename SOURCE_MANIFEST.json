@@ -389,7 +389,7 @@
   "tests/test_templates.py": "c15e44c6f530257ed119d514478a5d3fce9c503e3ba86db38296ba53627f019b",
   "tests/test_v_robotics.py": "ae900cd3de1b5a098111de851ed9c51a55c1025e2e8acfed8880af4727e1243e",
   "tests/test_visual_assets.py": "dbb2628c02232378b9580c5c781ccc290c01f493c68cc3a9cd645b51a3633e79",
-  "tests/test_workspace.py": "80bbbe661ffd37eed2a8c666c594b2f8eecb24e780b73c406da5770355622497",
+  "tests/test_workspace.py": "793c02aebb903fc2d3b8390206fe58c202c268113ae026c0df66394ebe43dc53",
   "tests/test_world_editor.py": "b85db7fc5ed36de197662197a8610b440e1adecfe9334404ea176fc8d4a85084",
   "vivacity/__init__.py": "03b254be2b319a71cfd9779832de62dfb63dfb238cef8c5a3e85b74da858ae1e",
   "vivacity/agent.py": "a7591384f6114068d50199a1dff722f993cef6cb9d9e7e2776975eddcbec3805",
