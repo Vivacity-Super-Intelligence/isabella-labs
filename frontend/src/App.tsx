@@ -35,6 +35,32 @@ const ExperimentLibrary=lazy(()=>import('./ExperimentLibrary'));
 const HumanoidLab=lazy(()=>import('./HumanoidLab'));
 const PhysicalWorldEditor=lazy(()=>import('./PhysicalWorldEditor'));
 
+function MeasuredErrorGraph({branch,trace}:{branch?:Branch;trace:RobotFrame[]}){
+  const points=useMemo(()=>trace.map(frame=>{
+    const goal=frame.target_pose?.position;
+    if(!goal||!frame.end_effector)return null;
+    const error=Math.hypot(frame.end_effector[0]-goal[0],frame.end_effector[1]-goal[1],frame.end_effector[2]-goal[2])*1000;
+    return Number.isFinite(error)?{time:frame.time,error}:null;
+  }).filter((point):point is {time:number;error:number}=>point!==null),[trace]);
+  const plotted=useMemo(()=>{
+    if(points.length<2)return [];
+    const stride=Math.max(1,Math.ceil(points.length/120)),sampled=points.filter((_,index)=>index%stride===0);
+    if(sampled.at(-1)!==points.at(-1))sampled.push(points.at(-1)!);
+    const minTime=points[0].time,maxTime=points.at(-1)!.time,minError=Math.min(0,...points.map(point=>point.error)),maxError=Math.max(...points.map(point=>point.error)),span=Math.max(1,maxError-minError);
+    return sampled.map(point=>({x:16+(point.time-minTime)/Math.max(.001,maxTime-minTime)*288,y:91-(point.error-minError)/span*70}));
+  },[points]);
+  const color=branch?(branch.evaluation.success?'#8bc7a4':'#f07870'):'#d1ad72';
+  return <section className="measured-graph" aria-labelledby="measured-graph-heading">
+    <div className="graph-heading"><h3 id="measured-graph-heading">Measured reach error</h3><span>{branch?branch.evaluation.success?'SUCCESS':'FAILED':points.length?'LIVE':'WAITING'}</span></div>
+    {plotted.length>1?<svg viewBox="0 0 320 112" role="img" aria-label={`Measured end-effector distance from target over ${points.length} physics samples. Final error ${points.at(-1)!.error.toFixed(1)} millimeters.`}>
+      <path className="graph-grid" d="M16 21H304M16 56H304M16 91H304"/><text x="4" y="13">mm</text><text x="16" y="107">{points[0].time.toFixed(1)} s</text><text x="304" y="107" textAnchor="end">{points.at(-1)!.time.toFixed(1)} s</text>
+      <polyline points={plotted.map(point=>`${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' ')} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke"/>
+      <circle cx={plotted.at(-1)!.x} cy={plotted.at(-1)!.y} r="3.4" fill={color}/>
+    </svg>:<p className="graph-empty">Run an experiment to plot measured robot-to-target distance.</p>}
+    {points.length>1&&<p className="graph-caption">Final measured error <strong style={{color}}>{points.at(-1)!.error.toFixed(1)} mm</strong> · {points.length.toLocaleString()} recorded samples</p>}
+  </section>;
+}
+
 export default function App(){
   const [showOpening,setShowOpening]=useState(()=>shouldShowLabOpening(ISABELLA_OPENING_CONFIG,import.meta.env.DEV));
   const finishOpening=useCallback(()=>{document.querySelector<HTMLElement>(ISABELLA_OPENING_CONFIG.homeRootSelector)?.removeAttribute('inert');document.getElementById(ISABELLA_OPENING_CONFIG.homeFocusTarget)?.focus({preventScroll:true});setShowOpening(false);},[]);
@@ -77,7 +103,7 @@ export default function App(){
     return branches.filter(b=>b.evaluation.success&&b.action.execution_role!=='authoritative_execution')
       .sort((a,b)=>Number(b.id===rt.experiment?.selected_branch_id)-Number(a.id===rt.experiment?.selected_branch_id)).slice(0,3);
   },[branches,rt.experiment]);
-  const selected=branches.find(b=>b.id===branchId)??ranked[0];
+  const selected=branches.find(b=>b.id===branchId)??ranked[0]??(rt.experiment&&!isBusy(rt.experiment)?branches.find(b=>!b.evaluation.success):undefined);
   const [replay,setReplay]=useState<{branchId:string;frames:RobotFrame[];playing:boolean}|null>(null);
   const [replayPosition,setReplayPosition]=useState(0);
   const [replayLoading,setReplayLoading]=useState(false);
@@ -210,6 +236,7 @@ export default function App(){
             {backend==='mujoco'&&<p className="small" role="status">The search tests physical alternatives until measured improvement levels off or this host reaches its compute budget. Progress below counts completed backend simulations.</p>}
           </section>
           <aside className="results" aria-label="Verified results">
+            <div className="ranked-results">
             {inspecting&&!cloth?<EngineeringPanel frame={robotFrame(currentFrame)} selection={inspectSelection} select={setInspectSelection}/>:setupOpen?<><div className="context-heading"><h2>Configure experiment</h2><button aria-label="Close configuration" className="icon-button" onClick={()=>setSetupOpen(false)}><X size={16}/></button></div><ExperimentSetup initial={draft} load={loadConfiguration} worldsPage={()=>navigate('worlds','/worlds')} step={setupStep} setStep={setSetupStep}/></>:<>
             <div className="section-heading"><h2>{cloth?'Best verified folds':'Best verified placements'}</h2><span className="status-label" data-testid="experiment-status" aria-live="polite">{status}</span></div>
             {backend==='mujoco'&&config.task==='pick_place'&&config.scene_profile!=='orbital_salvage'&&<details className="sensor-details"><summary>Simulator object localization</summary><p className="sensor-summary" data-testid="object-perception" role="status">{rt.active?'Object localization pauses during physical execution.':rt.perception?.detected&&rt.perception.estimated_xy_m?`Simulated depth sensing: object at X ${format(rt.perception.estimated_xy_m[0])} m, Y ${format(rt.perception.estimated_xy_m[1])} m from ${rt.perception.visible_cube_rays} simulated depth rays.`:rt.perception?'Object is not visible to the simulated overhead sensor.':'Locating the object…'} <span>Simulator labels, not a real camera.</span></p></details>}
@@ -221,13 +248,15 @@ export default function App(){
               {downloadError&&<p role="alert" className="negative">{downloadError}</p>}
               <p className="decision" data-testid="decision">{compatible?String(rt.experiment?.error??rt.experiment?.result.conclusion??''):''}</p>
               {config.program_id==='precision_assembly'&&terminal&&rt.experiment&&<PrecisionAssemblyResult experimentId={rt.experiment.id} stale={Boolean(rt.experiment.stale)}/>}
-              {rt.experiment?.stale&&<p className="stale-warning" data-testid="stale-warning">The world changed. These results describe its previous configuration.</p>}
+            {rt.experiment?.stale&&<p className="stale-warning" data-testid="stale-warning">The world changed. These results describe its previous configuration.</p>}
             </>}
             </>}
+            </div>
+            <MeasuredErrorGraph branch={selected} trace={selected?.trace.filter((frame):frame is RobotFrame=>!!robotFrame(frame))??[]}/>
+            <TechnicalInspector events={rt.events} initialized={compatible} playing={false} branches={branches} select={setBranchId} history={{ids:rt.session?.experiments??[],open:rt.history,disabled:rt.mutating}}/>
           </aside>
         </div>
         {counters.generated!==undefined&&<dl className="search-counts" aria-label="Actual search work">{[['Generated','generated'],['Screened','screened'],['Passed screening','screening_passed'],[cloth?'Validation rollouts':'Physics trials','fully_simulated'],['Verified feasible','verified_feasible']].map(([name,key])=><div key={key}><dt>{name}</dt><dd data-testid={`count-${key}`}>{Number(counters[key]??0).toLocaleString()}{!cloth&&!counters.adaptive_stopping&&key==='fully_simulated'&&Number(counters.physics_target)>0?` / ${Number(counters.physics_target).toLocaleString()}`:''}</dd></div>)}</dl>}
-        <TechnicalInspector events={rt.events} initialized={compatible} playing={false} branches={branches} select={setBranchId} history={{ids:rt.session?.experiments??[],open:rt.history,disabled:rt.mutating}}/>
         </>}
       </>}
     </main>

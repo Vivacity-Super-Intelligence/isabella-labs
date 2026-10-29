@@ -2,10 +2,37 @@
   "schema_version": "1.0",
   "source": "compiled_mujoco_model",
   "simulator_version": "3.15.0",
-  "model_hash": "f43016cdeb28e99ad680ae11c4daf12924287230019f0ff1a5ddaf2302e266b2",
+  "model_hash": "3fa7b067f4dd1fe21b473eff4da30425599411fbb41f5a2bbb8d9dc3e5ecd708",
   "config": {
+    "physics": {
+      "schema_version": "vivacity.physics/1.0",
+      "gravity_m_s2": 9.81,
+      "air_density_kg_m3": 0.0,
+      "air_viscosity_pa_s": 0.0,
+      "wind_velocity_m_s": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "blunt_drag_coefficient": 0.5,
+      "contact_damping_ratio": 1.0,
+      "gripper_force_scale": 1.0,
+      "object_force_n": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "object_torque_nm": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "object_material": "custom",
     "robot_model": "dual_arm",
     "physical_operation": "pick_place",
+    "program_id": null,
+    "assembly": null,
     "sorting_rule": null,
     "task": "pick_place",
     "scene_profile": "workcell",
@@ -24,7 +51,9 @@
     "cube_half_size": 0.025,
     "cube_half_sizes": null,
     "cube_mass": 0.06,
+    "cube_density_kg_m3": null,
     "cube_friction": 1.0,
+    "table_friction": 1.0,
     "obstacle_position": [
       0.45,
       0.04,
@@ -226,7 +255,7 @@
       ],
       "size": [
         0.7,
-        0.65,
+        0.9,
         0.04
       ],
       "rgba": [

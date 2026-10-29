@@ -54,7 +54,10 @@ def trusted_root(identifier):
     if identifier=='dual_arm':
         # Two independent actuated Panda models. The primary arm executes the
         # task; coordinated bimanual planning is deliberately not claimed.
-        base=deepcopy(root.find("worldbody/body[@name='link0']"));base.set('pos','-1.4 0 0')
+        # Keep both bases physically mounted to the same workbench.  The old
+        # x=-1.4 placement put the second arm outside the table and 0.8 m above
+        # the ground plane, which made its rendered model visibly float.
+        base=deepcopy(root.find("worldbody/body[@name='link0']"));base.set('pos','0 .72 0')
         names={e.get('name'):'secondary_'+e.get('name') for e in base.iter() if e.get('name')}
         for element in base.iter():
             if element.get('name') in names:element.set('name',names[element.get('name')])
@@ -137,7 +140,8 @@ class ModelPickupBackend(PickPlaceBackend):
         ET.SubElement(hand,'site',name='pregrasp',pos='0 0 .103',size='.008')
         wb=root.find('worldbody')
         ET.SubElement(wb,'geom',name='ground',type='plane',pos='0 0 -.8',size='2 2 .1')
-        ET.SubElement(wb,'geom',name='table',type='box',pos='.4 0 -.04',size='.7 .65 .04',friction='1 .005 .0001')
+        table_half_width_y='.9' if self.identifier=='dual_arm' else '.65'
+        ET.SubElement(wb,'geom',name='table',type='box',pos='.4 0 -.04',size=f'.7 {table_half_width_y} .04',friction='1 .005 .0001')
         target=ET.SubElement(wb,'body',name='target',pos=' '.join(map(str,config['cube_position'])))
         ET.SubElement(target,'freejoint',name='cube_free')
         sizes=config.get('cube_half_sizes') or [config.get('cube_half_size',.025)]*3

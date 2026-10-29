@@ -23,14 +23,24 @@ function failureLabel(branch:Branch){
   const pairs=[...new Set(contacts.map(c=>[...c.bodies].sort().join(' ↔ ')))];
   return contacts.length?`${status} · ${contacts.length} contacts · ${pairs.slice(0,3).join(', ')}${pairs.length>3?` (+${pairs.length-3} pairs)`:''}`:status;
 }
+function outcome(event:Event):'success'|'failure'|'neutral'{
+  if(event.kind==='failed')return 'failure';
+  if(event.kind==='completed')return event.details.selected_branch_id?'success':'failure';
+  if(event.kind==='branch_completed'){
+    const evaluation=event.details.evaluation as {success?:boolean}|undefined;
+    return evaluation?.success===true?'success':evaluation?.success===false?'failure':'neutral';
+  }
+  return 'neutral';
+}
 export default function TechnicalInspector({events,initialized,playing,branches,select,history,initialMessage}:{events:Event[];initialized:boolean;playing:boolean;branches:Branch[];select:(id:string)=>void;history:{ids:string[];open:(id:string)=>void;disabled:boolean};initialMessage?:string}){
   const log=useRef<HTMLDivElement>(null),follow=useRef(true);
   const origin=Number(events[0]?.details.timestamp_unix_s??0);
   useEffect(()=>{if(log.current&&follow.current)log.current.scrollTop=log.current.scrollHeight;},[events,playing,initialized]);
-  return <details className="inspector"><summary>Execution log & recorded evidence</summary>
+  return <details className="inspector" open>
+    <summary>Run log <span className="log-count">{events.length} events</span></summary>
     <div ref={log} className="event-log" role="log" aria-label="Measured execution events" aria-live="polite" aria-relevant="additions" tabIndex={0} onScroll={()=>{const el=log.current;if(el)follow.current=el.scrollHeight-el.scrollTop-el.clientHeight<30;}}>
-      <p>{initialMessage??(initialized?'World initialized. Actual state restored.':'Initializing world…')}</p>
-      {events.map(event=>{const elapsed=origin?Number(event.details.timestamp_unix_s??origin)-origin:Number(event.details.elapsed_seconds??0);return <p key={event.seq} className={event.kind==='failed'?'negative':''}><time>[{Math.floor(elapsed/60).toString().padStart(2,'0')}:{(elapsed%60).toFixed(2).padStart(5,'0')}]</time> {describe(event)}</p>;})}
+      <p className="log-neutral"><span aria-hidden="true">·</span>{initialMessage??(initialized?'World initialized. Actual state restored.':'Initializing world…')}</p>
+      {events.map(event=>{const elapsed=origin?Number(event.details.timestamp_unix_s??origin)-origin:Number(event.details.elapsed_seconds??0),state=outcome(event);return <p key={event.seq} className={`log-${state}`}><span className="event-marker" aria-label={state==='success'?'Success':state==='failure'?'Failure':'Update'} aria-hidden="true">{state==='success'?'✓':state==='failure'?'×':'·'}</span><time>[{Math.floor(elapsed/60).toString().padStart(2,'0')}:{(elapsed%60).toFixed(2).padStart(5,'0')}]</time> {describe(event)}</p>;})}
     </div>
     <details className="recorded-evidence"><summary>Recorded failures & history</summary><div className="evidence-links">{branches.filter(b=>!b.evaluation.success).map(b=><button key={b.id} onClick={()=>select(b.id)} data-status={b.evaluation.status}>{failureLabel(b)}</button>)}{history.ids.map((id,i)=><button key={id} disabled={history.disabled} onClick={()=>history.open(id)}>Experiment {i+1}</button>)}</div></details>
   </details>;
