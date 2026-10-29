@@ -124,3 +124,35 @@ main.platform-main{margin:0 auto!important;width:100%;max-width:1900px!important
  .platform-main .results-editing .physical-world-editor .physical-select{margin:5px 0}
  .platform-main .results-editing .physical-world-editor .physical-property-input button{padding:4px;font-size:9px}
 }
+/* Give configuration and measured evidence distinct, naturally sized regions. */
+.platform-main .workbench{align-items:start!important}
+.platform-main .results{min-width:0;max-height:none;min-height:0;overflow:visible;display:block}
+.platform-main .ranked-results,.platform-main .results-editing .ranked-results{max-height:none;min-height:0;overflow:visible}
+.workspace-analysis{min-width:0;display:grid;gap:16px;padding:12px 16px;background:#191f20}
+.workspace-analysis .measured-graph{border:0;padding:0;min-width:0}
+.workspace-analysis .measured-graph svg{height:145px}
+.workspace-analysis .graph-heading h3{font-size:13px}
+.workspace-analysis .graph-metric,.workspace-analysis .graph-metric select{font-size:12px}
+.workspace-analysis .graph-empty,.workspace-analysis .graph-equation{font-size:11px;line-height:1.5}
+.workspace-analysis .inspector{min-width:0}
+.workspace-analysis .inspector>summary{font-size:13px;min-height:42px}
+.workspace-analysis .event-log{height:190px;max-height:none}
+.workspace-analysis .event-log p{font-size:10px}
+@media(min-width:1200px){
+ .platform-main .workbench{grid-template-columns:minmax(400px,1fr) minmax(300px,350px) minmax(270px,310px)!important;gap:14px!important}
+}
+@media(min-width:761px) and (max-width:1199px){
+ .platform-main .workbench{grid-template-columns:minmax(0,1fr) minmax(300px,350px)!important}
+ .workspace-analysis{grid-column:1/-1;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+}
+@media(max-width:760px){
+ .platform-main .workbench{grid-template-columns:minmax(0,1fr)!important}
+ .workspace-analysis{grid-template-columns:minmax(0,1fr);padding:16px}
+ .workspace-analysis .event-log{height:190px}
+}
+@media(min-width:761px) and (max-width:1199px){
+ .platform-main .workbench{grid-template-areas:"simulation configuration" "measurements configuration"}
+ .platform-main .visual-area{grid-area:simulation}
+ .platform-main .results{grid-area:configuration}
+ .workspace-analysis{grid-area:measurements;grid-template-columns:minmax(0,1fr)}
+}

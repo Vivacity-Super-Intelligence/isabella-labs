@@ -227,6 +227,8 @@ export default function App(){
             </>}
             </>}
             </div>
+          </aside>
+          <aside className="workspace-analysis" aria-label="Measurements and execution log">
             <MeasuredErrorGraph branch={selected} trace={selected?.trace.filter((frame):frame is RobotFrame=>!!robotFrame(frame))??[]}/>
             <TechnicalInspector events={rt.events} initialized={compatible} playing={false} branches={branches} select={setBranchId} history={{ids:rt.session?.experiments??[],open:rt.history,disabled:rt.mutating}}/>
           </aside>
