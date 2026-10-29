@@ -62,27 +62,6 @@
       "friction": 0.8
     },
     {
-      "name": "back_wall",
-      "type": "box",
-      "position": [
-        0.0,
-        3.0,
-        0.7
-      ],
-      "size": [
-        3.0,
-        0.05,
-        1.5
-      ],
-      "rgba": [
-        0.52,
-        0.54,
-        0.53,
-        1.0
-      ],
-      "friction": 0.8
-    },
-    {
       "name": "rack_left",
       "type": "box",
       "position": [
