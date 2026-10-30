@@ -124,6 +124,38 @@ function MeasuredRobot({ assets, frames, cursor, config, playing, renderTime, ca
   </group>;
 }
 
+function PlacementMarker({position,halfSizes,enabled,onMove,onDragging,onError}:{position:Vec3;halfSizes:Vec3;enabled:boolean;onMove:(point:Vec3)=>Promise<boolean>;onDragging:(v:boolean)=>void;onError:(v:string|null)=>void}){
+ const {invalidate}=useThree();
+ const [draft,setDraft]=useState<Vec3|null>(null);
+ const drag=useRef<{pointerId:number;offsetX:number;offsetY:number;start:Vec3;current:Vec3}|null>(null);
+ const point=useRef(new Vector3());
+ const plane=useMemo(()=>new Plane(new Vector3(0,0,1),-.004),[]);
+ const visible=draft??position;
+ const down=(event:ThreeEvent<PointerEvent>)=>{
+  if(!enabled)return;
+  const hit=event.ray.intersectPlane(plane,point.current);if(!hit)return;
+  event.stopPropagation();(event.target as Element|null)?.setPointerCapture(event.pointerId);
+  drag.current={pointerId:event.pointerId,start:position,current:position,offsetX:position[0]-hit.x,offsetY:position[1]-hit.y};
+  onError(null);onDragging(true);
+ };
+ const move=(event:ThreeEvent<PointerEvent>)=>{
+  const active=drag.current;if(!active||active.pointerId!==event.pointerId)return;
+  const hit=event.ray.intersectPlane(plane,point.current);if(!hit)return;
+  event.stopPropagation();active.current=clampPickupPosition(hit.x+active.offsetX,hit.y+active.offsetY,halfSizes);setDraft(active.current);invalidate();
+ };
+ const up=(event:ThreeEvent<PointerEvent>)=>{
+  const active=drag.current;if(!active||active.pointerId!==event.pointerId)return;
+  event.stopPropagation();(event.target as Element|null)?.releasePointerCapture(event.pointerId);drag.current=null;onDragging(false);
+  if(Math.hypot(active.current[0]-active.start[0],active.current[1]-active.start[1])<.002){setDraft(null);return;}
+  void onMove(active.current).then(ok=>{if(!ok)onError('Destination must be on the table and at least 10 cm from the object.');setDraft(null);invalidate();});
+ };
+ const cancel=(event:ThreeEvent<PointerEvent>)=>{if(drag.current?.pointerId!==event.pointerId)return;drag.current=null;setDraft(null);onDragging(false);invalidate();};
+ return <group position={[visible[0],visible[1],.004]} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
+  <mesh><ringGeometry args={[.045,.055,48]}/><meshBasicMaterial color="#f04c4c" side={2} depthWrite={false}/></mesh>
+  <mesh><circleGeometry args={[.043,48]}/><meshBasicMaterial color="#f04c4c" transparent opacity={.22} side={2} depthWrite={false}/></mesh>
+ </group>;
+}
+
 class SceneBoundary extends Component<{children: ReactNode;onError:()=>void}, { error: boolean }> {
   state = { error: false };
   static getDerivedStateFromError() { return { error: true }; }
@@ -131,7 +163,7 @@ class SceneBoundary extends Component<{children: ReactNode;onError:()=>void}, { 
   render() { return this.state.error ? null : this.props.children; }
 }
 
-function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=false, onMoveCube=async()=>false,visualWorld,overlays,trace=[],onSelect=()=>{} }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean>;visualWorld?:LibraryWorld;overlays?:OverlayOptions;trace?:RobotFrame[];onSelect?:(s:string)=>void }) {
+function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=false, onMoveCube=async()=>false,onMoveDestination=async()=>false,visualWorld,overlays,trace=[],onSelect=()=>{} }: { frames: RobotFrame[]; cursor: RefObject<number>; config: Dict; replaying: boolean; playing:boolean; renderTime:number; canMoveCube?:boolean; onMoveCube?:(point:Vec3)=>Promise<boolean>;onMoveDestination?:(point:Vec3)=>Promise<boolean>;visualWorld?:LibraryWorld;overlays?:OverlayOptions;trace?:RobotFrame[];onSelect?:(s:string)=>void }) {
   const [assets,setAssets] = useState<Assets | null>(null), [error,setError] = useState<string | null>(null);
   const [assetRetry,setAssetRetry]=useState(0);
   const [appearanceStatus,setAppearanceStatus]=useState(''),[appearanceError,setAppearanceError]=useState(false);
@@ -143,14 +175,16 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
   useEffect(()=>{let active=true;setImported(null);setAppearanceError(false);if(visualWorld?.preview_available&&!appearance)workspaceApi.preview(visualWorld.id).then(p=>active&&setImported(p)).catch(()=>active&&setDragError('Imported appearance could not load. Physical collision geometry remains available.'));return()=>{active=false;};},[visualWorld?.id]);
   const resetCamera=()=>setCameraCommand(c=>({key:'',seq:c.seq+1}));
   const robot=String(config.robot_model??'panda');
+  const destination=Array.isArray(config.placement_position)&&config.placement_position.length===3&&config.physical_operation==='pick_place'?config.placement_position as Vec3:null;
   useEffect(() => { let active = true;setAssets(null);setError(null);loadAssets(robot).then(a=>active&&setAssets(a)).catch(()=>active&&setError('Robot geometry could not load. Physics results remain available.')); return ()=>{ active=false; }; },[robot,assetRetry]);
-  return <><div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label={`${robot==='panda'?'Franka Panda':robot} workcell. ${canMoveCube?'Drag the blue object on the supported table. ':''}Arrow keys orbit, Shift and arrows pan, plus and minus zoom, R resets camera.`} onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.shiftKey?'Shift+'+e.key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
+  return <><div className="robot-viewport" data-testid="robot-viewport" tabIndex={0} role="region" aria-label={`${robot==='panda'?'Franka Panda':robot} workcell. ${canMoveCube?'Drag the blue object or red destination marker on the table. ':''}Arrow keys orbit, Shift and arrows pan, plus and minus zoom, R resets camera.`} onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-'].includes(e.key)){e.preventDefault();setCameraCommand(c=>({key:e.shiftKey?'Shift+'+e.key:e.key,seq:c.seq+1}));}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetCamera();}}}>
     {!error&&assets&&frames.length>0&&<SceneBoundary onError={()=>setError('3D rendering is unavailable. Your experiment data remains accessible in the inspector. Try a WebGL2-capable browser.')}>
       <Canvas frameloop="demand" shadows={{type:PCFShadowMap}} dpr={qualityProfiles[quality].pixelRatio} style={{cursor:canMoveCube?(dragging?'grabbing':hovering?'grab':'auto'):'auto',touchAction:'none'}} camera={{ position:[1.8,-2.1,1.35], fov: 42, near: .015, far: 100 }} gl={{ antialias: false }} onCreated={({camera,gl})=>{ camera.up.set(0,0,1); gl.setClearColor('#262a2d'); performance.mark('vivacity:robot-scene-ready'); }}>
         <ambientLight intensity={visualWorld?.spec.lighting.ambient??.72} /><hemisphereLight args={['#ffffff','#6f706a',1.8]} />
         <directionalLight position={[1,-1.5,3]} intensity={visualWorld?.spec.lighting.key_intensity??3.2} castShadow shadow-mapSize={[1024,1024]} shadow-bias={-.00005} shadow-normalBias={.008} shadow-camera-left={-1.5} shadow-camera-right={1.5} shadow-camera-top={1.5} shadow-camera-bottom={-1.5} />
         <directionalLight position={[-2,1,1.5]} intensity={1.3} />
         <MeasuredRobot assets={assets} frames={frames} cursor={cursor} config={{...config,show_imported_appearance:(!!imported||!!appearance)&&showImported,show_environment_appearance:!!appearance&&showImported,collision_overlay:overlays?.collision}} playing={playing} renderTime={renderTime} canMoveCube={canMoveCube} onMoveCube={onMoveCube} onDragging={setDragging} onHover={setHovering} onDragError={setDragError} onSelect={onSelect} />
+        {destination&&<PlacementMarker position={destination} halfSizes={objectHalfSizes(config)} enabled={canMoveCube} onMove={onMoveDestination} onDragging={setDragging} onError={setDragError}/>}
         {overlays&&frames.at(-1)&&<EngineeringOverlay frame={frames.at(-1)!} trace={trace} options={overlays}/>}
         {imported&&showImported&&visualWorld?.mapping&&<ImportedVisual preview={imported} mapping={visualWorld.mapping}/>}
         {appearance&&showImported&&<EnvironmentAppearance world={visualWorld} appearance={appearance} onStatus={(message,failed=false)=>{setAppearanceStatus(message);setAppearanceError(failed);}}/>}
@@ -159,6 +193,7 @@ function RobotView({ frames, cursor, config, playing, renderTime, canMoveCube=fa
     </SceneBoundary>}
   </div>
     <div className="scene-toolbar"><span>{robot==='panda'?'Franka Panda':robot.toUpperCase()} · {visualWorld?.name??'Physical workcell'}</span><label>View<select aria-label="Camera preset" value={cameraCommand.key.startsWith('preset:')?cameraCommand.key.slice(7):'perspective'} onChange={e=>setCameraCommand(c=>({key:'preset:'+e.target.value,seq:c.seq+1}))}><option value="perspective">Perspective</option><option value="top">Top</option><option value="side">Side</option></select></label><button type="button" onClick={resetCamera}>Reset camera</button>{(imported||appearance)&&<label><input type="checkbox" checked={showImported} onChange={e=>setShowImported(e.target.checked)}/> Environment</label>}</div>
+    {destination&&<div className="destination-controls"><span><b aria-hidden="true">●</b> Red marker: placement destination</span><details><summary>Adjust destination with keyboard</summary><div className="destination-nudges">{([['←',-.02,0],['→',.02,0],['↑',0,.02],['↓',0,-.02]] as const).map(([label,dx,dy])=><button key={label} type="button" disabled={!canMoveCube} aria-label={`Move destination ${label} by 2 centimetres`} onClick={()=>{const next=clampPickupPosition(destination[0]+dx,destination[1]+dy,objectHalfSizes(config));void onMoveDestination(next).then(ok=>setDragError(ok?null:'Destination must be on the table and at least 10 cm from the object.'));}}>{label}</button>)}</div><small>X {destination[0].toFixed(2)} m · Y {destination[1].toFixed(2)} m</small></details></div>}
     <div className="scene-quality"><RenderQualityControl worldId={visualWorld?.id}/></div>
     {appearanceStatus&&<p className={appearanceError?'negative small':'small'} role={appearanceError?'alert':'status'}>{appearanceStatus}</p>}
     {(error||dragError)&&<p className="negative" role="alert">{error??dragError}</p>}

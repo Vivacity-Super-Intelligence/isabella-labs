@@ -175,3 +175,5 @@ main.platform-main{margin:0 auto!important;width:100%;max-width:1900px!important
 .workspace-analysis .log-caption{font-size:10px;line-height:1.4;color:#9eb0a5;margin:8px 0}
 @keyframes log-enter{from{opacity:.65;transform:translateY(3px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.workspace-analysis .event-log p{animation:none}}
+.destination-controls{display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#d6deda;font-size:11px;padding:7px 0}
+.destination-controls b{color:#f04c4c;margin-right:5px}.destination-controls details{font-size:11px}.destination-controls summary{cursor:pointer}.destination-nudges{display:flex;gap:4px;margin:6px 0}.destination-nudges button{min-width:40px;min-height:36px;background:#202b28;color:#fff;border:1px solid #63766d}.destination-nudges button:focus-visible{outline:2px solid #f2e7be}.destination-nudges button:disabled{opacity:.45}
