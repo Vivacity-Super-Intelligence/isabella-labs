@@ -14,3 +14,12 @@ export function pandaTrajectoryCsv(frames:unknown[]):string {
  if(lines.length<3)throw new Error('This result does not contain enough distinct recorded frames.');
  return lines.join('\n')+'\n';
 }
+/** Vivacity sampled trajectory v1: magic "VIVAPND1", uint32 count, then float64 time + seven joints, little-endian. */
+export function pandaTrajectoryBinary(frames:unknown[]):ArrayBuffer {
+ const csv=pandaTrajectoryCsv(frames),rows=csv.trim().split('\n').slice(1).map(line=>line.split(',').map(Number));
+ const buffer=new ArrayBuffer(12+rows.length*64),view=new DataView(buffer);
+ for(const [i,c] of [...'VIVAPND1'].entries())view.setUint8(i,c.charCodeAt(0));
+ view.setUint32(8,rows.length,true);
+ rows.forEach((row,i)=>row.forEach((n,j)=>view.setFloat64(12+i*64+j*8,n,true)));
+ return buffer;
+}
