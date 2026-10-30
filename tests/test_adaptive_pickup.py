@@ -55,6 +55,8 @@ def test_adaptive_search_reports_unreachable_mount_overlap(tmp_path):
         done = _completed(runtime, experiment['id'])
         assert done['status'] == 'completed', done['error']
         assert done['selected_branch_id'] is None
+        assert 'No feasible result was found' in done['result']['conclusion']
+        assert 'Best measured feasible result' not in done['result']['conclusion']
         assert done['result']['search']['stopping_reason'] == 'candidate_exhausted'
         assert done['performance']['integrated_trial_count'] == 0
         assert done['performance']['trial_count'] == 1

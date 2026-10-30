@@ -321,7 +321,7 @@ class Runtime:
                 milestone = 'physical_pick_and_place' if pickup else 'reach_only'
                 conclusion = {'conclusion': ('Measured physical pickup and placement found.' if selected else 'No candidate completed physical pickup and placement.') if pickup else ('Measured collision-free reach found.' if selected else 'No candidate executed a collision-free reach.'), 'milestone': milestone, 'ranked_branch_ids': [b['id'] for b in ranked], 'top_feasible_branch_ids':[b['id'] for b in successful[:3]]}
                 if settings.get('adaptive_trials') and search:
-                    conclusion['conclusion'] += ' Search stopped: '+search['stopping_reason'].replace('_',' ')+'. Best measured feasible result; global optimality is not established.'
+                    conclusion['conclusion'] += ' Search stopped: '+search['stopping_reason'].replace('_',' ')+('. Best measured feasible result; global optimality is not established.' if selected else '. No feasible result was found within this search.')
             else:
                 selected, conclusion = backend.choose(branches)
             public_settings={k:v for k,v in settings.items() if k not in ('checkpoint','pause_seconds')}
