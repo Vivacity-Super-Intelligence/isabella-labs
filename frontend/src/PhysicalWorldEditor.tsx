@@ -1,7 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {api,errorMessage,type EditorEntity,type EditorProperty,type WorldEditor,type WorldVersion} from './api';
 import type {World} from './domain';
-import Settings from './Settings';
 
 type Action='add'|'duplicate'|'delete';
 type Props={world:World;selected:string;select:(id:string)=>void;disabled:boolean;
@@ -41,12 +40,11 @@ function PropertyField({entity,property,disabled,commit}:{entity:EditorEntity;pr
     </div>
 
     {changed&&property.editable&&<small>Applying resets the simulation and creates a new world version.</small>}
-    <details><summary>Details</summary><p>{property.meaning} {property.dependency} {property.physics_effect}</p></details>
     {error&&<p role="alert" className="negative">{error}</p>}
   </div>;
 }
 
-export default function PhysicalWorldEditor({world,selected,select,disabled,editProperty,restoreVersion,apply,close}:Props){
+export default function PhysicalWorldEditor({world,selected,select,disabled,editProperty,restoreVersion,close}:Props){
   const [editor,setEditor]=useState<WorldEditor|null>(null),[versions,setVersions]=useState<WorldVersion[]>([]);
   const [loading,setLoading]=useState(true),[error,setError]=useState('');
   const [undo,setUndo]=useState<number[]>([]),[redo,setRedo]=useState<number[]>([]);
@@ -106,11 +104,11 @@ export default function PhysicalWorldEditor({world,selected,select,disabled,edit
       </label>
       {entity&&<div className="physical-fields" key={world.revision+'-'+entity.id}>
         <h3>{entity.name}</h3>
-        {entity.properties.map(property=><PropertyField key={property.key} entity={entity} property={property} disabled={disabled||busy} commit={change}/>)}
+        {entity.properties.filter(property=>entity.id!=='object'||['mass','friction','half_size_x','half_size_y','half_size_z'].includes(property.key)).map(property=><PropertyField key={property.key} entity={entity} property={property} disabled={disabled||busy} commit={change}/>)}
       </div>}
+      {entity?.id==='object'&&<p className="small">Heavy objects can exceed the gripper’s capacity; failed grasps are reported by the simulator.</p>}
       <div className="physical-actions"><button type="button" disabled={disabled||busy||!undo.length} onClick={()=>void restore(undo.at(-1)!,'undo')}>Undo</button><button type="button" disabled={disabled||busy||!redo.length} onClick={()=>void restore(redo.at(-1)!,'redo')}>Redo</button><button type="button" onClick={exportWorld}>Export world</button></div>
       <details className="physical-history"><summary>Saved physical versions ({versions.length})</summary><ol>{versions.slice(0,16).map(version=><li key={version.revision}><span>v{version.revision} · {version.reason.replaceAll('_',' ')}</span><button type="button" disabled={disabled||busy||version.revision===world.revision} onClick={()=>void restore(version.revision,'history')}>Restore</button></li>)}</ol></details>
-      <details className="physical-advanced"><summary>Task coordinates and advanced conditions</summary><Settings key={world.id+'-'+world.revision} config={world.config} disabled={disabled||busy} apply={apply} close={close}/></details>
 
     </>}
   </section>;
