@@ -46,7 +46,7 @@ def describe_world(world, observation=None):
                 [(.02, .03)] * 3,
                 'Compiles a new collision box and native inertia tensor from mass and dimensions.')
         + [_property('mass', ['cube_mass'], 'Mass', c['cube_mass'], .02,
-                     .30 if c.get('physical_operation') == 'assembly' else .15,
+                     2.0,
                      unit='kg', meaning='Explicit rigid-body mass; editing it clears density mode.',
                      dependency='Clears density mode. MuJoCo recomputes inertia; grasp and payload feasibility change.',
                      effect='Changes gravity, contact response, inertia, and measured grasp outcome.', step=.001),

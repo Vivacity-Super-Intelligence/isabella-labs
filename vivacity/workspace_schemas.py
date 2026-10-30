@@ -141,7 +141,7 @@ class ExperimentConfiguration(Schema):
     target_position: Vec3 = [.5, -.15, .026]
     destination_position: Vec3 = [.5, .18, .026]
     object_half_sizes: Vec3 = [.025, .025, .025]
-    object_mass_kg: float = Field(.06, ge=.02, le=.30)
+    object_mass_kg: float = Field(.06, ge=.02, le=2.0)
     object_friction: float = Field(1., ge=.05, le=1.5)
     sort_property: Literal['mass','width'] = 'mass'
     sort_threshold: float = Field(.08,ge=.01,le=.2)
@@ -160,8 +160,6 @@ class ExperimentConfiguration(Schema):
                 raise ValueError('precision assembly settings are required')
         if self.assembly is not None and self.operation_id != 'assembly':
             raise ValueError('assembly settings require the assembly operation')
-        if self.object_mass_kg > .15 and self.operation_id != 'assembly':
-            raise ValueError('masses above 0.15 kg are supported only in assembly experiments')
         return self
 
 

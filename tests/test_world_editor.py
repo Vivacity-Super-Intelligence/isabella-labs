@@ -96,7 +96,7 @@ def test_invalid_and_unsupported_editor_requests_leave_world_unchanged(runtime):
     for change in (
         EditorChange(expected_revision=0, entity_id='object', property_key='mass', value=-1.),
         EditorChange(expected_revision=0, entity_id='robot', property_key='joint_topology', value=3.),
-        EditorChange(expected_revision=0, entity_id='object', property_key='density', value=5000.),
+        EditorChange(expected_revision=0, entity_id='object', property_key='density', value=5001.),
     ):
         with pytest.raises(ValueError):
             runtime.edit_property(world['id'], change)
@@ -148,3 +148,15 @@ def test_editor_http_contract_and_persisted_versions(tmp_path):
     with TestClient(create_app(database)) as client:
         versions = client.get(f'/v1/worlds/{world_id}/versions')
         assert [v['revision'] for v in versions.json()] == [1,0]
+
+
+def test_two_kilogram_mass_is_compiled_and_bounded(runtime):
+    world = _create(runtime)
+    world = runtime.edit_property(world['id'], EditorChange(expected_revision=0, entity_id='object', property_key='mass', value=2.0))
+    native = runtime.fork(world['id'])
+    assert world['config']['cube_mass'] == pytest.approx(2.0)
+    assert native.model.body_mass[native.model.body('target').id] == pytest.approx(2.0)
+    assert runtime.observe(world['id'])['observation']['inspection']['object']['mass_kg'] == pytest.approx(2.0)
+    with pytest.raises(ValueError):
+        runtime.edit_property(world['id'], EditorChange(expected_revision=1, entity_id='object', property_key='mass', value=2.01))
+    assert runtime.get_world(world['id'])['config']['cube_mass'] == pytest.approx(2.0)

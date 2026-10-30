@@ -95,7 +95,7 @@ class RoboticsConfig(Schema):
     placement_position: Vec3 = [0.5, 0.18, 0.026]
     cube_half_size: float = Field(0.025, ge=0.02, le=0.03)
     cube_half_sizes: Vec3 | None = None
-    cube_mass: float = Field(0.06, ge=0.02, le=0.30)
+    cube_mass: float = Field(0.06, ge=0.02, le=2.0)
     cube_density_kg_m3: float | None = Field(None, ge=50., le=5000.)
     cube_friction: float = Field(1.0, ge=0.05, le=1.5)
     table_friction: float = Field(1.0, ge=0.05, le=2.0)
@@ -110,8 +110,8 @@ class RoboticsConfig(Schema):
         if self.cube_density_kg_m3 is not None:
             half = self.cube_half_sizes or [self.cube_half_size] * 3
             self.cube_mass = 8 * half[0] * half[1] * half[2] * self.cube_density_kg_m3
-            if not .02 <= self.cube_mass <= .30:
-                raise ValueError('density and dimensions imply mass outside the supported 0.02..0.30 kg range')
+            if not .02 <= self.cube_mass <= 2.0:
+                raise ValueError('density and dimensions imply mass outside the supported 0.02..2.0 kg range')
         if self.program_id == 'precision_assembly':
             if self.robot_model != 'ur5e' or self.task != 'pick_place' or self.physical_operation != 'assembly' or self.scene_profile != 'workcell':
                 raise ValueError('precision assembly requires the six-axis UR5e workcell and assembly task')
@@ -119,8 +119,6 @@ class RoboticsConfig(Schema):
                 raise ValueError('precision assembly settings are required')
         if self.assembly is not None and self.physical_operation != 'assembly':
             raise ValueError('assembly settings require the assembly operation')
-        if self.cube_mass > .15 and self.physical_operation != 'assembly':
-            raise ValueError('masses above 0.15 kg are supported only in assembly experiments')
         if self.physical_operation=='sorting' and self.sorting_rule is None:
             raise ValueError('sorting requires a bounded physical-property classification rule')
         if len({g.name for g in self.scene_geometries}) != len(self.scene_geometries):
