@@ -31,11 +31,14 @@ def test_catalog_exposes_only_measured_programs_as_executable():
     assert all(program.missing_capability for program in programs if program.status == 'not_implemented')
     assert all(program.missing_capability is None for program in programs if program.status == 'executable')
     for change in ({'robot_id': 'panda'}, {'operation_id': 'pick_place'}, {'environment_id': 'warehouse'},
-                   {'object_mass_kg': .31}, {'assembly': {'arm_speed_rad_s': 2}}):
+                   {'object_mass_kg': 2.01}, {'assembly': {'arm_speed_rad_s': 2}}):
         with pytest.raises(ValidationError):
             configuration(**change)
+    # The physical editor now supports masses up to 2 kg; a difficult part is
+    # accepted as a trial and must succeed or fail through measured execution.
+    assert configuration(object_mass_kg=.31).object_mass_kg == pytest.approx(.31)
     with pytest.raises(ValidationError):
-        ExperimentConfiguration(name='Too heavy for a generic pickup', environment_id='desktop', object_mass_kg=.2)
+        ExperimentConfiguration(name='Outside the configured mass range', environment_id='desktop', object_mass_kg=2.01)
 
 
 def test_precision_model_and_speed_are_physical_and_bounded(tmp_path):

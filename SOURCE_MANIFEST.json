@@ -387,7 +387,7 @@
   "tests/test_spatial_pipeline.py": "16fc6aac0cb52d73333684238f5bc5dd9ec4a71925ca8f7dac3cd2ee982140c5",
   "tests/test_supervisor.py": "ac13f6b59c28b34933cc0cb25a645ad17ad198345ca33eb85e5f5a2c8652e77e",
   "tests/test_templates.py": "c15e44c6f530257ed119d514478a5d3fce9c503e3ba86db38296ba53627f019b",
-  "tests/test_v_robotics.py": "ae900cd3de1b5a098111de851ed9c51a55c1025e2e8acfed8880af4727e1243e",
+  "tests/test_v_robotics.py": "2df0161dbbe268f52ecccf152029ec417926b0166020bf821c5f086cac06833e",
   "tests/test_visual_assets.py": "dbb2628c02232378b9580c5c781ccc290c01f493c68cc3a9cd645b51a3633e79",
   "tests/test_viva_agent.py": "ebe0dcc3b0e77cedc0e9b14b5e2623b5f3ce934b4c576ee58dfe26feb42b5649",
   "tests/test_workspace.py": "793c02aebb903fc2d3b8390206fe58c202c268113ae026c0df66394ebe43dc53",
