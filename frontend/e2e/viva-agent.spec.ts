@@ -1,4 +1,5 @@
 import {expect,test} from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 test('typed Viva command changes a real physical configuration without auto-running',async({page})=>{
  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
@@ -42,6 +43,16 @@ test('mobile and keyboard flow exposes a reduced-motion voice panel',async({page
  await page.keyboard.press('Escape');
  await expect(page.getByRole('heading',{name:'Viva'})).toBeHidden();
  await expect(page.getByRole('button',{name:'Open Viva voice and command assistant'})).toBeFocused();
+});
+
+test('Viva panel passes scoped automated accessibility checks on desktop and mobile',async({page})=>{
+ await page.goto('/workspace');
+ await page.getByRole('button',{name:'Open Viva voice and command assistant'}).click();
+ for(const width of [1440,390]){
+  await page.setViewportSize({width,height:900});
+  const audit=await new AxeBuilder({page}).include('.viva-panel').withTags(['wcag2a','wcag2aa','wcag22aa']).analyze();
+  expect(audit.violations).toEqual([]);
+ }
 });
 
 test('six-axis sorting runs real MuJoCo and replays only after its measured result exists',async({page})=>{

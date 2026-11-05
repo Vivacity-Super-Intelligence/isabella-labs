@@ -34,6 +34,11 @@ key and enforced $5 project cap. The exported OpenAPI files were also updated
 to match the complete current backend specification; regenerated TypeScript
 types produced no diff. Production remains unchanged.
 
+The additional scoped accessibility audit of the open Viva panel at desktop
+and mobile widths passed in Chromium, Firefox and WebKit with no reported
+WCAG 2 A/AA or 2.2 AA violations. This automated result is not a manual
+assistive-technology or live-microphone test.
+
 See [docs/VIVA_VOICE.md](docs/VIVA_VOICE.md) for exact routes, reproduction
 commands, privacy and budget controls, and remaining release gates.
 
