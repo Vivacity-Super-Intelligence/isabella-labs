@@ -8488,7 +8488,7 @@
           },
           "object_mass_kg": {
             "type": "number",
-            "maximum": 0.3,
+            "maximum": 2.0,
             "minimum": 0.02,
             "title": "Object Mass Kg",
             "default": 0.06
@@ -11423,7 +11423,7 @@
           },
           "cube_mass": {
             "type": "number",
-            "maximum": 0.3,
+            "maximum": 2.0,
             "minimum": 0.02,
             "title": "Cube Mass",
             "default": 0.06

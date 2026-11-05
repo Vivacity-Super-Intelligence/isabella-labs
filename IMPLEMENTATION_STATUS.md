@@ -9,16 +9,30 @@ spoken-output sessions were not run because no dedicated key and verified
 $5 hard project limit were available. The FreeCAD companion is not built.
 The production release was not changed by this branch.
 
-Verification: the final frontend build passed; nine Playwright journeys
-passed on the local runtime, including a real four-branch UR5e sorting run
-and measured replay. A separate mocked-audio transcription journey passed.
-The final focused backend run passed 11 tests. The broad backend run had 371
-passes, one skip, and one failure in 39m 41s because the collision fixture
-used the Dual Panda's former mount position. The fixture was moved to the
-actual mount and all three affected parameterized cases passed in the focused
-run; the complete broad suite has not been rerun after that repair. The single
-recorded UR5e run had four `execution_success` branches with goal errors
-0.001032–0.001541 m. This does not establish reliability across varied setups.
+Verification: the frontend build passed. The final voice-branch Linux CI
+reported 371 passed, 3 skipped and 0 failed across 374 backend tests, plus
+5/5 memory-limit checks. Its earlier Windows run had one stale Dual Panda
+collision-fixture failure; the corrected fixture passed in the focused run
+and in that complete CI rerun. The newer backend-only branch CI reported
+377 passed, 3 skipped and 0 failed across 380 backend tests, plus 5/5
+memory-limit checks. Its initial CI run found a stale test expectation for
+the editor's 2 kg object-mass bound; the corrected assertion passed in the
+complete rerun. The single recorded UR5e run had four `execution_success`
+branches with goal errors 0.001032–0.001541 m. This does not establish
+reliability across varied setups.
+
+Update 2026-11-06: The frontend voice branch was exercised against the newer
+`codex/viva-voice-backend` runtime branch. All ten Playwright journeys passed
+in Chromium (1.9 minutes), Firefox (2.5 minutes) and WebKit (2.0 minutes),
+including a real MuJoCo sorting run and replay in each engine. The ten new
+agent API paths and their related OpenAPI schemas had the same SHA-256 digest
+(`acde42cecea4f228756bf9336abe55f50b806ac66d4f8265c55966d41899a45c`)
+on both branches. The speaking indicator now waits for actual output-audio
+buffer start; its focused mocked-WebRTC test passed. The provider microphone,
+Hindi/Hinglish speech and natural output remain unverified without a dedicated
+key and enforced $5 project cap. The exported OpenAPI files were also updated
+to match the complete current backend specification; regenerated TypeScript
+types produced no diff. Production remains unchanged.
 
 See [docs/VIVA_VOICE.md](docs/VIVA_VOICE.md) for exact routes, reproduction
 commands, privacy and budget controls, and remaining release gates.

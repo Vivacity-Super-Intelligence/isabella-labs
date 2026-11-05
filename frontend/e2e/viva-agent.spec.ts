@@ -109,6 +109,18 @@ test('spoken local path requires a user-selected upload',async({page})=>{
  await expect(page.locator('.viva-caption')).toContainText('Asset staged for import');
 });
 
+test('cancel while awaiting a local file stops the remaining actions',async({page})=>{
+ await page.goto('/workspace');
+ await page.getByRole('button',{name:'Open Viva voice and command assistant'}).click();
+ await page.getByLabel('Or type a command').fill('Import a robot file from my local folder, then run the experiment');
+ await page.getByRole('button',{name:'Send command'}).click();
+ await expect(page.getByRole('button',{name:'Choose a local robot or world file'})).toBeVisible();
+ await page.getByRole('button',{name:'Stop queued actions'}).click();
+ await expect(page.locator('.viva-steps li[data-status="cancelled"]')).toHaveCount(2);
+ await expect(page.getByTestId('experiment-status')).toContainText('Ready to start');
+ await expect(page.locator('.viva-caption')).toContainText('Queued actions stopped.');
+});
+
 test('a supported directory picker imports only a user-selected single model file',async({page})=>{
  await page.addInitScript(()=>Object.defineProperty(window,'showDirectoryPicker',{configurable:true,value:async()=>({
   async *values(){yield {kind:'file',name:'triangle.obj',getFile:async()=>new File(['v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n'],'triangle.obj',{type:'text/plain'})};}
@@ -127,7 +139,8 @@ test('voice signal follows microphone and spoken audio events, then releases the
  await page.route('**/v1/agent/voice/sessions',route=>route.fulfill({status:201,json:{schema_version:'vivacity.voice-session/1.0',id:'test-voice',client_secret:'ephemeral-test',expires_at:Date.now()/1000+60,max_seconds:180}}));
  await page.route('**/v1/agent/voice/sessions/test-voice/stop',route=>route.fulfill({json:{id:'test-voice',status:'closed'}}));
  await page.addInitScript(()=>{
-  const root=window as typeof window & {__vivaFakeMessage?:(event:object)=>void;__vivaTrackStopped?:()=>boolean;__vivaOutputActive?:boolean};
+  const root=window as typeof window & {__vivaFakeMessage?:(event:object)=>void;__vivaTrackStopped?:()=>boolean;__vivaOutputActive?:boolean;__vivaSentEvents?:object[]};
+  root.__vivaSentEvents=[];
   let stopped=false;
   const track={stop:()=>{stopped=true;}};
   root.__vivaTrackStopped=()=>stopped;
@@ -152,7 +165,7 @@ test('voice signal follows microphone and spoken audio events, then releases the
    channel:{readyState:string;onopen:(()=>void)|null;onmessage:((event:{data:string})=>void)|null;send:(_data:string)=>void;close:()=>void}|null=null;
    addTrack(){}
    createDataChannel(){
-    this.channel={readyState:'open',onopen:null,onmessage:null,send:()=>{},close:()=>{}};
+    this.channel={readyState:'open',onopen:null,onmessage:null,send:data=>{root.__vivaSentEvents?.push(JSON.parse(data) as object);},close:()=>{}};
     root.__vivaFakeMessage=event=>this.channel?.onmessage?.({data:JSON.stringify(event)});
     return this.channel;
    }
@@ -174,6 +187,17 @@ test('voice signal follows microphone and spoken audio events, then releases the
  await expect(start).toBeEnabled();
  await start.click();
  await expect(page.locator('.viva-stage-listening')).toBeVisible();
+ await page.evaluate(()=>(window as typeof window & {__vivaFakeMessage:(event:object)=>void}).__vivaFakeMessage({
+  type:'conversation.item.input_audio_transcription.completed',transcript:'Hey Viva, make the object heavier',
+ }));
+ await expect(page.locator('.viva-steps li[data-status="completed"]')).toHaveCount(1,{timeout:60000});
+ await expect(page.locator('.viva-caption')).toContainText('0.075 kg');
+ await expect(page.locator('.viva-stage-preparing')).toBeVisible();
+ const spokenSource=await page.evaluate(()=>{
+  const root=window as typeof window & {__vivaSentEvents:unknown[]};
+  return JSON.stringify(root.__vivaSentEvents.find(event=>(event as {type:string}).type==='response.create'));
+ });
+ expect(spokenSource).toContain('0.075 kg');
  await page.evaluate(()=>{
   const root=window as typeof window & {__vivaFakeMessage:(event:object)=>void;__vivaOutputActive:boolean};
   root.__vivaOutputActive=true;
@@ -193,11 +217,6 @@ test('voice signal follows microphone and spoken audio events, then releases the
   root.__vivaFakeMessage({type:'output_audio_buffer.stopped',response_id:'resp_1'});
  });
  await expect(page.locator('.viva-stage-listening')).toBeVisible();
- await page.evaluate(()=>(window as typeof window & {__vivaFakeMessage:(event:object)=>void}).__vivaFakeMessage({
-  type:'conversation.item.input_audio_transcription.completed',transcript:'Hey Viva, make the object heavier',
- }));
- await expect(page.locator('.viva-steps li[data-status="completed"]')).toHaveCount(1,{timeout:60000});
- await expect(page.locator('.viva-caption')).toContainText('0.075 kg');
  await page.getByRole('button',{name:'Turn off microphone',exact:true}).click();
  await expect(page.locator('.viva-stage-offline')).toBeVisible();
  expect(await page.evaluate(()=>(window as typeof window & {__vivaTrackStopped:()=>boolean}).__vivaTrackStopped())).toBe(true);
