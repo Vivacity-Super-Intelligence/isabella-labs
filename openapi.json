@@ -1669,6 +1669,605 @@
         }
       }
     },
+    "/v1/agent/robot-designs": {
+      "post": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Create Robot Design",
+        "operationId": "create_robot_design_v1_agent_robot_designs_post",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 128,
+                  "pattern": "^[A-Za-z0-9_-]+$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RobotDesignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotDesignResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/robot-designs/{identifier}": {
+      "get": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Robot Design",
+        "operationId": "robot_design_v1_agent_robot_designs__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotDesignResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/robot-designs/{identifier}/model.mjcf": {
+      "get": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Robot Model",
+        "operationId": "robot_model_v1_agent_robot_designs__identifier__model_mjcf_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/voice/capabilities": {
+      "get": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Voice Capabilities",
+        "operationId": "voice_capabilities_v1_agent_voice_capabilities_get",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceCapabilitiesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/voice/sessions": {
+      "post": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Create Voice",
+        "operationId": "create_voice_v1_agent_voice_sessions_post",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceSessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/voice/sessions/{identifier}/stop": {
+      "post": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Stop Voice",
+        "operationId": "stop_voice_v1_agent_voice_sessions__identifier__stop_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceStopResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/requests": {
+      "post": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Submit",
+        "operationId": "submit_v1_agent_requests_post",
+        "parameters": [
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "X-Session-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentTurnRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRequestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/requests/{identifier}": {
+      "get": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Get",
+        "operationId": "get_v1_agent_requests__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRequestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/requests/{identifier}/steps/{index}/outcome": {
+      "post": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Outcome",
+        "operationId": "outcome_v1_agent_requests__identifier__steps__index__outcome_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Index"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          },
+          {
+            "name": "X-Session-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentStepOutcome"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRequestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agent/requests/{identifier}/cancel": {
+      "post": {
+        "tags": [
+          "Viva workspace agent"
+        ],
+        "summary": "Cancel",
+        "operationId": "cancel_v1_agent_requests__identifier__cancel_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRequestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/factory/cells": {
       "post": {
         "tags": [
@@ -5755,6 +6354,280 @@
   },
   "components": {
     "schemas": {
+      "AgentAction": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "select_world",
+              "select_robot",
+              "select_operation",
+              "set_mass",
+              "set_friction",
+              "set_object_position",
+              "set_destination",
+              "set_quality",
+              "run_experiment",
+              "pause",
+              "resume",
+              "compare",
+              "replay",
+              "export",
+              "generate_environment",
+              "import_folder",
+              "create_robot",
+              "undo"
+            ],
+            "title": "Kind"
+          },
+          "arguments": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Arguments"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 180,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "default": "pending"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "label"
+        ],
+        "title": "AgentAction"
+      },
+      "AgentRequestResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.agent-plan/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.agent-plan/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "utterance": {
+            "type": "string",
+            "title": "Utterance"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "running",
+              "completed",
+              "failed",
+              "cancelled",
+              "needs_clarification"
+            ],
+            "title": "Status"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/AgentAction"
+            },
+            "type": "array",
+            "title": "Actions"
+          },
+          "world_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "World Id"
+          },
+          "expected_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Revision"
+          },
+          "created_unix_s": {
+            "type": "number",
+            "title": "Created Unix S"
+          },
+          "updated_unix_s": {
+            "type": "number",
+            "title": "Updated Unix S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "utterance",
+          "status",
+          "explanation",
+          "actions",
+          "created_unix_s",
+          "updated_unix_s"
+        ],
+        "title": "AgentRequestResponse"
+      },
+      "AgentStepOutcome": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Message"
+          },
+          "world_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "World Id"
+          },
+          "world_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "World Revision"
+          },
+          "experiment_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experiment Id"
+          },
+          "design_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "success",
+          "message"
+        ],
+        "title": "AgentStepOutcome"
+      },
+      "AgentTurnRequest": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.agent-request/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.agent-request/1.0"
+          },
+          "utterance": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 2,
+            "title": "Utterance"
+          },
+          "world_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "World Id"
+          },
+          "expected_revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "utterance"
+        ],
+        "title": "AgentTurnRequest"
+      },
       "AssemblySettings": {
         "properties": {
           "arm_speed_rad_s": {
@@ -10244,6 +11117,121 @@
         ],
         "title": "RestoreWorldVersion"
       },
+      "RobotDesignRequest": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.robot-design-request/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.robot-design-request/1.0"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 8,
+            "title": "Description"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/SixAxisDesignSpec"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "title": "RobotDesignRequest"
+      },
+      "RobotDesignResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.robot-design/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.robot-design/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/SixAxisDesignSpec"
+          },
+          "status": {
+            "type": "string",
+            "const": "draft",
+            "title": "Status",
+            "default": "draft"
+          },
+          "compiled": {
+            "type": "boolean",
+            "title": "Compiled"
+          },
+          "control_smoke_passed": {
+            "type": "boolean",
+            "title": "Control Smoke Passed"
+          },
+          "task_validated": {
+            "type": "boolean",
+            "title": "Task Validated",
+            "default": false
+          },
+          "executable": {
+            "type": "boolean",
+            "title": "Executable",
+            "default": false
+          },
+          "model_sha256": {
+            "type": "string",
+            "title": "Model Sha256"
+          },
+          "simulator_version": {
+            "type": "string",
+            "title": "Simulator Version"
+          },
+          "measured_joint_displacement_rad": {
+            "type": "number",
+            "title": "Measured Joint Displacement Rad"
+          },
+          "model_joint_count": {
+            "type": "integer",
+            "title": "Model Joint Count"
+          },
+          "model_actuator_count": {
+            "type": "integer",
+            "title": "Model Actuator Count"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "created_unix_s": {
+            "type": "number",
+            "title": "Created Unix S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "description",
+          "spec",
+          "compiled",
+          "control_smoke_passed",
+          "model_sha256",
+          "simulator_version",
+          "measured_joint_displacement_rad",
+          "model_joint_count",
+          "model_actuator_count",
+          "explanation",
+          "created_unix_s"
+        ],
+        "title": "RobotDesignResponse"
+      },
       "RoboticsConfig": {
         "properties": {
           "physics": {
@@ -11193,6 +12181,85 @@
         ],
         "title": "SessionResponse"
       },
+      "SixAxisDesignSpec": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.robot-design-spec/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.robot-design-spec/1.0"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 3,
+            "title": "Name",
+            "default": "Custom six-axis arm"
+          },
+          "link_lengths_m": {
+            "items": {
+              "type": "number",
+              "maximum": 0.45,
+              "minimum": 0.06
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 6,
+            "title": "Link Lengths M",
+            "default": [
+              0.16,
+              0.28,
+              0.24,
+              0.12,
+              0.1,
+              0.08
+            ]
+          },
+          "link_masses_kg": {
+            "items": {
+              "type": "number",
+              "maximum": 6.0,
+              "minimum": 0.1
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 6,
+            "title": "Link Masses Kg",
+            "default": [
+              2.0,
+              2.2,
+              1.8,
+              0.9,
+              0.6,
+              0.4
+            ]
+          },
+          "link_radius_m": {
+            "type": "number",
+            "maximum": 0.06,
+            "minimum": 0.018,
+            "title": "Link Radius M",
+            "default": 0.035
+          },
+          "torque_limit_nm": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 5.0,
+            "title": "Torque Limit Nm",
+            "default": 35.0
+          },
+          "gripper_opening_m": {
+            "type": "number",
+            "maximum": 0.12,
+            "minimum": 0.04,
+            "title": "Gripper Opening M",
+            "default": 0.08
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SixAxisDesignSpec"
+      },
       "Software": {
         "properties": {
           "engine": {
@@ -11845,6 +12912,108 @@
           "creator_label"
         ],
         "title": "VersionRequest"
+      },
+      "VoiceCapabilitiesResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.voice-capabilities/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.voice-capabilities/1.0"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "max_session_seconds": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 1.0,
+            "title": "Max Session Seconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "available",
+          "reason",
+          "max_session_seconds"
+        ],
+        "title": "VoiceCapabilitiesResponse"
+      },
+      "VoiceSessionResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.voice-session/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.voice-session/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "client_secret": {
+            "type": "string",
+            "title": "Client Secret"
+          },
+          "expires_at": {
+            "type": "integer",
+            "title": "Expires At"
+          },
+          "max_seconds": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 1.0,
+            "title": "Max Seconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "client_secret",
+          "expires_at",
+          "max_seconds"
+        ],
+        "title": "VoiceSessionResponse"
+      },
+      "VoiceStopResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.voice-stop/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.voice-stop/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "const": "closed",
+            "title": "Status",
+            "default": "closed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "VoiceStopResponse"
       },
       "WorldEditorResponse": {
         "properties": {

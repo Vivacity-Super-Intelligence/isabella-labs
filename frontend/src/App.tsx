@@ -25,6 +25,8 @@ const defaultOverlays:OverlayOptions={forces:true,velocity:true,center:true,traj
 import './engineering.css';
 import './labOpening.css';
 import MeasuredErrorGraph from './RoboticsDiscovery';
+import VivaPanel from './VivaPanel';
+import {vivaAgentApi,type VivaAction,type VivaOutcome} from './vivaAgentApi';
 
 const FactoryWorkspace=lazy(()=>import('./FactoryWorkspace'));
 const LabIndex=lazy(()=>import('./LabIndex'));
@@ -101,8 +103,8 @@ export default function App(){
     raf=requestAnimationFrame(tick);
     return()=>cancelAnimationFrame(raf);
   },[replay?.playing,replay?.branchId,replayDuration]);
-  const openReplay=async()=>{
-    if(!rt.experiment||!selected)return;
+  const openReplay=async():Promise<boolean>=>{
+    if(!rt.experiment||!selected)return false;
     setReplayLoading(true);setReplayError(null);
     try{
       const saved=await api.replay(rt.experiment.id);
@@ -110,7 +112,8 @@ export default function App(){
       const measured=branch?.frames.map(frame=>robotFrame(frame)).filter((frame):frame is RobotFrame=>frame!==null)??[];
       if(measured.length<2)throw new Error('The selected branch has no replayable physics trace.');
       cursor.current=0;setReplayPosition(0);setReplay({branchId:selected.id,frames:measured,playing:true});
-    }catch(error){setReplayError(errorMessage(error));}finally{setReplayLoading(false);}
+      return true;
+    }catch(error){setReplayError(errorMessage(error));return false;}finally{setReplayLoading(false);}
   };
   const liveFrame=compatible?(cloth?clothFrame(rt.observation):robotFrame(rt.observation)):null;
   const replayFrame=replay?.frames.find(frame=>frame.time>=replay.frames[0].time+replayPosition)??replay?.frames.at(-1);
@@ -157,6 +160,150 @@ export default function App(){
     catch(e){setDownloadError(errorMessage(e));return false;}finally{setPreparing(false);}
   };
   const chooseWorld=(world:LibraryWorld)=>prepare({...draft,environment_id:world.id,...(world.id==='textile_fixture'?{operation_id:'cloth_fold' as const,gripper_id:'fold_fixture' as const,robot_id:'panda' as const}:draft.operation_id==='cloth_fold'?{operation_id:'pick_place' as const,gripper_id:'panda_parallel' as const}:{})},0);
+
+  // The voice panel uses the same configuration and runtime operations as the
+  // visible controls. Refs let an ordered request observe each completed render.
+  const vivaConfig=useRef(draft);vivaConfig.current=draft;
+  const vivaRuntime=useRef(rt);vivaRuntime.current=rt;
+  const vivaTemplate=useRef(activeTemplate);vivaTemplate.current=activeTemplate;
+  const vivaSelected=useRef(selected);vivaSelected.current=selected;
+  const vivaReplay=useRef(openReplay);vivaReplay.current=openReplay;
+  const vivaExperiment=useRef(rt.experiment);vivaExperiment.current=rt.experiment;
+  const vivaDraftRobot=useRef(false);
+  const vivaStartedExperiment=useRef<string|null>(null);
+  const vivaUndoStack=useRef<Array<{before:Configuration;after:Configuration;worldId:string;revision:number}>>([]);
+  const [vivaUndoCount,setVivaUndoCount]=useState(0);
+  const waitForVivaWorld=async(desired:Record<string,unknown>,timeout=30000)=>{
+    const deadline=Date.now()+timeout;
+    while(Date.now()<deadline){
+      const current=vivaRuntime.current,actual=current.world?.config;
+      if(current.loaded&&current.online&&actual&&
+        actual.robot_model===desired.robot_model&&actual.physical_operation===desired.physical_operation&&
+        actual.cube_mass===desired.cube_mass&&actual.cube_friction===desired.cube_friction&&
+        JSON.stringify(actual.cube_position)===JSON.stringify(desired.cube_position)&&
+        JSON.stringify(actual.placement_position)===JSON.stringify(desired.placement_position)&&
+        JSON.stringify(actual.environment)===JSON.stringify(desired.environment))return current.world!;
+      await new Promise(resolve=>setTimeout(resolve,150));
+    }
+    throw new Error('The selected physical world did not become ready within 30 seconds.');
+  };
+  const configureViva=async(next:Configuration,recordUndo=true):Promise<VivaOutcome>=>{
+    const previous=vivaConfig.current;
+    const resolved=await workspaceApi.resolve(next); // Server validates robot, gripper, task, limits and world.
+    vivaConfig.current=next;
+    if(!await prepare(next,3)){
+      vivaConfig.current=previous;setDraft(previous);
+      throw new Error('The workspace could not load this validated configuration.');
+    }
+    setSetupOpen(false);
+    const loaded=await waitForVivaWorld(resolved.world.config as Record<string,unknown>);
+    vivaStartedExperiment.current=null;
+    if(recordUndo&&JSON.stringify(previous)!==JSON.stringify(next)){
+      vivaUndoStack.current.push({before:previous,after:next,worldId:loaded.id,revision:loaded.revision});
+      if(vivaUndoStack.current.length>10)vivaUndoStack.current.shift();
+      setVivaUndoCount(vivaUndoStack.current.length);
+    }
+    return {success:true,world_id:loaded.id,world_revision:loaded.revision,
+      message:`Loaded ${next.robot_id.toUpperCase()} with ${next.operation_id.replaceAll('_',' ')} in ${next.environment_id.replaceAll('_',' ')}.`};
+  };
+  const waitForVivaExperiment=async(identifier:string,requireTerminal=false,timeout=240000)=>{
+    const deadline=Date.now()+timeout;
+    while(Date.now()<deadline){
+      const current=vivaRuntime.current.experiment;
+      if(current?.id===identifier&&(!requireTerminal||(!isBusy(current)&&vivaSelected.current?.experiment_id===identifier)))return current;
+      await new Promise(resolve=>setTimeout(resolve,300));
+    }
+    throw new Error(requireTerminal?'The recorded experiment did not finish with a replayable branch in time.':'The new experiment did not appear in the runtime in time.');
+  };
+  const executeViva=async(action:VivaAction):Promise<VivaOutcome>=>{
+    const args=action.arguments??{},base=vivaConfig.current;
+    if(action.kind==='undo'){
+      const last=vivaUndoStack.current.at(-1),current=vivaRuntime.current.world;
+      if(!last||!current)throw new Error('There is no Viva world edit to undo.');
+      if(current.id!==last.worldId||current.revision!==last.revision||JSON.stringify(base)!==JSON.stringify(last.after))
+        throw new Error('The world changed after that Viva edit. Review the current configuration before undoing.');
+      const restored=await configureViva(last.before,false);
+      vivaUndoStack.current.pop();
+      const previous=vivaUndoStack.current.at(-1);
+      if(previous&&restored.world_id&&restored.world_revision!=null){previous.worldId=restored.world_id;previous.revision=restored.world_revision;}
+      setVivaUndoCount(vivaUndoStack.current.length);
+      return {...restored,message:`Restored the previous physical world. Object mass is ${last.before.object_mass_kg} kg.`};
+    }
+    if(action.kind==='select_robot'){vivaDraftRobot.current=false;return configureViva({...base,robot_id:String(args.robot_id) as Configuration['robot_id'],gripper_id:'panda_parallel',...(base.operation_id==='cloth_fold'?{operation_id:'pick_place' as const}:{})});}
+    if(action.kind==='select_world')return configureViva({...base,environment_id:String(args.environment_id),...(base.operation_id==='cloth_fold'?{operation_id:'pick_place' as const,gripper_id:'panda_parallel' as const}:{})});
+    if(action.kind==='select_operation')return configureViva({...base,operation_id:String(args.operation_id) as Configuration['operation_id']});
+    if(action.kind==='set_mass'){
+      const mass=typeof args.value_kg==='number'?args.value_kg:base.object_mass_kg*Number(args.multiplier);
+      if(!Number.isFinite(mass))throw new Error('Object mass must be a finite number.');
+      const limit=base.operation_id==='assembly'?.30:.15;
+      if(mass<.02||mass>limit)throw new Error(`Object mass for this task must be between 0.02 and ${limit} kg. The world was not changed.`);
+      const result=await configureViva({...base,object_mass_kg:Number(mass.toFixed(5))});
+      return {...result,message:`Object mass is ${Number(mass.toFixed(5))} kg in the new physical world.`};
+    }
+    if(action.kind==='set_friction'){
+      const value=Number(args.value);if(!Number.isFinite(value))throw new Error('Friction must be a finite number.');
+      const result=await configureViva({...base,object_friction:value});
+      return {...result,message:`Sliding friction is ${value} in the new physical world.`};
+    }
+    if(action.kind==='set_object_position'||action.kind==='set_destination'){
+      const xy=args.xy_m;if(!Array.isArray(xy)||xy.length!==2||!xy.every(v=>typeof v==='number'&&Number.isFinite(v)))throw new Error('Give X and Y in metres.');
+      const key=action.kind==='set_object_position'?'target_position':'destination_position';
+      const result=await configureViva({...base,[key]:[xy[0],xy[1],base.object_half_sizes[2]+.001]});
+      return {...result,message:`${key==='target_position'?'Pickup object':'Destination'} set to X ${xy[0]} m, Y ${xy[1]} m.`};
+    }
+    if(action.kind==='set_quality'){
+      localStorage.setItem('vivacity:render-quality','high');window.dispatchEvent(new Event('vivacity:render-quality'));
+      return {success:true,message:'View quality set to high fidelity. Physics settings are unchanged.'};
+    }
+    if(action.kind==='run_experiment'){
+      if(vivaDraftRobot.current)throw new Error('The custom six-axis design is a non-executable draft. Select a validated robot such as UR5e to run physics.');
+      setSetupOpen(false);
+      await waitForVivaWorld(vivaTemplate.current.config);
+      const prior=vivaExperiment.current?.id;
+      if(!await vivaRuntime.current.run())throw new Error('The runtime refused to start the experiment. Inspect its error message.');
+      const deadline=Date.now()+30000;let started=vivaExperiment.current;
+      while((!started||started.id===prior)&&Date.now()<deadline){await new Promise(resolve=>setTimeout(resolve,150));started=vivaExperiment.current;}
+      if(!started||started.id===prior)throw new Error('The runtime did not provide a new experiment ID. Inspect its status before retrying.');
+      vivaStartedExperiment.current=started.id;
+      const activeWorld=vivaRuntime.current.world;
+      if(!activeWorld||activeWorld.id!==started.world_id)throw new Error('The new experiment world was not ready. Inspect its status before retrying.');
+      return {success:true,world_id:activeWorld.id,world_revision:activeWorld.revision,experiment_id:started.id,
+        message:'Real MuJoCo experiment started. Watch live execution and measured results in the workspace.'};
+    }
+    if(action.kind==='pause'||action.kind==='resume'){
+      const current=vivaRuntime.current;
+      if(!current.active||Boolean(current.session?.pause_requested)!==(action.kind==='resume'))throw new Error('No matching active simulation can be paused or resumed.');
+      if(!await current.togglePause())throw new Error('The runtime could not change the simulation state.');
+      return {success:true,message:action.kind==='pause'?'Pause requested at the next simulator checkpoint.':'Simulation resumed from its preserved state.'};
+    }
+    if(action.kind==='compare'){navigate('experiments','/experiments');return {success:true,message:'Opened experiment records. Select two recorded outcomes to compare their measurements.'};}
+    if(action.kind==='replay'){
+      const target=vivaExperiment.current?.id??vivaStartedExperiment.current;
+      if(!target)throw new Error('A recorded experiment is required for replay.');
+      await waitForVivaExperiment(target,true);
+      if(!await vivaReplay.current())throw new Error('The selected measured trajectory could not be replayed.');
+      return {success:true,message:'Replaying the selected measured trajectory.'};
+    }
+    if(action.kind==='export'){
+      const target=vivaExperiment.current?.id??vivaStartedExperiment.current;
+      if(target)await waitForVivaExperiment(target,true);
+      const item=vivaSelected.current;if(!item)throw new Error('Select a completed branch before exporting.');
+      await api.download(item.experiment_id,item.id);return {success:true,message:'Downloaded the selected measured branch as JSON.'};
+    }
+    if(action.kind==='generate_environment'){
+      const job=await workspaceApi.generate(String(args.prompt),'openai',String(args._idempotency_key??crypto.randomUUID()));
+      navigate('worlds','/worlds');return {success:true,message:`World generation ${job.status}. Job ${job.id}; inspect it in Worlds.`};
+    }
+    if(action.kind==='import_folder'){
+      if(typeof args.staged_import_id!=='string')throw new Error('Choose a local asset file first.');
+      navigate('import','/import');return {success:true,message:'Asset staged for import. Review and map its geometry in the Import page.'};
+    }
+    if(action.kind==='create_robot'){
+      const design=await vivaAgentApi.createRobotDesign(String(args.description),undefined,String(args._idempotency_key??crypto.randomUUID()));vivaDraftRobot.current=true;
+      return {success:true,design_id:design.id,message:`Created a six-axis design draft. MuJoCo compiled it and measured ${design.measured_joint_displacement_rad.toFixed(3)} rad of controlled joint motion. Task planning and sorting are not validated for this draft.`};
+    }
+    throw new Error('Unsupported workspace action.');
+  };
 
 
   return <>{page==='home'?<IsabellaHome deferScene={showOpening} enterLab={()=>navigate('laboratory','/laboratory')} openScience={()=>navigate('discovery','/discovery')} openRobotics={()=>navigate('factory','/lab')} openWorlds={()=>navigate('worlds','/worlds')}/>:<>
@@ -239,6 +386,7 @@ export default function App(){
       </>}
     </main>
     </>}
+    {['workspace','worlds','experiments','results','import'].includes(page)&&robotCategory==='robotic_arms'&&<VivaPanel world={compatible?rt.world:null} online={rt.online} canUndo={vivaUndoCount>0} execute={executeViva} cancelRun={()=>vivaRuntime.current.stop()}/>}
     {showOpening&&page==='home'&&<LabOpening config={ISABELLA_OPENING_CONFIG} finish={finishOpening}/>}
   </>;
 }

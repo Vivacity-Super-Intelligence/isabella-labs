@@ -12,6 +12,7 @@ export const API=endpoints.http;
 export const BACKEND=endpoints.backend;
 let sessionToken: string | null = null;
 export function setSessionToken(token: string) { sessionToken = token; }
+export function getSessionToken() { return sessionToken; }
 export function liveProtocols() { return sessionToken ? ['vivacity.live', `vivacity.token.${sessionToken}`] : []; }
 export {APIError} from './apiResponse';
 import {APIError,readAPIResponse} from './apiResponse';

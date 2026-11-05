@@ -1,3 +1,28 @@
+# Viva voice workspace pilot — 2026-11-05
+
+The isolated `codex/viva-voice` branch adds a typed workspace action panel, a
+bounded English/Hindi/Hinglish command parser, an ordered owner-scoped action
+audit, user-selected file/folder import, a six-axis MuJoCo design draft, and
+an audio-driven voice interface gated by a separate OpenAI project. The
+browser does not manufacture physics results. Real OpenAI microphone and
+spoken-output sessions were not run because no dedicated key and verified
+$5 hard project limit were available. The FreeCAD companion is not built.
+The production release was not changed by this branch.
+
+Verification: the final frontend build passed; nine Playwright journeys
+passed on the local runtime, including a real four-branch UR5e sorting run
+and measured replay. A separate mocked-audio transcription journey passed.
+The final focused backend run passed 11 tests. The broad backend run had 371
+passes, one skip, and one failure in 39m 41s because the collision fixture
+used the Dual Panda's former mount position. The fixture was moved to the
+actual mount and all three affected parameterized cases passed in the focused
+run; the complete broad suite has not been rerun after that repair. The single
+recorded UR5e run had four `execution_success` branches with goal errors
+0.001032–0.001541 m. This does not establish reliability across varied setups.
+
+See [docs/VIVA_VOICE.md](docs/VIVA_VOICE.md) for exact routes, reproduction
+commands, privacy and budget controls, and remaining release gates.
+
 # Live humanoid task release — 2026-10-22
 
 The `/works` lab now runs three separate bounded MuJoCo tasks: G1 stationary

@@ -468,6 +468,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/agent/robot-designs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Robot Design */
+        post: operations["create_robot_design_v1_agent_robot_designs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/robot-designs/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Robot Design */
+        get: operations["robot_design_v1_agent_robot_designs__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/robot-designs/{identifier}/model.mjcf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Robot Model */
+        get: operations["robot_model_v1_agent_robot_designs__identifier__model_mjcf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/voice/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Voice Capabilities */
+        get: operations["voice_capabilities_v1_agent_voice_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/voice/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Voice */
+        post: operations["create_voice_v1_agent_voice_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/voice/sessions/{identifier}/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop Voice */
+        post: operations["stop_voice_v1_agent_voice_sessions__identifier__stop_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit */
+        post: operations["submit_v1_agent_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/requests/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get */
+        get: operations["get_v1_agent_requests__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/requests/{identifier}/steps/{index}/outcome": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Outcome */
+        post: operations["outcome_v1_agent_requests__identifier__steps__index__outcome_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/agent/requests/{identifier}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel */
+        post: operations["cancel_v1_agent_requests__identifier__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/factory/cells": {
         parameters: {
             query?: never;
@@ -1668,6 +1838,92 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AgentAction */
+        AgentAction: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "select_world" | "select_robot" | "select_operation" | "set_mass" | "set_friction" | "set_object_position" | "set_destination" | "set_quality" | "run_experiment" | "pause" | "resume" | "compare" | "replay" | "export" | "generate_environment" | "import_folder" | "create_robot" | "undo";
+            /** Arguments */
+            arguments?: {
+                [key: string]: unknown;
+            };
+            /** Label */
+            label: string;
+            /**
+             * Status
+             * @default pending
+             * @enum {string}
+             */
+            status: "pending" | "completed" | "failed" | "cancelled";
+            /** Outcome */
+            outcome?: string | null;
+            /** Evidence */
+            evidence?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** AgentRequestResponse */
+        AgentRequestResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.agent-plan/1.0
+             * @constant
+             */
+            schema_version: "vivacity.agent-plan/1.0";
+            /** Id */
+            id: string;
+            /** Utterance */
+            utterance: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "planned" | "running" | "completed" | "failed" | "cancelled" | "needs_clarification";
+            /** Explanation */
+            explanation: string;
+            /** Actions */
+            actions: components["schemas"]["AgentAction"][];
+            /** World Id */
+            world_id?: string | null;
+            /** Expected Revision */
+            expected_revision?: number | null;
+            /** Created Unix S */
+            created_unix_s: number;
+            /** Updated Unix S */
+            updated_unix_s: number;
+        };
+        /** AgentStepOutcome */
+        AgentStepOutcome: {
+            /** Success */
+            success: boolean;
+            /** Message */
+            message: string;
+            /** World Id */
+            world_id?: string | null;
+            /** World Revision */
+            world_revision?: number | null;
+            /** Experiment Id */
+            experiment_id?: string | null;
+            /** Design Id */
+            design_id?: string | null;
+        };
+        /** AgentTurnRequest */
+        AgentTurnRequest: {
+            /**
+             * Schema Version
+             * @default vivacity.agent-request/1.0
+             * @constant
+             */
+            schema_version: "vivacity.agent-request/1.0";
+            /** Utterance */
+            utterance: string;
+            /** World Id */
+            world_id?: string | null;
+            /** Expected Revision */
+            expected_revision?: number | null;
+        };
         /**
          * AssemblySettings
          * @description Bounded single-part fixture seating, expressed in SI units.
@@ -3673,6 +3929,66 @@ export interface components {
             /** Expected Revision */
             expected_revision: number;
         };
+        /** RobotDesignRequest */
+        RobotDesignRequest: {
+            /**
+             * Schema Version
+             * @default vivacity.robot-design-request/1.0
+             * @constant
+             */
+            schema_version: "vivacity.robot-design-request/1.0";
+            /** Description */
+            description: string;
+            spec?: components["schemas"]["SixAxisDesignSpec"];
+        };
+        /** RobotDesignResponse */
+        RobotDesignResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.robot-design/1.0
+             * @constant
+             */
+            schema_version: "vivacity.robot-design/1.0";
+            /** Id */
+            id: string;
+            /** Description */
+            description: string;
+            spec: components["schemas"]["SixAxisDesignSpec"];
+            /**
+             * Status
+             * @default draft
+             * @constant
+             */
+            status: "draft";
+            /** Compiled */
+            compiled: boolean;
+            /** Control Smoke Passed */
+            control_smoke_passed: boolean;
+            /**
+             * Task Validated
+             * @default false
+             */
+            task_validated: boolean;
+            /**
+             * Executable
+             * @default false
+             */
+            executable: boolean;
+            /** Model Sha256 */
+            model_sha256: string;
+            /** Simulator Version */
+            simulator_version: string;
+            /** Measured Joint Displacement Rad */
+            measured_joint_displacement_rad: number;
+            /** Model Joint Count */
+            model_joint_count: number;
+            /** Model Actuator Count */
+            model_actuator_count: number;
+            /** Explanation */
+            explanation: string;
+            /** Created Unix S */
+            created_unix_s: number;
+        };
         /** RoboticsConfig */
         RoboticsConfig: {
             /**
@@ -4142,6 +4458,59 @@ export interface components {
                 [key: string]: unknown;
             }[];
         };
+        /** SixAxisDesignSpec */
+        SixAxisDesignSpec: {
+            /**
+             * Schema Version
+             * @default vivacity.robot-design-spec/1.0
+             * @constant
+             */
+            schema_version: "vivacity.robot-design-spec/1.0";
+            /**
+             * Name
+             * @default Custom six-axis arm
+             */
+            name: string;
+            /**
+             * Link Lengths M
+             * @default [
+             *       0.16,
+             *       0.28,
+             *       0.24,
+             *       0.12,
+             *       0.1,
+             *       0.08
+             *     ]
+             */
+            link_lengths_m: number[];
+            /**
+             * Link Masses Kg
+             * @default [
+             *       2,
+             *       2.2,
+             *       1.8,
+             *       0.9,
+             *       0.6,
+             *       0.4
+             *     ]
+             */
+            link_masses_kg: number[];
+            /**
+             * Link Radius M
+             * @default 0.035
+             */
+            link_radius_m: number;
+            /**
+             * Torque Limit Nm
+             * @default 35
+             */
+            torque_limit_nm: number;
+            /**
+             * Gripper Opening M
+             * @default 0.08
+             */
+            gripper_opening_m: number;
+        };
         /** Software */
         Software: {
             /**
@@ -4471,6 +4840,55 @@ export interface components {
              * @default
              */
             note: string;
+        };
+        /** VoiceCapabilitiesResponse */
+        VoiceCapabilitiesResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.voice-capabilities/1.0
+             * @constant
+             */
+            schema_version: "vivacity.voice-capabilities/1.0";
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason: string | null;
+            /** Max Session Seconds */
+            max_session_seconds: number;
+        };
+        /** VoiceSessionResponse */
+        VoiceSessionResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.voice-session/1.0
+             * @constant
+             */
+            schema_version: "vivacity.voice-session/1.0";
+            /** Id */
+            id: string;
+            /** Client Secret */
+            client_secret: string;
+            /** Expires At */
+            expires_at: number;
+            /** Max Seconds */
+            max_seconds: number;
+        };
+        /** VoiceStopResponse */
+        VoiceStopResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.voice-stop/1.0
+             * @constant
+             */
+            schema_version: "vivacity.voice-stop/1.0";
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @default closed
+             * @constant
+             */
+            status: "closed";
         };
         /** WorldEditorResponse */
         WorldEditorResponse: {
@@ -5604,6 +6022,343 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_robot_design_v1_agent_robot_designs_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RobotDesignRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RobotDesignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    robot_design_v1_agent_robot_designs__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RobotDesignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    robot_model_v1_agent_robot_designs__identifier__model_mjcf_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    voice_capabilities_v1_agent_voice_capabilities_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceCapabilitiesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_voice_v1_agent_voice_sessions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceSessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stop_voice_v1_agent_voice_sessions__identifier__stop_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceStopResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_v1_agent_requests_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+                "Idempotency-Key": string;
+                "X-Session-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentTurnRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_v1_agent_requests__identifier__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    outcome_v1_agent_requests__identifier__steps__index__outcome_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+                "X-Session-Token"?: string | null;
+            };
+            path: {
+                identifier: string;
+                index: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentStepOutcome"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_v1_agent_requests__identifier__cancel_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentRequestResponse"];
                 };
             };
             /** @description Validation Error */
