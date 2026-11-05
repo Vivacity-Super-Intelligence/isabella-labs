@@ -28,6 +28,12 @@ def create_app(database=None):
         app.state.imports = app.state.runtime.imports
         from .workspace import WorkspaceService
         app.state.workspace = WorkspaceService(app.state.runtime)
+        from .viva_agent import AgentService
+        app.state.viva_agent = AgentService(app.state.workspace)
+        from .viva_voice import VoiceService
+        app.state.viva_voice = VoiceService(app.state.runtime.store)
+        from .robot_design import RobotDesignService
+        app.state.robot_designs = RobotDesignService(app.state.runtime.store)
         from .factory_service import FactoryService
         app.state.factory = FactoryService(app.state.workspace)
         from .fulfillment import FulfillmentService
@@ -65,6 +71,8 @@ def create_app(database=None):
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token','X-Workspace-Token'])
     from .workspace_api import router
     app.include_router(router)
+    from .viva_agent_api import router as viva_agent_router
+    app.include_router(viva_agent_router)
     from .factory_api import router as factory_router
     app.include_router(factory_router)
     from .fulfillment_api import router as fulfillment_router
