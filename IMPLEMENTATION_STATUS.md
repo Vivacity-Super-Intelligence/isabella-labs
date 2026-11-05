@@ -1,3 +1,41 @@
+# Viva voice production release — 2026-11-06
+
+The voice backend is live on Render deployment `dep-dbmdntp42hec738mn5qg`
+from `codex/viva-voice-backend` commit `2bcbb49a1501d62fd8daac0241a81a5a02cd1657`.
+The frontend is live at `https://demo.tryvivacity.com/workspace` on Vercel
+deployment `dpl_8CyjVpt96L24Ut9iHKYjX34a52m2`, built from the
+`codex/viva-voice` worktree. The production Render service remains on its
+existing Free plan; no hosting upgrade was purchased.
+
+Real production requests returned HTTP 200 from `/health`, reported voice
+available, issued a short-lived OpenAI Realtime credential, and closed its
+session. In the deployed browser, a typed Viva request raised object mass
+from 0.06 to 0.075 kg and Undo restored 0.06 kg. A UR5e sorting request
+generated 256 plans, screened 212 as eligible, executed three independent
+MuJoCo trials, and replayed the selected trajectory. All three trials were
+measured feasible; the fresh authoritative execution reported 1.0 mm goal
+error and zero prohibited contacts. This is one production trial, not a
+reliability estimate.
+
+Headless Chrome connected to the real OpenAI WebRTC service using a fake
+microphone device. Delayed speech fixtures in English, Hinglish, and Hindi
+were transcribed and each caused the validated 0.06 to 0.075 kg edit. The
+English reply produced the actual `Speaking` output-audio-buffer event.
+The first Hinglish attempt failed because Windows' English text-to-speech
+pronounced its Hindi words as unrelated English; a correctly pronounced
+Hinglish fixture passed. No human microphone, accent, emotion quality, or
+physical robot was tested. The provider-side $5 hard project limit was not
+visible to this release check; the Render key and local $4 admission cutoff
+were verified, but provider spend enforcement remains an account-side check.
+
+The production mobile viewport check passed at 390 px with no horizontal
+overflow or page errors. Render Free can sleep and has ephemeral local state.
+The FreeCAD companion, multi-asset folder import, and task execution for
+custom arm drafts remain incomplete. Exact voice scope and API:
+`docs/VIVA_VOICE.md`.
+
+## Earlier pilot record
+
 # Viva voice workspace pilot — 2026-11-05
 
 The isolated `codex/viva-voice` branch adds a typed workspace action panel, a

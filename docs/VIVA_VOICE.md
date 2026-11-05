@@ -1,5 +1,34 @@
 # Viva workspace commands and voice pilot
 
+## Production release · 2026-11-06
+
+The backend is live on Render as `dep-dbmdntp42hec738mn5qg` (commit
+`2bcbb49a1501d62fd8daac0241a81a5a02cd1657`), and the frontend is
+live at `https://demo.tryvivacity.com/workspace` as Vercel deployment
+`dpl_8CyjVpt96L24Ut9iHKYjX34a52m2`. The deployment retained the
+existing Render Free plan.
+
+Production browser checks passed for a typed mass edit and Undo, a real
+UR5e MuJoCo sorting run with three feasible physics branches and measured
+replay, and a 390 px mobile layout without page errors or horizontal overflow.
+The backend issued and stopped a real OpenAI Realtime session. Headless Chrome
+then used delayed English, Hinglish and Hindi speech fixtures through a fake
+microphone; each was transcribed and caused the validated 0.06 to 0.075 kg
+mass change. A live English reply reached the actual output-audio-buffer
+`Speaking` event. These fixtures test the provider path, not human-accent
+robustness or the subjective quality of the voice.
+
+Render has the voice key and the `VIVACITY_VOICE_PROJECT_LIMIT_USD=5`
+attestation, and the application stops new admissions at $4 in local
+reservations. The provider-side hard spending limit could not be inspected
+through this release check. Verify it in the OpenAI project dashboard before
+relying on it as a financial cap. Render Free may sleep and loses local state
+on redeploy. The FreeCAD companion, multi-asset folder import and executable
+controllers for custom arm drafts remain outside this release.
+
+The sections below retain the earlier pilot's verification history; their
+pre-deployment statements are superseded by this release record.
+
 ## What is implemented
 
 Viva is an opt-in command panel on `/workspace`. Typed commands work without an LLM or microphone. A bounded parser turns English, selected Hindi and Hinglish phrases into an ordered action list. The panel applies those actions through the existing workspace configuration and simulation APIs, records their status in an owner-scoped SQLite audit, and stops on the first failed step. The browser checks the active world ID and revision before each state-changing step; read-only comparison, replay and export keep the world ID check because the simulator can advance its revision when an experiment completes. World edits expose an **Undo last Viva world edit** control, which reloads the prior validated configuration only if the world has not changed since that edit. The audit records **UI action outcomes**, not physical success. The experiment, branches, contacts and replay remain authoritative MuJoCo records.
