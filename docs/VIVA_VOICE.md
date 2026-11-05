@@ -81,6 +81,10 @@ The server stops admitting new voice sessions at **$4 in local reservations**: e
 
 The full public voice release remains gated by a dedicated project key and provider hard spend cap, a real English/Hindi/Hinglish microphone and output-audio trial, and integration with the current production branch. The FreeCAD companion and multi-asset folder import are still absent.
 
+## Speaking-state verification · 2026-11-06
+
+The panel now shows **Preparing reply…** after requesting speech and switches to **Speaking** only when the Realtime output-audio buffer actually starts. Its level bars remain driven by Web Audio analyser data. `npm run build` passed, and the focused Playwright voice-signal test passed **1/1** against mocked WebRTC events. This does not verify a live provider voice session.
+
 ## Reproduce locally
 
 From the repository root, use the project Python environment and installed frontend dependencies:

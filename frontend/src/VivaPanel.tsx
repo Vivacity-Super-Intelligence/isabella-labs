@@ -16,7 +16,7 @@ type Props={world:World|null;online:boolean;canUndo:boolean;execute:(action:Viva
 export default function VivaPanel({world,online,canUndo,execute,cancelRun}:Props){
  const [open,setOpen]=useState(false),[input,setInput]=useState(''),[caption,setCaption]=useState('Tell Viva what to change, then inspect the measured result.');
  const [plan,setPlan]=useState<VivaPlan|null>(null),[step,setStep]=useState<number|null>(null),[busy,setBusy]=useState(false);
- const [phase,setPhase]=useState<'offline'|'connecting'|'listening'|'hearing'|'speaking'>('offline');
+ const [phase,setPhase]=useState<'offline'|'connecting'|'listening'|'hearing'|'preparing'|'speaking'>('offline');
  const [inputLevels,setInputLevels]=useState<number[]>(silent),[outputLevels,setOutputLevels]=useState<number[]>(silent);
  const [muted,setMuted]=useState(false),[playbackBlocked,setPlaybackBlocked]=useState(false),[error,setError]=useState(''),[voiceId,setVoiceId]=useState<string|null>(null);
  const [awaitingFile,setAwaitingFile]=useState(false);
@@ -154,7 +154,7 @@ export default function VivaPanel({world,online,canUndo,execute,cancelRun}:Props
    <div className={`viva-stage viva-stage-${phase}`} style={{'--activity':activity.toFixed(3)} as CSSProperties}>
    <div className="viva-lens" aria-hidden="true"><span/><span/><div className="viva-radial">{(phase==='speaking'?outputLevels:inputLevels).map((level,index)=><i key={index} style={{'--angle':`${index*15}deg`,'--level':Math.max(.03,level).toFixed(3)} as CSSProperties}/>)}</div><b>V</b></div>
     <div className="viva-signal"><div><span>YOU</span>{wave(inputLevels,'input')}</div><div><span>VIVA</span>{wave(outputLevels,'output')}</div></div>
-    <p className="viva-phase" role="status">{phase==='offline'?'Ready for a typed request':phase==='connecting'?'Connecting microphone…':phase==='hearing'?'Hearing you':phase==='speaking'?'Speaking':'Listening'}</p>
+    <p className="viva-phase" role="status">{phase==='offline'?'Ready for a typed request':phase==='connecting'?'Connecting microphone…':phase==='hearing'?'Hearing you':phase==='preparing'?'Preparing reply…':phase==='speaking'?'Speaking':'Listening'}</p>
    </div>
    <div className="viva-caption" aria-live="polite">{caption}</div>
    {error&&<p className="viva-error" role="alert">{error}</p>}

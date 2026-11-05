@@ -1,4 +1,4 @@
-type VoicePhase='connecting'|'listening'|'hearing'|'speaking'|'offline';
+type VoicePhase='connecting'|'listening'|'hearing'|'preparing'|'speaking'|'offline';
 type RealtimeEvent={type:string;transcript?:string;delta?:string;response_id?:string;response?:{id?:string;status?:string};error?:{message?:string}};
 export type VoiceCallbacks={phase:(phase:VoicePhase)=>void;transcript:(text:string)=>void;levels:(input:number[],output:number[])=>void;error:(message:string)=>void;playbackBlocked:(blocked:boolean)=>void};
 
@@ -68,7 +68,7 @@ export class VivaRealtime{
       this.send({type:'response.cancel',response_id:message.response.id});
       this.send({type:'output_audio_buffer.clear'});
       this.cancelWhenCreated=false;
-     }else this.responseId=message.response.id;
+     }else{this.responseId=message.response.id;this.callbacks.phase('preparing');}
     }
     if(message.type==='output_audio_buffer.started')this.callbacks.phase('speaking');
     if(message.type==='output_audio_buffer.stopped'||message.type==='output_audio_buffer.cleared'){
@@ -96,7 +96,9 @@ export class VivaRealtime{
    instructions:`Speak only the verified status in natural ${language}. Be warm and concise. Keep every number, unit and measured result exact. Do not add claims.`,
    input:[{type:'message',role:'user',content:[{type:'input_text',text:`Verified workspace status: ${text}`}]}]}});
   this.responding=true;
-  this.callbacks.phase('speaking');
+  // The response may be queued before any audio is received. Only the provider's
+  // output_audio_buffer.started event may put the UI in its speaking state.
+  this.callbacks.phase('preparing');
  }
  interrupt(){
   if(!this.responding)return;

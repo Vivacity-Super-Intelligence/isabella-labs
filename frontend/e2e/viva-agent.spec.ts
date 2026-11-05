@@ -178,8 +178,10 @@ test('voice signal follows microphone and spoken audio events, then releases the
   const root=window as typeof window & {__vivaFakeMessage:(event:object)=>void;__vivaOutputActive:boolean};
   root.__vivaOutputActive=true;
   root.__vivaFakeMessage({type:'response.created',response:{id:'resp_1'}});
-  root.__vivaFakeMessage({type:'output_audio_buffer.started',response_id:'resp_1'});
  });
+ await expect(page.locator('.viva-stage-preparing')).toBeVisible();
+ await expect(page.locator('.viva-stage-speaking')).toHaveCount(0);
+ await page.evaluate(()=>(window as typeof window & {__vivaFakeMessage:(event:object)=>void}).__vivaFakeMessage({type:'output_audio_buffer.started',response_id:'resp_1'}));
  await expect(page.locator('.viva-stage-speaking')).toBeVisible();
  await expect.poll(()=>page.locator('.viva-wave-output i').first().evaluate(element=>Number((element as HTMLElement).style.getPropertyValue('--level')))).toBeGreaterThan(.5);
  await page.evaluate(()=>(window as typeof window & {__vivaFakeMessage:(event:object)=>void}).__vivaFakeMessage({type:'response.done',response:{id:'resp_1',status:'completed'}}));
