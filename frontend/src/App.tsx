@@ -386,7 +386,9 @@ export default function App(){
       </>}
     </main>
     </>}
-    {['workspace','worlds','experiments','results','import'].includes(page)&&robotCategory==='robotic_arms'&&<VivaPanel world={compatible?rt.world:null} online={rt.online} canUndo={vivaUndoCount>0} execute={executeViva} cancelRun={()=>vivaRuntime.current.stop()}/>}
+    {/* Keep Viva's implementation available for later frontend work without
+        exposing its floating launcher in the current product. */}
+    {false&&<VivaPanel world={compatible?rt.world:null} online={rt.online} canUndo={vivaUndoCount>0} execute={executeViva} cancelRun={()=>vivaRuntime.current.stop()}/>}
     {showOpening&&page==='home'&&<LabOpening config={ISABELLA_OPENING_CONFIG} finish={finishOpening}/>}
   </>;
 }
