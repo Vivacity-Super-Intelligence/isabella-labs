@@ -38,3 +38,15 @@ def test_real_parallel_mujoco_trials_match_sequential_integrations(tmp_path,monk
             measurements.append([(t['candidate_index'],t['evaluation'],t['final_state']) for t in trials])
         finally:runtime.close()
     assert measurements[0]==measurements[1]
+
+
+def test_worker_count_is_clamped_to_safe_host_range(tmp_path, monkeypatch, caplog):
+    monkeypatch.setenv('VIVACITY_PHYSICS_TRIAL_WORKERS','5000')
+    runtime=Runtime(tmp_path/'clamped.sqlite3')
+    try:
+        assert runtime.physics_trial_workers==2
+        assert 'Clamped VIVACITY_PHYSICS_TRIAL_WORKERS=5000' in caplog.text
+    finally:
+        runtime.close()
+
+
