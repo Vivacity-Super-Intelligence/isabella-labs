@@ -373,7 +373,7 @@
   "tests/test_import_physics.py": "1e1110d06823cd1a84ea34b15c9d660b557d9cab58911fc3e317ca077d38d823",
   "tests/test_imports.py": "e35e8af9728cba3496adfcba2d451d359830fe2b8cefd32c9ceb8d53235517d2",
   "tests/test_orbital.py": "0ff4b24981be1215da1635dccab9bfa090d313af90fbe56829212208c248fe4d",
-  "tests/test_parallel_trials.py": "2cd6ac3e11a0f4f965d8515a90864e2a9762cbed3efbcb2d60dbe248a3274257",
+  "tests/test_parallel_trials.py": "9d5cd0ea50ee8bf17165ad162d66429802b726381cc86bedbebb509933b8b05b",
   "tests/test_pause_trials.py": "3e95c20c20e4b680a6003d9b633c47a76b9ea40c887a85b3dee8f5e2bd8685e3",
   "tests/test_perception.py": "f71613e4076c4aa9f73adabb49aae8da18ce6dc4395a7721f07e64f4d3fc7af9",
   "tests/test_physical_platform.py": "43a7bebf6f2df025ce3b07379631f9e1e47ba67a0c13529b82df80663e8a094b",

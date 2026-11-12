@@ -49,4 +49,3 @@ def test_worker_count_is_clamped_to_safe_host_range(tmp_path, monkeypatch, caplo
     finally:
         runtime.close()
 
-
