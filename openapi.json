@@ -5481,6 +5481,46 @@
         }
       }
     },
+    "/v1/imports/{import_id}/qualification": {
+      "post": {
+        "summary": "Qualify Import",
+        "description": "Run the same bounded native probe through the explicit robot qualification contract.",
+        "operationId": "qualify_import_v1_imports__import_id__qualification_post",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/imports/{import_id}/configure-task": {
       "post": {
         "summary": "Configure Import Task",
@@ -10142,6 +10182,175 @@
         ],
         "title": "HumanoidTrialResponse"
       },
+      "ImportCapabilities": {
+        "properties": {
+          "simulator": {
+            "type": "string",
+            "const": "mujoco",
+            "title": "Simulator"
+          },
+          "simulator_version": {
+            "type": "string",
+            "title": "Simulator Version"
+          },
+          "sandbox": {
+            "type": "string",
+            "title": "Sandbox"
+          },
+          "physics_model_valid": {
+            "type": "boolean",
+            "title": "Physics Model Valid"
+          },
+          "robot_actuation_verified": {
+            "type": "boolean",
+            "title": "Robot Actuation Verified"
+          },
+          "task_execution_verified": {
+            "type": "boolean",
+            "title": "Task Execution Verified"
+          },
+          "joints": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Joints"
+          },
+          "actuators": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Actuators"
+          },
+          "sites": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sites"
+          },
+          "dynamic_bodies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dynamic Bodies"
+          },
+          "collision_geometries": {
+            "type": "integer",
+            "title": "Collision Geometries"
+          },
+          "simulation_steps": {
+            "type": "integer",
+            "title": "Simulation Steps"
+          },
+          "simulated_seconds": {
+            "type": "number",
+            "title": "Simulated Seconds"
+          },
+          "driven_actuator": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Driven Actuator"
+          },
+          "joint_displacement": {
+            "type": "number",
+            "title": "Joint Displacement"
+          },
+          "stable": {
+            "type": "boolean",
+            "title": "Stable"
+          },
+          "state_encoding": {
+            "type": "string",
+            "const": "mjSTATE_INTEGRATION",
+            "title": "State Encoding"
+          },
+          "initial_state": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Initial State"
+          },
+          "final_state": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Final State"
+          },
+          "initial_qpos": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Initial Qpos"
+          },
+          "final_qpos": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Final Qpos"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "qualification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RobotQualification"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "simulator",
+          "simulator_version",
+          "sandbox",
+          "physics_model_valid",
+          "robot_actuation_verified",
+          "task_execution_verified",
+          "joints",
+          "actuators",
+          "sites",
+          "dynamic_bodies",
+          "collision_geometries",
+          "simulation_steps",
+          "simulated_seconds",
+          "driven_actuator",
+          "joint_displacement",
+          "stable",
+          "state_encoding",
+          "initial_state",
+          "final_state",
+          "initial_qpos",
+          "final_qpos",
+          "scope",
+          "source_sha256"
+        ],
+        "title": "ImportCapabilities"
+      },
       "ImportMapping": {
         "properties": {
           "name": {
@@ -10284,6 +10493,7 @@
               "physics_verifying",
               "physics_valid",
               "actuation_verified",
+              "qualification_failed",
               "physics_failed",
               "manipulation_configured"
             ],
@@ -10333,14 +10543,12 @@
           "capabilities": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/ImportCapabilities"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Capabilities"
+            ]
           },
           "configured_world_id": {
             "anyOf": [
@@ -11231,6 +11439,199 @@
           "created_unix_s"
         ],
         "title": "RobotDesignResponse"
+      },
+      "RobotMotionFrame": {
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Seq"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "gravity_settle",
+              "actuator_probe"
+            ],
+            "title": "Phase"
+          },
+          "time_s": {
+            "type": "number",
+            "maximum": 30.0,
+            "minimum": 0.0,
+            "title": "Time S"
+          },
+          "positions_m": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array",
+              "maxItems": 3,
+              "minItems": 3
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Positions M"
+          },
+          "quaternions_wxyz": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array",
+              "maxItems": 4,
+              "minItems": 4
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Quaternions Wxyz"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seq",
+          "phase",
+          "time_s",
+          "positions_m",
+          "quaternions_wxyz"
+        ],
+        "title": "RobotMotionFrame"
+      },
+      "RobotQualification": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.robot-qualification/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.robot-qualification/1.0"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "passed_with_warnings",
+              "failed"
+            ],
+            "title": "Verdict"
+          },
+          "failure_class": {
+            "type": "string",
+            "enum": [
+              "none",
+              "model_invalid",
+              "numerical_instability",
+              "unstable_under_gravity",
+              "unactuated",
+              "joint_limit_violation",
+              "insufficient_kinematic_mobility"
+            ],
+            "title": "Failure Class"
+          },
+          "tests": {
+            "items": {
+              "$ref": "#/components/schemas/RobotQualificationTest"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 6,
+            "title": "Tests"
+          },
+          "measurements": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Measurements"
+          },
+          "body_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Body Names"
+          },
+          "body_parent_indices": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Body Parent Indices"
+          },
+          "frames": {
+            "items": {
+              "$ref": "#/components/schemas/RobotMotionFrame"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "title": "Frames"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 700,
+            "title": "Scope"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "verdict",
+          "failure_class",
+          "tests",
+          "measurements",
+          "body_names",
+          "body_parent_indices",
+          "frames",
+          "scope"
+        ],
+        "title": "RobotQualification"
+      },
+      "RobotQualificationTest": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "model_compile",
+              "physical_properties",
+              "gravity_settle",
+              "actuator_response",
+              "joint_limits",
+              "kinematic_mobility"
+            ],
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed",
+              "warning",
+              "not_applicable"
+            ],
+            "title": "Status"
+          },
+          "measured": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Measured",
+            "default": {}
+          },
+          "explanation": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Explanation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "explanation"
+        ],
+        "title": "RobotQualificationTest"
       },
       "RoboticsConfig": {
         "properties": {

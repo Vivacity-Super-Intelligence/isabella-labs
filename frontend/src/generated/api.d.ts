@@ -1511,6 +1511,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/imports/{import_id}/qualification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Qualify Import
+         * @description Run the same bounded native probe through the explicit robot qualification contract.
+         */
+        post: operations["qualify_import_v1_imports__import_id__qualification_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/imports/{import_id}/configure-task": {
         parameters: {
             query?: never;
@@ -3496,6 +3516,66 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** ImportCapabilities */
+        ImportCapabilities: {
+            /**
+             * Simulator
+             * @constant
+             */
+            simulator: "mujoco";
+            /** Simulator Version */
+            simulator_version: string;
+            /** Sandbox */
+            sandbox: string;
+            /** Physics Model Valid */
+            physics_model_valid: boolean;
+            /** Robot Actuation Verified */
+            robot_actuation_verified: boolean;
+            /** Task Execution Verified */
+            task_execution_verified: boolean;
+            /** Joints */
+            joints: {
+                [key: string]: unknown;
+            }[];
+            /** Actuators */
+            actuators: {
+                [key: string]: unknown;
+            }[];
+            /** Sites */
+            sites: string[];
+            /** Dynamic Bodies */
+            dynamic_bodies: string[];
+            /** Collision Geometries */
+            collision_geometries: number;
+            /** Simulation Steps */
+            simulation_steps: number;
+            /** Simulated Seconds */
+            simulated_seconds: number;
+            /** Driven Actuator */
+            driven_actuator: number | null;
+            /** Joint Displacement */
+            joint_displacement: number;
+            /** Stable */
+            stable: boolean;
+            /**
+             * State Encoding
+             * @constant
+             */
+            state_encoding: "mjSTATE_INTEGRATION";
+            /** Initial State */
+            initial_state: number[];
+            /** Final State */
+            final_state: number[];
+            /** Initial Qpos */
+            initial_qpos: number[];
+            /** Final Qpos */
+            final_qpos: number[];
+            /** Scope */
+            scope: string;
+            /** Source Sha256 */
+            source_sha256: string;
+            qualification?: components["schemas"]["RobotQualification"] | null;
+        };
         /** ImportMapping */
         ImportMapping: {
             /** Name */
@@ -3556,7 +3636,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "visual_only" | "configuration_required" | "physics_verifying" | "physics_valid" | "actuation_verified" | "physics_failed" | "manipulation_configured";
+            status: "visual_only" | "configuration_required" | "physics_verifying" | "physics_valid" | "actuation_verified" | "qualification_failed" | "physics_failed" | "manipulation_configured";
             /**
              * Physics Ready
              * @default false
@@ -3581,10 +3661,7 @@ export interface components {
              * @default []
              */
             readiness: string[];
-            /** Capabilities */
-            capabilities?: {
-                [key: string]: unknown;
-            } | null;
+            capabilities?: components["schemas"]["ImportCapabilities"] | null;
             /** Configured World Id */
             configured_world_id?: string | null;
         };
@@ -3988,6 +4065,77 @@ export interface components {
             explanation: string;
             /** Created Unix S */
             created_unix_s: number;
+        };
+        /** RobotMotionFrame */
+        RobotMotionFrame: {
+            /** Seq */
+            seq: number;
+            /**
+             * Phase
+             * @enum {string}
+             */
+            phase: "gravity_settle" | "actuator_probe";
+            /** Time S */
+            time_s: number;
+            /** Positions M */
+            positions_m: number[][];
+            /** Quaternions Wxyz */
+            quaternions_wxyz: number[][];
+        };
+        /** RobotQualification */
+        RobotQualification: {
+            /**
+             * Schema Version
+             * @default vivacity.robot-qualification/1.0
+             * @constant
+             */
+            schema_version: "vivacity.robot-qualification/1.0";
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "passed" | "passed_with_warnings" | "failed";
+            /**
+             * Failure Class
+             * @enum {string}
+             */
+            failure_class: "none" | "model_invalid" | "numerical_instability" | "unstable_under_gravity" | "unactuated" | "joint_limit_violation" | "insufficient_kinematic_mobility";
+            /** Tests */
+            tests: components["schemas"]["RobotQualificationTest"][];
+            /** Measurements */
+            measurements: {
+                [key: string]: unknown;
+            };
+            /** Body Names */
+            body_names: string[];
+            /** Body Parent Indices */
+            body_parent_indices: number[];
+            /** Frames */
+            frames: components["schemas"]["RobotMotionFrame"][];
+            /** Scope */
+            scope: string;
+        };
+        /** RobotQualificationTest */
+        RobotQualificationTest: {
+            /**
+             * Id
+             * @enum {string}
+             */
+            id: "model_compile" | "physical_properties" | "gravity_settle" | "actuator_response" | "joint_limits" | "kinematic_mobility";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "passed" | "failed" | "warning" | "not_applicable";
+            /**
+             * Measured
+             * @default {}
+             */
+            measured: {
+                [key: string]: unknown;
+            };
+            /** Explanation */
+            explanation: string;
         };
         /** RoboticsConfig */
         RoboticsConfig: {
@@ -8355,6 +8503,37 @@ export interface operations {
         };
     };
     verify_import_v1_imports__import_id__verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    qualify_import_v1_imports__import_id__qualification_post: {
         parameters: {
             query?: never;
             header?: never;
