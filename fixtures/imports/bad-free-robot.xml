@@ -1,0 +1,13 @@
+<mujoco model="bad_free_robot">
+  <option timestep="0.004" gravity="0 0 -9.81"/>
+  <worldbody>
+    <body name="loose_base" pos="0 0 1">
+      <freejoint/>
+      <geom type="box" size="0.08 0.08 0.08" mass="1"/>
+      <body name="loose_link" pos="0 0 0.2">
+        <joint type="hinge" range="-1 1"/>
+        <geom type="capsule" size="0.03 0.12" mass="0.2"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

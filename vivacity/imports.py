@@ -307,10 +307,15 @@ class ImportService:
         try:
             result=native_probe(payload['source'],record['sha256'])
             record['capabilities']=result
-            record['status']='actuation_verified' if result['robot_actuation_verified'] else 'physics_valid'
+            qualification=result['qualification']
+            record['status']=('qualification_failed' if qualification['verdict']=='failed' else
+                              'actuation_verified' if result['robot_actuation_verified'] else 'physics_valid')
             record['readiness']=['physics_model_valid']+(['robot_actuation_verified'] if result['robot_actuation_verified'] else [])
-            record['diagnostics']=['MuJoCo compiled the model and integrated a bounded actual actuator probe.',
-                                   'No manipulation task is configured. Actuation alone does not verify a grasp or delivery.']
+            record['diagnostics']=[
+                'MuJoCo compiled the submitted model and executed bounded gravity-settle, actuator, joint-limit and local kinematic checks.',
+                ('Qualification passed inside its stated initial-condition scope.' if qualification['verdict']!='failed'
+                 else 'Qualification failed: '+qualification['failure_class'].replace('_',' ')+'.'),
+                'No manipulation task is configured. Qualification does not verify a grasp, delivery, manufactured hardware or controller safety.']
         except Exception as error:
             record['status']='physics_failed';record['readiness']=[]
             record['diagnostics']=['Native physics verification failed: '+str(error)[:700]]

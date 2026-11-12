@@ -314,13 +314,67 @@ class CommitRequest(Schema):
     branch_id: str
 
 
+class RobotQualificationTest(Schema):
+    id: Literal['model_compile','physical_properties','gravity_settle','actuator_response','joint_limits','kinematic_mobility']
+    status: Literal['passed','failed','warning','not_applicable']
+    measured: dict = {}
+    explanation: str = Field(max_length=500)
+
+
+class RobotMotionFrame(Schema):
+    seq: int = Field(ge=0, le=1000)
+    phase: Literal['gravity_settle','actuator_probe']
+    time_s: float = Field(ge=0, le=30)
+    positions_m: list[Vec3] = Field(max_length=64)
+    quaternions_wxyz: list[Annotated[list[float], Field(min_length=4, max_length=4)]] = Field(max_length=64)
+
+
+class RobotQualification(Schema):
+    schema_version: Literal['vivacity.robot-qualification/1.0'] = 'vivacity.robot-qualification/1.0'
+    verdict: Literal['passed','passed_with_warnings','failed']
+    failure_class: Literal['none','model_invalid','numerical_instability','unstable_under_gravity','unactuated','joint_limit_violation','insufficient_kinematic_mobility']
+    tests: list[RobotQualificationTest] = Field(min_length=6, max_length=6)
+    measurements: dict
+    body_names: list[str] = Field(max_length=64)
+    body_parent_indices: list[int] = Field(max_length=64)
+    frames: list[RobotMotionFrame] = Field(max_length=32)
+    scope: str = Field(max_length=700)
+
+
+class ImportCapabilities(Schema):
+    simulator: Literal['mujoco']
+    simulator_version: str
+    sandbox: str
+    physics_model_valid: bool
+    robot_actuation_verified: bool
+    task_execution_verified: bool
+    joints: list[dict]
+    actuators: list[dict]
+    sites: list[str]
+    dynamic_bodies: list[str]
+    collision_geometries: int
+    simulation_steps: int
+    simulated_seconds: float
+    driven_actuator: int | None
+    joint_displacement: float
+    stable: bool
+    state_encoding: Literal['mjSTATE_INTEGRATION']
+    initial_state: list[float]
+    final_state: list[float]
+    initial_qpos: list[float]
+    final_qpos: list[float]
+    scope: str
+    source_sha256: str
+    qualification: RobotQualification | None = None
+
+
 class ImportResponse(Schema):
     schema_version: Literal['vivacity.import/1.0']='vivacity.import/1.0'
     id: str
     filename: str
     entrypoint: str
     format: str
-    status: Literal['visual_only','configuration_required','physics_verifying','physics_valid','actuation_verified','physics_failed','manipulation_configured']
+    status: Literal['visual_only','configuration_required','physics_verifying','physics_valid','actuation_verified','qualification_failed','physics_failed','manipulation_configured']
     physics_ready: bool=False
     preview_available: bool
     sha256: str
@@ -329,7 +383,7 @@ class ImportResponse(Schema):
     summary: dict
     diagnostics: list[str]
     readiness: list[str]=[]
-    capabilities: dict | None=None
+    capabilities: ImportCapabilities | None=None
     configured_world_id: str | None=None
 
 

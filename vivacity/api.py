@@ -271,6 +271,11 @@ def create_app(database=None):
     def verify_import(import_id:str):
         return app.state.imports.verify(import_id,app.state.runtime.executor)
 
+    @app.post('/v1/imports/{import_id}/qualification',response_model=ImportResponse,status_code=202)
+    def qualify_import(import_id:str):
+        """Run the same bounded native probe through the explicit robot qualification contract."""
+        return app.state.imports.verify(import_id,app.state.runtime.executor)
+
     @app.post('/v1/imports/{import_id}/configure-task',response_model=ImportResponse)
     def configure_import_task(import_id:str):
         return app.state.imports.configure_orbital(import_id, app.state.runtime)
