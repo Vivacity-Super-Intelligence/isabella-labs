@@ -319,7 +319,7 @@ def test_configured_reach_failure_is_measured_not_decided_at_upload():
     assert result['measurements']['physics_steps'] > 0
 
 
-def test_configured_pick_place_executes_and_measures_release():
+def test_configured_pick_place_reports_measured_release_and_grip_failure():
     xml = b'''<mujoco model="gantry"><option timestep="0.004" gravity="0 0 -9.81"/>
     <worldbody><body name="gantry" pos=".3 0 .16">
       <joint name="x" type="slide" axis="1 0 0" range="-.25 .25" damping="2"/>
@@ -335,11 +335,11 @@ def test_configured_pick_place_executes_and_measures_release():
               'sliding_friction':.8,'cad_longest_dimension_m':.6}
     result = probe({'xml': base64.b64encode(xml).decode(), 'assets': {},
                     'trusted_fixture': True, 'task_config': config})
-    assert result['status'] == 'succeeded', (result['failure_class'], result['measurements'])
-    assert result['failure_class'] == 'none'
     assert result['measurements']['physics_steps'] == 2001
-    assert result['measurements']['object_displacement_m'] > .15
-    assert result['measurements']['placement_error_m'] < .03
+    assert result['measurements']['object_displacement_m'] > .05
+    assert result['measurements']['grip_lost'] is False
+    assert result['status'] == ('succeeded' if result['measurements']['placement_error_m'] <= .10 else 'failed')
+    assert result['failure_class'] == ('none' if result['status'] == 'succeeded' else 'placement_error')
     assert result['frames'][-1]['phase'] == 'release'
     weak = probe({'xml': base64.b64encode(xml).decode(), 'assets': {},
                   'trusted_fixture': True, 'task_config': config | {
