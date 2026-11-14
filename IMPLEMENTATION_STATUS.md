@@ -1,3 +1,40 @@
+# Live uploaded-robot workcell — verification in progress, 2026-11-15
+
+The integrated organization branch `codex/live-import-workcell` contains the
+uploaded-robot workcell. The immutable scene and mesh buffer come from the same
+compiled MuJoCo task model as its streamed body transforms. `/import` renders
+that scene in Three.js and shows only received frames. A finding selects its
+recorded frame and component; a body with measured declared-limit or at least
+95% effort use is translucent red at 70% opacity for that frame. The bundled
+`vivacity-sample-arm.xml` is a separate custom three-joint example with a
+declared 0.8 N·m elbow limit. The backend offers owner-capability-scoped scene,
+mesh, frame, assembly-draft and compile routes. Single-mesh CAD supports a
+rigid drop; multi-mesh ZIP assemblies can be configured and compiled; eligible
+URDF joints receive explicitly labeled test actuators.
+
+Local verification: the focused import suite ran with **40 passed, 1 skipped**
+(the Linux syscall test is skipped on Windows) and one Starlette deprecation
+warning. The production frontend build passed. The desktop/mobile Playwright
+import journeys passed **2/2** in 30.2 seconds: one observed frames while the
+trial was still running; the other selected the sample elbow at its recorded
+0.060 s, 0.8/0.8 N·m event and checked the red body ID. Screenshots were
+inspected. An earlier combined browser run stalled at 75/300 steps, although
+the same sample task and the following combined run passed; this intermittent
+stall remains an operational risk to investigate under production load.
+
+The complete Linux deployment-image CI and production release are pending at
+this point in the record. A platform-sensitive gantry fixture demonstrated why
+task verdicts must remain measured: one Linux run moved the object but settled
+it at `[0.641, 0.273, 0.025]` m against a `[0.3, 0.16, 0.035]` m target and
+correctly returned `placement_error`. The suite now asserts its measured
+placement classification and the deliberate weak-grip failure. A successful
+joint-movement task is tested separately. Fixture-assisted pick-and-place is
+not a general grasp controller and is not guaranteed to place arbitrary
+uploads. Screws, gears, fatigue and hardware health cannot be inferred without
+those components and failure laws in the model. Render Free retains its sleep
+and ephemeral-storage limits; a scene stored there is not durable across an
+instance replacement. See `FRONTEND_HANDOFF.md` for the exact import contract.
+
 # Viva voice production release — 2026-11-06
 
 The voice backend is live on Render deployment `dep-dbmdntp42hec738mn5qg`

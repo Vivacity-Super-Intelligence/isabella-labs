@@ -50,7 +50,9 @@ jobs:
           index=0
           failed=0
           for test_file in $TEST_FILES; do
-            if ! docker run --rm -v "$PWD/tests:/app/tests:ro" -v "$PWD/artifacts:/verification" vivacity-runtime:verification python -m pytest "$test_file" -vv --tb=short --junitxml="/verification/backend-linux-${{ matrix.shard }}-$index.xml"; then
+            # Bound a stalled test file so its failure is reported instead of
+            # consuming the entire shard with no diagnostic result.
+            if ! timeout --signal=TERM --kill-after=5s 600s docker run --rm -v "$PWD/tests:/app/tests:ro" -v "$PWD/artifacts:/verification" vivacity-runtime:verification python -m pytest "$test_file" -vv --tb=short --junitxml="/verification/backend-linux-${{ matrix.shard }}-$index.xml"; then
               failed=1
             fi
             index=$((index + 1))

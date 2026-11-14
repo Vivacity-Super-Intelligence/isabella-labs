@@ -264,7 +264,9 @@ def triangle_preview(content, extension):
 
 class ImportService:
     def __init__(self,root):
-        self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True);self.lock=threading.Lock()
+        # Configuring the bundled Orbital adapter creates a world while
+        # holding this lock; world validation reads the same import again.
+        self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True);self.lock=threading.RLock()
         self.verifying=None
         for path in self.root.glob('*.json'):
             payload=json.loads(path.read_bytes())
