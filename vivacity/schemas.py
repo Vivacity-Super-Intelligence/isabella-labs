@@ -354,6 +354,7 @@ class RobotTestCellConfig(Schema):
     task: Literal['movement','reach','pick_place','static_drop'] = 'movement'
     end_effector_body: str | None = Field(None, max_length=120)
     robot_base_offset_m: ScenePosition = [0., 0., 0.]
+    base_mode: Literal['free', 'bolted', 'legacy_source'] = 'free'
     gripper: Literal['uploaded','vivacity_force_fixture','none'] = 'vivacity_force_fixture'
     gripper_strength_n: float = Field(40., ge=1., le=200.)
     pickup_position_m: ScenePosition = [.45, -.15, .08]
@@ -426,7 +427,7 @@ class RobotTaskTrial(Schema):
     id: str
     status: Literal['running','succeeded','failed']
     task: Literal['movement','reach','pick_place','static_drop']
-    failure_class: Literal['none','model_invalid','unsupported_task','unstable','unactuated','unreachable','grip_lost','placement_error','numerical_instability','simulation_error']
+    failure_class: Literal['none','model_invalid','unsupported_task','unstable','unactuated','unreachable','invalid_target','no_collision_free_path','collision','actuator_limit','grip_lost','placement_error','numerical_instability','simulation_error']
     measurements: dict
     current_phase: str | None = None
     completed_steps: int = Field(default=0, ge=0, le=100000)
@@ -468,6 +469,7 @@ class ImportSceneManifest(Schema):
     source: Literal['compiled_mujoco_model']
     simulator_version: str
     model_hash: str = Field(min_length=64, max_length=64, pattern=r'^[0-9a-f]{64}$')
+    base_mode: Literal['free', 'bolted', 'legacy_source'] = 'legacy_source'
     coordinates: str
     mesh_buffer: Literal['meshes.bin']
     byte_order: Literal['little-endian']
@@ -476,6 +478,7 @@ class ImportSceneManifest(Schema):
     geoms: list[dict] = Field(max_length=256)
     meshes: list[dict] = Field(max_length=256)
     destination_position_m: ScenePosition
+    task_target_position_m: ScenePosition | None = None
 
 
 class ImportCapabilities(Schema):

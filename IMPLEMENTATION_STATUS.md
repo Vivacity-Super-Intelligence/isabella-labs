@@ -1,3 +1,27 @@
+# Uploaded-robot gravity and collision correction — 2026-11-15
+
+New task setups default to a free robot base. The isolated MuJoCo test-cell
+copy adds a free joint, so a raised arm actually falls. A bolted mode keeps
+the root fixed and shows its support. Old saved configurations retain their
+source-defined mount. A tabletop reach target inside the table fails
+validation before a reach command is sent. Bounded collision-aware IK searches
+for a joint path; execution uses the submitted actuators and stops on measured
+prohibited contact. Contact geom/body IDs, force, signed distance, and time
+are recorded and the affected robot geometry is highlighted amber in `/import`.
+
+Local evidence: the focused import suite passed **46 tests, 1 skipped** (one
+Starlette deprecation warning). The frontend TypeScript and Vite production
+build passed. Local Playwright journeys passed **4/4**, including the free-fall
+regression, a successful bolted reach, and an execution collision with visible
+contact highlight. The bolted sample reach recorded 500 MuJoCo steps,
+7.87 mm goal error, and no prohibited contact. A second target produced a
+measured collision at 0.62 s and a failed verdict. With the raised free sample,
+the base fell from Z = 0.51 m to 0.416 m in 75 steps and contacted the table;
+the impossible Z = 0.08 m target was rejected. The full backend suite and
+production deployment verification are in progress; this section does not
+claim that the correction is live yet. Reproduction and model limitations are
+in `docs/IMPORT_WORKCELL_PHYSICS.md`.
+
 # Live uploaded-robot workcell — production release, 2026-11-15
 
 The integrated organization branch `codex/live-import-workcell` contains the

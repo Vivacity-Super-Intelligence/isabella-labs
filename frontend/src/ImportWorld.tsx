@@ -16,7 +16,16 @@ type Record=components['schemas']['ImportResponse'];
 type Config=components['schemas']['RobotTestCellConfig'];
 type Task=Config['task'];
 
-const defaults:Config={name:'Imported robot test',environment:'robotics_lab',task:'movement',end_effector_body:null,robot_base_offset_m:[0,0,0],gripper:'vivacity_force_fixture',gripper_strength_n:40,pickup_position_m:[.45,-.15,.08],destination_position_m:[.45,.18,.08],object_half_size_m:[.03,.03,.03],object_mass_kg:.08,sliding_friction:.8,cad_longest_dimension_m:.6};
+const defaults:Config={name:'Imported robot test',environment:'robotics_lab',task:'movement',end_effector_body:null,robot_base_offset_m:[0,0,0],base_mode:'free',gripper:'vivacity_force_fixture',gripper_strength_n:40,pickup_position_m:[.45,-.15,.08],destination_position_m:[.45,.18,.08],object_half_size_m:[.03,.03,.03],object_mass_kg:.08,sliding_friction:.8,cad_longest_dimension_m:.6};
+
+function supportedTargets(config:Config):Config{
+ const top=config.environment==='tabletop'?.375:config.environment==='warehouse_cell'?.16:0;
+ const pickupFloor=top+(config.task==='pick_place'?config.object_half_size_m[2]:config.task==='reach'?.075:0);
+ const destinationFloor=top+config.object_half_size_m[2];
+ return {...config,
+  pickup_position_m:[config.pickup_position_m[0],config.pickup_position_m[1],Math.max(config.pickup_position_m[2],pickupFloor)],
+  destination_position_m:[config.destination_position_m[0],config.destination_position_m[1],Math.max(config.destination_position_m[2],destinationFloor)]};
+}
 
 function VectorFields({legend,value,onChange}:{legend:string;value:number[];onChange:(value:number[])=>void}){
  return <fieldset className="vector-fields"><legend>{legend}</legend>{(['X','Y','Z'] as const).map((axis,index)=><label key={axis}>{axis} <span>m</span><input type="number" min="-8" max="8" step="0.01" value={value[index]} onChange={event=>{const next=[...value];next[index]=Number(event.target.value);onChange(next);}}/></label>)}</fieldset>;
@@ -71,13 +80,13 @@ export default function ImportWorld(){
     {mode==='robot'&&assemblyMeshes.length>=2&&<Suspense fallback={<p>Loading assembly setup…</p>}><AssemblyDesigner importId={record.id} meshes={assemblyMeshes} saved={record.assembly_draft} status={record.assembly_status} busy={busy} onStage={draft=>post('assembly-draft','PUT',draft)} onCompile={()=>{void post('assembly-compile');}}/></Suspense>}
     {mode==='robot'&&configurable&&<form className="test-cell-form" onSubmit={event=>{event.preventDefault();void post('test-cell','PUT',config);}}>
      <h3>Test setup</h3><label>Experiment name<input value={config.name} maxLength={80} onChange={event=>change({name:event.target.value})}/></label>
-     <label>Environment<select value={config.environment} onChange={event=>change({environment:event.target.value as Config['environment']})}><option value="robotics_lab">Robotics lab floor</option><option value="tabletop">Tabletop workcell</option><option value="warehouse_cell">Warehouse pallet cell</option></select></label>
-     <label>Task<select value={config.task} onChange={event=>change({task:event.target.value as Task})}>{tasks.map(item=><option value={item.value} key={item.value}>{item.label}</option>)}</select></label>
-     {!staticCad&&<VectorFields legend="Robot base offset from uploaded mount" value={config.robot_base_offset_m} onChange={value=>change({robot_base_offset_m:value})}/>}
+     <label>Environment<select value={config.environment} onChange={event=>{setConfig(value=>supportedTargets({...value,environment:event.target.value as Config['environment']}));setConfigDirty(true);}}><option value="robotics_lab">Robotics lab floor</option><option value="tabletop">Tabletop workcell</option><option value="warehouse_cell">Warehouse pallet cell</option></select></label>
+     <label>Task<select value={config.task} onChange={event=>{setConfig(value=>supportedTargets({...value,task:event.target.value as Task}));setConfigDirty(true);}}>{tasks.map(item=><option value={item.value} key={item.value}>{item.label}</option>)}</select></label>
+     {!staticCad&&<><label>Base placement<select value={config.base_mode} onChange={event=>change({base_mode:event.target.value as Config['base_mode']})}><option value="free">Free · gravity can move the robot</option><option value="bolted">Bolted · visible fixed mount</option>{config.base_mode==='legacy_source'&&<option value="legacy_source">Original source anchor · previous setup</option>}</select></label><p className="small">Free placement lets a raised arm fall. Choose a bolted mount for a stationary reach task.</p><VectorFields legend="Robot base position offset" value={config.robot_base_offset_m} onChange={value=>change({robot_base_offset_m:value})}/></>}
      {native&&<label>End-effector body <span>optional</span><input value={config.end_effector_body??''} placeholder="Use the last submitted body" onChange={event=>change({end_effector_body:event.target.value||null})}/></label>}
      {config.task==='pick_place'&&<><label>Gripper model<select value={config.gripper} onChange={event=>change({gripper:event.target.value as Config['gripper']})}><option value="vivacity_force_fixture">Visible force-limited test fixture</option><option value="none">No gripper</option></select></label><label>Grip force <span>N</span><input type="number" min="1" max="200" step="1" value={config.gripper_strength_n} onChange={event=>change({gripper_strength_n:Number(event.target.value)})}/></label></>}
-     <VectorFields legend={staticCad?'Initial CAD position':'Pickup position'} value={config.pickup_position_m} onChange={value=>change({pickup_position_m:value})}/>
-     {!staticCad&&<VectorFields legend="Destination position" value={config.destination_position_m} onChange={value=>change({destination_position_m:value})}/>}
+     {(staticCad||config.task==='reach'||config.task==='pick_place')&&<VectorFields legend={staticCad?'Initial CAD position':config.task==='reach'?'Reach target position':'Pickup object center'} value={config.pickup_position_m} onChange={value=>change({pickup_position_m:value})}/>}
+     {config.task==='pick_place'&&<VectorFields legend="Destination position" value={config.destination_position_m} onChange={value=>change({destination_position_m:value})}/>}
      {staticCad&&<label>CAD longest dimension <span>m</span><input type="number" min="0.05" max="3" step="0.05" value={config.cad_longest_dimension_m} onChange={event=>change({cad_longest_dimension_m:Number(event.target.value)})}/></label>}
      {config.task==='pick_place'&&<VectorFields legend="Object half-size" value={config.object_half_size_m} onChange={value=>change({object_half_size_m:value})}/>}
      <div className="test-materials"><label>Test mass <span>kg</span><input type="number" min="0.01" max="2" step="0.01" value={config.object_mass_kg} onChange={event=>change({object_mass_kg:Number(event.target.value)})}/></label><label>Sliding friction<input type="number" min="0.05" max="2" step="0.05" value={config.sliding_friction} onChange={event=>change({sliding_friction:Number(event.target.value)})}/></label></div>

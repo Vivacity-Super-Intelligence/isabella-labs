@@ -288,7 +288,17 @@ class ImportService:
         except ValueError:raise KeyError('import missing')
         path=self.root/f'{identifier}.json'
         if not path.exists():raise KeyError('import missing')
-        return json.loads(path.read_bytes())
+        payload = json.loads(path.read_bytes())
+        # Trials created before explicit placement modes used the source MJCF
+        # anchor. Never reinterpret their stored initial conditions as free.
+        record = payload.get('record', {})
+        if record.get('test_cell') is not None:
+            record['test_cell'].setdefault('base_mode', 'legacy_source')
+        if record.get('task_trial') and record['task_trial'].get('effective_config'):
+            record['task_trial']['effective_config'].setdefault('base_mode', 'legacy_source')
+        if payload.get('scene') is not None:
+            payload['scene'].setdefault('base_mode', 'legacy_source')
+        return payload
 
     def owner_hash(self,identifier):
         with self.lock:

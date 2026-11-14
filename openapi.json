@@ -11168,6 +11168,16 @@
             "pattern": "^[0-9a-f]{64}$",
             "title": "Model Hash"
           },
+          "base_mode": {
+            "type": "string",
+            "enum": [
+              "free",
+              "bolted",
+              "legacy_source"
+            ],
+            "title": "Base Mode",
+            "default": "legacy_source"
+          },
           "coordinates": {
             "type": "string",
             "title": "Coordinates"
@@ -11228,6 +11238,24 @@
             "maxItems": 3,
             "minItems": 3,
             "title": "Destination Position M"
+          },
+          "task_target_position_m": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number",
+                  "maximum": 8.0,
+                  "minimum": -8.0
+                },
+                "type": "array",
+                "maxItems": 3,
+                "minItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Target Position M"
           }
         },
         "additionalProperties": false,
@@ -12533,6 +12561,10 @@
               "unstable",
               "unactuated",
               "unreachable",
+              "invalid_target",
+              "no_collision_free_path",
+              "collision",
+              "actuator_limit",
               "grip_lost",
               "placement_error",
               "numerical_instability",
@@ -12748,6 +12780,16 @@
               0.0,
               0.0
             ]
+          },
+          "base_mode": {
+            "type": "string",
+            "enum": [
+              "free",
+              "bolted",
+              "legacy_source"
+            ],
+            "title": "Base Mode",
+            "default": "free"
           },
           "gripper": {
             "type": "string",

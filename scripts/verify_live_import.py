@@ -40,10 +40,10 @@ def main():
     assert status == 201, (status, uploaded)
     identifier = uploaded['id']
     path = '/v1/imports/' + quote(identifier)
-    config = {'name': 'Public sample movement smoke test', 'environment': 'tabletop',
-              'task': 'movement', 'end_effector_body': 'tool', 'gripper': 'none',
+    config = {'name': 'Public sample mounted reach smoke test', 'environment': 'tabletop',
+              'task': 'reach', 'end_effector_body': 'tool', 'gripper': 'none', 'base_mode': 'bolted',
               'gripper_strength_n': 40, 'robot_base_offset_m': [0, 0, 0],
-              'pickup_position_m': [.45, -.15, .08], 'destination_position_m': [.45, .18, .08],
+              'pickup_position_m': [.45, -.15, .45], 'destination_position_m': [.45, .18, .08],
               'object_half_size_m': [.03, .03, .03], 'object_mass_kg': .08,
               'sliding_friction': .8, 'cad_longest_dimension_m': .6}
     status, configured = request('PUT', path + '/test-cell', config)
@@ -89,6 +89,8 @@ def main():
                for frame in frames for event in frame['events'])
     status, record = request('GET', path)
     assert status == 200 and record['status'] == 'task_succeeded', (status, record)
+    assert record['task_trial']['measurements']['goal_error_m'] < .08
+    assert record['task_trial']['measurements']['first_forbidden_contact'] is None
     print(json.dumps({'url': base, 'import_id': identifier, 'trial_id': trial_id,
                       'status': record['status'], 'live_frames_before_completion': saw_live,
                       'frame_count': len(frames), 'physics_steps': record['task_trial']['measurements']['physics_steps'],

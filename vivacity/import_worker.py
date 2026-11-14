@@ -57,6 +57,7 @@ def compiled_scene(model, xml, assets, mj, np, config):
     digest.update(mj.__version__.encode())
     manifest = {'schema_version': 'vivacity.import-scene/1.0', 'source': 'compiled_mujoco_model',
                 'simulator_version': mj.__version__, 'model_hash': digest.hexdigest(),
+                'base_mode': config.get('base_mode', 'legacy_source'),
                 'coordinates': 'right-handed Z-up meters; quaternions wxyz',
                 'mesh_buffer': 'meshes.bin', 'byte_order': 'little-endian',
                 'bodies': [{'id': i, 'name': mj.mj_id2name(model, mj.mjtObj.mjOBJ_BODY, i) or f'body_{i}',
@@ -64,7 +65,9 @@ def compiled_scene(model, xml, assets, mj, np, config):
                 'joints': [{'id': i, 'name': mj.mj_id2name(model, mj.mjtObj.mjOBJ_JOINT, i) or f'joint_{i}',
                             'body_id': int(model.jnt_bodyid[i])} for i in range(model.njnt)],
                 'geoms': geoms, 'meshes': meshes,
-                'destination_position_m': config['destination_position_m']}
+                'destination_position_m': config['destination_position_m'],
+                'task_target_position_m': (config['pickup_position_m'] if config['task'] == 'reach'
+                    else config['destination_position_m'] if config['task'] == 'pick_place' else None)}
     return manifest, base64.b64encode(binary).decode()
 
 
@@ -78,13 +81,54 @@ def augment_test_cell(root, config):
     ET.SubElement(world, 'geom', name='vivacity_floor', type='plane', size='4 4 .1',
                   rgba='.12 .14 .13 1', friction=f"{config['sliding_friction']} .01 .001")
     offset = config.get('robot_base_offset_m', [0., 0., 0.])
-    base = next((item for item in world if item.tag == 'body'
-                 and not (item.get('name') or '').startswith('vivacity_')), None)
+    submitted_roots = [item for item in world if item.tag == 'body'
+                       and not (item.get('name') or '').startswith('vivacity_')]
+    actuator = root.find('actuator')
+    actuated_joints = {item.get('joint') for item in actuator} if actuator is not None else set()
+    def root_score(item):
+        joints = list(item.iter('joint'))
+        return (sum(joint.get('name') in actuated_joints for joint in joints),
+                sum(joint.get('type', 'hinge') not in ('free', 'ball') for joint in joints))
+    base = max(submitted_roots, key=root_score, default=None)
+    if base is not None and sum(root_score(item) == root_score(base) for item in submitted_roots) > 1:
+        raise ValueError('multiple robot roots are ambiguous; provide a single actuated robot root')
     if base is not None:
         position = [float(value) for value in base.get('pos', '0 0 0').split()]
         if len(position) != 3:
             raise ValueError('robot base position must have three coordinates')
-        base.set('pos', ' '.join(str(value + delta) for value, delta in zip(position, offset)))
+        position = [value + delta for value, delta in zip(position, offset)]
+        base.set('pos', ' '.join(map(str, position)))
+        base_mode = config.get('base_mode', 'legacy_source')
+        if base_mode == 'free':
+            if base.find('freejoint') is None and not any(joint.get('type') == 'free' for joint in base.findall('joint')):
+                if base.findall('joint'):
+                    # Keep the submitted root's joint coordinates intact: a free
+                    # wrapper supplies only the missing six base degrees of freedom.
+                    world.remove(base)
+                    wrapper = ET.SubElement(world, 'body', name='vivacity_floating_mount',
+                                            pos=' '.join(map(str, position)))
+                    ET.SubElement(wrapper, 'freejoint', name='vivacity_base_free')
+                    base.set('pos', '0 0 0')
+                    wrapper.append(base)
+                else:
+                    base.insert(0, ET.Element('freejoint', name='vivacity_base_free'))
+        elif base_mode == 'bolted':
+            for joint in list(base):
+                if joint.tag == 'freejoint' or (joint.tag == 'joint' and joint.get('type') == 'free'):
+                    base.remove(joint)
+            x, y, z = position
+            support = (.375 if config['environment'] == 'tabletop' and -.05 <= x <= .95 and abs(y) <= .45
+                       else .16 if config['environment'] == 'warehouse_cell' and 0 <= x <= 1.1 and abs(y) <= .42
+                       else 0.)
+            if z < support + .015:
+                raise ValueError(f'bolted base center must be above its support surface at Z={support:.3f} m')
+            height = z - support
+            ET.SubElement(world, 'geom', name='vivacity_bolted_mount', type='box',
+                          pos=f'{x} {y} {support + height / 2}',
+                          size=f'.035 .035 {height / 2}', rgba='.12 .36 .38 1',
+                          contype='0', conaffinity='0')
+        elif base_mode != 'legacy_source':
+            raise ValueError('unknown robot base placement mode')
     environment = config['environment']
     if environment == 'tabletop':
         ET.SubElement(world, 'geom', name='vivacity_table', type='box', pos='.45 0 .35',
@@ -96,6 +140,10 @@ def augment_test_cell(root, config):
     ET.SubElement(world, 'site', name='vivacity_destination', type='box',
                   pos=' '.join(map(str, destination)), size='.055 .055 .003',
                   rgba='.85 .18 .14 .75', group='4')
+    if config['task'] == 'reach':
+        ET.SubElement(world, 'site', name='vivacity_reach_target', type='sphere',
+                      pos=' '.join(map(str, config['pickup_position_m'])),
+                      size='.018', rgba='.85 .18 .14 .8', group='4')
     if config['task'] == 'pick_place':
         pickup = config['pickup_position_m']; half = config['object_half_size_m']
         body = ET.SubElement(world, 'body', name='vivacity_object', pos=' '.join(map(str, pickup)))
@@ -112,6 +160,29 @@ def augment_test_cell(root, config):
                 ET.SubElement(selected, 'geom', name='vivacity_force_fixture', type='sphere',
                               size='.035', mass='.001', rgba='.16 .76 .68 .65',
                               contype='1', conaffinity='1')
+
+
+def invalid_target_reason(config):
+    """Reject target centers inside the test cell's measured support solids."""
+    if config['task'] not in ('reach', 'pick_place'):
+        return None
+    environment = config['environment']
+    supports = []
+    if environment == 'tabletop':
+        supports.append(('table', -.05, .95, -.45, .45, .375))
+    elif environment == 'warehouse_cell':
+        supports.append(('pallet', 0., 1.1, -.42, .42, .16))
+    for label, position in [('target', config['pickup_position_m'])] + (
+            [('destination', config['destination_position_m'])] if config['task'] == 'pick_place' else []):
+        x, y, z = position
+        required_clearance = config['object_half_size_m'][2] if config['task'] == 'pick_place' else .015
+        for surface, xmin, xmax, ymin, ymax, top in supports:
+            if xmin <= x <= xmax and ymin <= y <= ymax and z < top + required_clearance:
+                return (f'{label.capitalize()} center Z={z:.3f} m is inside the {surface} or below its '
+                        f'safe surface height of {top + required_clearance:.3f} m.')
+        if z < required_clearance:
+            return f'{label.capitalize()} center Z={z:.3f} m is below the floor clearance of {required_clearance:.3f} m.'
+    return None
 
 
 def execute_task(model, config, mj, np, sandbox, emit=None):
@@ -133,6 +204,19 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
     if terminal_id < 0:
         candidates = [body_id for body_id in body_ids if not (body_names[body_index[body_id]]).startswith('vivacity_')]
         terminal_id = candidates[-1] if candidates else -1
+    robot_base_id = terminal_id
+    while robot_base_id > 0 and int(model.body_parentid[robot_base_id]) > 0:
+        parent_id = int(model.body_parentid[robot_base_id])
+        if (name(mj.mjtObj.mjOBJ_BODY, parent_id) or '').startswith('vivacity_floating_mount'):
+            break
+        robot_base_id = parent_id
+    robot_body_ids = set()
+    for candidate in body_ids:
+        ancestor = candidate
+        while ancestor > 0:
+            if ancestor == robot_base_id:
+                robot_body_ids.add(candidate); break
+            ancestor = int(model.body_parentid[ancestor])
     frames = []
     supported = []
     physics_steps = 0
@@ -140,6 +224,45 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
     component_max = {}
     started_wall = time.monotonic()
     start_time = float(data.time)
+    collision_evidence = None
+
+    def allowed_contact(geom_a, geom_b):
+        geom_names = [name(mj.mjtObj.mjOBJ_GEOM, geom_id) or '' for geom_id in (geom_a, geom_b)]
+        body_ids_pair = [int(model.geom_bodyid[geom_id]) for geom_id in (geom_a, geom_b)]
+        environment = {'vivacity_floor', 'vivacity_table', 'vivacity_pallet'}
+        if any(value in environment for value in geom_names):
+            other = 1 if geom_names[0] in environment else 0
+            return (body_ids_pair[other] not in robot_body_ids
+                    or body_ids_pair[other] == robot_base_id and config.get('base_mode', 'legacy_source') == 'free')
+        if 'vivacity_object_geom' in geom_names:
+            other = 1 if geom_names[0] == 'vivacity_object_geom' else 0
+            return body_ids_pair[other] == terminal_id and task == 'pick_place'
+        return (body_ids_pair[0] == body_ids_pair[1]
+                or body_ids_pair[0] not in robot_body_ids and body_ids_pair[1] not in robot_body_ids)
+
+    def contacts_for(current):
+        contacts = []
+        for contact_id in range(min(int(current.ncon), 128)):
+            contact = current.contact[contact_id]; wrench = np.zeros(6)
+            mj.mj_contactForce(model, current, contact_id, wrench)
+            geom_a, geom_b = map(int, contact.geom)
+            body_a, body_b = int(model.geom_bodyid[geom_a]), int(model.geom_bodyid[geom_b])
+            contacts.append({'geom_a_id': geom_a, 'geom_b_id': geom_b,
+                'geom_a': name(mj.mjtObj.mjOBJ_GEOM, geom_a) or f'geom_{geom_a}',
+                'geom_b': name(mj.mjtObj.mjOBJ_GEOM, geom_b) or f'geom_{geom_b}',
+                'body_a_id': body_a, 'body_b_id': body_b,
+                'body_a': name(mj.mjtObj.mjOBJ_BODY, body_a) or f'body_{body_a}',
+                'body_b': name(mj.mjtObj.mjOBJ_BODY, body_b) or f'body_{body_b}',
+                'normal_force_n': abs(float(wrench[0])),
+                'signed_distance_m': float(contact.dist),
+                'prohibited': not allowed_contact(geom_a, geom_b),
+                'position_m': np.asarray(contact.pos).tolist()})
+        contacts.sort(key=lambda item: item['normal_force_n'], reverse=True)
+        return contacts[:24]
+
+    def significant_collision(current):
+        return next((row for row in contacts_for(current) if row['prohibited']
+                     and (row['normal_force_n'] >= .5 or row['signed_distance_m'] <= -.003)), None)
 
     def joint_diagnostics():
         result = []
@@ -191,19 +314,7 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
         return result
 
     def contact_diagnostics():
-        contacts = []
-        for contact_id in range(min(int(data.ncon), 128)):
-            contact = data.contact[contact_id]; wrench = np.zeros(6)
-            mj.mj_contactForce(model, data, contact_id, wrench)
-            geom_a, geom_b = map(int, contact.geom)
-            body_a, body_b = int(model.geom_bodyid[geom_a]), int(model.geom_bodyid[geom_b])
-            contacts.append({'geom_a': name(mj.mjtObj.mjOBJ_GEOM, geom_a) or f'geom_{geom_a}',
-                'geom_b': name(mj.mjtObj.mjOBJ_GEOM, geom_b) or f'geom_{geom_b}',
-                'body_a': name(mj.mjtObj.mjOBJ_BODY, body_a) or f'body_{body_a}',
-                'body_b': name(mj.mjtObj.mjOBJ_BODY, body_b) or f'body_{body_b}',
-                'normal_force_n': abs(float(wrench[0])), 'position_m': np.asarray(contact.pos).tolist()})
-        contacts.sort(key=lambda item: item['normal_force_n'], reverse=True)
-        return contacts[:24]
+        return contacts_for(data)
 
     def component_diagnostic_rows():
         rows = []
@@ -266,11 +377,21 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
                                    'joint': row['joint'], 'actuator': row['actuator'],
                                    'measured_value': measured, 'limit_value': limit, 'unit': unit,
                                    'next_check': next_check})
+        contacts = contact_diagnostics()
+        for contact in contacts:
+            if contact['prohibited'] and (contact['normal_force_n'] >= .5 or contact['signed_distance_m'] <= -.003):
+                events.append({'code': 'prohibited_contact', 'severity': 'error',
+                    'frame_seq': len(frames), 'time_s': float(data.time),
+                    'body_id': contact['body_a_id'] if contact['body_a_id'] else contact['body_b_id'],
+                    'joint': None, 'actuator': None,
+                    'geom_a_id': contact['geom_a_id'], 'geom_b_id': contact['geom_b_id'],
+                    'measured_value': contact['normal_force_n'], 'limit_value': .5, 'unit': 'N',
+                    'next_check': 'Move the target or mount and choose a path clear of this contact pair.'})
         frame = {'seq': len(frames), 'phase': phase, 'time_s': float(data.time),
                  'physics_steps': physics_steps, 'positions_m': data.xpos[body_ids].tolist(),
                  'quaternions_wxyz': data.xquat[body_ids].tolist(),
                  'object_position_m': data.xpos[object_id].tolist() if object_id >= 0 else None,
-                 'joint_states': joint_states, 'contacts': contact_diagnostics(), 'events': events[:64]}
+                 'joint_states': joint_states, 'contacts': contacts, 'events': events[:64]}
         frames.append(frame)
         # One-second presentation keeps the visible pose tied to measured state.
         due = started_wall + max(0., float(data.time-start_time))
@@ -290,6 +411,31 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
     def finite():
         return bool(np.isfinite(data.qpos).all() and np.isfinite(data.qvel).all()
                     and not np.any(data.warning.number))
+
+    def complete(success, failure, measurements, extra_diagnostics=None):
+        diagnostics = (extra_diagnostics or []) + task_diagnostics()
+        if not success and not extra_diagnostics:
+            details = {'unreachable': 'No kinematic solution reached the target within the configured joint limits.',
+                       'no_collision_free_path': 'No collision-free trajectory to the target was found within the bounded search.',
+                       'actuator_limit': 'A declared actuator limit prevented the commanded motion from reaching its target.'}
+            if failure in details:
+                diagnostics.insert(0, {'severity': 'error', 'code': failure, 'message': details[failure]})
+        measurements['base_mode'] = config.get('base_mode', 'legacy_source')
+        measurements['first_forbidden_contact'] = collision_evidence
+        return {'schema_version': 'vivacity.robot-task-trial/1.0',
+            'status': 'succeeded' if success else 'failed', 'task': task,
+            'failure_class': failure, 'measurements': measurements,
+            'body_names': body_names, 'body_parent_indices': body_parents, 'frames': frames,
+            'component_diagnostics': component_diagnostic_rows(), 'diagnostics': diagnostics,
+            'completed_steps': physics_steps, 'total_steps': total_steps,
+            'current_phase': frames[-1]['phase'] if frames else None,
+            'simulated_seconds': float(data.time-start_time),
+            'elapsed_wall_seconds': min(120., time.monotonic()-started_wall),
+            'effective_config': config,
+            'scope': ('Real MuJoCo execution with submitted joints, bodies, collisions and supported position actuators. '
+                + ('The visible Vivacity force fixture applies equal, force-limited Cartesian grip forces; it does not validate an uploaded gripper. '
+                   if task == 'pick_place' and config['gripper'] == 'vivacity_force_fixture' else '')
+                + 'The result applies only to this model, initial state and configured test cell; it is not hardware certification.')}
 
     if task == 'static_drop':
         if object_id < 0:
@@ -360,36 +506,118 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
 
     def plan(target):
         planning = mj.MjData(model)
-        planning.qpos[:] = data.qpos; planning.qvel[:] = 0
-        mj.mj_forward(model, planning)
-        for _ in range(100):
-            error = np.asarray(target) - planning.xpos[terminal_id]
-            if np.linalg.norm(error) <= .035:
-                break
-            jacp = np.zeros((3, model.nv)); jacr = np.zeros((3, model.nv))
-            mj.mj_jacBody(model, planning, jacp, jacr, terminal_id)
-            columns = [dof for _a, _j, dof, _q in supported]
-            jac = jacp[:, columns]
-            delta = jac.T @ np.linalg.solve(jac @ jac.T + .0025*np.eye(3), error)
-            norm = float(np.linalg.norm(delta))
-            if norm > .12:
-                delta *= .12 / norm
-            for amount, (_a, joint_id, _dof, qadr) in zip(delta, supported):
-                planning.qpos[qadr] += amount
-                if model.jnt_limited[joint_id]:
-                    planning.qpos[qadr] = np.clip(planning.qpos[qadr], *model.jnt_range[joint_id])
+        columns = [dof for _a, _j, dof, _q in supported]
+        qaddresses = [qadr for _a, _j, _dof, qadr in supported]
+        original_margin = model.geom_margin.copy()
+        # The clearance band is used only for candidate search; the actual
+        # dynamics keep the submitted contact parameters unchanged.
+        model.geom_margin[:] = np.maximum(original_margin, .004)
+        rng_seed = int.from_bytes(hashlib.sha256(
+            np.asarray(target, dtype='<f8').tobytes() + data.qpos.tobytes()).digest()[:8], 'little')
+        rng = np.random.default_rng(rng_seed)
+
+        def safe(qpos):
+            planning.qpos[:] = qpos; planning.qvel[:] = 0
             mj.mj_forward(model, planning)
-        return planning.qpos.copy(), float(np.linalg.norm(np.asarray(target)-planning.xpos[terminal_id]))
+            return not any(not allowed_contact(int(contact.geom1), int(contact.geom2))
+                           and contact.dist < .004 for contact in planning.contact)
+
+        def edge(start, end):
+            length = max(abs(float(end[qadr] - start[qadr])) for qadr in qaddresses)
+            count = max(1, int(np.ceil(length / .06)))
+            states = [start + (end-start) * (index / count) for index in range(1, count+1)]
+            return states if all(safe(state) for state in states) else None
+
+        best_error = float('inf')
+        reachable_without_path = False
+        try:
+            initial = data.qpos.copy()
+            if not safe(initial):
+                return initial, float(np.linalg.norm(np.asarray(target)-planning.xpos[terminal_id])), [], 'no_collision_free_path'
+            seeds = [initial]
+            for _ in range(11):
+                seed = initial.copy()
+                for _a, joint_id, _dof, qadr in supported:
+                    if model.jnt_limited[joint_id]:
+                        seed[qadr] = rng.uniform(*model.jnt_range[joint_id])
+                    else:
+                        seed[qadr] = initial[qadr] + rng.uniform(-.7, .7)
+                if safe(seed):
+                    seeds.append(seed)
+            candidates = []
+            for seed in seeds:
+                safe(seed)
+                for _ in range(85):
+                    error = np.asarray(target) - planning.xpos[terminal_id]
+                    error_norm = float(np.linalg.norm(error))
+                    best_error = min(best_error, error_norm)
+                    if error_norm <= .035:
+                        break
+                    jacp = np.zeros((3, model.nv)); jacr = np.zeros((3, model.nv))
+                    mj.mj_jacBody(model, planning, jacp, jacr, terminal_id)
+                    jac = jacp[:, columns]
+                    delta = jac.T @ np.linalg.solve(jac @ jac.T + .0025*np.eye(3), error)
+                    norm = float(np.linalg.norm(delta))
+                    if norm > .12: delta *= .12 / norm
+                    before = planning.qpos.copy()
+                    advanced = False
+                    for scale in (1., .5, .25, .125):
+                        candidate = before.copy()
+                        for amount, (_a, joint_id, _dof, qadr) in zip(delta, supported):
+                            candidate[qadr] += amount * scale
+                            if model.jnt_limited[joint_id]:
+                                candidate[qadr] = np.clip(candidate[qadr], *model.jnt_range[joint_id])
+                        if safe(candidate):
+                            advanced = True; break
+                    if not advanced:
+                        safe(before); break
+                goal = planning.qpos.copy()
+                goal_error = float(np.linalg.norm(np.asarray(target)-planning.xpos[terminal_id]))
+                best_error = min(best_error, goal_error)
+                if goal_error > .08: continue
+                reachable_without_path = True
+                direct = edge(initial, goal)
+                if direct is not None:
+                    candidates.append((goal_error + len(direct)*.0005, goal, direct))
+                    continue
+                # A bounded joint-space waypoint search can route around a
+                # blocked straight path without inventing an end-effector pose.
+                for _ in range(48):
+                    waypoint = initial.copy()
+                    for _a, joint_id, _dof, qadr in supported:
+                        low = min(initial[qadr], goal[qadr]) - .45
+                        high = max(initial[qadr], goal[qadr]) + .45
+                        if model.jnt_limited[joint_id]:
+                            low = max(low, model.jnt_range[joint_id, 0]); high = min(high, model.jnt_range[joint_id, 1])
+                        waypoint[qadr] = rng.uniform(low, high)
+                    first = edge(initial, waypoint)
+                    if first is None: continue
+                    second = edge(waypoint, goal)
+                    if second is not None:
+                        candidates.append((goal_error + (len(first)+len(second))*.0005,
+                                           goal, first+second))
+                        break
+            if not candidates:
+                return initial, best_error, [], ('no_collision_free_path' if reachable_without_path else 'unreachable')
+            _score, goal, path = min(candidates, key=lambda item: item[0])
+            safe(goal)
+            return goal, float(np.linalg.norm(np.asarray(target)-planning.xpos[terminal_id])), path, None
+        finally:
+            model.geom_margin[:] = original_margin
+            mj.mj_forward(model, data)
 
     grip_lost = False
     peak_grip_force = 0.
     grip_offset = np.array([0., 0., float(config['object_half_size_m'][2]) + .038])
     def execute_phase(phase, target, duration=1.2, grip=False):
-        nonlocal physics_steps, grip_lost, peak_grip_force
-        target_qpos, planned_error = plan(target)
-        set_targets(target_qpos)
+        nonlocal physics_steps, grip_lost, peak_grip_force, collision_evidence
+        target_qpos, planned_error, path, planning_failure = plan(target)
+        if planning_failure:
+            record(phase)
+            return planned_error, float(np.linalg.norm(np.asarray(target)-data.xpos[terminal_id])), planning_failure
         steps = int(np.ceil(duration / model.opt.timestep)); every = max(1, steps // 20)
         for step in range(steps):
+            set_targets(path[min(len(path)-1, (step * len(path)) // steps)])
             # Apply the visible test fixture through generalized forces so its
             # equal-and-opposite load passes through the submitted mechanism.
             # mj_applyFT avoids depending on xfrc_applied's raw vector layout.
@@ -412,12 +640,35 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
                               terminal_id, data.qfrc_applied)
                 peak_grip_force = max(peak_grip_force, magnitude)
             mj.mj_step(model, data); physics_steps += 1
+            contact = significant_collision(data)
+            if contact is not None:
+                collision_evidence = contact | {'time_s': float(data.time), 'physics_step': physics_steps}
+                record(phase)
+                return planned_error, float(np.linalg.norm(np.asarray(target)-data.xpos[terminal_id])), 'collision'
             if (step + 1) % every == 0:
                 record(phase)
         mj.mj_forward(model, data)
-        return planned_error, float(np.linalg.norm(np.asarray(target)-data.xpos[terminal_id]))
+        return planned_error, float(np.linalg.norm(np.asarray(target)-data.xpos[terminal_id])), None
 
     record('movement' if task == 'movement' else 'approach')
+    invalid_target = invalid_target_reason(config)
+    if invalid_target:
+        # The reach controller never runs against a target inside solid matter.
+        # A short gravity-only trace still shows what an unsupported base does.
+        settle_steps = int(np.ceil(.3 / model.opt.timestep))
+        total_steps = settle_steps
+        for step in range(settle_steps):
+            mj.mj_step(model, data); physics_steps += 1
+            if collision_evidence is None:
+                contact = significant_collision(data)
+                if contact is not None:
+                    collision_evidence = contact | {'time_s': float(data.time), 'physics_step': physics_steps}
+            if (step+1) % max(1, settle_steps//12) == 0: record('gravity_settle')
+        return complete(False, 'invalid_target',
+            {'physics_steps': physics_steps, 'simulated_seconds': float(data.time),
+             'target_position_m': config['pickup_position_m'],
+             'terminal_position_m': data.xpos[terminal_id].tolist()},
+            [{'severity': 'error', 'code': 'invalid_target', 'message': invalid_target}])
     if task == 'movement':
         start = data.qpos.copy(); target_q = data.qpos.copy()
         for _a, joint_id, _dof, qadr in supported:
@@ -429,17 +680,24 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
         steps = int(np.ceil(1.2 / model.opt.timestep)); every = max(1, steps // 20)
         for step in range(steps):
             mj.mj_step(model, data); physics_steps += 1
+            contact = significant_collision(data)
+            if contact is not None:
+                collision_evidence = contact | {'time_s': float(data.time), 'physics_step': physics_steps}
+                record('movement'); break
             if (step + 1) % every == 0: record('movement')
         displacement = float(np.linalg.norm(data.qpos-start))
-        success = finite() and displacement > 1e-4
-        failure = 'none' if success else 'numerical_instability' if not finite() else 'unactuated'
+        success = finite() and displacement > 1e-4 and collision_evidence is None
+        failure = ('collision' if collision_evidence else 'none' if success else
+                   'numerical_instability' if not finite() else
+                   'actuator_limit' if any(row['force_limit_reached'] for row in component_diagnostic_rows()) else 'unactuated')
         measurements = {'physics_steps': physics_steps, 'simulated_seconds': float(data.time),
                         'joint_displacement_norm': displacement, 'terminal_position_m': data.xpos[terminal_id].tolist()}
     elif task == 'reach':
         target = config['pickup_position_m']
-        planned, measured = execute_phase('approach', target, 2.)
-        success = finite() and measured <= .08
-        failure = 'none' if success else 'numerical_instability' if not finite() else 'unreachable'
+        planned, measured, phase_failure = execute_phase('approach', target, 2.)
+        success = finite() and measured <= .08 and phase_failure is None
+        failure = phase_failure or ('none' if success else 'numerical_instability' if not finite() else
+            'actuator_limit' if any(row['force_limit_reached'] for row in component_diagnostic_rows()) else 'unreachable')
         measurements = {'physics_steps': physics_steps, 'simulated_seconds': float(data.time),
                         'planned_goal_error_m': planned, 'goal_error_m': measured,
                         'terminal_position_m': data.xpos[terminal_id].tolist()}
@@ -449,18 +707,28 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
         object_start = data.xpos[object_id].copy()
         pickup = np.asarray(config['pickup_position_m']); destination = np.asarray(config['destination_position_m'])
         results = []
-        results.append(execute_phase('approach', pickup + np.array([0,0,.13]), 1.4))
-        results.append(execute_phase('grasp', pickup + grip_offset, .8))
-        results.append(execute_phase('lift', pickup + np.array([0,0,.22]), 1.2, True))
-        results.append(execute_phase('transport', destination + np.array([0,0,.22]), 1.6, True))
-        results.append(execute_phase('place', destination + grip_offset, 1.3, True))
-        execute_phase('release', destination + grip_offset, .35, False)
-        execute_phase('release', destination + np.array([0,0,.16]), .65, False)
+        for phase, waypoint, duration, gripping in (
+                ('approach', pickup + np.array([0,0,.13]), 1.4, False),
+                ('grasp', pickup + grip_offset, .8, False),
+                ('lift', pickup + np.array([0,0,.22]), 1.2, True),
+                ('transport', destination + np.array([0,0,.22]), 1.6, True),
+                ('place', destination + grip_offset, 1.3, True),
+                ('release', destination + grip_offset, .35, False),
+                ('release', destination + np.array([0,0,.16]), .65, False)):
+            outcome = execute_phase(phase, waypoint, duration, gripping)
+            results.append(outcome)
+            if outcome[2]:
+                return complete(False, outcome[2], {'physics_steps': physics_steps,
+                    'simulated_seconds': float(data.time), 'object_start_m': object_start.tolist(),
+                    'object_final_m': data.xpos[object_id].tolist(),
+                    'waypoint_errors_m': [list(pair[:2]) for pair in results]},
+                    [{'severity': 'error', 'code': outcome[2],
+                      'message': 'The task stopped at a measured collision or could not find a safe waypoint.'}])
         for _ in range(int(np.ceil(.7/model.opt.timestep))):
             data.qfrc_applied[:] = 0; mj.mj_step(model,data); physics_steps += 1
         mj.mj_forward(model,data); record('release')
         placement_error = float(np.linalg.norm(data.xpos[object_id]-destination))
-        reachable = max(value for pair in results for value in pair) <= .12
+        reachable = max(value for pair in results for value in pair[:2]) <= .12
         moved = float(np.linalg.norm(data.xpos[object_id]-object_start))
         success = bool(finite() and reachable and not grip_lost and moved > .05 and placement_error <= .10)
         if success: failure = 'none'
@@ -472,22 +740,15 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
                         'object_start_m': object_start.tolist(), 'object_final_m': data.xpos[object_id].tolist(),
                         'placement_error_m': placement_error, 'object_displacement_m': moved,
                         'peak_grip_force_n': peak_grip_force, 'grip_lost': grip_lost,
-                        'waypoint_errors_m': [list(pair) for pair in results]}
-    component_diagnostics = component_diagnostic_rows()
-    diagnostics = task_diagnostics()
-    return {'schema_version': 'vivacity.robot-task-trial/1.0', 'status': 'succeeded' if success else 'failed',
-            'task': task, 'failure_class': failure, 'measurements': measurements,
-            'body_names': body_names, 'body_parent_indices': body_parents, 'frames': frames,
-            'component_diagnostics': component_diagnostics, 'diagnostics': diagnostics,
-            'completed_steps': physics_steps, 'total_steps': physics_steps,
-            'current_phase': frames[-1]['phase'] if frames else None,
-            'simulated_seconds': float(data.time-start_time),
-            'elapsed_wall_seconds': min(120., time.monotonic()-started_wall),
-            'effective_config': config,
-            'scope': ('Real MuJoCo task execution with submitted joints, bodies, collisions and supported position actuators. '
-                      + ('The visible Vivacity force fixture applies equal, force-limited Cartesian grip forces; it does not validate an uploaded gripper. '
-                         if config['gripper'] == 'vivacity_force_fixture' else '')
-                      + 'The result applies only to this model, initial state and configured test cell; it is not hardware certification.')}
+                        'waypoint_errors_m': [list(pair[:2]) for pair in results]}
+    if collision_evidence:
+        extra = [{'severity': 'error', 'code': 'prohibited_contact',
+                  'message': f"{collision_evidence['geom_a']} contacted {collision_evidence['geom_b']} "
+                             f"at {collision_evidence['time_s']:.3f} s; normal force "
+                             f"{collision_evidence['normal_force_n']:.2f} N."}]
+    else:
+        extra = []
+    return complete(success, failure, measurements, extra)
 
 
 def restrict_linux():

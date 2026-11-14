@@ -13,10 +13,13 @@ test('upload remains unjudged until a configured MuJoCo task is run',async({page
   await expect(page.getByRole('region',{name:'Imported static geometry preview'})).toBeVisible();
   await expect.poll(()=>page.evaluate(()=>(window as any).__vivacityImport?.physicsReady)).toBe(false);
   await page.getByRole('button',{name:'Robot or CAD',exact:true}).click();
-  await page.getByLabel('Choose robot or CAD file').setInputFiles('../fixtures/imports/orbital_salvage_lab.zip');
+  await page.getByLabel('Choose robot or CAD file').setInputFiles('../fixtures/imports/vivacity_sample_arm.xml');
   await page.getByRole('button',{name:'Stage in lab',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Ready to configure',exact:true})).toBeVisible();
   await expect(page.getByText('Nothing has been declared successful or failed yet.',{exact:true})).toBeVisible();
+  await page.getByLabel('Environment').selectOption('tabletop');
+  await page.getByLabel('Task').selectOption('reach');
+  await page.getByLabel('Base placement').selectOption('bolted');
   await page.getByRole('button',{name:'Place in test cell',exact:true}).click();
   await expect(page.getByRole('button',{name:'Run configured task',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Run configured task',exact:true}).click();
@@ -48,6 +51,8 @@ test('sample arm highlights its measured elbow load at the recorded frame',async
  await page.getByRole('button',{name:'Stage in lab'}).click();
  await expect(page.getByText('vivacity-sample-arm.xml').first()).toBeVisible();
  await expect(page.getByRole('heading',{name:'Ready to configure'})).toBeVisible();
+ await page.getByLabel('Task').selectOption('reach');
+ await page.getByLabel('Base placement').selectOption('bolted');
  await page.getByRole('button',{name:'Place in test cell'}).click();
  await page.getByRole('button',{name:'Run configured task'}).click();
  await expect(page.getByRole('heading',{name:'Task succeeded'})).toBeVisible({timeout:60000});
@@ -59,10 +64,71 @@ test('sample arm highlights its measured elbow load at the recorded frame',async
  await page.getByRole('button',{name:'Inspect elbow_flex at its peak effort in the 3D workcell'}).click();
  await expect(scene).toHaveAttribute('data-highlight-body-id','4');
  await expect(scene).toHaveAttribute('data-stressed-body-ids',/(^|,)4(,|$)/);
- await expect(page.getByText(/Red at this frame: 1 body area/)).toBeVisible();
+ await expect(page.getByText(/Red: 1 body area/)).toBeVisible();
  await scene.scrollIntoViewIfNeeded();
  await page.screenshot({path:'test-results/import-sample-elbow.png',fullPage:false});
  await page.getByRole('button',{name:'Fit workcell'}).click();
  await expect(scene).toHaveAttribute('data-highlight-body-id','');
  expect(errors).toEqual([]);
+});
+
+test('raised free arm falls and an inside-table target cannot drive reach',async({page})=>{
+ const errors:string[]=[];
+ let terminal:any=null;
+ page.on('pageerror',error=>errors.push(error.message));
+ page.on('response',async response=>{
+  if(response.status()!==200||!/\/v1\/imports\/[0-9a-f-]+$/.test(new URL(response.url()).pathname))return;
+  try{const record=await response.json();if(record.status==='task_failed')terminal=record;}catch{/* ignore in-flight response */}
+ });
+ await page.goto('/import');
+ await page.getByRole('button',{name:'Use sample arm'}).click();
+ await page.getByRole('button',{name:'Stage in lab'}).click();
+ await page.getByLabel('Environment').selectOption('tabletop');
+ await page.getByLabel('Task').selectOption('reach');
+ await page.getByRole('group',{name:'Robot base position offset'}).getByLabel('Z').fill('0.11');
+ await page.getByRole('group',{name:'Reach target position'}).getByLabel('Z').fill('0.08');
+ await page.getByRole('button',{name:'Place in test cell'}).click();
+ await page.getByRole('button',{name:'Run configured task'}).click();
+ await expect(page.getByRole('heading',{name:'Task failed'})).toBeVisible({timeout:60000});
+ await expect(page.getByRole('alert')).toContainText('inside the table');
+ await expect.poll(()=>terminal?.task_trial?.failure_class).toBe('invalid_target');
+ const frames=terminal.task_trial.frames;
+ expect(frames[0].positions_m[0][2]).toBeCloseTo(.51,3);
+ expect(frames.at(-1).positions_m[0][2]).toBeLessThan(.46);
+ expect(frames.slice(1).every((frame:any)=>frame.phase==='gravity_settle')).toBe(true);
+ await expect(page.getByRole('img',{name:/3D MuJoCo workcell/})).toBeVisible();
+ await page.setViewportSize({width:390,height:844});
+ await expect(page.getByRole('alert')).toBeVisible();
+ expect(errors).toEqual([]);
+});
+
+test('a measured table collision fails reach and highlights its robot geometry',async({page})=>{
+ let terminal:any=null;
+ page.on('response',async response=>{
+  if(response.status()!==200||!/\/v1\/imports\/[0-9a-f-]+$/.test(new URL(response.url()).pathname))return;
+  try{const record=await response.json();if(record.status==='task_failed')terminal=record;}catch{/* ignore in-flight response */}
+ });
+ await page.goto('/import');
+ await page.getByRole('button',{name:'Use sample arm'}).click();
+ await page.getByRole('button',{name:'Stage in lab'}).click();
+ await page.getByLabel('Environment').selectOption('tabletop');
+ await page.getByLabel('Task').selectOption('reach');
+ await page.getByLabel('Base placement').selectOption('bolted');
+ const target=page.getByRole('group',{name:'Reach target position'});
+ await target.getByLabel('X').fill('0.55');
+ await target.getByLabel('Y').fill('-0.1');
+ await target.getByLabel('Z').fill('0.55');
+ await page.getByRole('button',{name:'Place in test cell'}).click();
+ await page.getByRole('button',{name:'Run configured task'}).click();
+ await expect(page.getByRole('heading',{name:'Task failed'})).toBeVisible({timeout:60000});
+ await expect.poll(()=>terminal?.task_trial?.failure_class).toBe('collision');
+ const contact=terminal.task_trial.measurements.first_forbidden_contact;
+ expect(contact.normal_force_n).toBeGreaterThan(.5);
+ expect(contact.signed_distance_m).toBeGreaterThan(-.005);
+ const scene=page.getByRole('img',{name:/3D MuJoCo workcell/});
+ await expect(scene).toHaveAttribute('data-contact-geom-ids',/\d/);
+ await expect(page.getByText(/Amber: measured prohibited contact geometry/)).toBeVisible();
+ await page.getByText(/^Measured contacts/).click();
+ await page.getByRole('button',{name:/Prohibited:.*vivacity_table/}).first().click();
+ await expect(scene).toHaveAttribute('data-contact-geom-ids',/\d/);
 });

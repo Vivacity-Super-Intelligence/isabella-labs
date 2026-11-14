@@ -3899,6 +3899,12 @@ export interface components {
             simulator_version: string;
             /** Model Hash */
             model_hash: string;
+            /**
+             * Base Mode
+             * @default legacy_source
+             * @enum {string}
+             */
+            base_mode: "free" | "bolted" | "legacy_source";
             /** Coordinates */
             coordinates: string;
             /**
@@ -3929,6 +3935,8 @@ export interface components {
             }[];
             /** Destination Position M */
             destination_position_m: number[];
+            /** Task Target Position M */
+            task_target_position_m?: number[] | null;
         };
         JsonValue: unknown;
         /** LibraryWorld */
@@ -4494,7 +4502,7 @@ export interface components {
              * Failure Class
              * @enum {string}
              */
-            failure_class: "none" | "model_invalid" | "unsupported_task" | "unstable" | "unactuated" | "unreachable" | "grip_lost" | "placement_error" | "numerical_instability" | "simulation_error";
+            failure_class: "none" | "model_invalid" | "unsupported_task" | "unstable" | "unactuated" | "unreachable" | "invalid_target" | "no_collision_free_path" | "collision" | "actuator_limit" | "grip_lost" | "placement_error" | "numerical_instability" | "simulation_error";
             /** Measurements */
             measurements: {
                 [key: string]: unknown;
@@ -4572,6 +4580,12 @@ export interface components {
              *     ]
              */
             robot_base_offset_m: number[];
+            /**
+             * Base Mode
+             * @default free
+             * @enum {string}
+             */
+            base_mode: "free" | "bolted" | "legacy_source";
             /**
              * Gripper
              * @default vivacity_force_fixture

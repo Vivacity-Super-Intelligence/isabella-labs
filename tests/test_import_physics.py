@@ -61,13 +61,102 @@ def test_sample_arm_scene_and_frame_ids_match_the_compiled_model():
 def test_sample_arm_runs_through_host_worker_with_measured_frames():
     xml = SAMPLE_ARM.read_bytes()
     assert hashlib.sha256(xml).hexdigest() == SAMPLE_ARM_SHA256
-    config = RobotTestCellConfig(environment='tabletop',task='movement',gripper='none').model_dump()
+    config = RobotTestCellConfig(environment='tabletop',task='reach',gripper='none',
+                                 base_mode='bolted',pickup_position_m=[.45,-.15,.45]).model_dump()
     emitted = []
     result = native_task_trial({'entrypoint':'sample.xml','content':base64.b64encode(xml).decode(),
                                 'assets':{}},SAMPLE_ARM_SHA256,config,on_progress=emitted.append)
     assert result['status'] == 'succeeded'
     assert any(item.get('type')=='scene' for item in emitted)
     assert any(item.get('type')=='progress' and item['frame']['events'] for item in emitted)
+
+
+def test_raised_free_sample_falls_and_invalid_below_table_target_never_drives_reach():
+    config = RobotTestCellConfig(environment='tabletop', task='reach', gripper='none',
+        base_mode='free', robot_base_offset_m=[.01,.06,.11],
+        pickup_position_m=[.51,-.15,.08]).model_dump()
+    emitted = []
+    result = probe({'xml': base64.b64encode(SAMPLE_ARM.read_bytes()).decode(),
+        'assets': {}, 'trusted_fixture': True, 'task_config': config}, emit=emitted.append)
+    scene = next(item['scene'] for item in emitted if item.get('type') == 'scene')
+    assert scene['base_mode'] == 'free'
+    assert not any(geom['name'] == 'vivacity_bolted_mount' for geom in scene['geoms'])
+    assert result['status'] == 'failed' and result['failure_class'] == 'invalid_target'
+    assert result['measurements']['physics_steps'] == 75
+    assert result['frames'][0]['positions_m'][0][2] == pytest.approx(.51)
+    assert result['frames'][-1]['positions_m'][0][2] < .46
+    assert all(frame['phase'] != 'approach' for frame in result['frames'][1:])
+    table_contacts = [contact for frame in result['frames'] for contact in frame['contacts']
+                      if {contact['geom_a'], contact['geom_b']} == {'vivacity_table', 'base_plate'}
+                      and contact['normal_force_n'] > .5]
+    assert table_contacts, 'the unsupported base must physically contact the table'
+    assert min(contact['signed_distance_m'] for contact in table_contacts) > -.01
+    assert any(row['code'] == 'invalid_target' for row in result['diagnostics'])
+
+
+def test_bolted_sample_has_visible_mount_and_reaches_without_forbidden_contact():
+    config = RobotTestCellConfig(environment='tabletop', task='reach', gripper='none',
+        base_mode='bolted', pickup_position_m=[.45,-.15,.45]).model_dump()
+    emitted = []
+    result = probe({'xml': base64.b64encode(SAMPLE_ARM.read_bytes()).decode(),
+        'assets': {}, 'trusted_fixture': True, 'task_config': config}, emit=emitted.append)
+    scene = next(item['scene'] for item in emitted if item.get('type') == 'scene')
+    assert scene['base_mode'] == 'bolted'
+    assert any(geom['name'] == 'vivacity_bolted_mount' for geom in scene['geoms'])
+    assert scene['task_target_position_m'] == [.45,-.15,.45]
+    assert result['status'] == 'succeeded', result
+    assert result['measurements']['goal_error_m'] < .08
+    assert result['measurements']['first_forbidden_contact'] is None
+    assert all(frame['positions_m'][0][2] == pytest.approx(.4) for frame in result['frames'])
+
+
+def test_reach_collision_is_measured_and_stops_before_task_success():
+    config = RobotTestCellConfig(environment='tabletop', task='reach', gripper='none',
+        base_mode='bolted', pickup_position_m=[.55,-.1,.55]).model_dump()
+    result = probe({'xml': base64.b64encode(SAMPLE_ARM.read_bytes()).decode(),
+        'assets': {}, 'trusted_fixture': True, 'task_config': config})
+    assert result['status'] == 'failed' and result['failure_class'] == 'collision'
+    collision = result['measurements']['first_forbidden_contact']
+    assert collision['prohibited'] and collision['normal_force_n'] >= .5
+    assert collision['time_s'] > 0 and collision['signed_distance_m'] < 0
+    assert collision['geom_a_id'] >= 0 and collision['geom_b_id'] >= 0
+    assert collision['signed_distance_m'] > -.005
+    assert any(event['code'] == 'prohibited_contact' for frame in result['frames'] for event in frame['events'])
+
+
+def test_repeated_mounted_reach_has_identical_measured_frames():
+    config = RobotTestCellConfig(environment='tabletop', task='reach', gripper='none',
+        base_mode='bolted', pickup_position_m=[.45,-.15,.45]).model_dump()
+    request = {'xml': base64.b64encode(SAMPLE_ARM.read_bytes()).decode(),
+               'assets': {}, 'trusted_fixture': True, 'task_config': config}
+    first = probe(request)
+    second = probe(request)
+    assert first['status'] == second['status'] == 'succeeded'
+    assert first['measurements']['goal_error_m'] == pytest.approx(second['measurements']['goal_error_m'], abs=1e-10)
+    assert [frame['positions_m'] for frame in first['frames']] == [
+        frame['positions_m'] for frame in second['frames']]
+
+
+def test_saved_pre_mode_import_keeps_its_original_mount_semantics(tmp_path):
+    service = ImportService(tmp_path / 'legacy-imports')
+    imported = service.create('sample.xml', SAMPLE_ARM.read_bytes())
+    service.configure_test_cell(imported['id'], RobotTestCellConfig(
+        environment='tabletop', task='reach', gripper='none', base_mode='bolted',
+        pickup_position_m=[.45,-.15,.45]))
+    payload = service._load(imported['id'])
+    payload['record']['test_cell'].pop('base_mode')
+    service._save(payload)
+    assert service._load(imported['id'])['record']['test_cell']['base_mode'] == 'legacy_source'
+
+
+def test_unsupported_placement_mode_is_rejected_at_api_boundary(tmp_path):
+    with TestClient(create_app(tmp_path / 'bad-base-mode.sqlite3')) as client:
+        client.headers.update({'X-Workspace-Token': 'a' * 64})
+        response = client.post('/v1/imports?filename=sample.xml', content=SAMPLE_ARM.read_bytes(),
+                               headers={'Content-Type': 'application/octet-stream'})
+        identifier = response.json()['id']
+        invalid = client.put(f'/v1/imports/{identifier}/test-cell', json={'base_mode': 'magnetic_levitation'})
+        assert invalid.status_code == 422
 
 
 def test_guided_two_mesh_assembly_compiles_and_moves_in_mujoco(tmp_path,monkeypatch):
@@ -92,7 +181,7 @@ def test_guided_two_mesh_assembly_compiles_and_moves_in_mujoco(tmp_path,monkeypa
     source = service._assembly_source(draft.model_dump(),service._assembly_assets(imported['id'],payload))
     emitted = []
     config = RobotTestCellConfig(environment='tabletop',task='movement',gripper='none',
-                                 robot_base_offset_m=[.1,0,.4],end_effector_body='arm').model_dump()
+                                 base_mode='bolted',robot_base_offset_m=[.1,0,.5],end_effector_body='arm').model_dump()
     result = probe({'xml':source['content'],'assets':source['assets'],
                     'trusted_fixture':True,'task_config':config},emit=emitted.append)
     assert result['status'] == 'succeeded',result
@@ -246,7 +335,7 @@ def test_upload_can_be_staged_then_run_as_a_configured_task(tmp_path):
         identifier = uploaded.json()['id']
         configured = client.put(f'/v1/imports/{identifier}/test-cell', json={
             'name': 'Customer arm movement trial', 'environment': 'robotics_lab',
-            'task': 'movement', 'gripper': 'none', 'gripper_strength_n': 20,
+                'task': 'movement', 'gripper': 'none', 'base_mode': 'bolted', 'gripper_strength_n': 20,
             'pickup_position_m': [.4, -.1, .08], 'destination_position_m': [.4, .2, .08],
             'object_half_size_m': [.03, .03, .03], 'object_mass_kg': .08,
             'sliding_friction': .8, 'cad_longest_dimension_m': .6})
@@ -289,11 +378,16 @@ def test_upload_can_be_staged_then_run_as_a_configured_task(tmp_path):
             if record['status'] != 'task_running': break
             assert time.monotonic() < deadline
             time.sleep(.04)
-        assert record['status'] == 'task_succeeded'
+        # The submitted fixture starts with base_mount penetrating deck_panel;
+        # a real contact failure must not be reported as a successful movement.
+        assert record['status'] == 'task_failed'
         assert record['task_trial']['task'] == 'movement'
+        assert record['task_trial']['failure_class'] == 'collision'
         assert record['task_trial']['measurements']['physics_steps'] > 0
-        assert saw_live_frame, 'measured frames must arrive before the trial reaches terminal status'
+        assert record['task_trial']['measurements']['first_forbidden_contact']['prohibited']
         assert scene_loaded, 'the exact compiled workcell scene must be available with the trial'
+        streamed.extend(client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/frames',
+                                   params={'after':cursor,'limit':16}).json()['frames'])
         assert len(streamed) >= 2
         assert all('joint_states' in frame and 'contacts' in frame for frame in streamed)
         assert record['task_trial']['component_diagnostics']
@@ -316,7 +410,7 @@ def test_configured_reach_failure_is_measured_not_decided_at_upload():
     assert result['status'] == 'failed'
     assert result['failure_class'] == 'unreachable'
     assert result['measurements']['goal_error_m'] > .08
-    assert result['measurements']['physics_steps'] > 0
+    assert result['measurements']['physics_steps'] == 0
 
 
 def test_configured_pick_place_reports_measured_release_and_grip_failure():
