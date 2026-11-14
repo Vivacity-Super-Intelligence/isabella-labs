@@ -21,5 +21,6 @@ test('upload remains unjudged until a configured MuJoCo task is run',async({page
   await expect(page.getByRole('heading',{name:'Task succeeded',exact:true})).toBeVisible({timeout:60000});
   await expect(page.getByRole('heading',{name:'Configured MuJoCo task',exact:true})).toBeVisible();
   await expect.poll(()=>page.evaluate(()=>(window as any).__vivacityTaskTrial?.source)).toBe('measured_mujoco');
+  await expect(page.getByRole('button',{name:'Import another asset',exact:true})).toBeVisible();
   expect(errors).toEqual([]);
 });

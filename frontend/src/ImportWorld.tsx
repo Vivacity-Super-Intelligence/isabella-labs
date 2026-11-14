@@ -63,6 +63,7 @@ export default function ImportWorld(){
     {native&&<details className="diagnostic-panel"><summary>Optional initial-condition diagnostic</summary><p>Checks gravity settling, joint limits, actuator response and local mobility. Its result does not decide whether your configured task succeeds.</p><button className="secondary" type="button" disabled={busy||record.status==='physics_verifying'} onClick={()=>post('qualification')}>{record.status==='physics_verifying'?'Running diagnostic...':'Run initial diagnostic'}</button>{qualification&&<p className="diagnostic-result"><WarningCircle size={16}/>{qualification.verdict.replaceAll('_',' ')}: {qualification.failure_class.replaceAll('_',' ')}</p>}</details>}
     {trial&&<details><summary>Measured trial record</summary><p className="small">Source SHA-256: {trial.source_sha256}</p><pre className="generation-spec">{JSON.stringify(trial.measurements,null,2)}</pre></details>}
    </aside></div>}
+  {record&&<button className="secondary import-reset" type="button" disabled={busy} onClick={reset}>Import another asset</button>}
   <TechnicalInspector events={events} initialized playing={record?.status==='task_running'} branches={[]} select={()=>{}} history={{ids:[],open:()=>{},disabled:true}} initialMessage="Upload inspection stages the asset. A result exists only after an explicit trial."/>
  </section>;
 }
