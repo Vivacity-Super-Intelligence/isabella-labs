@@ -812,6 +812,10 @@ def probe(request, emit=None, *, enforce_sandbox=True):
               for name, value in request['assets'].items()}
     root = ET.fromstring(xml)
     task_config = request.get('task_config')
+    if task_config is not None:
+        # NumPy imports its RNG package lazily. Load it before seccomp closes
+        # filesystem access; planning still uses a deterministic per-target seed.
+        np.random.default_rng(0)
     if root.tag == 'mujoco':
         compiler = root.find('compiler')
         if compiler is None:
