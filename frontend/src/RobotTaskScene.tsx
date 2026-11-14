@@ -125,8 +125,10 @@ export default function RobotTaskScene({importId,trial,frame,selectedJoint,onCle
  const selectedBody=selectedJoint?jointBody.get(selectedJoint):undefined;
  const framing=scene&&trial.frames.length?cameraFraming(scene,trial.frames[0]):{target:[.38,0,.38] as Vec3,position:[1.55,-1.6,1.22] as Vec3,distance:2};
  const selectedPose=selectedBody&&trial.frames[0]?.positions_m[selectedBody-1];
- const viewTarget=(selectedPose??framing.target) as Vec3;
- const viewDistance=selectedPose?Math.max(.85,framing.distance*.28):framing.distance;
+ // Keep the whole workcell legible while drawing attention to the selected
+ // component. A tight zoom made large imported robots clip out of view.
+ const viewTarget=selectedPose?framing.target.map((value,i)=>value*.8+selectedPose[i]*.2) as Vec3:framing.target;
+ const viewDistance=framing.distance;
  const visible=(geom:Geom)=>geom.group!==3||collision||!scene?.geoms.some(other=>other.body_id===geom.body_id&&other.group===1);
  return <div className="import-live-scene" ref={rootRef}>
   <div className="import-scene-toolbar"><span>{scene?'Compiled MuJoCo model · measured live poses':'Preparing compiled scene'}</span>

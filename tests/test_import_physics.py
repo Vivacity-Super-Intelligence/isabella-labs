@@ -335,7 +335,7 @@ def test_configured_pick_place_executes_and_measures_release():
               'sliding_friction':.8,'cad_longest_dimension_m':.6}
     result = probe({'xml': base64.b64encode(xml).decode(), 'assets': {},
                     'trusted_fixture': True, 'task_config': config})
-    assert result['status'] == 'succeeded'
+    assert result['status'] == 'succeeded', (result['failure_class'], result['measurements'])
     assert result['failure_class'] == 'none'
     assert result['measurements']['physics_steps'] == 2001
     assert result['measurements']['object_displacement_m'] > .15
