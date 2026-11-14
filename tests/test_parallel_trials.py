@@ -4,6 +4,16 @@ from vivacity.schemas import CreateWorld,RoboticsConfig,ExperimentRequest
 from vivacity.trial_execution import trial_results
 
 
+def test_legacy_worker_override_stays_within_host_capacity(tmp_path,monkeypatch,caplog):
+    monkeypatch.setenv('VIVACITY_PHYSICS_TRIAL_WORKERS','8')
+    runtime=Runtime(tmp_path/'legacy-workers.sqlite3')
+    try:
+        assert runtime.physics_trial_workers==2
+        assert 'Capping configured physics trial workers from 8 to 2' in caplog.text
+    finally:
+        runtime.close()
+
+
 def test_ordered_batches_overlap_and_account_for_every_result():
     barrier=threading.Barrier(2)
     class Engine:

@@ -35,9 +35,14 @@ class Unavailable(ValueError):
 
 class Runtime:
     def __init__(self, database):
-        self.physics_trial_workers=int(os.getenv('VIVACITY_PHYSICS_TRIAL_WORKERS','1'))
-        if not 1<=self.physics_trial_workers<=2:
-            raise ValueError('VIVACITY_PHYSICS_TRIAL_WORKERS must be 1..2')
+        configured_workers=int(os.getenv('VIVACITY_PHYSICS_TRIAL_WORKERS','1'))
+        if configured_workers < 1:
+            raise ValueError('VIVACITY_PHYSICS_TRIAL_WORKERS must be positive')
+        # Older deployments may still carry a larger worker override. Never
+        # start more than the measured two-worker memory envelope on this host.
+        self.physics_trial_workers=min(configured_workers,2)
+        if configured_workers > 2:
+            log.warning('Capping configured physics trial workers from %s to 2',configured_workers)
         self.max_physics_trials = int(os.getenv('VIVACITY_MAX_PHYSICS_TRIALS', '5000'))
         if not 1 <= self.max_physics_trials <= 5000:
             raise ValueError('VIVACITY_MAX_PHYSICS_TRIALS must be 1..5000')
