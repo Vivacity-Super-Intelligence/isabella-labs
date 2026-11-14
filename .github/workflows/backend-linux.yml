@@ -32,7 +32,13 @@ jobs:
           from pathlib import Path
           files=sorted(Path('tests').glob('test_*.py'))
           shard=${{ matrix.shard }}
-          selected=[f'/app/{path.as_posix()}' for index,path in enumerate(files) if index%6==shard]
+          # The four integration-heavy files previously landed on shard 2
+          # together and could exhaust that job's 40-minute limit. Assign each
+          # to a different existing shard; every test file still runs once.
+          heavy={'test_factory_benchmark.py':1, 'test_pick_place.py':4,
+                 'test_humanoid_live.py':5, 'test_orbital.py':3}
+          selected=[f'/app/{path.as_posix()}' for index,path in enumerate(files)
+                    if heavy.get(path.name,index%6)==shard]
           assert selected
           print(' '.join(selected))
           PY
