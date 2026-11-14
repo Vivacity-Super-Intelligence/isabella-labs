@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import uuid
 
 import pytest
 from fastapi.testclient import TestClient
@@ -133,16 +134,31 @@ def test_upload_can_be_staged_then_run_as_a_configured_task(tmp_path):
         assert configured.json()['task_trial'] is None
         queued = client.post(f'/v1/imports/{identifier}/task-trials')
         assert queued.status_code == 202, queued.text
+        trial_id = queued.json()['task_trial']['id']
+        invalid_cursor = client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/frames', params={'after':-2})
+        assert invalid_cursor.status_code == 422
+        missing_trial = client.get(f'/v1/imports/{identifier}/task-trials/{uuid.uuid4()}/frames')
+        assert missing_trial.status_code == 404
+        cursor = -1; streamed = []; saw_live_frame = False
         deadline = time.monotonic() + 30
         while True:
+            live = client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/frames',
+                              params={'after':cursor,'limit':16})
+            assert live.status_code == 200, live.text
+            update = live.json(); streamed.extend(update['frames']); cursor = update['next_cursor']
+            saw_live_frame |= bool(update['frames'] and update['status']=='task_running')
             record = client.get(f'/v1/imports/{identifier}').json()
             if record['status'] != 'task_running': break
             assert time.monotonic() < deadline
-            time.sleep(.02)
+            time.sleep(.04)
         assert record['status'] == 'task_succeeded'
         assert record['task_trial']['task'] == 'movement'
         assert record['task_trial']['measurements']['physics_steps'] > 0
-        assert len(record['task_trial']['frames']) >= 2
+        assert saw_live_frame, 'measured frames must arrive before the trial reaches terminal status'
+        assert len(streamed) >= 2
+        assert all('joint_states' in frame and 'contacts' in frame for frame in streamed)
+        assert record['task_trial']['component_diagnostics']
+        assert any(row['joint'] for row in record['task_trial']['component_diagnostics'])
 
 
 def test_configured_reach_failure_is_measured_not_decided_at_upload():

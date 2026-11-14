@@ -271,6 +271,13 @@ class ImportService:
             if payload['record']['status'] in ('physics_verifying','task_running'):
                 interrupted = payload['record']['status']
                 payload['record']['status']='physics_failed' if interrupted == 'physics_verifying' else 'task_failed'
+                if interrupted == 'task_running' and payload['record'].get('task_trial'):
+                    trial = payload['record']['task_trial']
+                    trial.update({'status': 'failed', 'failure_class': 'simulation_error',
+                        'error': 'Worker stopped during server restart.',
+                        'scope': 'The process restarted before completion. Persisted frames are a partial measured trace.'})
+                    trial['diagnostics'] = list(trial.get('diagnostics', [])) + [{'severity': 'error',
+                        'code': 'worker_interrupted', 'message': 'The simulation was interrupted by a backend restart.'}]
                 payload['record']['diagnostics'].append('The running native job was interrupted by server restart; run it again explicitly.')
                 self._save(payload)
 
@@ -371,34 +378,91 @@ class ImportService:
             if record['status'] == 'task_running': return record
             if self.verifying is not None: raise ValueError('another native simulation is queued or running; retry after it completes')
             if not record.get('test_cell'): raise ValueError('configure the test cell before running a trial')
+            trial_id = str(uuid.uuid4())
+            config = record['test_cell']
+            record['task_trial'] = {'schema_version': 'vivacity.robot-task-trial/1.0', 'id': trial_id,
+                'status': 'running', 'task': config['task'], 'failure_class': 'none', 'measurements': {},
+                'current_phase': 'initializing', 'completed_steps': 0, 'total_steps': None,
+                'simulated_seconds': 0., 'elapsed_wall_seconds': 0., 'body_names': [],
+                'body_parent_indices': [], 'frames': [], 'component_diagnostics': [], 'diagnostics': [],
+                'effective_config': config, 'source_sha256': record['sha256'],
+                'scope': 'Simulation initializing in the isolated MuJoCo worker.'}
             record['status'] = 'task_running'; self.verifying = identifier; self._save(payload)
             try: executor.submit(self._run_task_trial, identifier)
             except Exception:
                 self.verifying = None; record['status'] = 'task_failed'
+                record['task_trial'].update({'status':'failed','failure_class':'simulation_error',
+                    'error':'The task worker could not be queued.',
+                    'diagnostics':[{'severity':'error','code':'queue_failed','message':'The simulation could not be queued; no physics was run.'}]})
                 record['diagnostics'].append('Task trial could not be queued.'); self._save(payload)
                 raise ValueError('task trial could not be queued') from None
             return record
 
     def _run_task_trial(self, identifier):
-        from .import_physics import native_task_trial
-        payload = self._load(identifier); record = payload['record']; config = record['test_cell']
+        trial_id = None
+        started = time.monotonic()
+
+        def persist_progress(message):
+            with self.lock:
+                latest = self._load(identifier); current = latest['record']; trial = current.get('task_trial')
+                if current['status'] != 'task_running' or not trial or trial['id'] != trial_id:
+                    return
+                frame = message.get('frame')
+                if frame is not None and not any(existing['seq'] == frame['seq'] for existing in trial['frames']):
+                    if len(trial['frames']) < 192: trial['frames'].append(frame)
+                for key in ('current_phase','completed_steps','total_steps','simulated_seconds','elapsed_wall_seconds',
+                            'measurements','body_names','body_parent_indices','component_diagnostics','diagnostics'):
+                    if key in message: trial[key] = message[key]
+                trial['elapsed_wall_seconds'] = min(120., time.monotonic()-started)
+                self._save(latest)
         try:
+            from .import_physics import native_task_trial
+            payload = self._load(identifier); record = payload['record']; config = record['test_cell']
+            trial_id = record['task_trial']['id']; source_hash = record['sha256']
             source = payload.get('source') or self._visual_task_source(payload.get('preview'), config)
-            result = native_task_trial(source, record['sha256'], config)
-            result['id'] = str(uuid.uuid4())
-            record['task_trial'] = result
-            record['status'] = 'task_succeeded' if result['status'] == 'succeeded' else 'task_failed'
-            record['physics_ready'] = True
-            record['readiness'] = ['test_cell_configured','task_trial_executed'] + (['task_succeeded'] if result['status']=='succeeded' else [])
-            record['diagnostics'] = [('The configured task succeeded from measured MuJoCo state.' if result['status']=='succeeded'
-                                      else 'The configured task failed: '+result['failure_class'].replace('_',' ')+'.')]
+            result = native_task_trial(source, source_hash, config, on_progress=persist_progress)
+            result['id'] = trial_id
+            with self.lock:
+                latest = self._load(identifier); current = latest['record']
+                current['task_trial'] = result
+                current['status'] = 'task_succeeded' if result['status'] == 'succeeded' else 'task_failed'
+                current['physics_ready'] = True
+                current['readiness'] = ['test_cell_configured','task_trial_executed'] + (['task_succeeded'] if result['status']=='succeeded' else [])
+                current['diagnostics'] = [('The configured task succeeded from measured MuJoCo state.' if result['status']=='succeeded'
+                                          else 'The configured task failed: '+result['failure_class'].replace('_',' ')+'.')]
+                self._save(latest)
         except Exception as error:
-            record['status'] = 'task_failed'; record['physics_ready'] = False
-            record['task_trial'] = None
-            record['diagnostics'] = ['Configured task could not execute: '+str(error)[:700]]
+            with self.lock:
+                latest = self._load(identifier); current = latest['record']; trial = current.get('task_trial') or {}
+                trial.update({'id': trial_id or trial.get('id'), 'status': 'failed', 'failure_class': 'simulation_error',
+                    'error': str(error)[:700], 'current_phase': trial.get('current_phase'),
+                    'elapsed_wall_seconds': min(120., time.monotonic()-started),
+                    'scope': 'The isolated simulation worker failed. Any frames already streamed remain the measured partial trace.'})
+                trial['diagnostics'] = list(trial.get('diagnostics', [])) + [{'severity': 'error',
+                    'code': 'simulation_error', 'message': 'The native MuJoCo worker stopped before a final task result.'}]
+                current['task_trial'] = trial; current['status'] = 'task_failed'; current['physics_ready'] = False
+                current['diagnostics'] = ['Configured task could not execute: '+str(error)[:700]]
+                self._save(latest)
         finally:
             with self.lock:
-                self.verifying = None; self._save(payload)
+                self.verifying = None
+
+    def task_trial_frames(self, identifier, trial_id, after=-1, limit=16):
+        if type(after) is not int or after < -1: raise ValueError('after cursor must be -1 or greater')
+        if type(limit) is not int or not 1 <= limit <= 16: raise ValueError('frame limit must be between 1 and 16')
+        with self.lock:
+            record = self._load(identifier)['record']; trial = record.get('task_trial')
+            if not trial or trial.get('id') != trial_id: raise KeyError('task trial missing')
+            frames = [frame for frame in trial.get('frames', []) if frame['seq'] > after][:limit]
+            cursor = frames[-1]['seq'] if frames else after
+            return {'schema_version': 'vivacity.robot-task-frames/1.0', 'import_id': record['id'],
+                'trial_id': trial_id, 'status': record['status'], 'task': trial['task'],
+                'current_phase': trial.get('current_phase'), 'completed_steps': trial.get('completed_steps', 0),
+                'total_steps': trial.get('total_steps'), 'simulated_seconds': trial.get('simulated_seconds', 0.),
+                'elapsed_wall_seconds': trial.get('elapsed_wall_seconds', 0.), 'frames': frames,
+                'next_cursor': cursor, 'measurements': trial.get('measurements', {}),
+                'component_diagnostics': trial.get('component_diagnostics', []),
+                'diagnostics': trial.get('diagnostics', [])}
 
     def create(self,filename,data,reduce_preview=False):
         name=safe_name(filename)
@@ -440,7 +504,10 @@ class ImportService:
         return record
 
     def get(self,identifier,preview=False):
-        result=self._load(identifier)
+        # Serialize reads with atomic replacement writes, including on Windows
+        # filesystems that briefly deny readers during rename/antivirus scans.
+        with self.lock:
+            result=self._load(identifier)
         geometry=result.get('preview')
         if geometry:geometry.setdefault('coordinate_system','Original static mesh coordinates; scale and source up axis are selected during mapping.')
         # NumPy 2.x can retain the triangle matrix shape in return_inverse.

@@ -27,10 +27,28 @@ of a successful build: inspect the actual run and uploaded JUnit evidence.
 
 Upload inspection only stages the submitted asset. It is not a pass or fail
 decision. Configure a task with `PUT /v1/imports/{id}/test-cell`, then start it
-with `POST /v1/imports/{id}/task-trials`. Poll `GET /v1/imports/{id}` while its
-status is `task_running`. The `vivacity.robot-task-trial/1.0` response includes
-the effective workcell, task inputs, authoritative MuJoCo frames, measurements,
-and a task-specific failure class.
+with `POST /v1/imports/{id}/task-trials`. While it runs, page measured frames
+from `GET /v1/imports/{id}/task-trials/{trial_id}/frames?after=-1&limit=16`;
+`next_cursor` is the last frame sequence received. This includes the current
+phase, completed/total physics steps, simulation and wall time, measured joint
+states, contact forces, partial measurements, and live component findings. The
+final `vivacity.robot-task-trial/1.0` record retains the complete trace and
+task-specific outcome for replay.
+
+Each frame reports world-space body transforms, joint position/velocity and
+command tracking, actuator force and declared force range, control saturation,
+declared joint-limit margin, and the highest measured contact pairs. The viewer
+follows incoming states while status is `running`; replay controls appear only
+after the run ends. Tracking review thresholds are triage heuristics and never
+decide success. A failure result identifies the measured failing task phase or
+declared limit event where the available evidence supports it.
+
+MuJoCo does not infer material strength, fatigue, or hardware construction from
+a mesh. Screw fracture, damaged gears, or a replacement part can only be named
+when the uploaded model includes those components and explicit failure laws;
+otherwise the result marks structural damage as not assessed. The current
+viewer draws the submitted model's measured body-transform skeleton rather
+than its full visual mesh; geometry-complete rendering remains a separate task.
 
 MJCF supports joint movement, point reaching, and bounded pick-and-place using
 its supported position actuators. The optional visible Vivacity force fixture

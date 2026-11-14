@@ -325,9 +325,12 @@ class RobotMotionFrame(Schema):
     seq: int = Field(ge=0, le=1000)
     phase: Literal['gravity_settle','actuator_probe','movement','approach','grasp','lift','transport','place','release','static_drop']
     time_s: float = Field(ge=0, le=30)
+    physics_steps: int = Field(default=0, ge=0, le=100000)
     positions_m: list[Vec3] = Field(max_length=64)
     quaternions_wxyz: list[Annotated[list[float], Field(min_length=4, max_length=4)]] = Field(max_length=64)
     object_position_m: Vec3 | None = None
+    joint_states: list[dict] = Field(default_factory=list, max_length=64)
+    contacts: list[dict] = Field(default_factory=list, max_length=24)
 
 
 class RobotQualification(Schema):
@@ -369,16 +372,42 @@ class RobotTestCellConfig(Schema):
 class RobotTaskTrial(Schema):
     schema_version: Literal['vivacity.robot-task-trial/1.0'] = 'vivacity.robot-task-trial/1.0'
     id: str
-    status: Literal['succeeded','failed']
+    status: Literal['running','succeeded','failed']
     task: Literal['movement','reach','pick_place','static_drop']
-    failure_class: Literal['none','model_invalid','unsupported_task','unstable','unactuated','unreachable','grip_lost','placement_error','numerical_instability']
+    failure_class: Literal['none','model_invalid','unsupported_task','unstable','unactuated','unreachable','grip_lost','placement_error','numerical_instability','simulation_error']
     measurements: dict
+    current_phase: str | None = None
+    completed_steps: int = Field(default=0, ge=0, le=100000)
+    total_steps: int | None = Field(default=None, ge=1, le=100000)
+    simulated_seconds: float = Field(default=0., ge=0., le=30.)
+    elapsed_wall_seconds: float = Field(default=0., ge=0., le=120.)
     body_names: list[str] = Field(max_length=64)
     body_parent_indices: list[int] = Field(max_length=64)
-    frames: list[RobotMotionFrame] = Field(max_length=64)
+    frames: list[RobotMotionFrame] = Field(max_length=192)
+    component_diagnostics: list[dict] = Field(default_factory=list, max_length=128)
+    diagnostics: list[dict] = Field(default_factory=list, max_length=128)
+    error: str | None = Field(default=None, max_length=700)
     effective_config: RobotTestCellConfig
     source_sha256: str = Field(min_length=64, max_length=64, pattern=r'^[0-9a-f]{64}$')
     scope: str = Field(max_length=900)
+
+
+class RobotTaskFramesResponse(Schema):
+    schema_version: Literal['vivacity.robot-task-frames/1.0'] = 'vivacity.robot-task-frames/1.0'
+    import_id: str
+    trial_id: str
+    status: Literal['task_running','task_succeeded','task_failed']
+    task: Literal['movement','reach','pick_place','static_drop']
+    current_phase: str | None = None
+    completed_steps: int = Field(ge=0, le=100000)
+    total_steps: int | None = Field(default=None, ge=1, le=100000)
+    simulated_seconds: float = Field(ge=0, le=30)
+    elapsed_wall_seconds: float = Field(ge=0, le=120)
+    frames: list[RobotMotionFrame] = Field(max_length=16)
+    next_cursor: int = Field(ge=-1, le=1000)
+    measurements: dict
+    component_diagnostics: list[dict] = Field(max_length=128)
+    diagnostics: list[dict] = Field(max_length=128)
 
 
 class ImportCapabilities(Schema):

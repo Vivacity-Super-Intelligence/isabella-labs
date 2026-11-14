@@ -6,7 +6,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Res
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
 from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport, WorldEditorResponse, EditorChange, EditorGeometryAction, EditorMove, WorldVersion, RestoreWorldVersion
-from .schemas import ImportResponse,ImportPreview,RobotTestCellConfig
+from .schemas import ImportResponse,ImportPreview,RobotTestCellConfig,RobotTaskFramesResponse
 from .schemas import SessionRequest,SessionResponse,LiveState,TrialsResponse
 from .imports import ImportService,MAX_UPLOAD
 from pathlib import Path
@@ -285,6 +285,11 @@ def create_app(database=None):
     def run_import_task_trial(import_id:str):
         """Execute the explicitly configured task; upload inspection is never a task verdict."""
         return app.state.imports.run_task_trial(import_id, app.state.runtime.executor)
+
+    @app.get('/v1/imports/{import_id}/task-trials/{trial_id}/frames',response_model=RobotTaskFramesResponse)
+    def import_task_trial_frames(import_id:str,trial_id:str,after:int=Query(-1,ge=-1,le=1000),limit:int=Query(16,ge=1,le=16)):
+        """Read authoritative, ordered MuJoCo frames and partial measured diagnostics."""
+        return app.state.imports.task_trial_frames(import_id,trial_id,after,limit)
 
     @app.post('/v1/imports/{import_id}/configure-task',response_model=ImportResponse)
     def configure_import_task(import_id:str):

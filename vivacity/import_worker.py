@@ -10,6 +10,7 @@ import json
 import os
 import platform
 import sys
+import time
 import xml.etree.ElementTree as ET
 
 
@@ -59,11 +60,14 @@ def augment_test_cell(root, config):
                               contype='1', conaffinity='1')
 
 
-def execute_task(model, config, mj, np, sandbox):
+def execute_task(model, config, mj, np, sandbox, emit=None):
     data = mj.MjData(model)
     mj.mj_forward(model, data)
     name = lambda kind, i: mj.mj_id2name(model, kind, i)
     task = config['task']
+    durations = {'movement': [1.2], 'reach': [2.0], 'pick_place': [1.4,.8,1.2,1.6,1.3,.35,.65,.7],
+                 'static_drop': [2.0]}[task]
+    total_steps = sum(int(np.ceil(duration/model.opt.timestep)) for duration in durations)
     body_ids = list(range(1, min(model.nbody, 65)))
     body_index = {body_id: index for index, body_id in enumerate(body_ids)}
     body_names = [name(mj.mjtObj.mjOBJ_BODY, body_id) or f'body_{body_id}' for body_id in body_ids]
@@ -76,14 +80,130 @@ def execute_task(model, config, mj, np, sandbox):
         candidates = [body_id for body_id in body_ids if not (body_names[body_index[body_id]]).startswith('vivacity_')]
         terminal_id = candidates[-1] if candidates else -1
     frames = []
+    supported = []
+    physics_steps = 0
+    target_qpos_by_joint = {}
+    component_max = {}
+    started_wall = time.monotonic()
+    start_time = float(data.time)
+
+    def joint_diagnostics():
+        result = []
+        for actuator_id, joint_id, dof, qadr in supported:
+            joint_name = name(mj.mjtObj.mjOBJ_JOINT, joint_id) or f'joint_{joint_id}'
+            actuator_name = name(mj.mjtObj.mjOBJ_ACTUATOR, actuator_id) or f'actuator_{actuator_id}'
+            position = float(data.qpos[qadr]); velocity = float(data.qvel[dof])
+            target = float(target_qpos_by_joint.get(joint_id, position))
+            error = abs(target-position); force = float(data.actuator_force[actuator_id])
+            force_limited = bool(model.actuator_forcelimited[actuator_id])
+            force_limit = float(max(abs(model.actuator_forcerange[actuator_id]))) if force_limited else None
+            utilization = abs(force)/force_limit if force_limit and force_limit > 0 else None
+            ctrl_limited = bool(model.actuator_ctrllimited[actuator_id]); ctrl = float(data.ctrl[actuator_id])
+            ctrl_saturated = bool(ctrl_limited and min(abs(ctrl-model.actuator_ctrlrange[actuator_id, 0]),
+                                                        abs(ctrl-model.actuator_ctrlrange[actuator_id, 1])) < 1e-5)
+            limited = bool(model.jnt_limited[joint_id])
+            margin = float(min(position-model.jnt_range[joint_id, 0], model.jnt_range[joint_id, 1]-position)) if limited else None
+            violation = bool(limited and (position < model.jnt_range[joint_id, 0]-1e-6
+                                          or position > model.jnt_range[joint_id, 1]+1e-6))
+            row = {'joint': joint_name, 'joint_type': 'hinge' if int(model.jnt_type[joint_id]) == 2 else 'slide',
+                   'position': position, 'velocity': velocity, 'target_position': target,
+                   'tracking_error': error, 'position_unit': 'rad' if int(model.jnt_type[joint_id]) == 2 else 'm',
+                   'actuator': actuator_name, 'actuator_force_n': force, 'force_limit_n': force_limit,
+                   'force_utilization': utilization, 'force_limit_reached': bool(utilization is not None and utilization >= .995),
+                   'control_signal': ctrl, 'control_saturated': ctrl_saturated,
+                   'joint_limit_margin': margin, 'joint_limit_violation': violation}
+            result.append(row)
+            aggregate = component_max.setdefault(actuator_id, {'joint': joint_name, 'actuator': actuator_name,
+                'position_unit': row['position_unit'], 'max_tracking_error': 0., 'peak_abs_force_n': 0.,
+                'force_limit_n': force_limit, 'max_force_utilization': 0., 'force_limit_reached': False,
+                'control_saturated': False, 'minimum_joint_limit_margin': margin,
+                'joint_limit_violation': False})
+            aggregate['max_tracking_error'] = max(aggregate['max_tracking_error'], error)
+            aggregate['peak_abs_force_n'] = max(aggregate['peak_abs_force_n'], abs(force))
+            if utilization is not None: aggregate['max_force_utilization'] = max(aggregate['max_force_utilization'], utilization)
+            aggregate['force_limit_reached'] |= row['force_limit_reached']
+            aggregate['control_saturated'] |= ctrl_saturated
+            aggregate['joint_limit_violation'] |= violation
+            if margin is not None: aggregate['minimum_joint_limit_margin'] = min(aggregate['minimum_joint_limit_margin'], margin)
+        return result
+
+    def contact_diagnostics():
+        contacts = []
+        for contact_id in range(min(int(data.ncon), 128)):
+            contact = data.contact[contact_id]; wrench = np.zeros(6)
+            mj.mj_contactForce(model, data, contact_id, wrench)
+            geom_a, geom_b = map(int, contact.geom)
+            body_a, body_b = int(model.geom_bodyid[geom_a]), int(model.geom_bodyid[geom_b])
+            contacts.append({'geom_a': name(mj.mjtObj.mjOBJ_GEOM, geom_a) or f'geom_{geom_a}',
+                'geom_b': name(mj.mjtObj.mjOBJ_GEOM, geom_b) or f'geom_{geom_b}',
+                'body_a': name(mj.mjtObj.mjOBJ_BODY, body_a) or f'body_{body_a}',
+                'body_b': name(mj.mjtObj.mjOBJ_BODY, body_b) or f'body_{body_b}',
+                'normal_force_n': abs(float(wrench[0])), 'position_m': np.asarray(contact.pos).tolist()})
+        contacts.sort(key=lambda item: item['normal_force_n'], reverse=True)
+        return contacts[:24]
+
+    def component_diagnostic_rows():
+        rows = []
+        for source in component_max.values():
+            row = dict(source); observations = []
+            if row['joint_limit_violation']: observations.append('declared_joint_limit_exceeded')
+            if row['force_limit_reached']: observations.append('declared_actuator_force_limit_reached')
+            if row['control_saturated']: observations.append('declared_control_range_saturated')
+            review_threshold = .15 if row['position_unit'] == 'rad' else .02
+            row['tracking_error_review_threshold'] = review_threshold
+            if row['max_tracking_error'] > review_threshold: observations.append('tracking_lag_review')
+            row['status'] = 'attention' if observations else 'no_declared_limit_event_observed'
+            row['observations'] = observations
+            if row['joint_limit_violation']:
+                row['recommendation'] = 'Reduce or re-plan this motion and check the submitted joint range; the model reported a declared limit violation.'
+            elif row['force_limit_reached']:
+                row['recommendation'] = 'Reduce payload or speed and review actuator sizing and controller demand; reaching a model-declared limit is not proof of hardware damage.'
+            elif row['control_saturated']:
+                row['recommendation'] = 'The actuator control reached its declared range; review target, load and controller tuning before changing hardware.'
+            elif 'tracking_lag_review' in observations:
+                row['recommendation'] = 'Tracking error crossed the review threshold; inspect the measured trajectory, load and controller tuning.'
+            else:
+                row['recommendation'] = 'No declared joint or actuator limit event was observed during this trial.'
+            rows.append(row)
+        return rows
+
+    def task_diagnostics():
+        rows = component_diagnostic_rows()
+        findings = [{'severity': 'info', 'code': 'structural_failure_not_modeled',
+            'message': 'Screw fracture, gear damage and material fatigue are not assessed unless the uploaded model supplies explicit components and failure laws.'}]
+        if any(row['joint_limit_violation'] or row['force_limit_reached'] for row in rows):
+            findings.insert(0, {'severity': 'error', 'code': 'declared_limit_event',
+                'message': 'A declared joint or actuator limit was exceeded or reached; inspect the listed components.'})
+        elif any(row['control_saturated'] for row in rows):
+            findings.insert(0, {'severity': 'warning', 'code': 'control_saturation',
+                'message': 'One or more controls reached their configured range; review load and controller targets.'})
+        if task == 'pick_place' and grip_lost:
+            findings.insert(0, {'severity': 'error', 'code': 'grip_lost',
+                'message': 'The measured force-limited fixture lost object retention.'})
+        return findings
 
     def record(phase):
-        if len(frames) >= 64:
-            return
-        frames.append({'seq': len(frames), 'phase': phase, 'time_s': float(data.time),
-                       'positions_m': data.xpos[body_ids].tolist(),
-                       'quaternions_wxyz': data.xquat[body_ids].tolist(),
-                       'object_position_m': data.xpos[object_id].tolist() if object_id >= 0 else None})
+        if len(frames) >= 192: return
+        frame = {'seq': len(frames), 'phase': phase, 'time_s': float(data.time),
+                 'physics_steps': physics_steps, 'positions_m': data.xpos[body_ids].tolist(),
+                 'quaternions_wxyz': data.xquat[body_ids].tolist(),
+                 'object_position_m': data.xpos[object_id].tolist() if object_id >= 0 else None,
+                 'joint_states': joint_diagnostics(), 'contacts': contact_diagnostics()}
+        frames.append(frame)
+        # One-second presentation keeps the visible pose tied to measured state.
+        due = started_wall + max(0., float(data.time-start_time))
+        delay = due-time.monotonic()
+        if delay > 0: time.sleep(min(delay, 1.0))
+        if emit is not None:
+            emit({'type': 'progress', 'frame': frame, 'current_phase': phase,
+                  'completed_steps': physics_steps, 'total_steps': total_steps,
+                  'simulated_seconds': float(data.time-start_time),
+                  'elapsed_wall_seconds': min(120., time.monotonic()-started_wall),
+                  'measurements': {'physics_steps': physics_steps, 'simulated_seconds': float(data.time-start_time),
+                    'terminal_position_m': data.xpos[terminal_id].tolist() if terminal_id >= 0 else None,
+                    'object_position_m': data.xpos[object_id].tolist() if object_id >= 0 else None},
+                  'body_names': body_names, 'body_parent_indices': body_parents,
+                  'component_diagnostics': component_diagnostic_rows(), 'diagnostics': task_diagnostics()})
 
     def finite():
         return bool(np.isfinite(data.qpos).all() and np.isfinite(data.qvel).all()
@@ -93,9 +213,10 @@ def execute_task(model, config, mj, np, sandbox):
         if object_id < 0:
             raise ValueError('static CAD test body is missing')
         start = data.xpos[object_id].copy(); record('static_drop')
-        steps = int(np.ceil(2.0 / model.opt.timestep)); every = max(1, steps // 24)
+        steps = int(np.ceil(2.0 / model.opt.timestep)); every = max(1, steps // 20)
         for step in range(steps):
             mj.mj_step(model, data)
+            physics_steps += 1
             if (step + 1) % every == 0:
                 record('static_drop')
         speed = float(np.linalg.norm(data.cvel[object_id, :3]))
@@ -107,6 +228,12 @@ def execute_task(model, config, mj, np, sandbox):
                                  'vertical_drop_m': drop, 'final_linear_speed_m_s': speed,
                                  'final_position_m': data.xpos[object_id].tolist()},
                 'body_names': body_names, 'body_parent_indices': body_parents, 'frames': frames,
+                'completed_steps': physics_steps, 'total_steps': steps,
+                'simulated_seconds': float(data.time-start_time),
+                'elapsed_wall_seconds': min(120., time.monotonic()-started_wall),
+                'component_diagnostics': [],
+                'diagnostics': [{'severity': 'info', 'code': 'static_geometry_only',
+                    'message': 'A static mesh drop cannot identify screw, gear, actuator or fatigue failures.'}],
                 'effective_config': config,
                 'scope': 'Real MuJoCo rigid-body drop and collision trial of the uploaded CAD mesh convex hull. Static CAD contains no joints or actuators, so this result does not validate robot kinematics or control.'}
 
@@ -120,6 +247,7 @@ def execute_task(model, config, mj, np, sandbox):
         if position:
             supported.append((actuator_id, joint_id, int(model.jnt_dofadr[joint_id]), int(model.jnt_qposadr[joint_id])))
             data.ctrl[actuator_id] = data.qpos[model.jnt_qposadr[joint_id]]
+            target_qpos_by_joint[joint_id] = float(data.qpos[model.jnt_qposadr[joint_id]])
     if not supported:
         return {'schema_version': 'vivacity.robot-task-trial/1.0', 'status': 'failed', 'task': task,
                 'failure_class': 'unactuated', 'measurements': {'physics_steps': 0},
@@ -134,6 +262,7 @@ def execute_task(model, config, mj, np, sandbox):
         desired.qpos[:] = target_qpos; desired.qvel[:] = 0
         mj.mj_forward(model, desired)
         for actuator_id, _joint_id, dof, qadr in supported:
+            target_qpos_by_joint[_joint_id] = float(target_qpos[qadr])
             gain = float(model.actuator_gainprm[actuator_id, 0])
             value = float(target_qpos[qadr] + desired.qfrc_bias[dof] / max(gain, 1e-9))
             if model.actuator_ctrllimited[actuator_id]:
@@ -163,7 +292,6 @@ def execute_task(model, config, mj, np, sandbox):
             mj.mj_forward(model, planning)
         return planning.qpos.copy(), float(np.linalg.norm(np.asarray(target)-planning.xpos[terminal_id]))
 
-    physics_steps = 0
     grip_lost = False
     peak_grip_force = 0.
     grip_offset = np.array([0., 0., float(config['object_half_size_m'][2]) + .038])
@@ -171,7 +299,7 @@ def execute_task(model, config, mj, np, sandbox):
         nonlocal physics_steps, grip_lost, peak_grip_force
         target_qpos, planned_error = plan(target)
         set_targets(target_qpos)
-        steps = int(np.ceil(duration / model.opt.timestep)); every = max(1, steps // 8)
+        steps = int(np.ceil(duration / model.opt.timestep)); every = max(1, steps // 20)
         for step in range(steps):
             # Apply the visible test fixture through generalized forces so its
             # equal-and-opposite load passes through the submitted mechanism.
@@ -256,9 +384,16 @@ def execute_task(model, config, mj, np, sandbox):
                         'placement_error_m': placement_error, 'object_displacement_m': moved,
                         'peak_grip_force_n': peak_grip_force, 'grip_lost': grip_lost,
                         'waypoint_errors_m': [list(pair) for pair in results]}
+    component_diagnostics = component_diagnostic_rows()
+    diagnostics = task_diagnostics()
     return {'schema_version': 'vivacity.robot-task-trial/1.0', 'status': 'succeeded' if success else 'failed',
             'task': task, 'failure_class': failure, 'measurements': measurements,
             'body_names': body_names, 'body_parent_indices': body_parents, 'frames': frames,
+            'component_diagnostics': component_diagnostics, 'diagnostics': diagnostics,
+            'completed_steps': physics_steps, 'total_steps': physics_steps,
+            'current_phase': frames[-1]['phase'] if frames else None,
+            'simulated_seconds': float(data.time-start_time),
+            'elapsed_wall_seconds': min(120., time.monotonic()-started_wall),
             'effective_config': config,
             'scope': ('Real MuJoCo task execution with submitted joints, bodies, collisions and supported position actuators. '
                       + ('The visible Vivacity force fixture applies equal, force-limited Cartesian grip forces; it does not validate an uploaded gripper. '
@@ -310,7 +445,7 @@ def restrict_linux():
         raise ValueError('native sandbox installation failed')
 
 
-def probe(request):
+def probe(request, emit=None):
     # Imports and dynamic libraries are resolved before filesystem access closes.
     import mujoco as mj
     import numpy as np
@@ -349,7 +484,7 @@ def probe(request):
     data = mj.MjData(model)
     mj.mj_forward(model, data)
     if task_config is not None:
-        return execute_task(model, task_config, mj, np, sandbox)
+        return execute_task(model, task_config, mj, np, sandbox, emit=emit)
     name = lambda kind, i: mj.mj_id2name(model, kind, i)
     joints = [{'name': name(mj.mjtObj.mjOBJ_JOINT, i),
                'type': int(model.jnt_type[i]), 'range': model.jnt_range[i].tolist(),
@@ -547,8 +682,12 @@ if __name__ == '__main__':
         raw = sys.stdin.buffer.read(48 * 1024**2 + 1)
         if len(raw) > 48 * 1024**2:
             raise ValueError('worker input exceeds bound')
-        result = probe(json.loads(raw))
-        print(json.dumps({'ok': True, 'result': result}, allow_nan=False))
+        request = json.loads(raw)
+        streaming = request.get('task_config') is not None
+        result = probe(request, emit=(lambda event: print(json.dumps(event, allow_nan=False), flush=True)) if streaming else None)
+        print(json.dumps({'type': 'result', 'ok': True, 'result': result} if streaming
+                         else {'ok': True, 'result': result}, allow_nan=False), flush=True)
     except Exception as exc:
-        print(json.dumps({'ok': False, 'error': str(exc)[:700]}))
+        response = {'type': 'result', 'ok': False, 'error': str(exc)[:700]} if 'streaming' in locals() and streaming else {'ok': False, 'error': str(exc)[:700]}
+        print(json.dumps(response), flush=True)
         sys.exit(1)
