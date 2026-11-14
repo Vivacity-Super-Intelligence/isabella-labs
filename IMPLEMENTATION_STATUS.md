@@ -26,20 +26,29 @@ The full Linux deployment-image run [43636188713](https://github.com/Vivacity-Su
 
 Render deployment `dep-dbsc490ae00c73d5mvm0` is **live** on source commit
 `02da7dcd8fc6b4b06594a1aebf97c25ce8b6169f`. Vercel deployment
-`dpl_1Ddq9WRf7n7aXiermLza2V2k8vTQ` is aliased to
+`dpl_J1rMvcAxXoB4hrKgz3MpyGF9dqno` is aliased to
 `https://demo.tryvivacity.com`. The direct production API smoke run uploaded the
 sample arm, executed 300 real MuJoCo steps, received 20 frames with frames
 arriving during the task, and verified scene/mesh owner isolation. The public
 `/runtime` proxy smoke run passed with 18 frames and the same 300-step task.
 Production desktop/mobile Playwright journeys passed **2/2**: live frame
 arrival, finding selection, sample elbow highlight and explicit replay control.
-The production screenshot was inspected. The first public-proxy smoke run
+The frontend now interpolates each live body pose for at most 90 ms between
+two received poses, then freezes at the measured endpoint. The revised
+production journey passed **2/2**. The production screenshot was inspected.
+The first public-proxy smoke run
 missed the brief running window before its first poll; the repeated run and
 browser journey observed live frames. A short task can finish before a slow
 client's first poll; this remains a known timing limitation, not a fabricated
 progress state. Reproduce with `python scripts/verify_live_import.py --base-url
 https://demo.tryvivacity.com/runtime` and, from `frontend/`,
 `npx playwright test --config playwright.production-import.config.ts`.
+
+Additional public requests executed a rigid tetrahedral OBJ drop for 500
+MuJoCo steps and measured 0.973 m vertical travel. A guided two-mesh ZIP
+assembly compiled and completed a 300-step movement trial with 0.0895 joint
+displacement norm. A three-vertex GLB preview was correctly rejected for
+rigid-body physics because it did not meet MuJoCo's mesh requirements.
 
 A platform-sensitive gantry fixture demonstrated why
 task verdicts must remain measured: one Linux run moved the object but settled

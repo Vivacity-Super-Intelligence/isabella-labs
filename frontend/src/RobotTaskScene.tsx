@@ -1,7 +1,8 @@
-import {useEffect,useMemo,useRef,useState} from 'react';
-import {Canvas,useThree} from '@react-three/fiber';
+import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
+import type {ReactNode} from 'react';
+import {Canvas,useFrame,useThree} from '@react-three/fiber';
 import {OrbitControls} from '@react-three/drei';
-import {BufferAttribute,BufferGeometry,Color,Quaternion,SRGBColorSpace,Vector3} from 'three';
+import {BufferAttribute,BufferGeometry,Color,Group,Quaternion,SRGBColorSpace,Vector3} from 'three';
 import type {components} from './generated/api';
 import {API} from './api';
 import {workspaceToken} from './workspaceApi';
@@ -50,6 +51,37 @@ function CameraRig({target,distance}:{target:Vec3;distance:number}){
   camera.updateProjectionMatrix();invalidate();
  },[camera,invalidate,target[0],target[1],target[2],distance]);
  return null;
+}
+
+function BodyPose({name,position,rotation,live,children}:{name:string;position:Vec3;rotation:number[];live:boolean;children:ReactNode}){
+ const {invalidate}=useThree();
+ const group=useRef<Group>(null),initialized=useRef(false),active=useRef(false);
+ const fromPosition=useRef(new Vector3()),toPosition=useRef(new Vector3());
+ const fromRotation=useRef(new Quaternion()),toRotation=useRef(new Quaternion());
+ const started=useRef(0);
+ useLayoutEffect(()=>{
+  if(!group.current)return;
+  const destination=new Vector3(...position),orientation=quaternion(rotation);
+  if(!live||!initialized.current){
+   group.current.position.copy(destination);group.current.quaternion.copy(orientation);
+   active.current=false;initialized.current=true;
+  }else{
+   fromPosition.current.copy(group.current.position);fromRotation.current.copy(group.current.quaternion);
+   toPosition.current.copy(destination);toRotation.current.copy(orientation);
+   started.current=performance.now();active.current=true;
+  }
+  invalidate();
+ },[position[0],position[1],position[2],rotation[0],rotation[1],rotation[2],rotation[3],live,invalidate]);
+ useFrame(()=>{
+  if(!active.current||!group.current)return;
+  // Only interpolate between poses already delivered by the server. Once the
+  // target is reached, demand rendering stops and a stalled feed stays still.
+  const fraction=Math.min(1,(performance.now()-started.current)/90);
+  group.current.position.lerpVectors(fromPosition.current,toPosition.current,fraction);
+  group.current.quaternion.copy(fromRotation.current).slerp(toRotation.current,fraction);
+  if(fraction<1)invalidate();else active.current=false;
+ });
+ return <group ref={group} name={name}>{children}</group>;
 }
 
 function SceneGeom({geom,geometry,stressed,selected,collision}:{geom:Geom;geometry?:BufferGeometry;stressed:boolean;selected:boolean;collision:boolean}){
@@ -147,14 +179,15 @@ export default function RobotTaskScene({importId,trial,frame,selectedJoint,onCle
       const position=body.id===0?[0,0,0]:frame.positions_m[body.id-1];
       const rotation=body.id===0?[1,0,0,0]:frame.quaternions_wxyz[body.id-1];
       if(!position||!rotation)return null;
-      return <group key={body.id} name={body.name} position={position as Vec3} quaternion={quaternion(rotation)}>
+      return <BodyPose key={body.id} name={body.name} position={position as Vec3} rotation={rotation}
+       live={trial.status==='running'&&!selectedJoint}>
       {bodyGeoms.map(geom=><group key={geom.id}>
        {geom.group!==3||!collision?<SceneGeom geom={geom} geometry={geom.mesh_id==null?undefined:meshes.get(geom.mesh_id)}
         stressed={stressed.has(body.id)} selected={body.id===selectedBody} collision={false}/>:null}
        {collision&&(geom.contype!==0||geom.conaffinity!==0)&&<SceneGeom geom={geom} geometry={geom.mesh_id==null?undefined:meshes.get(geom.mesh_id)}
         stressed={false} selected={false} collision={true}/>}
       </group>)}
-      </group>;
+      </BodyPose>;
      })}
      {trial.task!=='static_drop'&&<mesh position={scene.destination_position_m} rotation={[0,0,0]}><torusGeometry args={[.045,.005,8,32]}/><meshBasicMaterial color="#f44f48"/></mesh>}
      <OrbitControls makeDefault target={viewTarget} minDistance={.25} maxDistance={Math.max(5,framing.distance*3)}/>
