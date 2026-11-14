@@ -149,6 +149,10 @@ def test_saved_pre_mode_import_keeps_its_original_mount_semantics(tmp_path):
     payload['record']['test_cell'].pop('base_mode')
     service._save(payload)
     assert service._load(imported['id'])['record']['test_cell']['base_mode'] == 'legacy_source'
+    revised = service.configure_test_cell(imported['id'], RobotTestCellConfig(
+        environment='tabletop', task='reach', gripper='none', base_mode='legacy_source',
+        pickup_position_m=[.45,-.15,.45]))
+    assert revised['test_cell']['base_mode'] == 'legacy_source'
 
 
 def test_unsupported_placement_mode_is_rejected_at_api_boundary(tmp_path):
@@ -159,6 +163,9 @@ def test_unsupported_placement_mode_is_rejected_at_api_boundary(tmp_path):
         identifier = response.json()['id']
         invalid = client.put(f'/v1/imports/{identifier}/test-cell', json={'base_mode': 'magnetic_levitation'})
         assert invalid.status_code == 422
+        legacy = client.put(f'/v1/imports/{identifier}/test-cell', json={'base_mode': 'legacy_source'})
+        assert legacy.status_code == 422
+        assert 'saved pre-mode' in legacy.json()['detail']
 
 
 def test_guided_two_mesh_assembly_compiles_and_moves_in_mujoco(tmp_path,monkeypatch):

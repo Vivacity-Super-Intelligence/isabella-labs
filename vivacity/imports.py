@@ -362,6 +362,9 @@ class ImportService:
         with self.lock:
             payload = self._load(identifier); record = payload['record']
             value = config.model_dump(mode='json')
+            if (value['base_mode'] == 'legacy_source'
+                    and (record.get('test_cell') or {}).get('base_mode') != 'legacy_source'):
+                raise ValueError('legacy_source placement is reserved for saved pre-mode configurations')
             if payload.get('source') is None and payload.get('preview') is not None and value['task'] != 'static_drop':
                 raise ValueError('static CAD has no joints or actuators; choose static_drop or upload an MJCF robot')
             if payload.get('source') is not None and value['task'] == 'static_drop':
