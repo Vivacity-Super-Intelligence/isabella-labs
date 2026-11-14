@@ -80,10 +80,27 @@ def test_gltf_external_refs_cycles_bounds_and_upload_limits(tmp_path):
 def test_real_http_upload_preview_error_and_restart(tmp_path):
     database=tmp_path/'demo.sqlite3'
     with TestClient(create_app(database)) as client:
+        client.headers.update({'X-Workspace-Token':'a'*64})
         response=client.post('/v1/imports?filename=scene.glb',content=glb(),headers={'Content-Type':'application/octet-stream'})
         assert response.status_code==201,response.text
         record=response.json();preview=client.get(f'/v1/imports/{record["id"]}/preview')
         assert preview.status_code==200 and preview.json()['positions'][0]==[2,0,0]
         assert client.post('/v1/imports?filename=bad.glb',content=b'broken').status_code==422
         assert client.get('/v1/imports/missing').status_code==404
-    with TestClient(create_app(database)) as client:assert client.get(f'/v1/imports/{record["id"]}').json()==record
+    with TestClient(create_app(database)) as client:
+        client.headers.update({'X-Workspace-Token':'a'*64})
+        assert client.get(f'/v1/imports/{record["id"]}').json()==record
+
+
+def test_direct_import_and_scene_assets_require_the_creating_workspace_capability(tmp_path):
+    with TestClient(create_app(tmp_path/'owner.sqlite3')) as client:
+        token='a'*64
+        denied=client.post('/v1/imports?filename=scene.glb',content=glb())
+        assert denied.status_code==422
+        uploaded=client.post('/v1/imports?filename=scene.glb',content=glb(),
+                             headers={'X-Workspace-Token':token})
+        assert uploaded.status_code==201,uploaded.text
+        identifier=uploaded.json()['id']
+        assert client.get(f'/v1/imports/{identifier}',headers={'X-Workspace-Token':'b'*64}).status_code==403
+        assert client.get(f'/v1/imports/{identifier}/preview',headers={'X-Workspace-Token':'b'*64}).status_code==403
+        assert client.get(f'/v1/imports/{identifier}',headers={'X-Workspace-Token':token}).status_code==200

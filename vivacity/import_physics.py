@@ -1,5 +1,6 @@
 """Only validated in-memory model data crosses the native-process boundary."""
 import base64
+import hashlib
 import json
 import os
 from pathlib import PurePosixPath, Path
@@ -13,6 +14,7 @@ import xml.etree.ElementTree as ET
 from .imports import inspect_xml, safe_name
 
 ORBITAL_SHA256 = '6d623c9fbd7aa337b195282f55dbbcc83432ffad69a95090dde2a831a4763354'
+SAMPLE_ARM_SHA256 = '5e504672e539b5778c4df36022c54d8386097c070961959d1cb275bbac30aab8'
 
 
 def _run_native_worker(source, source_sha256, task_config=None, on_progress=None):
@@ -42,9 +44,12 @@ def _run_native_worker(source, source_sha256, task_config=None, on_progress=None
             if key in node.attrib:
                 if node.attrib[key] not in assets:
                     raise ValueError('native asset must exist in the scoped in-memory bundle')
-    trusted = source_sha256 == ORBITAL_SHA256
+    trusted = (source_sha256 == ORBITAL_SHA256 or
+               (not sys.platform.startswith('linux') and not assets and
+                source_sha256 == SAMPLE_ARM_SHA256 and
+                hashlib.sha256(content).hexdigest() == SAMPLE_ARM_SHA256))
     if not sys.platform.startswith('linux') and not trusted:
-        raise ValueError('untrusted native execution requires the Linux sandbox; only the exact supplied fixture is enabled on this development host')
+        raise ValueError('untrusted native execution requires the Linux sandbox; only exact bundled fixtures are enabled on this development host')
     environment = {key: os.environ[key] for key in ('SYSTEMROOT', 'WINDIR') if key in os.environ}
     environment |= {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'MKL_NUM_THREADS': '1', 'PYTHONIOENCODING': 'utf-8'}
     payload = {'xml': base64.b64encode(content).decode(),
@@ -98,7 +103,7 @@ def _run_native_worker(source, source_sha256, task_config=None, on_progress=None
                     message = json.loads(value)
                 except (ValueError, TypeError, UnicodeError):
                     process.kill(); raise ValueError('native probe returned an invalid bounded response') from None
-                if message.get('type') == 'progress':
+                if message.get('type') in ('progress', 'scene'):
                     if on_progress is not None:
                         on_progress(message)
                 elif message.get('type') == 'result' or 'ok' in message:

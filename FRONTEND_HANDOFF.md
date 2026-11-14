@@ -639,4 +639,47 @@ Download version `vivacity.branch/1.0` includes experiment/branch IDs, world typ
 
 ## Remaining limitations
 
-Pickup uses pose DLS and joint-space RRT with measured contact validation in the supported workcells; general robot robustness is not established. All-paths-fail remains honest. Cloth uses a fixed hinge and pre-attached folding fixture without autonomous grasp acquisition. Scientific Discovery is retired. Imports support visual inspection, explicitly requested bounded native probes and the trusted Orbital adaptation; generic imported task control is incomplete. Public standalone worlds/imports have no account authentication or retention quota. Render Free limits and measured evidence are in `docs/HOSTING_STATUS.md`: eight pickup trials maximum, constrained CPU, ephemeral SQLite and possible cold starts.
+Pickup uses pose DLS and joint-space RRT with measured contact validation in the supported workcells; general robot robustness is not established. All-paths-fail remains honest. Cloth uses a fixed hinge and pre-attached folding fixture without autonomous grasp acquisition. Scientific Discovery is retired. Imports now support bounded native movement, reach, fixture-assisted pick/place and rigid CAD drop trials; they do not validate arbitrary uploaded hardware or a general manipulation controller. New direct imports use workspace capabilities, but there is no account authentication or retention quota and older standalone records need migration. Render Free limits and measured evidence are in `docs/HOSTING_STATUS.md`: eight pickup trials maximum, constrained CPU, ephemeral SQLite and possible cold starts.
+
+## Live uploaded-robot workcell contract (release candidate)
+
+`/import` now stages a submitted MJCF/XML, eligible URDF, STL, OBJ, GLB, GLTF, or ZIP bundle. Upload inspection has no task verdict. A visitor explicitly configures a test cell and starts a bounded native MuJoCo trial. The UI requests real scene geometry and measured frames from **the same compiled task model**. This section describes the integrated source; verify the target deployment before treating it as a production contract.
+
+Every direct import request uses `X-Workspace-Token: <workspace capability>`; this applies to the upload, record, preview, configuration, trial, scene, and mesh routes. The capability is generated and kept by `frontend/src/workspaceApi.ts`. Existing imports predating owner binding need a migration before they can be treated as private. No user account authentication is supplied.
+
+| Method and route | Payload or result |
+| --- | --- |
+| `POST /v1/imports?filename=vivacity-sample-arm.xml` | Raw file bytes, `Content-Type: application/octet-stream`; 201 `ImportResponse` with `id`, inspected summary and no verdict. 16 MiB maximum. |
+| `GET /v1/imports/{id}` | Current `ImportResponse`, including optional `assembly_draft`, `test_cell` and `task_trial`. |
+| `GET /v1/imports/{id}/preview` | Bounded static CAD triangles for visual inspection. |
+| `PUT /v1/imports/{id}/assembly-draft` | Versioned `AssemblyDraft`; saves a guided link tree for a ZIP with at least two CAD meshes. Does not compile or run it. |
+| `POST /v1/imports/{id}/assembly-compile` | Compiles the mapped model in the isolated worker and runs the initial bounded probe. Returns `assembly_status: "compiled"` or an error. |
+| `PUT /v1/imports/{id}/test-cell` | `RobotTestCellConfig`; chooses environment, task, base offset, end-effector, pickup/destination, object dimensions/mass/friction, and optional force-limited Vivacity test fixture. Clears old scene/trial. |
+| `POST /v1/imports/{id}/task-trials` | 202 with a new `task_trial.id` and `status: "task_running"`. This is the only operation that begins the configured task. |
+| `GET /v1/imports/{id}/task-trials/{trial_id}/frames?after=-1&limit=16` | Ordered measured frames, `next_cursor`, partial measurements, phase, steps and status. Poll until terminal; deduplicate by frame `seq`. |
+| `GET /v1/imports/{id}/task-trials/{trial_id}/scene` | `vivacity.import-scene/1.0` manifest from the compiled model, available when the worker emits its scene. |
+| `GET /v1/imports/{id}/task-trials/{trial_id}/meshes.bin` | Owner-scoped binary vertex/index data for the same scene; `application/octet-stream`, private/no-store. |
+
+Configure sample movement:
+
+```json
+{"name":"Sample elbow load","environment":"tabletop","task":"movement","end_effector_body":"tool","robot_base_offset_m":[0,0,0],"gripper":"vivacity_force_fixture","gripper_strength_n":40,"pickup_position_m":[0.45,-0.15,0.08],"destination_position_m":[0.45,0.18,0.08],"object_half_size_m":[0.03,0.03,0.03],"object_mass_kg":0.08,"sliding_friction":0.8,"cad_longest_dimension_m":0.6}
+```
+
+The downloadable sample is `frontend/public/samples/vivacity-sample-arm.xml`. It is a **custom three-hinge test arm**, separate from the Physical Experiments library. Its elbow has a declared 0.8 N·m effort limit so a measured actuator-limit finding can be inspected. It is not a model of manufactured hardware.
+
+The scene uses a right-handed Z-up, metre coordinate system. `bodies` and `geoms` have stable MuJoCo IDs; `body_id:0` denotes the fixed world. Body transforms in each frame are **world** transforms: `frame.positions_m[body_id - 1]` and `frame.quaternions_wxyz[body_id - 1]` for non-world bodies. Each geom has a body-local `position`, `quaternion_wxyz`, `size`, `rgba`, `group`, collision masks and optional `mesh_id`. In Three.js use flat body groups with world poses, then add local geom transforms; reorder WXYZ to XYZW. The manifest `model_hash` hashes the augmented model XML, its assets and MuJoCo version. It is an identity for this scene source, not an MJB checksum.
+
+`meshes.bin` contains little-endian tightly packed `float32` XYZ vertex positions and `uint32` triangle indices. `scene.meshes[]` gives byte offsets and scalar counts for `positions` and `indices`; no header or padding is present. Reject an out-of-bounds offset before constructing typed arrays. The compiled geometry is capped at 64 non-world bodies, 256 geoms/meshes, 128 joints and 6 MiB of mesh bytes; over-limit models fail explicitly.
+
+An illustrative frame finding has the following fields (actual values depend on the run):
+
+```json
+{"code":"actuator_force_limit","severity":"warning","frame_seq":12,"time_s":0.72,"body_id":4,"joint":"elbow_flex","actuator":"elbow_motor","measured_value":0.8,"limit_value":0.8,"unit":"N·m","next_check":"Reduce payload or speed and review actuator sizing."}
+```
+
+Select a finding to focus its `body_id` in the 3D workcell and jump to the recorded peak frame. A body turns translucent red at **70% opacity only on frames** where a declared joint/control/effort limit is reached, or measured actuator effort is at least 95% of its declared limit. This signals a simulation limit, not physical damage. The collision overlay is separately selectable. The UI may show a frame only after the backend sends it; a stall holds the latest measured frame. Replay is explicit.
+
+CAD paths are distinct. A single STL/OBJ/GLB/GLTF is a rigid body and supports a gravity/collision drop, not an invented moving arm. A ZIP with separate meshes can be mapped to a bounded link tree (part, parent, hinge/slide/fixed joint, axis, limits, mass, dimension and test-actuator effort). A successfully compiled draft may then run movement/reach tasks; supplied mesh geometry alone does not establish true joints, gripper force, screw failure or hardware suitability. Eligible URDF joints with declared effort/range receive explicitly labeled **Vivacity test actuators** for this workcell. Models without a usable actuator fail a movement task honestly.
+
+Frontend connection: `frontend/src/ImportWorld.tsx` owns upload, configuration, polling and recovery; `frontend/src/AssemblyDesigner.tsx` owns guided mapping; `frontend/src/RobotTaskTrace.tsx` presents measurements and replay; `frontend/src/RobotTaskScene.tsx` renders scene/body bindings and frame-specific load warnings. Generated response types are in `frontend/src/generated/api.d.ts`; export OpenAPI with `python -m scripts.export_openapi` and regenerate types with `npm run generate:api` in `frontend` after schema changes. Render/Vercel must run compatible commits; the current Render Free tier cannot promise durable uploads or uninterrupted trials.

@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2]
+        shard: [0, 1, 2, 3, 4, 5]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -32,18 +32,29 @@ jobs:
           from pathlib import Path
           files=sorted(Path('tests').glob('test_*.py'))
           shard=${{ matrix.shard }}
-          selected=[f'/app/{path.as_posix()}' for index,path in enumerate(files) if index%3==shard]
+          selected=[f'/app/{path.as_posix()}' for index,path in enumerate(files) if index%6==shard]
           assert selected
           print(' '.join(selected))
           PY
           )
-          docker run --rm -v "$PWD/tests:/app/tests:ro" -v "$PWD/artifacts:/verification" vivacity-runtime:verification python -m pytest $TEST_FILES -q --junitxml=/verification/backend-linux-${{ matrix.shard }}.xml
+          # Each file gets a fresh Python process. MuJoCo models, video arrays,
+          # and graphics contexts otherwise accumulate across unrelated files
+          # and the full-image run can be killed by the runner (exit 137).
+          index=0
+          failed=0
+          for test_file in $TEST_FILES; do
+            if ! docker run --rm -v "$PWD/tests:/app/tests:ro" -v "$PWD/artifacts:/verification" vivacity-runtime:verification python -m pytest "$test_file" -vv --tb=short --junitxml="/verification/backend-linux-${{ matrix.shard }}-$index.xml"; then
+              failed=1
+            fi
+            index=$((index + 1))
+          done
+          exit "$failed"
       - name: Upload executed test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-linux-verification-${{ matrix.shard }}
-          path: artifacts/backend-linux-${{ matrix.shard }}.xml
+          path: artifacts/backend-linux-${{ matrix.shard }}-*.xml
       - name: Execute all labs within the free host memory limit
         if: matrix.shard == 0
         run: |

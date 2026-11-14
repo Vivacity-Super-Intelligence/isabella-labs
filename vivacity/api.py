@@ -6,7 +6,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Res
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
 from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport, WorldEditorResponse, EditorChange, EditorGeometryAction, EditorMove, WorldVersion, RestoreWorldVersion
-from .schemas import ImportResponse,ImportPreview,RobotTestCellConfig,RobotTaskFramesResponse
+from .schemas import ImportResponse,ImportPreview,RobotTestCellConfig,RobotTaskFramesResponse,ImportSceneManifest,AssemblyDraft
 from .schemas import SessionRequest,SessionResponse,LiveState,TrialsResponse
 from .imports import ImportService,MAX_UPLOAD
 from pathlib import Path
@@ -55,6 +55,9 @@ def create_app(database=None):
             world_id=runtime.get_experiment(parts[2])['world_id']
         elif parts[1]=='imports':
             from .workspace import owner
+            import_owner=runtime.imports.owner_hash(parts[2])
+            if import_owner and owner(request.headers.get('x-workspace-token','')) != import_owner:
+                raise HTTPException(403,'workspace capability required for this imported asset')
             with runtime.store.connect() as db:
                 owners=db.execute("SELECT DISTINCT owner FROM library_items WHERE (kind='staged_import' AND id=?) OR (kind='world' AND json_extract(payload,'$.import_id')=?)",(parts[2],parts[2])).fetchall()
             if owners and owner(request.headers.get('x-workspace-token','')) not in {r[0] for r in owners}:
@@ -68,7 +71,7 @@ def create_app(database=None):
                   dependencies=[Depends(authorize_request)],
                   description='Versioned experiment runtime: MuJoCo robotics and bounded SciPy orbital-inference experiments. Branches retain measured results and numerical failures. Single-process demo.')
     origins = [o.strip() for o in os.getenv('VIVACITY_CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if o.strip()]
-    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token','X-Workspace-Token'])
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=['GET', 'POST', 'PUT', 'PATCH'], allow_headers=['Content-Type', 'Idempotency-Key','X-Session-Token','X-Workspace-Token'])
     from .workspace_api import router
     app.include_router(router)
     from .viva_agent_api import router as viva_agent_router
@@ -253,13 +256,15 @@ def create_app(database=None):
         except WebSocketDisconnect:return
 
     @app.post('/v1/imports',response_model=ImportResponse,status_code=201)
-    async def import_world(request:Request,filename:str=Query(min_length=1,max_length=180)):
+    async def import_world(request:Request,
+                           x_workspace_token: Annotated[str,Header(alias='X-Workspace-Token',min_length=32,max_length=128,pattern=r'^[A-Za-z0-9_-]+$')],
+                           filename:str=Query(min_length=1,max_length=180)):
         chunks=[];length=0
         async for chunk in request.stream():
             length+=len(chunk)
             if length>MAX_UPLOAD:raise ValueError('upload exceeds 16 MiB')
             chunks.append(chunk)
-        return await asyncio.to_thread(app.state.imports.create,filename,b''.join(chunks))
+        return await asyncio.to_thread(app.state.imports.create,filename,b''.join(chunks),False,x_workspace_token)
 
     @app.get('/v1/imports/{import_id}',response_model=ImportResponse)
     def imported_world(import_id:str):return app.state.imports.get(import_id)
@@ -281,6 +286,16 @@ def create_app(database=None):
         """Stage an uploaded mechanism or CAD mesh in a bounded MuJoCo test cell."""
         return app.state.imports.configure_test_cell(import_id, request)
 
+    @app.put('/v1/imports/{import_id}/assembly-draft',response_model=ImportResponse)
+    def stage_import_assembly(import_id:str, request:AssemblyDraft):
+        """Validate and save a bounded link/joint/mass mapping for separate CAD meshes."""
+        return app.state.imports.stage_assembly_draft(import_id, request)
+
+    @app.post('/v1/imports/{import_id}/assembly-compile',response_model=ImportResponse)
+    async def compile_import_assembly(import_id:str):
+        """Compile the mapped CAD assembly in the isolated MuJoCo worker."""
+        return await asyncio.to_thread(app.state.imports.compile_assembly, import_id)
+
     @app.post('/v1/imports/{import_id}/task-trials',response_model=ImportResponse,status_code=202)
     def run_import_task_trial(import_id:str):
         """Execute the explicitly configured task; upload inspection is never a task verdict."""
@@ -290,6 +305,16 @@ def create_app(database=None):
     def import_task_trial_frames(import_id:str,trial_id:str,after:int=Query(-1,ge=-1,le=1000),limit:int=Query(16,ge=1,le=16)):
         """Read authoritative, ordered MuJoCo frames and partial measured diagnostics."""
         return app.state.imports.task_trial_frames(import_id,trial_id,after,limit)
+
+    @app.get('/v1/imports/{import_id}/task-trials/{trial_id}/scene',response_model=ImportSceneManifest)
+    def import_task_trial_scene(import_id:str,trial_id:str):
+        """Geometry and body bindings from the same compiled model as the task."""
+        return app.state.imports.task_trial_scene(import_id,trial_id)
+
+    @app.get('/v1/imports/{import_id}/task-trials/{trial_id}/meshes.bin')
+    def import_task_trial_meshes(import_id:str,trial_id:str):
+        return Response(content=app.state.imports.task_trial_scene(import_id,trial_id,mesh=True),
+                        media_type='application/octet-stream',headers={'Cache-Control':'private, no-store'})
 
     @app.post('/v1/imports/{import_id}/configure-task',response_model=ImportResponse)
     def configure_import_task(import_id:str):

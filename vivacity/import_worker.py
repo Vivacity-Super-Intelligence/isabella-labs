@@ -6,12 +6,66 @@ can be opened afterward. Windows is restricted to the exact trusted fixture.
 """
 import base64
 import ctypes
+import hashlib
 import json
 import os
 import platform
 import sys
 import time
 import xml.etree.ElementTree as ET
+
+
+def compiled_scene(model, xml, assets, mj, np, config):
+    """Export the exact compiled geoms used by the running MuJoCo trial."""
+    if model.nbody > 65 or model.ngeom > 256 or model.nmesh > 256 or model.njnt > 128:
+        raise ValueError('task model exceeds the visible workcell limit of 64 bodies, 256 geoms or meshes, and 128 joints')
+    binary = bytearray()
+    meshes = []
+    for mesh_id in range(model.nmesh):
+        vertex_start, vertex_count = int(model.mesh_vertadr[mesh_id]), int(model.mesh_vertnum[mesh_id])
+        face_start, face_count = int(model.mesh_faceadr[mesh_id]), int(model.mesh_facenum[mesh_id])
+        vertices = np.asarray(model.mesh_vert[vertex_start:vertex_start + vertex_count], dtype='<f4')
+        faces = np.asarray(model.mesh_face[face_start:face_start + face_count], dtype='<u4')
+        position_offset = len(binary)
+        binary.extend(vertices.tobytes())
+        index_offset = len(binary)
+        binary.extend(faces.tobytes())
+        meshes.append({'id': mesh_id, 'positions': {'byte_offset': position_offset, 'count': vertex_count * 3},
+                       'indices': {'byte_offset': index_offset, 'count': face_count * 3}})
+        if len(binary) > 6 * 1024 * 1024:
+            raise ValueError('compiled visual mesh exceeds the 6 MiB workcell display limit')
+    supported = {'box', 'plane', 'cylinder', 'capsule', 'sphere', 'ellipsoid', 'mesh'}
+    geoms = []
+    for geom_id in range(model.ngeom):
+        kind = mj.mjtGeom(int(model.geom_type[geom_id])).name.removeprefix('mjGEOM_').lower()
+        if kind not in supported:
+            raise ValueError(f'compiled visual geom type {kind} is not supported by the workcell viewer')
+        material_id = int(model.geom_matid[geom_id])
+        rgba = model.mat_rgba[material_id] if material_id >= 0 else model.geom_rgba[geom_id]
+        geoms.append({'id': geom_id, 'name': mj.mj_id2name(model, mj.mjtObj.mjOBJ_GEOM, geom_id) or f'geom_{geom_id}',
+                      'body_id': int(model.geom_bodyid[geom_id]), 'type': kind,
+                      'group': int(model.geom_group[geom_id]),
+                      'mesh_id': int(model.geom_dataid[geom_id]) if kind == 'mesh' else None,
+                      'position': model.geom_pos[geom_id].tolist(),
+                      'quaternion_wxyz': model.geom_quat[geom_id].tolist(),
+                      'size': model.geom_size[geom_id].tolist(), 'rgba': rgba.tolist(),
+                      'contype': int(model.geom_contype[geom_id]),
+                      'conaffinity': int(model.geom_conaffinity[geom_id])})
+    digest = hashlib.sha256(xml.encode())
+    for asset_name, content in sorted(assets.items()):
+        digest.update(asset_name.encode()); digest.update(hashlib.sha256(content).digest())
+    digest.update(mj.__version__.encode())
+    manifest = {'schema_version': 'vivacity.import-scene/1.0', 'source': 'compiled_mujoco_model',
+                'simulator_version': mj.__version__, 'model_hash': digest.hexdigest(),
+                'coordinates': 'right-handed Z-up meters; quaternions wxyz',
+                'mesh_buffer': 'meshes.bin', 'byte_order': 'little-endian',
+                'bodies': [{'id': i, 'name': mj.mj_id2name(model, mj.mjtObj.mjOBJ_BODY, i) or f'body_{i}',
+                            'parent_id': int(model.body_parentid[i])} for i in range(model.nbody)],
+                'joints': [{'id': i, 'name': mj.mj_id2name(model, mj.mjtObj.mjOBJ_JOINT, i) or f'joint_{i}',
+                            'body_id': int(model.jnt_bodyid[i])} for i in range(model.njnt)],
+                'geoms': geoms, 'meshes': meshes,
+                'destination_position_m': config['destination_position_m']}
+    return manifest, base64.b64encode(binary).decode()
 
 
 def augment_test_cell(root, config):
@@ -105,21 +159,30 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
             margin = float(min(position-model.jnt_range[joint_id, 0], model.jnt_range[joint_id, 1]-position)) if limited else None
             violation = bool(limited and (position < model.jnt_range[joint_id, 0]-1e-6
                                           or position > model.jnt_range[joint_id, 1]+1e-6))
-            row = {'joint': joint_name, 'joint_type': 'hinge' if int(model.jnt_type[joint_id]) == 2 else 'slide',
+            row = {'joint': joint_name, 'joint_id': joint_id,
+                   'body_id': int(model.jnt_bodyid[joint_id]),
+                   'joint_type': 'hinge' if int(model.jnt_type[joint_id]) == 3 else 'slide',
                    'position': position, 'velocity': velocity, 'target_position': target,
-                   'tracking_error': error, 'position_unit': 'rad' if int(model.jnt_type[joint_id]) == 2 else 'm',
+                   'tracking_error': error, 'position_unit': 'rad' if int(model.jnt_type[joint_id]) == 3 else 'm',
                    'actuator': actuator_name, 'actuator_force_n': force, 'force_limit_n': force_limit,
+                   'effort_unit': 'N·m' if int(model.jnt_type[joint_id]) == 3 else 'N',
                    'force_utilization': utilization, 'force_limit_reached': bool(utilization is not None and utilization >= .995),
                    'control_signal': ctrl, 'control_saturated': ctrl_saturated,
                    'joint_limit_margin': margin, 'joint_limit_violation': violation}
             result.append(row)
             aggregate = component_max.setdefault(actuator_id, {'joint': joint_name, 'actuator': actuator_name,
-                'position_unit': row['position_unit'], 'max_tracking_error': 0., 'peak_abs_force_n': 0.,
+                'body_id': int(model.jnt_bodyid[joint_id]),
+                'position_unit': row['position_unit'], 'effort_unit': row['effort_unit'],
+                'max_tracking_error': 0., 'peak_abs_force_n': 0.,
+                'peak_abs_force_time_s': float(data.time), 'peak_abs_force_frame_seq': len(frames),
                 'force_limit_n': force_limit, 'max_force_utilization': 0., 'force_limit_reached': False,
                 'control_saturated': False, 'minimum_joint_limit_margin': margin,
                 'joint_limit_violation': False})
             aggregate['max_tracking_error'] = max(aggregate['max_tracking_error'], error)
-            aggregate['peak_abs_force_n'] = max(aggregate['peak_abs_force_n'], abs(force))
+            if abs(force) > aggregate['peak_abs_force_n']:
+                aggregate['peak_abs_force_n'] = abs(force)
+                aggregate['peak_abs_force_time_s'] = float(data.time)
+                aggregate['peak_abs_force_frame_seq'] = len(frames)
             if utilization is not None: aggregate['max_force_utilization'] = max(aggregate['max_force_utilization'], utilization)
             aggregate['force_limit_reached'] |= row['force_limit_reached']
             aggregate['control_saturated'] |= ctrl_saturated
@@ -184,11 +247,30 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
 
     def record(phase):
         if len(frames) >= 192: return
+        joint_states = joint_diagnostics()
+        events = []
+        for row in joint_states:
+            body_id = row['body_id']
+            for occurred, code, measured, limit, unit, next_check in (
+                (row['joint_limit_violation'], 'joint_limit', row['position'],
+                 float(model.jnt_range[row['joint_id'], 1])
+                 if row['joint_limit_violation'] else None, row['position_unit'],
+                 'Review the submitted joint range and reduce the commanded motion.'),
+                (row['force_limit_reached'], 'actuator_force_limit', abs(row['actuator_force_n']),
+                 row['force_limit_n'], row['effort_unit'], 'Reduce payload or speed and review actuator sizing.'),
+                (row['control_saturated'], 'control_saturation', row['control_signal'],
+                 None, row['position_unit'], 'Review target position and control range.')):
+                if occurred:
+                    events.append({'code': code, 'severity': 'warning', 'frame_seq': len(frames),
+                                   'time_s': float(data.time), 'body_id': body_id,
+                                   'joint': row['joint'], 'actuator': row['actuator'],
+                                   'measured_value': measured, 'limit_value': limit, 'unit': unit,
+                                   'next_check': next_check})
         frame = {'seq': len(frames), 'phase': phase, 'time_s': float(data.time),
                  'physics_steps': physics_steps, 'positions_m': data.xpos[body_ids].tolist(),
                  'quaternions_wxyz': data.xquat[body_ids].tolist(),
                  'object_position_m': data.xpos[object_id].tolist() if object_id >= 0 else None,
-                 'joint_states': joint_diagnostics(), 'contacts': contact_diagnostics()}
+                 'joint_states': joint_states, 'contacts': contact_diagnostics(), 'events': events[:64]}
         frames.append(frame)
         # One-second presentation keeps the visible pose tied to measured state.
         due = started_wall + max(0., float(data.time-start_time))
@@ -249,9 +331,16 @@ def execute_task(model, config, mj, np, sandbox, emit=None):
             data.ctrl[actuator_id] = data.qpos[model.jnt_qposadr[joint_id]]
             target_qpos_by_joint[joint_id] = float(data.qpos[model.jnt_qposadr[joint_id]])
     if not supported:
+        record('movement' if task == 'movement' else 'approach')
         return {'schema_version': 'vivacity.robot-task-trial/1.0', 'status': 'failed', 'task': task,
-                'failure_class': 'unactuated', 'measurements': {'physics_steps': 0},
-                'body_names': body_names, 'body_parent_indices': body_parents, 'frames': [],
+                'failure_class': 'unactuated', 'measurements': {'physics_steps': 0,
+                    'terminal_position_m': data.xpos[terminal_id].tolist() if terminal_id >= 0 else None},
+                'body_names': body_names, 'body_parent_indices': body_parents, 'frames': frames,
+                'completed_steps': 0, 'total_steps': None, 'simulated_seconds': 0.,
+                'elapsed_wall_seconds': min(120., time.monotonic()-started_wall),
+                'current_phase': frames[-1]['phase'], 'component_diagnostics': [],
+                'diagnostics': [{'severity': 'error', 'code': 'unactuated',
+                    'message': 'No supported position actuator was found in the compiled test model.'}],
                 'effective_config': config,
                 'scope': 'The uploaded model was compiled, but no supported position actuator was available for this configured task.'}
     if terminal_id < 0:
@@ -466,8 +555,8 @@ def probe(request, emit=None):
             augment_test_cell(root, task_config)
         xml = ET.tostring(root, encoding='unicode')
     else:
-        if task_config is not None:
-            raise ValueError('configured lab tasks require MJCF; convert URDF to MJCF or run the initial movement diagnostic')
+        if task_config is not None and root.tag != 'robot':
+            raise ValueError('configured lab tasks require MJCF or a supported URDF robot')
         xml = xml.decode('utf-8-sig')
     if sys.platform.startswith('linux'):
         restrict_linux()
@@ -476,6 +565,41 @@ def probe(request, emit=None):
         sandbox = 'trusted_fixed_fixture_child_only'
     else:
         raise ValueError('untrusted native execution requires the Linux sandbox')
+    if root.tag == 'robot' and task_config is not None:
+        declared_effort = {}
+        for joint in root.findall('joint'):
+            limit = joint.find('limit')
+            if joint.get('type') in ('revolute', 'prismatic') and limit is not None:
+                try:
+                    effort = float(limit.get('effort', '0'))
+                except ValueError:
+                    effort = 0.
+                if 0 < effort <= 2000 and joint.get('name'):
+                    declared_effort[joint.get('name')] = effort
+        spec = mj.MjSpec.from_string(xml, assets=assets)
+        converted = ET.fromstring(spec.to_xml())
+        world = converted.find('worldbody')
+        if world is None:
+            raise ValueError('URDF conversion produced no worldbody')
+        mount = ET.Element('body', name='uploaded_urdf_mount',
+                           pos='0.1 0 0.4' if task_config['environment'] == 'tabletop' else '0 0 0')
+        for item in list(world):
+            world.remove(item)
+            mount.append(item)
+        world.append(mount)
+        actuators = converted.find('actuator')
+        if actuators is None:
+            actuators = ET.SubElement(converted, 'actuator')
+        for joint in converted.findall('.//joint'):
+            joint_name = joint.get('name')
+            if joint_name not in declared_effort or not joint.get('range'):
+                continue
+            effort = declared_effort[joint_name]
+            ET.SubElement(actuators, 'position', name=f'vivacity_test_motor_{joint_name}',
+                          joint=joint_name, kp='50', ctrlrange=joint.get('range'),
+                          forcerange=f'{-effort} {effort}')
+        augment_test_cell(converted, task_config)
+        xml = ET.tostring(converted, encoding='unicode')
     model = mj.MjModel.from_xml_string(xml, assets=assets)
     if model.nv > 128 or model.nu > 64 or model.ngeom > 512 or model.nbody > 256:
         raise ValueError('compiled model exceeds probe bounds')
@@ -484,7 +608,13 @@ def probe(request, emit=None):
     data = mj.MjData(model)
     mj.mj_forward(model, data)
     if task_config is not None:
-        return execute_task(model, task_config, mj, np, sandbox, emit=emit)
+        scene, mesh_buffer = compiled_scene(model, xml, assets, mj, np, task_config)
+        if emit is not None:
+            emit({'type': 'scene', 'scene': scene, 'mesh_buffer_b64': mesh_buffer})
+        result = execute_task(model, task_config, mj, np, sandbox, emit=emit)
+        if root.tag == 'robot':
+            result['scope'] += ' URDF test position actuators were generated only for joints with declared finite effort and range; they are not an uploaded hardware controller.'
+        return result
     name = lambda kind, i: mj.mj_id2name(model, kind, i)
     joints = [{'name': name(mj.mjtObj.mjOBJ_JOINT, i),
                'type': int(model.jnt_type[i]), 'range': model.jnt_range[i].tolist(),

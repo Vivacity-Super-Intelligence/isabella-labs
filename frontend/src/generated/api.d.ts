@@ -1551,6 +1551,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/imports/{import_id}/assembly-draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Stage Import Assembly
+         * @description Validate and save a bounded link/joint/mass mapping for separate CAD meshes.
+         */
+        put: operations["stage_import_assembly_v1_imports__import_id__assembly_draft_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{import_id}/assembly-compile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Compile Import Assembly
+         * @description Compile the mapped CAD assembly in the isolated MuJoCo worker.
+         */
+        post: operations["compile_import_assembly_v1_imports__import_id__assembly_compile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/imports/{import_id}/task-trials": {
         parameters: {
             query?: never;
@@ -1583,6 +1623,43 @@ export interface paths {
          * @description Read authoritative, ordered MuJoCo frames and partial measured diagnostics.
          */
         get: operations["import_task_trial_frames_v1_imports__import_id__task_trials__trial_id__frames_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{import_id}/task-trials/{trial_id}/scene": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Import Task Trial Scene
+         * @description Geometry and body bindings from the same compiled model as the task.
+         */
+        get: operations["import_task_trial_scene_v1_imports__import_id__task_trials__trial_id__scene_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{import_id}/task-trials/{trial_id}/meshes.bin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Import Task Trial Meshes */
+        get: operations["import_task_trial_meshes_v1_imports__import_id__task_trials__trial_id__meshes_bin_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2003,6 +2080,82 @@ export interface components {
             world_id?: string | null;
             /** Expected Revision */
             expected_revision?: number | null;
+        };
+        /** AssemblyDraft */
+        AssemblyDraft: {
+            /**
+             * Schema Version
+             * @default vivacity.assembly-draft/1.0
+             * @constant
+             */
+            schema_version: "vivacity.assembly-draft/1.0";
+            /** Name */
+            name: string;
+            /** Parts */
+            parts: components["schemas"]["AssemblyPart"][];
+            /** End Effector Part */
+            end_effector_part: string;
+        };
+        /** AssemblyPart */
+        AssemblyPart: {
+            /** Name */
+            name: string;
+            /** Mesh File */
+            mesh_file: string;
+            /** Parent Name */
+            parent_name?: string | null;
+            /**
+             * Joint Type
+             * @default fixed
+             * @enum {string}
+             */
+            joint_type: "fixed" | "hinge" | "slide";
+            /**
+             * Origin M
+             * @default [
+             *       0,
+             *       0,
+             *       0
+             *     ]
+             */
+            origin_m: number[];
+            /**
+             * Axis
+             * @default [
+             *       0,
+             *       0,
+             *       1
+             *     ]
+             */
+            axis: number[];
+            /**
+             * Joint Limits
+             * @default [
+             *       -1,
+             *       1
+             *     ]
+             */
+            joint_limits: number[];
+            /**
+             * Mass Kg
+             * @default 0.2
+             */
+            mass_kg: number;
+            /**
+             * Longest Dimension M
+             * @default 0.2
+             */
+            longest_dimension_m: number;
+            /**
+             * Effort Limit
+             * @default 20
+             */
+            effort_limit: number;
+            /**
+             * Position Gain
+             * @default 50
+             */
+            position_gain: number;
         };
         /**
          * AssemblySettings
@@ -3696,7 +3849,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "visual_only" | "configuration_required" | "physics_verifying" | "physics_valid" | "actuation_verified" | "qualification_failed" | "physics_failed" | "manipulation_configured" | "test_cell_configured" | "task_running" | "task_succeeded" | "task_failed";
+            status: "visual_only" | "configuration_required" | "assembly_draft" | "assembly_compiled" | "physics_verifying" | "physics_valid" | "actuation_verified" | "qualification_failed" | "physics_failed" | "manipulation_configured" | "test_cell_configured" | "task_running" | "task_succeeded" | "task_failed";
             /**
              * Physics Ready
              * @default false
@@ -3726,6 +3879,56 @@ export interface components {
             configured_world_id?: string | null;
             test_cell?: components["schemas"]["RobotTestCellConfig"] | null;
             task_trial?: components["schemas"]["RobotTaskTrial"] | null;
+            assembly_draft?: components["schemas"]["AssemblyDraft"] | null;
+            /** Assembly Status */
+            assembly_status?: ("draft" | "compiled") | null;
+        };
+        /** ImportSceneManifest */
+        ImportSceneManifest: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "vivacity.import-scene/1.0";
+            /**
+             * Source
+             * @constant
+             */
+            source: "compiled_mujoco_model";
+            /** Simulator Version */
+            simulator_version: string;
+            /** Model Hash */
+            model_hash: string;
+            /** Coordinates */
+            coordinates: string;
+            /**
+             * Mesh Buffer
+             * @constant
+             */
+            mesh_buffer: "meshes.bin";
+            /**
+             * Byte Order
+             * @constant
+             */
+            byte_order: "little-endian";
+            /** Bodies */
+            bodies: {
+                [key: string]: unknown;
+            }[];
+            /** Joints */
+            joints: {
+                [key: string]: unknown;
+            }[];
+            /** Geoms */
+            geoms: {
+                [key: string]: unknown;
+            }[];
+            /** Meshes */
+            meshes: {
+                [key: string]: unknown;
+            }[];
+            /** Destination Position M */
+            destination_position_m: number[];
         };
         JsonValue: unknown;
         /** LibraryWorld */
@@ -4158,6 +4361,10 @@ export interface components {
             contacts?: {
                 [key: string]: unknown;
             }[];
+            /** Events */
+            events?: {
+                [key: string]: unknown;
+            }[];
         };
         /** RobotQualification */
         RobotQualification: {
@@ -4330,6 +4537,8 @@ export interface components {
             effective_config: components["schemas"]["RobotTestCellConfig"];
             /** Source Sha256 */
             source_sha256: string;
+            /** Scene Hash */
+            scene_hash?: string | null;
             /** Scope */
             scope: string;
         };
@@ -8694,7 +8903,9 @@ export interface operations {
             query: {
                 filename: string;
             };
-            header?: never;
+            header: {
+                "X-Workspace-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -8879,6 +9090,72 @@ export interface operations {
             };
         };
     };
+    stage_import_assembly_v1_imports__import_id__assembly_draft_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssemblyDraft"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compile_import_assembly_v1_imports__import_id__assembly_compile_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     run_import_task_trial_v1_imports__import_id__task_trials_post: {
         parameters: {
             query?: never;
@@ -8932,6 +9209,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RobotTaskFramesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_task_trial_scene_v1_imports__import_id__task_trials__trial_id__scene_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+                trial_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportSceneManifest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_task_trial_meshes_v1_imports__import_id__task_trials__trial_id__meshes_bin_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+                trial_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

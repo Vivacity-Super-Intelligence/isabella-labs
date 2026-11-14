@@ -1,4 +1,6 @@
 import base64
+import hashlib
+import io
 from concurrent.futures import ThreadPoolExecutor
 import json
 from pathlib import Path
@@ -6,16 +8,106 @@ import subprocess
 import sys
 import time
 import uuid
+import zipfile
 
 import pytest
 from fastapi.testclient import TestClient
 
 from vivacity.api import create_app
 from vivacity.imports import ImportService, unpack
-from vivacity.import_physics import native_probe, ORBITAL_SHA256
+from vivacity.import_physics import native_probe, native_task_trial, ORBITAL_SHA256, SAMPLE_ARM_SHA256
 from vivacity.import_worker import probe
+from vivacity.schemas import RobotTestCellConfig, AssemblyDraft
 
 FIXTURE = Path(__file__).resolve().parents[1] / 'fixtures/imports/orbital_salvage_lab.zip'
+SAMPLE_ARM = Path(__file__).resolve().parents[1] / 'fixtures/imports/vivacity_sample_arm.xml'
+
+
+def test_sample_arm_scene_and_frame_ids_match_the_compiled_model():
+    config = RobotTestCellConfig(environment='tabletop', task='movement', gripper='none').model_dump()
+    emitted = []
+    result = probe({'xml': base64.b64encode(SAMPLE_ARM.read_bytes()).decode(), 'assets': {},
+                    'trusted_fixture': True, 'task_config': config}, emit=emitted.append)
+    scene_event = next(item for item in emitted if item.get('type') == 'scene')
+    scene = scene_event['scene']
+    assert scene['source'] == 'compiled_mujoco_model'
+    assert scene['bodies'][4]['name'] == 'elbow'
+    assert any(item['name'] == 'elbow_flex' and item['body_id'] == 4 for item in scene['joints'])
+    assert all(0 <= geom['body_id'] < len(scene['bodies']) for geom in scene['geoms'])
+    assert all(len(frame['positions_m']) == len(scene['bodies']) - 1 for frame in result['frames'])
+    assert all(len(frame['quaternions_wxyz']) == len(scene['bodies']) - 1 for frame in result['frames'])
+    assert result['measurements']['physics_steps'] > 0
+    assert any(row['joint'] == 'elbow_flex' for frame in result['frames']
+               for row in frame['joint_states'])
+    elbow_events = [event for frame in result['frames'] for event in frame['events']
+                    if event['joint'] == 'elbow_flex' and event['code'] == 'actuator_force_limit']
+    assert elbow_events
+    assert all(event['body_id'] == 4 and event['frame_seq'] < len(result['frames'])
+               and event['unit'] == 'N·m' and event['limit_value'] == .8 for event in elbow_events)
+    assert any(not frame['events'] for frame in result['frames'])
+
+
+def test_sample_arm_runs_through_host_worker_with_measured_frames():
+    xml = SAMPLE_ARM.read_bytes()
+    assert hashlib.sha256(xml).hexdigest() == SAMPLE_ARM_SHA256
+    config = RobotTestCellConfig(environment='tabletop',task='movement',gripper='none').model_dump()
+    emitted = []
+    result = native_task_trial({'entrypoint':'sample.xml','content':base64.b64encode(xml).decode(),
+                                'assets':{}},SAMPLE_ARM_SHA256,config,on_progress=emitted.append)
+    assert result['status'] == 'succeeded'
+    assert any(item.get('type')=='scene' for item in emitted)
+    assert any(item.get('type')=='progress' and item['frame']['events'] for item in emitted)
+
+
+def test_guided_two_mesh_assembly_compiles_and_moves_in_mujoco(tmp_path,monkeypatch):
+    tetra = b'v 0 0 0\nv .1 0 0\nv 0 .1 0\nv 0 0 .1\nf 1 2 3\nf 1 4 2\nf 1 3 4\nf 2 4 3\n'
+    bundle = io.BytesIO()
+    with zipfile.ZipFile(bundle,'w') as archive:
+        archive.writestr('manifest.json',json.dumps({'entrypoint':'base.obj'}))
+        archive.writestr('base.obj',tetra)
+        archive.writestr('arm.obj',tetra)
+    service = ImportService(tmp_path/'assembly')
+    imported = service.create('parts.zip',bundle.getvalue())
+    assert imported['summary']['assembly_meshes'] == ['arm.obj','base.obj']
+    assert 'assembly_assets' not in service._load(imported['id'])
+    assert (service.root/f'{imported["id"]}-assembly.zip').is_file()
+    draft = AssemblyDraft(name='Two link CAD arm',end_effector_part='arm',parts=[
+        {'name':'base','mesh_file':'base.obj','joint_type':'fixed','mass_kg':1},
+        {'name':'arm','mesh_file':'arm.obj','parent_name':'base','joint_type':'hinge',
+         'origin_m':[.2,0,0], 'axis':[0,1,0], 'joint_limits':[-1,1],
+         'mass_kg':.2,'effort_limit':8,'position_gain':50}])
+    assert service.stage_assembly_draft(imported['id'],draft)['assembly_status'] == 'draft'
+    payload = service._load(imported['id'])
+    source = service._assembly_source(draft.model_dump(),service._assembly_assets(imported['id'],payload))
+    emitted = []
+    config = RobotTestCellConfig(environment='tabletop',task='movement',gripper='none',
+                                 robot_base_offset_m=[.1,0,.4],end_effector_body='arm').model_dump()
+    result = probe({'xml':source['content'],'assets':source['assets'],
+                    'trusted_fixture':True,'task_config':config},emit=emitted.append)
+    assert result['status'] == 'succeeded',result
+    assert result['measurements']['joint_displacement_norm'] > .01
+    scene = emitted[0]['scene']
+    assert [body['name'] for body in scene['bodies'][1:3]] == ['base','arm']
+    assert any(geom['type']=='mesh' and geom['body_id']==2 for geom in scene['geoms'])
+    assert len(scene['meshes']) == 2
+    def trusted_local_probe(source,_hash):
+        return probe({'xml':source['content'],'assets':source['assets'],'trusted_fixture':True})
+    if not sys.platform.startswith('linux'):
+        monkeypatch.setattr('vivacity.import_physics.native_probe',trusted_local_probe)
+    compiled = service.compile_assembly(imported['id'])
+    assert compiled['status'] == 'assembly_compiled'
+    assert compiled['assembly_status'] == 'compiled'
+    assert compiled['summary']['assembly_actuated_joints'] == 1
+    assert service._load(imported['id'])['source']['content'] == source['content']
+    assert service.configure_test_cell(imported['id'],RobotTestCellConfig(
+        environment='tabletop',task='movement',gripper='none'))['status'] == 'test_cell_configured'
+
+
+def test_guided_assembly_rejects_missing_mesh_and_invalid_kinematic_tree(tmp_path):
+    with pytest.raises(ValueError,match='earlier parent'):
+        AssemblyDraft(name='bad',end_effector_part='arm',parts=[
+            {'name':'base','mesh_file':'base.obj'},
+            {'name':'arm','mesh_file':'arm.obj','parent_name':'missing','joint_type':'hinge'}])
 
 
 def source(data=None):
@@ -66,6 +158,22 @@ def test_fixed_robot_without_actuators_is_reported_unactuated():
     assert result['qualification']['failure_class'] == 'unactuated'
 
 
+def test_unactuated_task_retains_its_compiled_scene_and_measured_initial_pose():
+    xml = b'''<mujoco model="unactuated_task"><option timestep="0.004"/>
+    <worldbody><body name="base" pos="0 0 .4"><geom type="box" size=".1 .1 .1" mass="1"/>
+    <body name="link"><joint name="loose_hinge" type="hinge" range="-1 1"/>
+    <geom type="capsule" size=".03 .12" mass=".2"/></body></body></worldbody></mujoco>'''
+    emitted = []
+    config = RobotTestCellConfig(task='movement',gripper='none').model_dump()
+    result = probe({'xml':base64.b64encode(xml).decode(),'assets':{},
+                    'trusted_fixture':True,'task_config':config},emit=emitted.append)
+    assert result['status'] == 'failed' and result['failure_class'] == 'unactuated'
+    assert result['completed_steps'] == 0 and len(result['frames']) == 1
+    assert result['frames'][0]['physics_steps'] == 0
+    scene = next(item['scene'] for item in emitted if item.get('type') == 'scene')
+    assert len(result['frames'][0]['positions_m']) == len(scene['bodies']) - 1
+
+
 def test_native_verification_is_explicit_background_work_and_persists(tmp_path):
     service = ImportService(tmp_path)
     record = service.create('orbital.zip', FIXTURE.read_bytes())
@@ -96,6 +204,7 @@ def test_restart_does_not_claim_an_interrupted_probe_completed(tmp_path):
 
 def test_robot_qualification_http_contract_returns_measured_report(tmp_path):
     with TestClient(create_app(tmp_path / 'qualification.sqlite3')) as client:
+        client.headers.update({'X-Workspace-Token':'a'*64})
         uploaded = client.post('/v1/imports?filename=orbital.zip', content=FIXTURE.read_bytes(),
                                headers={'Content-Type': 'application/octet-stream'})
         assert uploaded.status_code == 201, uploaded.text
@@ -120,6 +229,7 @@ def test_robot_qualification_http_contract_returns_measured_report(tmp_path):
 
 def test_upload_can_be_staged_then_run_as_a_configured_task(tmp_path):
     with TestClient(create_app(tmp_path / 'test-cell.sqlite3')) as client:
+        client.headers.update({'X-Workspace-Token':'a'*64})
         uploaded = client.post('/v1/imports?filename=orbital.zip', content=FIXTURE.read_bytes(),
                                headers={'Content-Type': 'application/octet-stream'})
         identifier = uploaded.json()['id']
@@ -139,7 +249,7 @@ def test_upload_can_be_staged_then_run_as_a_configured_task(tmp_path):
         assert invalid_cursor.status_code == 422
         missing_trial = client.get(f'/v1/imports/{identifier}/task-trials/{uuid.uuid4()}/frames')
         assert missing_trial.status_code == 404
-        cursor = -1; streamed = []; saw_live_frame = False
+        cursor = -1; streamed = []; saw_live_frame = False; scene_loaded = False
         deadline = time.monotonic() + 30
         while True:
             live = client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/frames',
@@ -147,6 +257,23 @@ def test_upload_can_be_staged_then_run_as_a_configured_task(tmp_path):
             assert live.status_code == 200, live.text
             update = live.json(); streamed.extend(update['frames']); cursor = update['next_cursor']
             saw_live_frame |= bool(update['frames'] and update['status']=='task_running')
+            scene_response = client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/scene')
+            if scene_response.status_code == 200:
+                scene = scene_response.json()
+                mesh_response = client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/meshes.bin')
+                assert mesh_response.status_code == 200, mesh_response.text
+                assert scene['source'] == 'compiled_mujoco_model'
+                if update['frames']:
+                    assert len(scene['bodies']) == len(update['frames'][0]['positions_m']) + 1
+                else:
+                    assert len(scene['bodies']) > 1
+                assert client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/scene',
+                                  headers={'X-Workspace-Token':'b'*64}).status_code == 403
+                assert client.get(f'/v1/imports/{identifier}/task-trials/{trial_id}/meshes.bin',
+                                  headers={'X-Workspace-Token':'b'*64}).status_code == 403
+                scene_loaded = True
+            else:
+                assert scene_response.status_code == 404
             record = client.get(f'/v1/imports/{identifier}').json()
             if record['status'] != 'task_running': break
             assert time.monotonic() < deadline
@@ -155,6 +282,7 @@ def test_upload_can_be_staged_then_run_as_a_configured_task(tmp_path):
         assert record['task_trial']['task'] == 'movement'
         assert record['task_trial']['measurements']['physics_steps'] > 0
         assert saw_live_frame, 'measured frames must arrive before the trial reaches terminal status'
+        assert scene_loaded, 'the exact compiled workcell scene must be available with the trial'
         assert len(streamed) >= 2
         assert all('joint_states' in frame and 'contacts' in frame for frame in streamed)
         assert record['task_trial']['component_diagnostics']
@@ -202,6 +330,13 @@ def test_configured_pick_place_executes_and_measures_release():
     assert result['measurements']['object_displacement_m'] > .15
     assert result['measurements']['placement_error_m'] < .03
     assert result['frames'][-1]['phase'] == 'release'
+    weak = probe({'xml': base64.b64encode(xml).decode(), 'assets': {},
+                  'trusted_fixture': True, 'task_config': config | {
+                      'gripper_strength_n': 1., 'object_mass_kg': 2.}})
+    assert weak['status'] == 'failed'
+    assert weak['failure_class'] == 'grip_lost'
+    assert weak['measurements']['grip_lost'] is True
+    assert weak['frames'][-1]['phase'] == 'release'
 
 
 def test_test_cell_robot_base_offset_moves_the_submitted_model():
@@ -251,15 +386,25 @@ def test_static_cad_cannot_be_misrepresented_as_an_articulated_task(tmp_path):
         service.configure_test_cell(record['id'], config)
 
 
-def test_urdf_diagnostic_is_not_misrepresented_as_augmented_test_cell(tmp_path):
+def test_urdf_with_declared_joint_effort_runs_in_the_compiled_workcell(tmp_path):
     service = ImportService(tmp_path / 'urdf')
-    record = service.create('robot.urdf', b'''<robot name="one_link">
-      <link name="base"/><link name="tool"/><joint name="joint" type="revolute">
-      <parent link="base"/><child link="tool"/><axis xyz="0 0 1"/>
-      <limit lower="-1" upper="1" effort="1" velocity="1"/></joint></robot>''')
-    from vivacity.schemas import RobotTestCellConfig
-    with pytest.raises(ValueError, match='configured test cells currently require MJCF'):
-        service.configure_test_cell(record['id'], RobotTestCellConfig(task='movement', gripper='none'))
+    xml = b'''<robot name="test_arm">
+      <link name="base"><collision><geometry><box size=".1 .1 .1"/></geometry></collision></link>
+      <link name="tool"><inertial><mass value=".2"/><inertia ixx=".001" iyy=".001" izz=".001" ixy="0" ixz="0" iyz="0"/></inertial>
+      <collision><geometry><box size=".1 .1 .1"/></geometry></collision></link>
+      <joint name="elbow" type="revolute"><parent link="base"/><child link="tool"/>
+      <origin xyz="0 0 .2"/><axis xyz="0 1 0"/>
+      <limit lower="-1" upper="1" effort="3" velocity="1"/></joint></robot>'''
+    record = service.create('robot.urdf', xml)
+    config = RobotTestCellConfig(environment='tabletop', task='movement', gripper='none')
+    assert service.configure_test_cell(record['id'], config)['status'] == 'test_cell_configured'
+    emitted = []
+    result = probe({'xml': base64.b64encode(xml).decode(), 'assets': {},
+                    'trusted_fixture': True, 'task_config': config.model_dump()}, emit=emitted.append)
+    assert result['status'] == 'succeeded'
+    assert result['measurements']['joint_displacement_norm'] > .01
+    assert 'generated' in result['scope']
+    assert any(body['name'] == 'uploaded_urdf_mount' for body in emitted[0]['scene']['bodies'])
 
 
 @pytest.mark.parametrize('unsafe', [

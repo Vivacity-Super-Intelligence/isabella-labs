@@ -333,6 +333,7 @@ class RobotMotionFrame(Schema):
     object_position_m: Vec3 | None = None
     joint_states: list[dict] = Field(default_factory=list, max_length=64)
     contacts: list[dict] = Field(default_factory=list, max_length=24)
+    events: list[dict] = Field(default_factory=list, max_length=64)
 
 
 class RobotQualification(Schema):
@@ -371,6 +372,55 @@ class RobotTestCellConfig(Schema):
         return self
 
 
+class AssemblyPart(Schema):
+    name: str = Field(min_length=1, max_length=50, pattern=r'^[A-Za-z][A-Za-z0-9_]*$')
+    mesh_file: str = Field(min_length=1, max_length=180)
+    parent_name: str | None = None
+    joint_type: Literal['fixed','hinge','slide'] = 'fixed'
+    origin_m: ScenePosition = [0., 0., 0.]
+    axis: Vec3 = [0., 0., 1.]
+    joint_limits: Annotated[list[float], Field(min_length=2, max_length=2)] = [-1., 1.]
+    mass_kg: float = Field(0.2, ge=.01, le=10.)
+    longest_dimension_m: float = Field(.2, ge=.02, le=1.5)
+    effort_limit: float = Field(20., ge=.1, le=200.)
+    position_gain: float = Field(50., ge=1., le=500.)
+
+    @model_validator(mode='after')
+    def valid_joint(self):
+        import math
+        if not math.isclose(sum(x*x for x in self.axis), 1., abs_tol=1e-3):
+            raise ValueError('joint axis must be a unit vector')
+        low, high = self.joint_limits
+        bound = 3.14 if self.joint_type == 'hinge' else 1.
+        if self.joint_type != 'fixed' and not (-bound <= low < high <= bound):
+            raise ValueError('joint limits must be ordered within the supported range')
+        return self
+
+
+class AssemblyDraft(Schema):
+    schema_version: Literal['vivacity.assembly-draft/1.0'] = 'vivacity.assembly-draft/1.0'
+    name: str = Field(min_length=1, max_length=80)
+    parts: list[AssemblyPart] = Field(min_length=2, max_length=8)
+    end_effector_part: str = Field(min_length=1, max_length=50)
+
+    @model_validator(mode='after')
+    def valid_tree(self):
+        seen = set()
+        for index, part in enumerate(self.parts):
+            if part.name in seen:
+                raise ValueError('assembly part names must be unique')
+            if index == 0 and (part.parent_name is not None or part.joint_type != 'fixed'):
+                raise ValueError('the first assembly part must be a fixed root')
+            if index > 0 and part.parent_name not in seen:
+                raise ValueError('each child must name an earlier parent part')
+            seen.add(part.name)
+        if not any(part.joint_type != 'fixed' for part in self.parts):
+            raise ValueError('movement assembly requires at least one articulated part')
+        if self.end_effector_part not in seen:
+            raise ValueError('end effector must name an assembly part')
+        return self
+
+
 class RobotTaskTrial(Schema):
     schema_version: Literal['vivacity.robot-task-trial/1.0'] = 'vivacity.robot-task-trial/1.0'
     id: str
@@ -391,6 +441,7 @@ class RobotTaskTrial(Schema):
     error: str | None = Field(default=None, max_length=700)
     effective_config: RobotTestCellConfig
     source_sha256: str = Field(min_length=64, max_length=64, pattern=r'^[0-9a-f]{64}$')
+    scene_hash: str | None = Field(default=None, min_length=64, max_length=64, pattern=r'^[0-9a-f]{64}$')
     scope: str = Field(max_length=900)
 
 
@@ -410,6 +461,21 @@ class RobotTaskFramesResponse(Schema):
     measurements: dict
     component_diagnostics: list[dict] = Field(max_length=128)
     diagnostics: list[dict] = Field(max_length=128)
+
+
+class ImportSceneManifest(Schema):
+    schema_version: Literal['vivacity.import-scene/1.0']
+    source: Literal['compiled_mujoco_model']
+    simulator_version: str
+    model_hash: str = Field(min_length=64, max_length=64, pattern=r'^[0-9a-f]{64}$')
+    coordinates: str
+    mesh_buffer: Literal['meshes.bin']
+    byte_order: Literal['little-endian']
+    bodies: list[dict] = Field(max_length=65)
+    joints: list[dict] = Field(max_length=128)
+    geoms: list[dict] = Field(max_length=256)
+    meshes: list[dict] = Field(max_length=256)
+    destination_position_m: ScenePosition
 
 
 class ImportCapabilities(Schema):
@@ -445,7 +511,7 @@ class ImportResponse(Schema):
     filename: str
     entrypoint: str
     format: str
-    status: Literal['visual_only','configuration_required','physics_verifying','physics_valid','actuation_verified','qualification_failed','physics_failed','manipulation_configured','test_cell_configured','task_running','task_succeeded','task_failed']
+    status: Literal['visual_only','configuration_required','assembly_draft','assembly_compiled','physics_verifying','physics_valid','actuation_verified','qualification_failed','physics_failed','manipulation_configured','test_cell_configured','task_running','task_succeeded','task_failed']
     physics_ready: bool=False
     preview_available: bool
     sha256: str
@@ -458,6 +524,8 @@ class ImportResponse(Schema):
     configured_world_id: str | None=None
     test_cell: RobotTestCellConfig | None=None
     task_trial: RobotTaskTrial | None=None
+    assembly_draft: AssemblyDraft | None=None
+    assembly_status: Literal['draft','compiled'] | None=None
 
 
 class ImportPreview(Schema):

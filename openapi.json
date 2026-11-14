@@ -5338,6 +5338,18 @@
               "maxLength": 180,
               "title": "Filename"
             }
+          },
+          {
+            "name": "X-Workspace-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "X-Workspace-Token"
+            }
           }
         ],
         "responses": {
@@ -5571,6 +5583,96 @@
         }
       }
     },
+    "/v1/imports/{import_id}/assembly-draft": {
+      "put": {
+        "summary": "Stage Import Assembly",
+        "description": "Validate and save a bounded link/joint/mass mapping for separate CAD meshes.",
+        "operationId": "stage_import_assembly_v1_imports__import_id__assembly_draft_put",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssemblyDraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}/assembly-compile": {
+      "post": {
+        "summary": "Compile Import Assembly",
+        "description": "Compile the mapped CAD assembly in the isolated MuJoCo worker.",
+        "operationId": "compile_import_assembly_v1_imports__import_id__assembly_compile_post",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/imports/{import_id}/task-trials": {
       "post": {
         "summary": "Run Import Task Trial",
@@ -5668,6 +5770,101 @@
                 "schema": {
                   "$ref": "#/components/schemas/RobotTaskFramesResponse"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}/task-trials/{trial_id}/scene": {
+      "get": {
+        "summary": "Import Task Trial Scene",
+        "description": "Geometry and body bindings from the same compiled model as the task.",
+        "operationId": "import_task_trial_scene_v1_imports__import_id__task_trials__trial_id__scene_get",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          },
+          {
+            "name": "trial_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trial Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSceneManifest"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}/task-trials/{trial_id}/meshes.bin": {
+      "get": {
+        "summary": "Import Task Trial Meshes",
+        "operationId": "import_task_trial_meshes_v1_imports__import_id__task_trials__trial_id__meshes_bin_get",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          },
+          {
+            "name": "trial_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trial Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -6830,6 +7027,161 @@
           "utterance"
         ],
         "title": "AgentTurnRequest"
+      },
+      "AssemblyDraft": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.assembly-draft/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.assembly-draft/1.0"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/components/schemas/AssemblyPart"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "minItems": 2,
+            "title": "Parts"
+          },
+          "end_effector_part": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "End Effector Part"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "parts",
+          "end_effector_part"
+        ],
+        "title": "AssemblyDraft"
+      },
+      "AssemblyPart": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+            "title": "Name"
+          },
+          "mesh_file": {
+            "type": "string",
+            "maxLength": 180,
+            "minLength": 1,
+            "title": "Mesh File"
+          },
+          "parent_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Name"
+          },
+          "joint_type": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "hinge",
+              "slide"
+            ],
+            "title": "Joint Type",
+            "default": "fixed"
+          },
+          "origin_m": {
+            "items": {
+              "type": "number",
+              "maximum": 8.0,
+              "minimum": -8.0
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Origin M",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "axis": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Axis",
+            "default": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          "joint_limits": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Joint Limits",
+            "default": [
+              -1.0,
+              1.0
+            ]
+          },
+          "mass_kg": {
+            "type": "number",
+            "maximum": 10.0,
+            "minimum": 0.01,
+            "title": "Mass Kg",
+            "default": 0.2
+          },
+          "longest_dimension_m": {
+            "type": "number",
+            "maximum": 1.5,
+            "minimum": 0.02,
+            "title": "Longest Dimension M",
+            "default": 0.2
+          },
+          "effort_limit": {
+            "type": "number",
+            "maximum": 200.0,
+            "minimum": 0.1,
+            "title": "Effort Limit",
+            "default": 20.0
+          },
+          "position_gain": {
+            "type": "number",
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Position Gain",
+            "default": 50.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "mesh_file"
+        ],
+        "title": "AssemblyPart"
       },
       "AssemblySettings": {
         "properties": {
@@ -8691,7 +9043,7 @@
           },
           "object_mass_kg": {
             "type": "number",
-            "maximum": 2.0,
+            "maximum": 0.3,
             "minimum": 0.02,
             "title": "Object Mass Kg",
             "default": 0.06
@@ -10653,6 +11005,8 @@
             "enum": [
               "visual_only",
               "configuration_required",
+              "assembly_draft",
+              "assembly_compiled",
               "physics_verifying",
               "physics_valid",
               "actuation_verified",
@@ -10747,6 +11101,31 @@
                 "type": "null"
               }
             ]
+          },
+          "assembly_draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssemblyDraft"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assembly_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "compiled"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assembly Status"
           }
         },
         "additionalProperties": false,
@@ -10765,6 +11144,109 @@
           "diagnostics"
         ],
         "title": "ImportResponse"
+      },
+      "ImportSceneManifest": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.import-scene/1.0",
+            "title": "Schema Version"
+          },
+          "source": {
+            "type": "string",
+            "const": "compiled_mujoco_model",
+            "title": "Source"
+          },
+          "simulator_version": {
+            "type": "string",
+            "title": "Simulator Version"
+          },
+          "model_hash": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Model Hash"
+          },
+          "coordinates": {
+            "type": "string",
+            "title": "Coordinates"
+          },
+          "mesh_buffer": {
+            "type": "string",
+            "const": "meshes.bin",
+            "title": "Mesh Buffer"
+          },
+          "byte_order": {
+            "type": "string",
+            "const": "little-endian",
+            "title": "Byte Order"
+          },
+          "bodies": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 65,
+            "title": "Bodies"
+          },
+          "joints": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 128,
+            "title": "Joints"
+          },
+          "geoms": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 256,
+            "title": "Geoms"
+          },
+          "meshes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 256,
+            "title": "Meshes"
+          },
+          "destination_position_m": {
+            "items": {
+              "type": "number",
+              "maximum": 8.0,
+              "minimum": -8.0
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Destination Position M"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "source",
+          "simulator_version",
+          "model_hash",
+          "coordinates",
+          "mesh_buffer",
+          "byte_order",
+          "bodies",
+          "joints",
+          "geoms",
+          "meshes",
+          "destination_position_m"
+        ],
+        "title": "ImportSceneManifest"
       },
       "JsonValue": {},
       "LibraryWorld": {
@@ -11723,6 +12205,15 @@
             "type": "array",
             "maxItems": 24,
             "title": "Contacts"
+          },
+          "events": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Events"
           }
         },
         "additionalProperties": false,
@@ -12163,6 +12654,20 @@
             "pattern": "^[0-9a-f]{64}$",
             "title": "Source Sha256"
           },
+          "scene_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 64,
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scene Hash"
+          },
           "scope": {
             "type": "string",
             "maxLength": 900,
@@ -12526,7 +13031,7 @@
           },
           "cube_mass": {
             "type": "number",
-            "maximum": 2.0,
+            "maximum": 0.3,
             "minimum": 0.02,
             "title": "Cube Mass",
             "default": 0.06

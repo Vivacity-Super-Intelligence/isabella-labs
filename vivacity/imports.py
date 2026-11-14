@@ -288,6 +288,21 @@ class ImportService:
         if not path.exists():raise KeyError('import missing')
         return json.loads(path.read_bytes())
 
+    def owner_hash(self,identifier):
+        with self.lock:
+            return self._load(identifier).get('owner_sha256')
+
+    def _assembly_assets(self,identifier,payload):
+        legacy = payload.get('assembly_assets')
+        if legacy:
+            return legacy
+        bundle = self.root / f'{identifier}-assembly.zip'
+        if not bundle.exists():
+            return {}
+        _name,_content,files,_summary = unpack(bundle.read_bytes())
+        return {name:base64.b64encode(content).decode() for name,content in files.items()
+                if PurePosixPath(name).suffix.lower() in ('.obj','.stl','.glb','.gltf')}
+
     def _save(self,payload):
         target=self.root/f'{payload["record"]["id"]}.json'
         encoded=json.dumps(payload,allow_nan=False).encode()
@@ -335,19 +350,140 @@ class ImportService:
         with self.lock:
             payload = self._load(identifier); record = payload['record']
             value = config.model_dump(mode='json')
-            if payload.get('preview') is not None and value['task'] != 'static_drop':
+            if payload.get('source') is None and payload.get('preview') is not None and value['task'] != 'static_drop':
                 raise ValueError('static CAD has no joints or actuators; choose static_drop or upload an MJCF robot')
             if payload.get('source') is not None and value['task'] == 'static_drop':
                 raise ValueError('static_drop is for CAD meshes; choose movement, reach or pick_place for a jointed model')
-            if payload.get('source') is not None and record['format'] == 'urdf':
-                raise ValueError('configured test cells currently require MJCF; URDF supports the separate initial movement diagnostic')
+            previous = record.get('task_trial')
+            if previous:
+                (self.root / f'{record["id"]}-{previous["id"]}.bin').unlink(missing_ok=True)
             record['test_cell'] = value
             record['task_trial'] = None
+            payload.pop('scene', None)
             record['status'] = 'test_cell_configured'
             record['physics_ready'] = False
             record['diagnostics'] = ['Robot staged in the configured test cell. No task outcome exists until Run trial is selected.']
             self._save(payload)
             return record
+
+    def stage_assembly_draft(self, identifier, draft):
+        with self.lock:
+            payload = self._load(identifier); record = payload['record']
+            assets = self._assembly_assets(identifier,payload)
+            if len(assets) < 2:
+                raise ValueError('guided assembly requires a ZIP containing at least two separate CAD mesh files')
+            value = draft.model_dump(mode='json')
+            for part in value['parts']:
+                if safe_name(part['mesh_file']) not in assets:
+                    raise ValueError(f'assembly mesh {part["mesh_file"]} is not in the uploaded bundle')
+            previous = record.get('task_trial')
+            if previous:
+                (self.root / f'{record["id"]}-{previous["id"]}.bin').unlink(missing_ok=True)
+            record['assembly_draft'] = value
+            record['assembly_status'] = 'draft'
+            record['status'] = 'assembly_draft'
+            record['test_cell'] = None
+            record['task_trial'] = None
+            record['capabilities'] = None
+            record['physics_ready'] = False
+            record['readiness'] = []
+            payload['source'] = None
+            payload.pop('scene', None)
+            record['diagnostics'] = ['Assembly draft saved. Compile it in the isolated MuJoCo worker before movement tasks become available.']
+            self._save(payload)
+            return record
+
+    @staticmethod
+    def _assembly_source(draft, encoded_assets):
+        import math
+        root = ET.Element('mujoco', model='uploaded_assembly')
+        ET.SubElement(root, 'compiler', usethread='false', balanceinertia='true')
+        ET.SubElement(root, 'option', timestep='0.004', gravity='0 0 -9.81')
+        xml_assets = ET.SubElement(root, 'asset')
+        world = ET.SubElement(root, 'worldbody')
+        actuators = ET.SubElement(root, 'actuator')
+        part_bodies = {}; converted_assets = {}; total_vertices = 0
+        decoded = {name:base64.b64decode(content, validate=True) for name,content in encoded_assets.items()}
+        for index, part in enumerate(draft['parts']):
+            filename = safe_name(part['mesh_file']); extension = PurePosixPath(filename).suffix.lower()
+            if filename not in decoded:
+                raise ValueError('assembly references a missing scoped mesh')
+            if extension in ('.obj','.stl'):
+                preview, _ = triangle_preview(decoded[filename], extension)
+            elif extension in ('.glb','.gltf'):
+                preview, _ = gltf_preview(decoded[filename], extension, decoded)
+            else:
+                raise ValueError('assembly part must be STL, OBJ, GLB or GLTF')
+            positions = np.asarray(preview['positions'], dtype=float)
+            indices = preview['indices']
+            total_vertices += len(positions)
+            if total_vertices > 100000:
+                raise ValueError('assembly exceeds the 100000 vertex compiled-view limit')
+            span = float(np.max(positions.max(axis=0)-positions.min(axis=0)))
+            if not math.isfinite(span) or span < 1e-9:
+                raise ValueError('assembly part has no measurable 3D extent')
+            centered = (positions-(positions.max(axis=0)+positions.min(axis=0))/2.) * (part['longest_dimension_m']/span)
+            lines = [f'v {x:.9g} {y:.9g} {z:.9g}' for x,y,z in centered]
+            lines += [f'f {indices[i]+1} {indices[i+1]+1} {indices[i+2]+1}'
+                      for i in range(0,len(indices),3)]
+            mesh_file = f'vivacity_assembly_{index}.obj'
+            converted_assets[mesh_file] = base64.b64encode(('\n'.join(lines)+'\n').encode()).decode()
+            mesh_name = f'assembly_mesh_{index}'
+            ET.SubElement(xml_assets, 'mesh', name=mesh_name, file=mesh_file)
+            parent = world if index == 0 else part_bodies[part['parent_name']]
+            body = ET.SubElement(parent, 'body', name=part['name'],
+                                 pos=' '.join(map(str,part['origin_m'])))
+            part_bodies[part['name']] = body
+            if part['joint_type'] != 'fixed':
+                joint_name = f'joint_{part["name"]}'
+                limits = ' '.join(map(str,part['joint_limits']))
+                ET.SubElement(body, 'joint', name=joint_name, type=part['joint_type'],
+                              axis=' '.join(map(str,part['axis'])), range=limits,
+                              damping='1', armature='0.01')
+                ET.SubElement(actuators, 'position', name=f'motor_{part["name"]}',
+                              joint=joint_name, kp=str(part['position_gain']), ctrlrange=limits,
+                              forcerange=f'{-part["effort_limit"]} {part["effort_limit"]}')
+            ET.SubElement(body, 'geom', name=f'geom_{part["name"]}', type='mesh',
+                          mesh=mesh_name, mass=str(part['mass_kg']), rgba='.72 .78 .78 1')
+        return {'entrypoint':'assembly.xml',
+                'content':base64.b64encode(ET.tostring(root, encoding='utf-8')).decode(),
+                'assets':converted_assets}
+
+    def compile_assembly(self, identifier):
+        with self.lock:
+            payload = self._load(identifier); record = payload['record']
+            draft = record.get('assembly_draft')
+            if not draft or record.get('assembly_status') != 'draft':
+                raise ValueError('save a valid assembly draft before compilation')
+            if self.verifying is not None:
+                raise ValueError('another native simulation is queued or running; retry after it completes')
+            assets = self._assembly_assets(identifier,payload)
+            self.verifying = identifier
+        try:
+            from .import_physics import native_probe
+            source = self._assembly_source(draft, assets)
+            compiled = native_probe(source, hashlib.sha256(base64.b64decode(source['content'])).hexdigest())
+            if not compiled.get('physics_model_valid'):
+                raise ValueError('MuJoCo did not compile the guided assembly')
+            with self.lock:
+                latest = self._load(identifier)
+                if latest['record'].get('assembly_draft') != draft:
+                    raise ValueError('assembly draft changed during compilation')
+                latest['source'] = source
+                latest['record']['assembly_status'] = 'compiled'
+                latest['record']['status'] = 'assembly_compiled'
+                latest['record']['capabilities'] = compiled
+                latest['record']['physics_ready'] = False
+                latest['record']['summary']['assembly_links'] = len(draft['parts'])
+                latest['record']['summary']['assembly_actuated_joints'] = sum(part['joint_type']!='fixed' for part in draft['parts'])
+                latest['record']['diagnostics'] = [
+                    'The guided assembly compiled in isolated MuJoCo and completed the bounded initial diagnostic. Configure and run a task to evaluate its performance.',
+                    'Separate meshes, joints and test actuators are simulated declarations, not proof that physical hardware matches them.']
+                self._save(latest)
+                return latest['record']
+        finally:
+            with self.lock:
+                self.verifying = None
 
     @staticmethod
     def _visual_task_source(preview, config):
@@ -380,6 +516,9 @@ class ImportService:
             if not record.get('test_cell'): raise ValueError('configure the test cell before running a trial')
             trial_id = str(uuid.uuid4())
             config = record['test_cell']
+            previous = record.get('task_trial')
+            if previous:
+                (self.root / f'{record["id"]}-{previous["id"]}.bin').unlink(missing_ok=True)
             record['task_trial'] = {'schema_version': 'vivacity.robot-task-trial/1.0', 'id': trial_id,
                 'status': 'running', 'task': config['task'], 'failure_class': 'none', 'measurements': {},
                 'current_phase': 'initializing', 'completed_steps': 0, 'total_steps': None,
@@ -387,6 +526,7 @@ class ImportService:
                 'body_parent_indices': [], 'frames': [], 'component_diagnostics': [], 'diagnostics': [],
                 'effective_config': config, 'source_sha256': record['sha256'],
                 'scope': 'Simulation initializing in the isolated MuJoCo worker.'}
+            payload.pop('scene', None)
             record['status'] = 'task_running'; self.verifying = identifier; self._save(payload)
             try: executor.submit(self._run_task_trial, identifier)
             except Exception:
@@ -407,6 +547,18 @@ class ImportService:
                 latest = self._load(identifier); current = latest['record']; trial = current.get('task_trial')
                 if current['status'] != 'task_running' or not trial or trial['id'] != trial_id:
                     return
+                if message.get('type') == 'scene':
+                    mesh_bytes = base64.b64decode(message['mesh_buffer_b64'], validate=True)
+                    if len(mesh_bytes) > 6 * 1024 * 1024:
+                        raise ValueError('compiled scene mesh exceeds its display limit')
+                    scene_file = self.root / f'{current["id"]}-{trial_id}.bin'
+                    temporary = scene_file.with_suffix('.tmp')
+                    temporary.write_bytes(mesh_bytes)
+                    temporary.replace(scene_file)
+                    latest['scene'] = message['scene']
+                    trial['scene_hash'] = message['scene']['model_hash']
+                    self._save(latest)
+                    return
                 frame = message.get('frame')
                 if frame is not None and not any(existing['seq'] == frame['seq'] for existing in trial['frames']):
                     if len(trial['frames']) < 192: trial['frames'].append(frame)
@@ -424,6 +576,7 @@ class ImportService:
             result['id'] = trial_id
             with self.lock:
                 latest = self._load(identifier); current = latest['record']
+                result['scene_hash'] = latest.get('scene', {}).get('model_hash')
                 current['task_trial'] = result
                 current['status'] = 'task_succeeded' if result['status'] == 'succeeded' else 'task_failed'
                 current['physics_ready'] = True
@@ -464,13 +617,29 @@ class ImportService:
                 'component_diagnostics': trial.get('component_diagnostics', []),
                 'diagnostics': trial.get('diagnostics', [])}
 
-    def create(self,filename,data,reduce_preview=False):
+    def task_trial_scene(self, identifier, trial_id, mesh=False):
+        with self.lock:
+            payload = self._load(identifier); record = payload['record']
+            if not record.get('task_trial') or record['task_trial']['id'] != trial_id:
+                raise KeyError('task trial missing')
+            scene = payload.get('scene')
+            if scene is None:
+                raise KeyError('task scene is not ready')
+            if not mesh:
+                return scene
+            scene_file = self.root / f'{record["id"]}-{trial_id}.bin'
+            if not scene_file.exists():
+                raise KeyError('task mesh buffer missing')
+            return scene_file.read_bytes()
+
+    def create(self,filename,data,reduce_preview=False,owner_token=None):
         name=safe_name(filename)
         if '/' in name:raise ValueError('upload filename must be a basename')
         limit=MAX_PROVIDER_ASSET if reduce_preview and name.endswith('.glb') else MAX_UPLOAD
         if not data or len(data)>limit:raise ValueError('scene asset exceeds its bounded byte limit')
         ext=PurePosixPath(name).suffix.lower();files={};bundle={}
-        if ext=='.zip':name,content,files,bundle=unpack(data);ext=PurePosixPath(name).suffix.lower()
+        was_bundle = ext == '.zip'
+        if was_bundle:name,content,files,bundle=unpack(data);ext=PurePosixPath(name).suffix.lower()
         else:content=data
         preview=None
         try:
@@ -485,22 +654,34 @@ class ImportService:
         if preview:
             from .spatial import geometry_evidence
             record['summary']['geometry_validation']=geometry_evidence(preview,sampled=reduce_preview)
+        assembly_meshes = {key:value for key,value in files.items()
+                           if PurePosixPath(key).suffix.lower() in ('.obj','.stl','.glb','.gltf')}
+        if was_bundle and preview is not None:
+            record['summary']['assembly_meshes'] = sorted(assembly_meshes)
+            if sum(map(len, assembly_meshes.values())) > 12*1024*1024:
+                record['diagnostics'].append('Assembly mesh assets exceed the 12 MiB guided assembly limit; the rigid CAD trial remains available.')
+                assembly_meshes = {}
         source=None
         if ext in ('.xml','.mjcf','.urdf'):
             source={'entrypoint':name,'content':base64.b64encode(content).decode(),
                     'assets':{k:base64.b64encode(v).decode() for k,v in files.items() if k!=name and k!='manifest.json'}}
-        payload=json.dumps({'record':record,'preview':preview,'source':source},allow_nan=False).encode()
+        preserve_assembly = was_bundle and len(assembly_meshes) >= 2
+        payload=json.dumps({'record':record,'preview':preview,'source':source,
+                            'owner_sha256':hashlib.sha256(owner_token.encode()).hexdigest() if owner_token else None},allow_nan=False).encode()
         with self.lock:
             existing=list(self.root.glob('*.json'))
             preserve_glb=ext=='.glb' and not files
-            stored=list(self.root.glob('*.json'))+list(self.root.glob('*.glb'))
-            if len(existing)>=100 or sum(p.stat().st_size for p in stored)+len(payload)+(len(content) if preserve_glb else 0)>128*1024*1024:raise ValueError('import storage quota reached; administrator cleanup required')
+            stored=list(self.root.glob('*.json'))+list(self.root.glob('*.glb'))+list(self.root.glob('*-assembly.zip'))
+            additional = (len(content) if preserve_glb else 0) + (len(data) if preserve_assembly else 0)
+            if len(existing)>=100 or sum(p.stat().st_size for p in stored)+len(payload)+additional>128*1024*1024:raise ValueError('import storage quota reached; administrator cleanup required')
             target=self.root/f'{record["id"]}.json';temp=target.with_suffix('.tmp');temp.write_bytes(payload);temp.replace(target)
             if preserve_glb:
                 # The static parser already rejected network URIs/extensions.
                 # Preserve the embedded visual asset rather than flattening PBR
                 # materials, UVs and texture bytes into the collision preview.
                 visual=self.root/f'{record["id"]}.glb';visual.write_bytes(content)
+            if preserve_assembly:
+                (self.root/f'{record["id"]}-assembly.zip').write_bytes(data)
         return record
 
     def get(self,identifier,preview=False):

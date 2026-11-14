@@ -26,3 +26,27 @@
 @media(max-width:800px){.import-result{grid-template-columns:1fr}.vector-fields{grid-template-columns:repeat(3,1fr)}.test-materials{grid-template-columns:1fr 1fr}.task-trace{min-height:420px}.task-trace>svg{min-height:250px}}
 @media(max-width:480px){.vector-fields,.test-materials{grid-template-columns:1fr}.task-measurements{grid-template-columns:repeat(2,1fr)}.task-trace>header{flex-direction:column}}
 .workspace-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px}.workspace-heading-actions .secondary{min-height:36px;padding:7px 11px;white-space:nowrap}@media(max-width:650px){.workspace-heading-actions{width:100%;justify-content:space-between}}
+
+/* Uploaded models share the measured workcell geometry; warnings follow the current frame. */
+.import-live-scene{margin-top:14px;border:1px solid var(--rule);background:#1b2224}
+.import-scene-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 13px;color:#d5e0d9;font-size:11px;border-bottom:1px solid #35403e}
+.import-scene-toolbar label{display:flex;align-items:center;gap:7px;cursor:pointer}
+.import-scene-toolbar input{accent-color:#b9d7d5}
+.import-scene-canvas{height:min(48vw,520px);min-height:340px}
+.import-live-scene>.small{padding:0 13px 12px;margin:0!important;color:#d6dfd7}
+.sample-arm-actions{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-top:12px}
+.sample-arm-actions a{font-size:11px;text-decoration:underline;color:#c2dcda}
+.component-focus{display:inline;border:0;background:none;padding:0;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
+.component-focus:focus-visible,.sample-arm-actions a:focus-visible{outline:2px solid #b9d7d5;outline-offset:3px}
+@media(max-width:800px){.import-scene-canvas{height:420px;min-height:300px}}
+@media(max-width:480px){.import-scene-toolbar{align-items:flex-start;flex-direction:column}.import-scene-canvas{height:320px;min-height:280px}}
+.assembly-designer{border:1px solid var(--line, #394446);padding:14px;margin:14px 0;background:#151c1d}
+.assembly-designer>summary{font-weight:650;cursor:pointer}
+.assembly-designer>p{color:#b7c5c5;line-height:1.5}
+.assembly-designer label{display:grid;gap:5px;margin:8px 0;font-size:12px;color:#c7d3d2}
+.assembly-designer input,.assembly-designer select{width:100%;min-width:0;background:#101718;color:#f1f5f4;border:1px solid #475354;padding:9px 10px;border-radius:2px}
+.assembly-part{border:1px solid #394446;margin:12px 0;padding:10px 12px}
+.assembly-part legend{padding:0 6px;color:#e8f2ef;font-size:13px}
+.assembly-vectors{display:grid;grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:8px}
+.assembly-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.assembly-actions button{min-height:40px}

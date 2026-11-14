@@ -21,7 +21,7 @@ export default defineConfig({
     launchOptions:{args:process.platform==='win32'?[]:['--use-angle=swiftshader','--enable-unsafe-swiftshader']},
     screenshot:'only-on-failure',trace:'retain-on-failure'},
   webServer:[
-    {command:'.venv\\Scripts\\python -m uvicorn vivacity.api:app --host 127.0.0.1 --port 8000',cwd:path.resolve('..'),url:'http://127.0.0.1:8000/health',reuseExistingServer:!process.env.CI,timeout:30_000},
-    {command:`npx vite preview --host 127.0.0.1 --port ${appPort} --strictPort`,url:`http://127.0.0.1:${appPort}`,reuseExistingServer:!process.env.CI,timeout:30_000}
+    {command:'.venv\\Scripts\\python -m uvicorn vivacity.api:app --host 127.0.0.1 --port 8000',cwd:path.resolve('..'),url:'http://127.0.0.1:8000/health',reuseExistingServer:!process.env.CI,timeout:90_000},
+    {command:`npx vite preview --host 127.0.0.1 --port ${appPort} --strictPort`,url:`http://127.0.0.1:${appPort}`,reuseExistingServer:!process.env.CI,timeout:90_000}
   ]
 });
