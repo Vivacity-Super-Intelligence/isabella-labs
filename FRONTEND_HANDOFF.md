@@ -714,11 +714,14 @@ Latest production correction, 2026-11-15: Render
 `dep-dbsdhdoae00c73eqhvm0` serves code commit
 `4831a0d52329003fd36ae7eb9b152f3016020066`; Vercel
 `dpl_3oHCnHqgaqQKM2QHmGPy4uMVk4kN` is aliased to
-`https://demo.tryvivacity.com`. The [Linux image run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43644778754)
-passed 400 tests with 3 skips across 55 reports. Direct and same-origin API
+`https://demo.tryvivacity.com`. The [final Linux image run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43646057583)
+passed 402 tests with 3 skips across 55 reports. Its two added failure tests
+do not change the deployed code. Direct and same-origin API
 smokes completed real 500-step mounted reaches with live frames and owner
 isolation. The public raised-free-base request produced 75 gravity steps,
 13 frames, 12 table contacts and an honest `invalid_target`. Production
 Playwright passed 4/4 upload-to-replay journeys, including mobile, free fall,
-and measured collision highlighting. Render Free still has sleep and
+and measured collision highlighting. Public weak-actuator runs also returned
+`collision` for self-contact after 85 steps and `actuator_limit` after 500
+steps when that contact was removed. Render Free still has sleep and
 ephemeral-storage limits.

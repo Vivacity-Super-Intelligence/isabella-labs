@@ -9,7 +9,7 @@ for a joint path; execution uses the submitted actuators and stops on measured
 prohibited contact. Contact geom/body IDs, force, signed distance, and time
 are recorded and the affected robot geometry is highlighted amber in `/import`.
 
-Local evidence: the focused import suite passed **46 tests, 1 skipped** (one
+Local evidence: the focused import suite passed **48 tests, 1 skipped** (one
 Starlette deprecation warning) when pytest's temp directory was placed on P:.
 An earlier rerun on C: failed twice because that drive ran out of temporary
 space; those were filesystem errors, and the P: rerun passed. The frontend
@@ -21,10 +21,12 @@ contact highlight. The bolted sample reach recorded 500 MuJoCo steps,
 measured collision at 0.62 s and a failed verdict. With the raised free sample,
 the base fell from Z = 0.51 m to 0.416 m in 75 steps and contacted the table;
 the impossible Z = 0.08 m target was rejected. The [final Linux deployment-image
-run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43644778754)
-passed **403 tests across 55 JUnit reports: 400 passed, 3 skipped, 0 failures,
-0 errors**. That run caught and verified a sandbox-specific NumPy RNG import
-fix before release.
+run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43646057583)
+passed **405 tests across 55 JUnit reports: 402 passed, 3 skipped, 0 failures,
+0 errors**. The preceding [code-release run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43644778754)
+passed 403 tests and verified the sandbox-specific NumPy RNG import fix. The
+last two tests add deliberate self-collision and actuator-limit fixtures;
+they do not change the deployed runtime code.
 
 Render deployment `dep-dbsdhdoae00c73eqhvm0` is **live** on source commit
 `4831a0d52329003fd36ae7eb9b152f3016020066` at
@@ -38,7 +40,10 @@ public request repeated the reported raised-base case: **75 gravity steps,
 13 frames, Z 0.51 m → 0.416 m, 12 recorded table contacts, peak 65.2 N**;
 the target below the tabletop failed as `invalid_target`. Production Playwright
 passed **4/4** desktop/mobile journeys for upload, live task, finding,
-replay, free fall, and collision highlight. Reproduction and model limitations
+replay, free fall, and collision highlight. Two additional public runs failed
+honestly: weak actuation produced `collision` with `upper_link`/`base_plate`
+after 85 steps; disabling that fixture contact produced `actuator_limit`
+after 500 steps with 0.483 m goal error. Reproduction and model limitations
 are in `docs/IMPORT_WORKCELL_PHYSICS.md`.
 
 The release retains the Render Free plan. It may sleep and its local upload
