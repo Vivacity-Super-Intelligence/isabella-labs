@@ -5611,6 +5611,79 @@
         }
       }
     },
+    "/v1/imports/{import_id}/task-trials/{trial_id}/frames": {
+      "get": {
+        "summary": "Import Task Trial Frames",
+        "description": "Read authoritative, ordered MuJoCo frames and partial measured diagnostics.",
+        "operationId": "import_task_trial_frames_v1_imports__import_id__task_trials__trial_id__frames_get",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          },
+          {
+            "name": "trial_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trial Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": -1,
+              "default": -1,
+              "title": "After"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 16,
+              "minimum": 1,
+              "default": 16,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotTaskFramesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/imports/{import_id}/configure-task": {
       "post": {
         "summary": "Configure Import Task",
@@ -11584,6 +11657,13 @@
             "minimum": 0.0,
             "title": "Time S"
           },
+          "physics_steps": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Physics Steps",
+            "default": 0
+          },
           "positions_m": {
             "items": {
               "items": {
@@ -11625,6 +11705,24 @@
               }
             ],
             "title": "Object Position M"
+          },
+          "joint_states": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Joint States"
+          },
+          "contacts": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 24,
+            "title": "Contacts"
           }
         },
         "additionalProperties": false,
@@ -11771,6 +11869,139 @@
         ],
         "title": "RobotQualificationTest"
       },
+      "RobotTaskFramesResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.robot-task-frames/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.robot-task-frames/1.0"
+          },
+          "import_id": {
+            "type": "string",
+            "title": "Import Id"
+          },
+          "trial_id": {
+            "type": "string",
+            "title": "Trial Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "task_running",
+              "task_succeeded",
+              "task_failed"
+            ],
+            "title": "Status"
+          },
+          "task": {
+            "type": "string",
+            "enum": [
+              "movement",
+              "reach",
+              "pick_place",
+              "static_drop"
+            ],
+            "title": "Task"
+          },
+          "current_phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Phase"
+          },
+          "completed_steps": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Completed Steps"
+          },
+          "total_steps": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Steps"
+          },
+          "simulated_seconds": {
+            "type": "number",
+            "maximum": 30.0,
+            "minimum": 0.0,
+            "title": "Simulated Seconds"
+          },
+          "elapsed_wall_seconds": {
+            "type": "number",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Elapsed Wall Seconds"
+          },
+          "frames": {
+            "items": {
+              "$ref": "#/components/schemas/RobotMotionFrame"
+            },
+            "type": "array",
+            "maxItems": 16,
+            "title": "Frames"
+          },
+          "next_cursor": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": -1.0,
+            "title": "Next Cursor"
+          },
+          "measurements": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Measurements"
+          },
+          "component_diagnostics": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 128,
+            "title": "Component Diagnostics"
+          },
+          "diagnostics": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 128,
+            "title": "Diagnostics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "import_id",
+          "trial_id",
+          "status",
+          "task",
+          "completed_steps",
+          "simulated_seconds",
+          "elapsed_wall_seconds",
+          "frames",
+          "next_cursor",
+          "measurements",
+          "component_diagnostics",
+          "diagnostics"
+        ],
+        "title": "RobotTaskFramesResponse"
+      },
       "RobotTaskTrial": {
         "properties": {
           "schema_version": {
@@ -11786,6 +12017,7 @@
           "status": {
             "type": "string",
             "enum": [
+              "running",
               "succeeded",
               "failed"
             ],
@@ -11812,7 +12044,8 @@
               "unreachable",
               "grip_lost",
               "placement_error",
-              "numerical_instability"
+              "numerical_instability",
+              "simulation_error"
             ],
             "title": "Failure Class"
           },
@@ -11820,6 +12053,51 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Measurements"
+          },
+          "current_phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Phase"
+          },
+          "completed_steps": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Completed Steps",
+            "default": 0
+          },
+          "total_steps": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Steps"
+          },
+          "simulated_seconds": {
+            "type": "number",
+            "maximum": 30.0,
+            "minimum": 0.0,
+            "title": "Simulated Seconds",
+            "default": 0.0
+          },
+          "elapsed_wall_seconds": {
+            "type": "number",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Elapsed Wall Seconds",
+            "default": 0.0
           },
           "body_names": {
             "items": {
@@ -11842,8 +12120,38 @@
               "$ref": "#/components/schemas/RobotMotionFrame"
             },
             "type": "array",
-            "maxItems": 64,
+            "maxItems": 192,
             "title": "Frames"
+          },
+          "component_diagnostics": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 128,
+            "title": "Component Diagnostics"
+          },
+          "diagnostics": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 128,
+            "title": "Diagnostics"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 700
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
           },
           "effective_config": {
             "$ref": "#/components/schemas/RobotTestCellConfig"

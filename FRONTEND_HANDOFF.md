@@ -539,10 +539,24 @@ All JSON requests reject unknown fields and non-finite numbers. IDs are always r
 | POST `/v1/imports?filename=scene.glb` | 201; raw bytes, not multipart |
 | GET `/v1/imports/{id}` | 200; inspected metadata, always `physics_ready:false` |
 | GET `/v1/imports/{id}/preview` | 200; validated static triangles |
+| PUT `/v1/imports/{id}/test-cell` | 200; validate workcell/task settings without running physics |
+| POST `/v1/imports/{id}/task-trials` | 202; queue an explicitly requested MuJoCo trial and return its running trial ID |
+| GET `/v1/imports/{id}/task-trials/{trial_id}/frames?after=-1&limit=16` | 200; ordered measured frames plus current phase, physics-step counts, partial measurements, joint/actuator findings and contacts; `next_cursor` is the latest returned sequence |
 | WS `/v1/experiments/{id}/events?after={seq}` | Sequenced persisted progress and terminal events |
 | WS `/v1/experiments/{id}/live` | Latest-only measured state, up to 20 Hz |
 
 Errors: 403 capability mismatch; 404 missing record; 409 stale/failed commit or conflicting retry settings; 422 invalid input; 429 bounded capacity exhausted; 503 shutting-down/unavailable worker. Capacity responses include `Retry-After:5`. A completed job can honestly have no successful candidate. Display measured failures, not a fabricated fallback.
+
+Uploaded robot task frames stream from the isolated MuJoCo worker while physics
+continues, not from a completed replay. Each frame contains world-space body
+transforms, supported position-joint readings, target/tracking error, actuator
+force and declared force limits, control saturation, joint-limit margin, and
+up to 24 highest-force contact pairs. The import task viewer follows live
+frames, then exposes manual replay after the terminal result. The current task
+viewer renders a measured body-transform skeleton; it does not render the full
+submitted mesh in motion. It reports actuator/joint/contact evidence and
+task-specific outcomes, not screw/gear fracture: those require explicit
+component geometry, material properties, and failure laws in the model.
 
 ## Session requests, responses and capability transport
 

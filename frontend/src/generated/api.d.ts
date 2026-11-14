@@ -1571,6 +1571,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/imports/{import_id}/task-trials/{trial_id}/frames": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Import Task Trial Frames
+         * @description Read authoritative, ordered MuJoCo frames and partial measured diagnostics.
+         */
+        get: operations["import_task_trial_frames_v1_imports__import_id__task_trials__trial_id__frames_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/imports/{import_id}/configure-task": {
         parameters: {
             query?: never;
@@ -4119,12 +4139,25 @@ export interface components {
             phase: "gravity_settle" | "actuator_probe" | "movement" | "approach" | "grasp" | "lift" | "transport" | "place" | "release" | "static_drop";
             /** Time S */
             time_s: number;
+            /**
+             * Physics Steps
+             * @default 0
+             */
+            physics_steps: number;
             /** Positions M */
             positions_m: number[][];
             /** Quaternions Wxyz */
             quaternions_wxyz: number[][];
             /** Object Position M */
             object_position_m?: number[] | null;
+            /** Joint States */
+            joint_states?: {
+                [key: string]: unknown;
+            }[];
+            /** Contacts */
+            contacts?: {
+                [key: string]: unknown;
+            }[];
         };
         /** RobotQualification */
         RobotQualification: {
@@ -4181,6 +4214,55 @@ export interface components {
             /** Explanation */
             explanation: string;
         };
+        /** RobotTaskFramesResponse */
+        RobotTaskFramesResponse: {
+            /**
+             * Schema Version
+             * @default vivacity.robot-task-frames/1.0
+             * @constant
+             */
+            schema_version: "vivacity.robot-task-frames/1.0";
+            /** Import Id */
+            import_id: string;
+            /** Trial Id */
+            trial_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "task_running" | "task_succeeded" | "task_failed";
+            /**
+             * Task
+             * @enum {string}
+             */
+            task: "movement" | "reach" | "pick_place" | "static_drop";
+            /** Current Phase */
+            current_phase?: string | null;
+            /** Completed Steps */
+            completed_steps: number;
+            /** Total Steps */
+            total_steps?: number | null;
+            /** Simulated Seconds */
+            simulated_seconds: number;
+            /** Elapsed Wall Seconds */
+            elapsed_wall_seconds: number;
+            /** Frames */
+            frames: components["schemas"]["RobotMotionFrame"][];
+            /** Next Cursor */
+            next_cursor: number;
+            /** Measurements */
+            measurements: {
+                [key: string]: unknown;
+            };
+            /** Component Diagnostics */
+            component_diagnostics: {
+                [key: string]: unknown;
+            }[];
+            /** Diagnostics */
+            diagnostics: {
+                [key: string]: unknown;
+            }[];
+        };
         /** RobotTaskTrial */
         RobotTaskTrial: {
             /**
@@ -4195,7 +4277,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "succeeded" | "failed";
+            status: "running" | "succeeded" | "failed";
             /**
              * Task
              * @enum {string}
@@ -4205,17 +4287,46 @@ export interface components {
              * Failure Class
              * @enum {string}
              */
-            failure_class: "none" | "model_invalid" | "unsupported_task" | "unstable" | "unactuated" | "unreachable" | "grip_lost" | "placement_error" | "numerical_instability";
+            failure_class: "none" | "model_invalid" | "unsupported_task" | "unstable" | "unactuated" | "unreachable" | "grip_lost" | "placement_error" | "numerical_instability" | "simulation_error";
             /** Measurements */
             measurements: {
                 [key: string]: unknown;
             };
+            /** Current Phase */
+            current_phase?: string | null;
+            /**
+             * Completed Steps
+             * @default 0
+             */
+            completed_steps: number;
+            /** Total Steps */
+            total_steps?: number | null;
+            /**
+             * Simulated Seconds
+             * @default 0
+             */
+            simulated_seconds: number;
+            /**
+             * Elapsed Wall Seconds
+             * @default 0
+             */
+            elapsed_wall_seconds: number;
             /** Body Names */
             body_names: string[];
             /** Body Parent Indices */
             body_parent_indices: number[];
             /** Frames */
             frames: components["schemas"]["RobotMotionFrame"][];
+            /** Component Diagnostics */
+            component_diagnostics?: {
+                [key: string]: unknown;
+            }[];
+            /** Diagnostics */
+            diagnostics?: {
+                [key: string]: unknown;
+            }[];
+            /** Error */
+            error?: string | null;
             effective_config: components["schemas"]["RobotTestCellConfig"];
             /** Source Sha256 */
             source_sha256: string;
@@ -8786,6 +8897,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_task_trial_frames_v1_imports__import_id__task_trials__trial_id__frames_get: {
+        parameters: {
+            query?: {
+                after?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                import_id: string;
+                trial_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RobotTaskFramesResponse"];
                 };
             };
             /** @description Validation Error */

@@ -2,7 +2,9 @@ import {test,expect} from '@playwright/test';
 
 test('upload remains unjudged until a configured MuJoCo task is run',async({page})=>{
   const errors:string[]=[];
+  let streamedLiveFrame=false;
   page.on('pageerror',error=>errors.push(error.message));
+  page.on('response',async response=>{if(response.url().includes('/task-trials/')&&new URL(response.url()).pathname.endsWith('/frames')&&response.status()===200){try{const update=await response.json();streamedLiveFrame ||= update.status==='task_running'&&update.frames.length>0;}catch{/* ignore unrelated response parsing */}}});
   await page.goto('/import');
   await expect(page.getByRole('button',{name:'Environment geometry',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Environment geometry',exact:true}).click();
@@ -18,9 +20,12 @@ test('upload remains unjudged until a configured MuJoCo task is run',async({page
   await page.getByRole('button',{name:'Place in test cell',exact:true}).click();
   await expect(page.getByRole('button',{name:'Run configured task',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Run configured task',exact:true}).click();
+  await expect.poll(()=>streamedLiveFrame,{timeout:15000}).toBe(true);
   await expect(page.getByRole('heading',{name:'Task succeeded',exact:true})).toBeVisible({timeout:60000});
   await expect(page.getByRole('heading',{name:'Configured MuJoCo task',exact:true})).toBeVisible();
   await expect.poll(()=>page.evaluate(()=>(window as any).__vivacityTaskTrial?.source)).toBe('measured_mujoco');
+  await expect(page.getByText(/Joint and actuator health/)).toBeVisible();
+  await expect(page.getByText('Failure-model boundary:')).toBeVisible();
   await expect(page.getByRole('button',{name:'Import another asset',exact:true})).toBeVisible();
   expect(errors).toEqual([]);
 });
