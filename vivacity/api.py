@@ -6,7 +6,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Res
 from fastapi.middleware.cors import CORSMiddleware
 from .runtime import Runtime, Conflict, Busy, Unavailable
 from .schemas import CreateWorld, ExperimentRequest, EnvironmentPatch, CommitRequest, WorldResponse, ExperimentResponse, BranchResponse, StateResponse, ReplayResponse, EventResponse, BranchExport, WorldEditorResponse, EditorChange, EditorGeometryAction, EditorMove, WorldVersion, RestoreWorldVersion
-from .schemas import ImportResponse,ImportPreview
+from .schemas import ImportResponse,ImportPreview,RobotTestCellConfig
 from .schemas import SessionRequest,SessionResponse,LiveState,TrialsResponse
 from .imports import ImportService,MAX_UPLOAD
 from pathlib import Path
@@ -275,6 +275,16 @@ def create_app(database=None):
     def qualify_import(import_id:str):
         """Run the same bounded native probe through the explicit robot qualification contract."""
         return app.state.imports.verify(import_id,app.state.runtime.executor)
+
+    @app.put('/v1/imports/{import_id}/test-cell',response_model=ImportResponse)
+    def configure_import_test_cell(import_id:str, request:RobotTestCellConfig):
+        """Stage an uploaded mechanism or CAD mesh in a bounded MuJoCo test cell."""
+        return app.state.imports.configure_test_cell(import_id, request)
+
+    @app.post('/v1/imports/{import_id}/task-trials',response_model=ImportResponse,status_code=202)
+    def run_import_task_trial(import_id:str):
+        """Execute the explicitly configured task; upload inspection is never a task verdict."""
+        return app.state.imports.run_task_trial(import_id, app.state.runtime.executor)
 
     @app.post('/v1/imports/{import_id}/configure-task',response_model=ImportResponse)
     def configure_import_task(import_id:str):

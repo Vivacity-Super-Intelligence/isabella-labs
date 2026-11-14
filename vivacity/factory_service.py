@@ -203,6 +203,13 @@ class FactoryService:
         if cell.get('software')!=software():raise Conflict('This cell was saved with a different controller version. Reset or apply its conditions before a new execution. Its previous results remain available.')
         if self.backend.create_world(cell['config']).model_hash!=cell['initial_state']['model_hash']:
             raise Conflict('The physical model has changed since this cell was saved. Reset or apply its conditions to create a compatible initial state. Saved results remain inspectable.')
+        # A terminal frame becomes visible just before the worker completes its
+        # durable save. Join only that short finalization window so a stopped
+        # run releases the single worker deterministically.
+        with self.lock:
+            finishing=[c['done'] for key,c in self.controls.items() if not c['done'].is_set()
+                       and self.live.get(key,{}).get('status') not in ('queued','running','paused')]
+        for done in finishing:done.wait(5)
         with self.lock:
             if any(not c['done'].is_set() for c in self.controls.values()):
                 raise Busy('A factory run is already using the simulation worker.')

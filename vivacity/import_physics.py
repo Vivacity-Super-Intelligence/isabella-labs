@@ -12,7 +12,7 @@ from .imports import inspect_xml, safe_name
 ORBITAL_SHA256 = '6d623c9fbd7aa337b195282f55dbbcc83432ffad69a95090dde2a831a4763354'
 
 
-def native_probe(source, source_sha256):
+def _run_native_worker(source, source_sha256, task_config=None):
     content = base64.b64decode(source['content'], validate=True)
     assets = {name: base64.b64decode(value, validate=True) for name, value in source['assets'].items()}
     extension = PurePosixPath(source['entrypoint']).suffix.lower()
@@ -20,15 +20,16 @@ def native_probe(source, source_sha256):
     root = ET.fromstring(content.decode('utf-8-sig'))
     # Bound allocations that structural inspection alone cannot constrain.
     for node in root.iter():
-        if node.tag in ('composite', 'flexcomp', 'skin', 'hfield', 'keyframe'):
-            raise ValueError('this native probe does not support generated deformable or heightfield assets')
-        for key in ('width', 'height', 'nrow', 'ncol', 'nconmax', 'njmax', 'memory'):
+        if node.tag in ('composite', 'flexcomp', 'skin', 'keyframe'):
+            raise ValueError('this native worker does not support generated deformable or keyframe assets')
+        allocation_keys = ('nrow', 'ncol') if node.tag == 'hfield' else ('width', 'height') if node.tag == 'texture' else ()
+        for key in allocation_keys + (('nconmax', 'njmax', 'memory') if node.tag == 'size' else ()):
             if key in node.attrib:
                 try:
                     number = int(node.attrib[key])
                 except ValueError:
                     raise ValueError('native allocation attributes must be bounded integers')
-                if not 1 <= number <= (512 if key in ('width', 'height') else 2048):
+                if not 1 <= number <= (512 if key in ('width', 'height','nrow','ncol') else 2048):
                     raise ValueError('native allocation exceeds probe bounds')
         if node.tag == 'compiler':
             for key in ('meshdir', 'texturedir', 'assetdir'):
@@ -45,6 +46,8 @@ def native_probe(source, source_sha256):
     environment |= {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'MKL_NUM_THREADS': '1', 'PYTHONIOENCODING': 'utf-8'}
     payload = {'xml': base64.b64encode(content).decode(),
                'assets': source['assets'], 'trusted_fixture': trusted}
+    if task_config is not None:
+        payload['task_config'] = task_config
     try:
         import tempfile
         with tempfile.TemporaryDirectory(prefix='vivacity-native-') as directory:
@@ -68,3 +71,12 @@ def native_probe(source, source_sha256):
             error = 'native probe failed'
         raise ValueError(error)
     return response['result'] | {'source_sha256': source_sha256}
+
+
+def native_probe(source, source_sha256):
+    return _run_native_worker(source, source_sha256)
+
+
+def native_task_trial(source, source_sha256, task_config):
+    """Run an explicitly configured task in the same bounded native worker."""
+    return _run_native_worker(source, source_sha256, task_config)

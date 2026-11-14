@@ -268,9 +268,10 @@ class ImportService:
         self.verifying=None
         for path in self.root.glob('*.json'):
             payload=json.loads(path.read_bytes())
-            if payload['record']['status']=='physics_verifying':
-                payload['record']['status']='physics_failed'
-                payload['record']['diagnostics'].append('Native verification was interrupted by server restart; retry explicitly.')
+            if payload['record']['status'] in ('physics_verifying','task_running'):
+                interrupted = payload['record']['status']
+                payload['record']['status']='physics_failed' if interrupted == 'physics_verifying' else 'task_failed'
+                payload['record']['diagnostics'].append('The running native job was interrupted by server restart; run it again explicitly.')
                 self._save(payload)
 
     def _load(self,identifier):
@@ -322,6 +323,82 @@ class ImportService:
         finally:
             with self.lock:
                 self.verifying=None;self._save(payload)
+
+    def configure_test_cell(self, identifier, config):
+        with self.lock:
+            payload = self._load(identifier); record = payload['record']
+            value = config.model_dump(mode='json')
+            if payload.get('preview') is not None and value['task'] != 'static_drop':
+                raise ValueError('static CAD has no joints or actuators; choose static_drop or upload an MJCF robot')
+            if payload.get('source') is not None and value['task'] == 'static_drop':
+                raise ValueError('static_drop is for CAD meshes; choose movement, reach or pick_place for a jointed model')
+            if payload.get('source') is not None and record['format'] == 'urdf':
+                raise ValueError('configured test cells currently require MJCF; URDF supports the separate initial movement diagnostic')
+            record['test_cell'] = value
+            record['task_trial'] = None
+            record['status'] = 'test_cell_configured'
+            record['physics_ready'] = False
+            record['diagnostics'] = ['Robot staged in the configured test cell. No task outcome exists until Run trial is selected.']
+            self._save(payload)
+            return record
+
+    @staticmethod
+    def _visual_task_source(preview, config):
+        positions = np.asarray(preview['positions'], dtype=float)
+        if not len(positions):
+            raise ValueError('CAD preview contains no vertices')
+        low, high = positions.min(axis=0), positions.max(axis=0)
+        span = high-low; longest = float(np.max(span))
+        if not np.isfinite(longest) or longest <= 1e-9:
+            raise ValueError('CAD mesh has no measurable 3D extent')
+        scaled = (positions-(low+high)/2.) * (config['cad_longest_dimension_m']/longest)
+        lines = [f'v {x:.9g} {y:.9g} {z:.9g}' for x,y,z in scaled]
+        indices = preview['indices']
+        lines += [f'f {indices[i]+1} {indices[i+1]+1} {indices[i+2]+1}' for i in range(0,len(indices),3)]
+        obj = ('\n'.join(lines)+'\n').encode()
+        spawn = config['pickup_position_m']
+        xml = f'''<mujoco model="uploaded_cad_test"><compiler usethread="false" balanceinertia="true"/>
+        <option timestep="0.004" gravity="0 0 -9.81"/><asset><mesh name="uploaded_cad_mesh" file="uploaded.obj"/></asset>
+        <worldbody><body name="vivacity_cad_body" pos="{spawn[0]} {spawn[1]} {spawn[2]}"><freejoint/>
+        <inertial pos="0 0 0" mass="{config['object_mass_kg']}" diaginertia=".01 .01 .01"/>
+        <geom type="mesh" mesh="uploaded_cad_mesh" rgba=".7 .75 .72 1" friction="{config['sliding_friction']} .01 .001"/></body></worldbody></mujoco>'''.encode()
+        return {'entrypoint':'uploaded.xml','content':base64.b64encode(xml).decode(),
+                'assets':{'uploaded.obj':base64.b64encode(obj).decode()}}
+
+    def run_task_trial(self, identifier, executor):
+        with self.lock:
+            payload = self._load(identifier); record = payload['record']
+            if record['status'] == 'task_running': return record
+            if self.verifying is not None: raise ValueError('another native simulation is queued or running; retry after it completes')
+            if not record.get('test_cell'): raise ValueError('configure the test cell before running a trial')
+            record['status'] = 'task_running'; self.verifying = identifier; self._save(payload)
+            try: executor.submit(self._run_task_trial, identifier)
+            except Exception:
+                self.verifying = None; record['status'] = 'task_failed'
+                record['diagnostics'].append('Task trial could not be queued.'); self._save(payload)
+                raise ValueError('task trial could not be queued') from None
+            return record
+
+    def _run_task_trial(self, identifier):
+        from .import_physics import native_task_trial
+        payload = self._load(identifier); record = payload['record']; config = record['test_cell']
+        try:
+            source = payload.get('source') or self._visual_task_source(payload.get('preview'), config)
+            result = native_task_trial(source, record['sha256'], config)
+            result['id'] = str(uuid.uuid4())
+            record['task_trial'] = result
+            record['status'] = 'task_succeeded' if result['status'] == 'succeeded' else 'task_failed'
+            record['physics_ready'] = True
+            record['readiness'] = ['test_cell_configured','task_trial_executed'] + (['task_succeeded'] if result['status']=='succeeded' else [])
+            record['diagnostics'] = [('The configured task succeeded from measured MuJoCo state.' if result['status']=='succeeded'
+                                      else 'The configured task failed: '+result['failure_class'].replace('_',' ')+'.')]
+        except Exception as error:
+            record['status'] = 'task_failed'; record['physics_ready'] = False
+            record['task_trial'] = None
+            record['diagnostics'] = ['Configured task could not execute: '+str(error)[:700]]
+        finally:
+            with self.lock:
+                self.verifying = None; self._save(payload)
 
     def create(self,filename,data,reduce_preview=False):
         name=safe_name(filename)

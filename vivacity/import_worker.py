@@ -13,6 +13,259 @@ import sys
 import xml.etree.ElementTree as ET
 
 
+def augment_test_cell(root, config):
+    """Add only measured test-cell geometry to an MJCF model."""
+    world = root.find('worldbody')
+    if world is None:
+        raise ValueError('configured lab tasks require an MJCF worldbody')
+    if world.find(".//*[@name='vivacity_floor']") is not None:
+        raise ValueError('submitted model uses a reserved vivacity_ name')
+    ET.SubElement(world, 'geom', name='vivacity_floor', type='plane', size='4 4 .1',
+                  rgba='.12 .14 .13 1', friction=f"{config['sliding_friction']} .01 .001")
+    offset = config.get('robot_base_offset_m', [0., 0., 0.])
+    base = next((item for item in world if item.tag == 'body'
+                 and not (item.get('name') or '').startswith('vivacity_')), None)
+    if base is not None:
+        position = [float(value) for value in base.get('pos', '0 0 0').split()]
+        if len(position) != 3:
+            raise ValueError('robot base position must have three coordinates')
+        base.set('pos', ' '.join(str(value + delta) for value, delta in zip(position, offset)))
+    environment = config['environment']
+    if environment == 'tabletop':
+        ET.SubElement(world, 'geom', name='vivacity_table', type='box', pos='.45 0 .35',
+                      size='.5 .45 .025', rgba='.38 .4 .39 1', friction='.9 .01 .001')
+    elif environment == 'warehouse_cell':
+        ET.SubElement(world, 'geom', name='vivacity_pallet', type='box', pos='.55 0 .08',
+                      size='.55 .42 .08', rgba='.36 .3 .22 1', friction='.75 .01 .001')
+    destination = config['destination_position_m']
+    ET.SubElement(world, 'site', name='vivacity_destination', type='box',
+                  pos=' '.join(map(str, destination)), size='.055 .055 .003',
+                  rgba='.85 .18 .14 .75', group='4')
+    if config['task'] == 'pick_place':
+        pickup = config['pickup_position_m']; half = config['object_half_size_m']
+        body = ET.SubElement(world, 'body', name='vivacity_object', pos=' '.join(map(str, pickup)))
+        ET.SubElement(body, 'freejoint', name='vivacity_object_free')
+        ET.SubElement(body, 'geom', name='vivacity_object_geom', type='box',
+                      size=' '.join(map(str, half)), mass=str(config['object_mass_kg']),
+                      friction=f"{config['sliding_friction']} .01 .001", rgba='.05 .28 .92 1')
+        if config['gripper'] == 'vivacity_force_fixture':
+            submitted = [item for item in world.iter('body') if not (item.get('name') or '').startswith('vivacity_')]
+            selected = next((item for item in submitted if item.get('name') == config.get('end_effector_body')), None)
+            if selected is None:
+                selected = submitted[-1] if submitted else None
+            if selected is not None:
+                ET.SubElement(selected, 'geom', name='vivacity_force_fixture', type='sphere',
+                              size='.035', mass='.001', rgba='.16 .76 .68 .65',
+                              contype='1', conaffinity='1')
+
+
+def execute_task(model, config, mj, np, sandbox):
+    data = mj.MjData(model)
+    mj.mj_forward(model, data)
+    name = lambda kind, i: mj.mj_id2name(model, kind, i)
+    task = config['task']
+    body_ids = list(range(1, min(model.nbody, 65)))
+    body_index = {body_id: index for index, body_id in enumerate(body_ids)}
+    body_names = [name(mj.mjtObj.mjOBJ_BODY, body_id) or f'body_{body_id}' for body_id in body_ids]
+    body_parents = [body_index.get(int(model.body_parentid[body_id]), -1) for body_id in body_ids]
+    object_name = 'vivacity_cad_body' if task == 'static_drop' else 'vivacity_object'
+    object_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, object_name)
+    terminal_name = config.get('end_effector_body')
+    terminal_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, terminal_name) if terminal_name else -1
+    if terminal_id < 0:
+        candidates = [body_id for body_id in body_ids if not (body_names[body_index[body_id]]).startswith('vivacity_')]
+        terminal_id = candidates[-1] if candidates else -1
+    frames = []
+
+    def record(phase):
+        if len(frames) >= 64:
+            return
+        frames.append({'seq': len(frames), 'phase': phase, 'time_s': float(data.time),
+                       'positions_m': data.xpos[body_ids].tolist(),
+                       'quaternions_wxyz': data.xquat[body_ids].tolist(),
+                       'object_position_m': data.xpos[object_id].tolist() if object_id >= 0 else None})
+
+    def finite():
+        return bool(np.isfinite(data.qpos).all() and np.isfinite(data.qvel).all()
+                    and not np.any(data.warning.number))
+
+    if task == 'static_drop':
+        if object_id < 0:
+            raise ValueError('static CAD test body is missing')
+        start = data.xpos[object_id].copy(); record('static_drop')
+        steps = int(np.ceil(2.0 / model.opt.timestep)); every = max(1, steps // 24)
+        for step in range(steps):
+            mj.mj_step(model, data)
+            if (step + 1) % every == 0:
+                record('static_drop')
+        speed = float(np.linalg.norm(data.cvel[object_id, :3]))
+        drop = float(start[2] - data.xpos[object_id, 2])
+        stable = finite() and speed < .2
+        return {'schema_version': 'vivacity.robot-task-trial/1.0', 'status': 'succeeded' if stable else 'failed',
+                'task': task, 'failure_class': 'none' if stable else 'unstable',
+                'measurements': {'simulated_seconds': float(data.time), 'physics_steps': steps,
+                                 'vertical_drop_m': drop, 'final_linear_speed_m_s': speed,
+                                 'final_position_m': data.xpos[object_id].tolist()},
+                'body_names': body_names, 'body_parent_indices': body_parents, 'frames': frames,
+                'effective_config': config,
+                'scope': 'Real MuJoCo rigid-body drop and collision trial of the uploaded CAD mesh convex hull. Static CAD contains no joints or actuators, so this result does not validate robot kinematics or control.'}
+
+    supported = []
+    for actuator_id in range(model.nu):
+        joint_id = int(model.actuator_trnid[actuator_id, 0])
+        position = (int(model.actuator_trntype[actuator_id]) == 0 and 0 <= joint_id < model.njnt
+                    and int(model.jnt_type[joint_id]) in (2, 3)
+                    and model.actuator_gainprm[actuator_id, 0] > 0
+                    and np.isclose(model.actuator_biasprm[actuator_id, 1], -model.actuator_gainprm[actuator_id, 0]))
+        if position:
+            supported.append((actuator_id, joint_id, int(model.jnt_dofadr[joint_id]), int(model.jnt_qposadr[joint_id])))
+            data.ctrl[actuator_id] = data.qpos[model.jnt_qposadr[joint_id]]
+    if not supported:
+        return {'schema_version': 'vivacity.robot-task-trial/1.0', 'status': 'failed', 'task': task,
+                'failure_class': 'unactuated', 'measurements': {'physics_steps': 0},
+                'body_names': body_names, 'body_parent_indices': body_parents, 'frames': [],
+                'effective_config': config,
+                'scope': 'The uploaded model was compiled, but no supported position actuator was available for this configured task.'}
+    if terminal_id < 0:
+        raise ValueError('no terminal robot body is available')
+
+    def set_targets(target_qpos):
+        desired = mj.MjData(model)
+        desired.qpos[:] = target_qpos; desired.qvel[:] = 0
+        mj.mj_forward(model, desired)
+        for actuator_id, _joint_id, dof, qadr in supported:
+            gain = float(model.actuator_gainprm[actuator_id, 0])
+            value = float(target_qpos[qadr] + desired.qfrc_bias[dof] / max(gain, 1e-9))
+            if model.actuator_ctrllimited[actuator_id]:
+                value = float(np.clip(value, *model.actuator_ctrlrange[actuator_id]))
+            data.ctrl[actuator_id] = value
+
+    def plan(target):
+        planning = mj.MjData(model)
+        planning.qpos[:] = data.qpos; planning.qvel[:] = 0
+        mj.mj_forward(model, planning)
+        for _ in range(100):
+            error = np.asarray(target) - planning.xpos[terminal_id]
+            if np.linalg.norm(error) <= .035:
+                break
+            jacp = np.zeros((3, model.nv)); jacr = np.zeros((3, model.nv))
+            mj.mj_jacBody(model, planning, jacp, jacr, terminal_id)
+            columns = [dof for _a, _j, dof, _q in supported]
+            jac = jacp[:, columns]
+            delta = jac.T @ np.linalg.solve(jac @ jac.T + .0025*np.eye(3), error)
+            norm = float(np.linalg.norm(delta))
+            if norm > .12:
+                delta *= .12 / norm
+            for amount, (_a, joint_id, _dof, qadr) in zip(delta, supported):
+                planning.qpos[qadr] += amount
+                if model.jnt_limited[joint_id]:
+                    planning.qpos[qadr] = np.clip(planning.qpos[qadr], *model.jnt_range[joint_id])
+            mj.mj_forward(model, planning)
+        return planning.qpos.copy(), float(np.linalg.norm(np.asarray(target)-planning.xpos[terminal_id]))
+
+    physics_steps = 0
+    grip_lost = False
+    peak_grip_force = 0.
+    grip_offset = np.array([0., 0., float(config['object_half_size_m'][2]) + .038])
+    def execute_phase(phase, target, duration=1.2, grip=False):
+        nonlocal physics_steps, grip_lost, peak_grip_force
+        target_qpos, planned_error = plan(target)
+        set_targets(target_qpos)
+        steps = int(np.ceil(duration / model.opt.timestep)); every = max(1, steps // 8)
+        for step in range(steps):
+            # Apply the visible test fixture through generalized forces so its
+            # equal-and-opposite load passes through the submitted mechanism.
+            # mj_applyFT avoids depending on xfrc_applied's raw vector layout.
+            data.qfrc_applied[:] = 0
+            if grip and object_id >= 0:
+                offset = data.xpos[terminal_id] - grip_offset - data.xpos[object_id]
+                distance = float(np.linalg.norm(offset))
+                if distance > .16:
+                    grip_lost = True
+                relative_velocity = data.cvel[terminal_id, 3:] - data.cvel[object_id, 3:]
+                force = 260.*offset + 18.*relative_velocity
+                magnitude = float(np.linalg.norm(force)); limit = float(config['gripper_strength_n'])
+                if magnitude > limit:
+                    force *= limit / magnitude
+                    magnitude = limit
+                zero = np.zeros(3)
+                mj.mj_applyFT(model, data, force, zero, data.xpos[object_id],
+                              object_id, data.qfrc_applied)
+                mj.mj_applyFT(model, data, -force, zero, data.xpos[terminal_id],
+                              terminal_id, data.qfrc_applied)
+                peak_grip_force = max(peak_grip_force, magnitude)
+            mj.mj_step(model, data); physics_steps += 1
+            if (step + 1) % every == 0:
+                record(phase)
+        mj.mj_forward(model, data)
+        return planned_error, float(np.linalg.norm(np.asarray(target)-data.xpos[terminal_id]))
+
+    record('movement' if task == 'movement' else 'approach')
+    if task == 'movement':
+        start = data.qpos.copy(); target_q = data.qpos.copy()
+        for _a, joint_id, _dof, qadr in supported:
+            delta = .12
+            if model.jnt_limited[joint_id] and target_q[qadr] + delta > model.jnt_range[joint_id, 1]:
+                delta = -.12
+            target_q[qadr] += delta
+        set_targets(target_q)
+        steps = int(np.ceil(1.2 / model.opt.timestep)); every = max(1, steps // 20)
+        for step in range(steps):
+            mj.mj_step(model, data); physics_steps += 1
+            if (step + 1) % every == 0: record('movement')
+        displacement = float(np.linalg.norm(data.qpos-start))
+        success = finite() and displacement > 1e-4
+        failure = 'none' if success else 'numerical_instability' if not finite() else 'unactuated'
+        measurements = {'physics_steps': physics_steps, 'simulated_seconds': float(data.time),
+                        'joint_displacement_norm': displacement, 'terminal_position_m': data.xpos[terminal_id].tolist()}
+    elif task == 'reach':
+        target = config['pickup_position_m']
+        planned, measured = execute_phase('approach', target, 2.)
+        success = finite() and measured <= .08
+        failure = 'none' if success else 'numerical_instability' if not finite() else 'unreachable'
+        measurements = {'physics_steps': physics_steps, 'simulated_seconds': float(data.time),
+                        'planned_goal_error_m': planned, 'goal_error_m': measured,
+                        'terminal_position_m': data.xpos[terminal_id].tolist()}
+    else:
+        if object_id < 0:
+            raise ValueError('configured pick-and-place object is missing')
+        object_start = data.xpos[object_id].copy()
+        pickup = np.asarray(config['pickup_position_m']); destination = np.asarray(config['destination_position_m'])
+        results = []
+        results.append(execute_phase('approach', pickup + np.array([0,0,.13]), 1.4))
+        results.append(execute_phase('grasp', pickup + grip_offset, .8))
+        results.append(execute_phase('lift', pickup + np.array([0,0,.22]), 1.2, True))
+        results.append(execute_phase('transport', destination + np.array([0,0,.22]), 1.6, True))
+        results.append(execute_phase('place', destination + grip_offset, 1.3, True))
+        execute_phase('release', destination + grip_offset, .35, False)
+        execute_phase('release', destination + np.array([0,0,.16]), .65, False)
+        for _ in range(int(np.ceil(.7/model.opt.timestep))):
+            data.qfrc_applied[:] = 0; mj.mj_step(model,data); physics_steps += 1
+        mj.mj_forward(model,data); record('release')
+        placement_error = float(np.linalg.norm(data.xpos[object_id]-destination))
+        reachable = max(value for pair in results for value in pair) <= .12
+        moved = float(np.linalg.norm(data.xpos[object_id]-object_start))
+        success = bool(finite() and reachable and not grip_lost and moved > .05 and placement_error <= .10)
+        if success: failure = 'none'
+        elif not finite(): failure = 'numerical_instability'
+        elif not reachable: failure = 'unreachable'
+        elif grip_lost or moved <= .05: failure = 'grip_lost'
+        else: failure = 'placement_error'
+        measurements = {'physics_steps': physics_steps, 'simulated_seconds': float(data.time),
+                        'object_start_m': object_start.tolist(), 'object_final_m': data.xpos[object_id].tolist(),
+                        'placement_error_m': placement_error, 'object_displacement_m': moved,
+                        'peak_grip_force_n': peak_grip_force, 'grip_lost': grip_lost,
+                        'waypoint_errors_m': [list(pair) for pair in results]}
+    return {'schema_version': 'vivacity.robot-task-trial/1.0', 'status': 'succeeded' if success else 'failed',
+            'task': task, 'failure_class': failure, 'measurements': measurements,
+            'body_names': body_names, 'body_parent_indices': body_parents, 'frames': frames,
+            'effective_config': config,
+            'scope': ('Real MuJoCo task execution with submitted joints, bodies, collisions and supported position actuators. '
+                      + ('The visible Vivacity force fixture applies equal, force-limited Cartesian grip forces; it does not validate an uploaded gripper. '
+                         if config['gripper'] == 'vivacity_force_fixture' else '')
+                      + 'The result applies only to this model, initial state and configured test cell; it is not hardware certification.')}
+
+
 def restrict_linux():
     import resource
     resource.setrlimit(resource.RLIMIT_CPU, (10, 10))
@@ -65,6 +318,7 @@ def probe(request):
     assets = {name: base64.b64decode(value, validate=True)
               for name, value in request['assets'].items()}
     root = ET.fromstring(xml)
+    task_config = request.get('task_config')
     if root.tag == 'mujoco':
         compiler = root.find('compiler')
         if compiler is None:
@@ -73,8 +327,12 @@ def probe(request):
         # VFS names have already been resolved by the parent validator.
         for key in ('meshdir', 'texturedir', 'assetdir'):
             compiler.attrib.pop(key, None)
+        if task_config is not None:
+            augment_test_cell(root, task_config)
         xml = ET.tostring(root, encoding='unicode')
     else:
+        if task_config is not None:
+            raise ValueError('configured lab tasks require MJCF; convert URDF to MJCF or run the initial movement diagnostic')
         xml = xml.decode('utf-8-sig')
     if sys.platform.startswith('linux'):
         restrict_linux()
@@ -90,6 +348,8 @@ def probe(request):
         raise ValueError('native timestep must be 0.001..0.01 seconds')
     data = mj.MjData(model)
     mj.mj_forward(model, data)
+    if task_config is not None:
+        return execute_task(model, task_config, mj, np, sandbox)
     name = lambda kind, i: mj.mj_id2name(model, kind, i)
     joints = [{'name': name(mj.mjtObj.mjOBJ_JOINT, i),
                'type': int(model.jnt_type[i]), 'range': model.jnt_range[i].tolist(),
