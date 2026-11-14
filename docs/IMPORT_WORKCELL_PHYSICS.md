@@ -5,9 +5,10 @@ the selected test cell. The uploaded source is retained unchanged. New task
 configurations use `base_mode: "free"`; records created before this field was
 introduced load as `"legacy_source"` so their previous mount semantics do not
 change. A `"bolted"` configuration fixes the robot root to the world and adds
-a visible support post. The post has collision disabled because the root's
-fixed joint is the physical constraint; its geometry explains that constraint
-in the view. If a root cannot be adapted safely, compilation fails with an
+a support post, a footplate, and four visible bolt heads. These geoms have collision disabled
+because the root's fixed joint is the physical constraint; their geometry
+explains that constraint in the view. If a root cannot be adapted safely,
+compilation fails with an
 explicit reason.
 
 ## Execution boundaries

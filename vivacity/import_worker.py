@@ -127,6 +127,14 @@ def augment_test_cell(root, config):
                           pos=f'{x} {y} {support + height / 2}',
                           size=f'.035 .035 {height / 2}', rgba='.12 .36 .38 1',
                           contype='0', conaffinity='0')
+            ET.SubElement(world, 'geom', name='vivacity_mount_footplate', type='box',
+                          pos=f'{x} {y} {support + .003}', size='.12 .12 .003',
+                          rgba='.15 .42 .43 1', contype='0', conaffinity='0')
+            for ix, iy in ((-1, -1), (-1, 1), (1, -1), (1, 1)):
+                ET.SubElement(world, 'geom', name=f'vivacity_mount_bolt_{ix}_{iy}',
+                              type='cylinder', pos=f'{x + ix*.1} {y + iy*.1} {support + .01}',
+                              size='.012 .004', rgba='.81 .67 .39 1',
+                              contype='0', conaffinity='0')
         elif base_mode != 'legacy_source':
             raise ValueError('unknown robot base placement mode')
     environment = config['environment']

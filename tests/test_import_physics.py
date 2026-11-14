@@ -103,6 +103,8 @@ def test_bolted_sample_has_visible_mount_and_reaches_without_forbidden_contact()
     scene = next(item['scene'] for item in emitted if item.get('type') == 'scene')
     assert scene['base_mode'] == 'bolted'
     assert any(geom['name'] == 'vivacity_bolted_mount' for geom in scene['geoms'])
+    assert any(geom['name'] == 'vivacity_mount_footplate' for geom in scene['geoms'])
+    assert sum(geom['name'].startswith('vivacity_mount_bolt_') for geom in scene['geoms']) == 4
     assert scene['task_target_position_m'] == [.45,-.15,.45]
     assert result['status'] == 'succeeded', result
     assert result['measurements']['goal_error_m'] < .08
