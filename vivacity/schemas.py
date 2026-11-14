@@ -316,13 +316,136 @@ class CommitRequest(Schema):
     branch_id: str
 
 
+class RobotQualificationTest(Schema):
+    id: Literal['model_compile','physical_properties','gravity_settle','actuator_response','joint_limits','kinematic_mobility']
+    status: Literal['passed','failed','warning','not_applicable']
+    measured: dict = {}
+    explanation: str = Field(max_length=500)
+
+
+class RobotMotionFrame(Schema):
+    seq: int = Field(ge=0, le=1000)
+    phase: Literal['gravity_settle','actuator_probe','movement','approach','grasp','lift','transport','place','release','static_drop']
+    time_s: float = Field(ge=0, le=30)
+    physics_steps: int = Field(default=0, ge=0, le=100000)
+    positions_m: list[Vec3] = Field(max_length=64)
+    quaternions_wxyz: list[Annotated[list[float], Field(min_length=4, max_length=4)]] = Field(max_length=64)
+    object_position_m: Vec3 | None = None
+    joint_states: list[dict] = Field(default_factory=list, max_length=64)
+    contacts: list[dict] = Field(default_factory=list, max_length=24)
+
+
+class RobotQualification(Schema):
+    schema_version: Literal['vivacity.robot-qualification/1.0'] = 'vivacity.robot-qualification/1.0'
+    verdict: Literal['passed','passed_with_warnings','failed']
+    failure_class: Literal['none','model_invalid','numerical_instability','unstable_under_gravity','unactuated','joint_limit_violation','insufficient_kinematic_mobility']
+    tests: list[RobotQualificationTest] = Field(min_length=6, max_length=6)
+    measurements: dict
+    body_names: list[str] = Field(max_length=64)
+    body_parent_indices: list[int] = Field(max_length=64)
+    frames: list[RobotMotionFrame] = Field(max_length=32)
+    scope: str = Field(max_length=700)
+
+
+class RobotTestCellConfig(Schema):
+    name: str = Field('Imported robot test', min_length=1, max_length=80)
+    environment: Literal['robotics_lab','tabletop','warehouse_cell'] = 'robotics_lab'
+    task: Literal['movement','reach','pick_place','static_drop'] = 'movement'
+    end_effector_body: str | None = Field(None, max_length=120)
+    robot_base_offset_m: ScenePosition = [0., 0., 0.]
+    gripper: Literal['uploaded','vivacity_force_fixture','none'] = 'vivacity_force_fixture'
+    gripper_strength_n: float = Field(40., ge=1., le=200.)
+    pickup_position_m: ScenePosition = [.45, -.15, .08]
+    destination_position_m: ScenePosition = [.45, .18, .08]
+    object_half_size_m: Annotated[list[Annotated[float, Field(ge=.01, le=.12)]], Field(min_length=3, max_length=3)] = [.03, .03, .03]
+    object_mass_kg: float = Field(.08, ge=.01, le=2.)
+    sliding_friction: float = Field(.8, ge=.05, le=2.)
+    cad_longest_dimension_m: float = Field(.6, ge=.05, le=3.)
+
+    @model_validator(mode='after')
+    def validate_task(self):
+        if self.task == 'pick_place' and self.gripper == 'none':
+            raise ValueError('pick_place requires an uploaded gripper or the visible Vivacity force fixture')
+        if sum((a-b)**2 for a,b in zip(self.pickup_position_m,self.destination_position_m)) < .01**2:
+            raise ValueError('pickup and destination must be at least 0.01 m apart')
+        return self
+
+
+class RobotTaskTrial(Schema):
+    schema_version: Literal['vivacity.robot-task-trial/1.0'] = 'vivacity.robot-task-trial/1.0'
+    id: str
+    status: Literal['running','succeeded','failed']
+    task: Literal['movement','reach','pick_place','static_drop']
+    failure_class: Literal['none','model_invalid','unsupported_task','unstable','unactuated','unreachable','grip_lost','placement_error','numerical_instability','simulation_error']
+    measurements: dict
+    current_phase: str | None = None
+    completed_steps: int = Field(default=0, ge=0, le=100000)
+    total_steps: int | None = Field(default=None, ge=1, le=100000)
+    simulated_seconds: float = Field(default=0., ge=0., le=30.)
+    elapsed_wall_seconds: float = Field(default=0., ge=0., le=120.)
+    body_names: list[str] = Field(max_length=64)
+    body_parent_indices: list[int] = Field(max_length=64)
+    frames: list[RobotMotionFrame] = Field(max_length=192)
+    component_diagnostics: list[dict] = Field(default_factory=list, max_length=128)
+    diagnostics: list[dict] = Field(default_factory=list, max_length=128)
+    error: str | None = Field(default=None, max_length=700)
+    effective_config: RobotTestCellConfig
+    source_sha256: str = Field(min_length=64, max_length=64, pattern=r'^[0-9a-f]{64}$')
+    scope: str = Field(max_length=900)
+
+
+class RobotTaskFramesResponse(Schema):
+    schema_version: Literal['vivacity.robot-task-frames/1.0'] = 'vivacity.robot-task-frames/1.0'
+    import_id: str
+    trial_id: str
+    status: Literal['task_running','task_succeeded','task_failed']
+    task: Literal['movement','reach','pick_place','static_drop']
+    current_phase: str | None = None
+    completed_steps: int = Field(ge=0, le=100000)
+    total_steps: int | None = Field(default=None, ge=1, le=100000)
+    simulated_seconds: float = Field(ge=0, le=30)
+    elapsed_wall_seconds: float = Field(ge=0, le=120)
+    frames: list[RobotMotionFrame] = Field(max_length=16)
+    next_cursor: int = Field(ge=-1, le=1000)
+    measurements: dict
+    component_diagnostics: list[dict] = Field(max_length=128)
+    diagnostics: list[dict] = Field(max_length=128)
+
+
+class ImportCapabilities(Schema):
+    simulator: Literal['mujoco']
+    simulator_version: str
+    sandbox: str
+    physics_model_valid: bool
+    robot_actuation_verified: bool
+    task_execution_verified: bool
+    joints: list[dict]
+    actuators: list[dict]
+    sites: list[str]
+    dynamic_bodies: list[str]
+    collision_geometries: int
+    simulation_steps: int
+    simulated_seconds: float
+    driven_actuator: int | None
+    joint_displacement: float
+    stable: bool
+    state_encoding: Literal['mjSTATE_INTEGRATION']
+    initial_state: list[float]
+    final_state: list[float]
+    initial_qpos: list[float]
+    final_qpos: list[float]
+    scope: str
+    source_sha256: str
+    qualification: RobotQualification | None = None
+
+
 class ImportResponse(Schema):
     schema_version: Literal['vivacity.import/1.0']='vivacity.import/1.0'
     id: str
     filename: str
     entrypoint: str
     format: str
-    status: Literal['visual_only','configuration_required','physics_verifying','physics_valid','actuation_verified','physics_failed','manipulation_configured']
+    status: Literal['visual_only','configuration_required','physics_verifying','physics_valid','actuation_verified','qualification_failed','physics_failed','manipulation_configured','test_cell_configured','task_running','task_succeeded','task_failed']
     physics_ready: bool=False
     preview_available: bool
     sha256: str
@@ -331,8 +454,10 @@ class ImportResponse(Schema):
     summary: dict
     diagnostics: list[str]
     readiness: list[str]=[]
-    capabilities: dict | None=None
+    capabilities: ImportCapabilities | None=None
     configured_world_id: str | None=None
+    test_cell: RobotTestCellConfig | None=None
+    task_trial: RobotTaskTrial | None=None
 
 
 class ImportPreview(Schema):
