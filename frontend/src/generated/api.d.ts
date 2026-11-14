@@ -1531,6 +1531,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/imports/{import_id}/test-cell": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Configure Import Test Cell
+         * @description Stage an uploaded mechanism or CAD mesh in a bounded MuJoCo test cell.
+         */
+        put: operations["configure_import_test_cell_v1_imports__import_id__test_cell_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{import_id}/task-trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Import Task Trial
+         * @description Execute the explicitly configured task; upload inspection is never a task verdict.
+         */
+        post: operations["run_import_task_trial_v1_imports__import_id__task_trials_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/imports/{import_id}/configure-task": {
         parameters: {
             query?: never;
@@ -3636,7 +3676,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "visual_only" | "configuration_required" | "physics_verifying" | "physics_valid" | "actuation_verified" | "qualification_failed" | "physics_failed" | "manipulation_configured";
+            status: "visual_only" | "configuration_required" | "physics_verifying" | "physics_valid" | "actuation_verified" | "qualification_failed" | "physics_failed" | "manipulation_configured" | "test_cell_configured" | "task_running" | "task_succeeded" | "task_failed";
             /**
              * Physics Ready
              * @default false
@@ -3664,6 +3704,8 @@ export interface components {
             capabilities?: components["schemas"]["ImportCapabilities"] | null;
             /** Configured World Id */
             configured_world_id?: string | null;
+            test_cell?: components["schemas"]["RobotTestCellConfig"] | null;
+            task_trial?: components["schemas"]["RobotTaskTrial"] | null;
         };
         JsonValue: unknown;
         /** LibraryWorld */
@@ -4074,13 +4116,15 @@ export interface components {
              * Phase
              * @enum {string}
              */
-            phase: "gravity_settle" | "actuator_probe";
+            phase: "gravity_settle" | "actuator_probe" | "movement" | "approach" | "grasp" | "lift" | "transport" | "place" | "release" | "static_drop";
             /** Time S */
             time_s: number;
             /** Positions M */
             positions_m: number[][];
             /** Quaternions Wxyz */
             quaternions_wxyz: number[][];
+            /** Object Position M */
+            object_position_m?: number[] | null;
         };
         /** RobotQualification */
         RobotQualification: {
@@ -4136,6 +4180,131 @@ export interface components {
             };
             /** Explanation */
             explanation: string;
+        };
+        /** RobotTaskTrial */
+        RobotTaskTrial: {
+            /**
+             * Schema Version
+             * @default vivacity.robot-task-trial/1.0
+             * @constant
+             */
+            schema_version: "vivacity.robot-task-trial/1.0";
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "succeeded" | "failed";
+            /**
+             * Task
+             * @enum {string}
+             */
+            task: "movement" | "reach" | "pick_place" | "static_drop";
+            /**
+             * Failure Class
+             * @enum {string}
+             */
+            failure_class: "none" | "model_invalid" | "unsupported_task" | "unstable" | "unactuated" | "unreachable" | "grip_lost" | "placement_error" | "numerical_instability";
+            /** Measurements */
+            measurements: {
+                [key: string]: unknown;
+            };
+            /** Body Names */
+            body_names: string[];
+            /** Body Parent Indices */
+            body_parent_indices: number[];
+            /** Frames */
+            frames: components["schemas"]["RobotMotionFrame"][];
+            effective_config: components["schemas"]["RobotTestCellConfig"];
+            /** Source Sha256 */
+            source_sha256: string;
+            /** Scope */
+            scope: string;
+        };
+        /** RobotTestCellConfig */
+        RobotTestCellConfig: {
+            /**
+             * Name
+             * @default Imported robot test
+             */
+            name: string;
+            /**
+             * Environment
+             * @default robotics_lab
+             * @enum {string}
+             */
+            environment: "robotics_lab" | "tabletop" | "warehouse_cell";
+            /**
+             * Task
+             * @default movement
+             * @enum {string}
+             */
+            task: "movement" | "reach" | "pick_place" | "static_drop";
+            /** End Effector Body */
+            end_effector_body?: string | null;
+            /**
+             * Robot Base Offset M
+             * @default [
+             *       0,
+             *       0,
+             *       0
+             *     ]
+             */
+            robot_base_offset_m: number[];
+            /**
+             * Gripper
+             * @default vivacity_force_fixture
+             * @enum {string}
+             */
+            gripper: "uploaded" | "vivacity_force_fixture" | "none";
+            /**
+             * Gripper Strength N
+             * @default 40
+             */
+            gripper_strength_n: number;
+            /**
+             * Pickup Position M
+             * @default [
+             *       0.45,
+             *       -0.15,
+             *       0.08
+             *     ]
+             */
+            pickup_position_m: number[];
+            /**
+             * Destination Position M
+             * @default [
+             *       0.45,
+             *       0.18,
+             *       0.08
+             *     ]
+             */
+            destination_position_m: number[];
+            /**
+             * Object Half Size M
+             * @default [
+             *       0.03,
+             *       0.03,
+             *       0.03
+             *     ]
+             */
+            object_half_size_m: number[];
+            /**
+             * Object Mass Kg
+             * @default 0.08
+             */
+            object_mass_kg: number;
+            /**
+             * Sliding Friction
+             * @default 0.8
+             */
+            sliding_friction: number;
+            /**
+             * Cad Longest Dimension M
+             * @default 0.6
+             */
+            cad_longest_dimension_m: number;
         };
         /** RoboticsConfig */
         RoboticsConfig: {
@@ -8534,6 +8703,72 @@ export interface operations {
         };
     };
     qualify_import_v1_imports__import_id__qualification_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    configure_import_test_cell_v1_imports__import_id__test_cell_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RobotTestCellConfig"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_import_task_trial_v1_imports__import_id__task_trials_post: {
         parameters: {
             query?: never;
             header?: never;

@@ -5521,6 +5521,96 @@
         }
       }
     },
+    "/v1/imports/{import_id}/test-cell": {
+      "put": {
+        "summary": "Configure Import Test Cell",
+        "description": "Stage an uploaded mechanism or CAD mesh in a bounded MuJoCo test cell.",
+        "operationId": "configure_import_test_cell_v1_imports__import_id__test_cell_put",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RobotTestCellConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/imports/{import_id}/task-trials": {
+      "post": {
+        "summary": "Run Import Task Trial",
+        "description": "Execute the explicitly configured task; upload inspection is never a task verdict.",
+        "operationId": "run_import_task_trial_v1_imports__import_id__task_trials_post",
+        "parameters": [
+          {
+            "name": "import_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Import Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/imports/{import_id}/configure-task": {
       "post": {
         "summary": "Configure Import Task",
@@ -10495,7 +10585,11 @@
               "actuation_verified",
               "qualification_failed",
               "physics_failed",
-              "manipulation_configured"
+              "manipulation_configured",
+              "test_cell_configured",
+              "task_running",
+              "task_succeeded",
+              "task_failed"
             ],
             "title": "Status"
           },
@@ -10560,6 +10654,26 @@
               }
             ],
             "title": "Configured World Id"
+          },
+          "test_cell": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RobotTestCellConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task_trial": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RobotTaskTrial"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -11452,7 +11566,15 @@
             "type": "string",
             "enum": [
               "gravity_settle",
-              "actuator_probe"
+              "actuator_probe",
+              "movement",
+              "approach",
+              "grasp",
+              "lift",
+              "transport",
+              "place",
+              "release",
+              "static_drop"
             ],
             "title": "Phase"
           },
@@ -11487,6 +11609,22 @@
             "type": "array",
             "maxItems": 64,
             "title": "Quaternions Wxyz"
+          },
+          "object_position_m": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array",
+                "maxItems": 3,
+                "minItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object Position M"
           }
         },
         "additionalProperties": false,
@@ -11632,6 +11770,262 @@
           "explanation"
         ],
         "title": "RobotQualificationTest"
+      },
+      "RobotTaskTrial": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "vivacity.robot-task-trial/1.0",
+            "title": "Schema Version",
+            "default": "vivacity.robot-task-trial/1.0"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "succeeded",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "task": {
+            "type": "string",
+            "enum": [
+              "movement",
+              "reach",
+              "pick_place",
+              "static_drop"
+            ],
+            "title": "Task"
+          },
+          "failure_class": {
+            "type": "string",
+            "enum": [
+              "none",
+              "model_invalid",
+              "unsupported_task",
+              "unstable",
+              "unactuated",
+              "unreachable",
+              "grip_lost",
+              "placement_error",
+              "numerical_instability"
+            ],
+            "title": "Failure Class"
+          },
+          "measurements": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Measurements"
+          },
+          "body_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Body Names"
+          },
+          "body_parent_indices": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Body Parent Indices"
+          },
+          "frames": {
+            "items": {
+              "$ref": "#/components/schemas/RobotMotionFrame"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Frames"
+          },
+          "effective_config": {
+            "$ref": "#/components/schemas/RobotTestCellConfig"
+          },
+          "source_sha256": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Source Sha256"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 900,
+            "title": "Scope"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "task",
+          "failure_class",
+          "measurements",
+          "body_names",
+          "body_parent_indices",
+          "frames",
+          "effective_config",
+          "source_sha256",
+          "scope"
+        ],
+        "title": "RobotTaskTrial"
+      },
+      "RobotTestCellConfig": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "default": "Imported robot test"
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "robotics_lab",
+              "tabletop",
+              "warehouse_cell"
+            ],
+            "title": "Environment",
+            "default": "robotics_lab"
+          },
+          "task": {
+            "type": "string",
+            "enum": [
+              "movement",
+              "reach",
+              "pick_place",
+              "static_drop"
+            ],
+            "title": "Task",
+            "default": "movement"
+          },
+          "end_effector_body": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Effector Body"
+          },
+          "robot_base_offset_m": {
+            "items": {
+              "type": "number",
+              "maximum": 8.0,
+              "minimum": -8.0
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Robot Base Offset M",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "gripper": {
+            "type": "string",
+            "enum": [
+              "uploaded",
+              "vivacity_force_fixture",
+              "none"
+            ],
+            "title": "Gripper",
+            "default": "vivacity_force_fixture"
+          },
+          "gripper_strength_n": {
+            "type": "number",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Gripper Strength N",
+            "default": 40.0
+          },
+          "pickup_position_m": {
+            "items": {
+              "type": "number",
+              "maximum": 8.0,
+              "minimum": -8.0
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Pickup Position M",
+            "default": [
+              0.45,
+              -0.15,
+              0.08
+            ]
+          },
+          "destination_position_m": {
+            "items": {
+              "type": "number",
+              "maximum": 8.0,
+              "minimum": -8.0
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Destination Position M",
+            "default": [
+              0.45,
+              0.18,
+              0.08
+            ]
+          },
+          "object_half_size_m": {
+            "items": {
+              "type": "number",
+              "maximum": 0.12,
+              "minimum": 0.01
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Object Half Size M",
+            "default": [
+              0.03,
+              0.03,
+              0.03
+            ]
+          },
+          "object_mass_kg": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 0.01,
+            "title": "Object Mass Kg",
+            "default": 0.08
+          },
+          "sliding_friction": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 0.05,
+            "title": "Sliding Friction",
+            "default": 0.8
+          },
+          "cad_longest_dimension_m": {
+            "type": "number",
+            "maximum": 3.0,
+            "minimum": 0.05,
+            "title": "Cad Longest Dimension M",
+            "default": 0.6
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RobotTestCellConfig"
       },
       "RoboticsConfig": {
         "properties": {
