@@ -53,10 +53,14 @@ test('sample arm highlights its measured elbow load at the recorded frame',async
  await expect(page.getByRole('heading',{name:'Task succeeded'})).toBeVisible({timeout:60000});
  const scene=page.getByRole('img',{name:/3D MuJoCo workcell/});
  await expect(scene).toBeVisible();
+ await page.getByRole('slider',{name:'Measured task replay frame'}).focus();
+ await page.getByRole('slider',{name:'Measured task replay frame'}).press('Home');
+ await expect(scene).toHaveAttribute('data-stressed-body-ids','');
  await page.getByRole('button',{name:'Inspect elbow_flex at its peak effort in the 3D workcell'}).click();
  await expect(scene).toHaveAttribute('data-highlight-body-id','4');
  await expect(scene).toHaveAttribute('data-stressed-body-ids',/(^|,)4(,|$)/);
  await expect(page.getByText(/Red at this frame: 1 body area/)).toBeVisible();
+ await scene.scrollIntoViewIfNeeded();
  await page.screenshot({path:'test-results/import-sample-elbow.png',fullPage:false});
  await page.getByRole('button',{name:'Fit workcell'}).click();
  await expect(scene).toHaveAttribute('data-highlight-body-id','');

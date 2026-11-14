@@ -534,7 +534,7 @@ def restrict_linux():
         raise ValueError('native sandbox installation failed')
 
 
-def probe(request, emit=None):
+def probe(request, emit=None, *, enforce_sandbox=True):
     # Imports and dynamic libraries are resolved before filesystem access closes.
     import mujoco as mj
     import numpy as np
@@ -559,8 +559,15 @@ def probe(request, emit=None):
             raise ValueError('configured lab tasks require MJCF or a supported URDF robot')
         xml = xml.decode('utf-8-sig')
     if sys.platform.startswith('linux'):
-        restrict_linux()
-        sandbox = 'linux_seccomp_cpu_memory_file_caps'
+        if enforce_sandbox:
+            restrict_linux()
+            sandbox = 'linux_seccomp_cpu_memory_file_caps'
+        elif request.get('trusted_fixture') is True:
+            # Direct fixture tests run inside pytest. A seccomp filter cannot be
+            # removed and would deny the test runner's subsequent file access.
+            sandbox = 'trusted_fixed_fixture_inprocess_test'
+        else:
+            raise ValueError('untrusted native execution requires the Linux sandbox')
     elif request.get('trusted_fixture') is True:
         sandbox = 'trusted_fixed_fixture_child_only'
     else:

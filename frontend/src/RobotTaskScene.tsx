@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {Canvas,useThree} from '@react-three/fiber';
 import {OrbitControls} from '@react-three/drei';
 import {BufferAttribute,BufferGeometry,Color,Quaternion,SRGBColorSpace,Vector3} from 'three';
@@ -71,8 +71,12 @@ function SceneGeom({geom,geometry,stressed,selected,collision}:{geom:Geom;geomet
 }
 
 export default function RobotTaskScene({importId,trial,frame,selectedJoint,onClearSelection}:{importId:string;trial:Trial;frame?:Frame;selectedJoint:string|null;onClearSelection:()=>void}){
+ const rootRef=useRef<HTMLDivElement>(null);
  const [scene,setScene]=useState<Scene|null>(null),[meshBuffer,setMeshBuffer]=useState<ArrayBuffer|null>(null);
  const [error,setError]=useState<string|null>(null),[collision,setCollision]=useState(false);
+ useEffect(()=>{if(selectedJoint)rootRef.current?.scrollIntoView({
+  behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'
+ });},[selectedJoint]);
  useEffect(()=>{
   let stopped=false;const controller=new AbortController();
   setScene(null);setMeshBuffer(null);setError(null);
@@ -124,7 +128,7 @@ export default function RobotTaskScene({importId,trial,frame,selectedJoint,onCle
  const viewTarget=(selectedPose??framing.target) as Vec3;
  const viewDistance=selectedPose?Math.max(.85,framing.distance*.28):framing.distance;
  const visible=(geom:Geom)=>geom.group!==3||collision||!scene?.geoms.some(other=>other.body_id===geom.body_id&&other.group===1);
- return <div className="import-live-scene">
+ return <div className="import-live-scene" ref={rootRef}>
   <div className="import-scene-toolbar"><span>{scene?'Compiled MuJoCo model · measured live poses':'Preparing compiled scene'}</span>
    {selectedPose&&<button type="button" className="component-focus" onClick={onClearSelection}>Fit workcell</button>}
    <label><input type="checkbox" checked={collision} onChange={event=>setCollision(event.target.checked)}/> Collision geometry</label></div>

@@ -16,11 +16,22 @@ from fastapi.testclient import TestClient
 from vivacity.api import create_app
 from vivacity.imports import ImportService, unpack
 from vivacity.import_physics import native_probe, native_task_trial, ORBITAL_SHA256, SAMPLE_ARM_SHA256
-from vivacity.import_worker import probe
+from vivacity.import_worker import probe as _worker_probe
 from vivacity.schemas import RobotTestCellConfig, AssemblyDraft
 
 FIXTURE = Path(__file__).resolve().parents[1] / 'fixtures/imports/orbital_salvage_lab.zip'
 SAMPLE_ARM = Path(__file__).resolve().parents[1] / 'fixtures/imports/vivacity_sample_arm.xml'
+
+
+def probe(request, emit=None):
+    """Exercise trusted fixtures without installing process-wide seccomp in pytest."""
+    return _worker_probe(request, emit=emit, enforce_sandbox=False)
+
+
+def test_inprocess_probe_rejects_untrusted_models_without_seccomp():
+    with pytest.raises(ValueError, match='requires the Linux sandbox|untrusted native execution'):
+        _worker_probe({'xml': base64.b64encode(b'<mujoco/>').decode(), 'assets': {}},
+                      enforce_sandbox=False)
 
 
 def test_sample_arm_scene_and_frame_ids_match_the_compiled_model():

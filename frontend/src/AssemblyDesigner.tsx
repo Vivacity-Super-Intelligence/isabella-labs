@@ -39,7 +39,7 @@ export default function AssemblyDesigner({importId,meshes,saved,status,busy,onSt
   <label>Tool / gripper attachment link<select value={draft.end_effector_part} onChange={event=>{setDraft(value=>({...value,end_effector_part:event.target.value}));setDirty(true);}}>{draft.parts.map(item=><option key={item.name} value={item.name}>{item.name}</option>)}</select></label>
   <div className="assembly-actions">
    {draft.parts.length<Math.min(8,meshes.length)&&<button type="button" className="secondary" disabled={busy} onClick={()=>{setDraft(value=>({...value,parts:[...value.parts,part(meshes[value.parts.length],value.parts.length,value.parts.at(-1)?.name??null)]}));setDirty(true);}}>Add link</button>}
-   {draft.parts.length>2&&<button type="button" className="secondary" disabled={busy} onClick={()=>{setDraft(value=>({...value,parts:value.parts.slice(0,-1)}));setDirty(true);}}>Remove last link</button>}
+   {draft.parts.length>2&&<button type="button" className="secondary" disabled={busy} onClick={()=>{setDraft(value=>{const parts=value.parts.slice(0,-1);return {...value,parts,end_effector_part:parts.some(item=>item.name===value.end_effector_part)?value.end_effector_part:parts.at(-1)!.name};});setDirty(true);}}>Remove last link</button>}
    <button type="button" className="secondary" disabled={busy||!dirty} onClick={()=>{void onStage(draft).then(saved=>{if(saved)setDirty(false);});}}>Save assembly draft</button>
    <button type="button" className="primary" disabled={busy||dirty||status!=='draft'} onClick={onCompile}>{busy?'Compiling…':'Compile in MuJoCo'}</button>
   </div>
