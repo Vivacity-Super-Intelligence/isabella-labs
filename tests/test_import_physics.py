@@ -126,6 +126,38 @@ def test_reach_collision_is_measured_and_stops_before_task_success():
     assert any(event['code'] == 'prohibited_contact' for frame in result['frames'] for event in frame['events'])
 
 
+def test_weak_actuation_reports_measured_self_collision_before_goal_failure():
+    source = SAMPLE_ARM.read_text()
+    for old in ('-22 22', '-18 18', '-0.8 0.8'):
+        source = source.replace(f'forcerange="{old}"', 'forcerange="-0.01 0.01"')
+    config = RobotTestCellConfig(environment='robotics_lab', task='reach', gripper='none',
+        base_mode='bolted', robot_base_offset_m=[0, 0, .5],
+        pickup_position_m=[.45, -.15, .95]).model_dump()
+    result = probe({'xml': base64.b64encode(source.encode()).decode(),
+        'assets': {}, 'trusted_fixture': True, 'task_config': config})
+    assert result['status'] == 'failed' and result['failure_class'] == 'collision'
+    contact = result['measurements']['first_forbidden_contact']
+    assert {contact['geom_a'], contact['geom_b']} == {'upper_link', 'base_plate'}
+    assert contact['body_a_id'] > 0 and contact['body_b_id'] > 0
+    assert contact['prohibited'] and contact['normal_force_n'] >= .5
+
+
+def test_weak_actuation_without_self_contact_reports_actuator_limit():
+    source = SAMPLE_ARM.read_text().replace('<geom name="base_plate"',
+        '<geom name="base_plate" contype="0" conaffinity="0"')
+    for old in ('-22 22', '-18 18', '-0.8 0.8'):
+        source = source.replace(f'forcerange="{old}"', 'forcerange="-0.01 0.01"')
+    config = RobotTestCellConfig(environment='robotics_lab', task='reach', gripper='none',
+        base_mode='bolted', robot_base_offset_m=[0, 0, .5],
+        pickup_position_m=[.45, -.15, .95]).model_dump()
+    result = probe({'xml': base64.b64encode(source.encode()).decode(),
+        'assets': {}, 'trusted_fixture': True, 'task_config': config})
+    assert result['status'] == 'failed' and result['failure_class'] == 'actuator_limit'
+    assert result['measurements']['goal_error_m'] > .08
+    assert result['measurements']['first_forbidden_contact'] is None
+    assert any(row['force_limit_reached'] for row in result['component_diagnostics'])
+
+
 def test_repeated_mounted_reach_has_identical_measured_frames():
     config = RobotTestCellConfig(environment='tabletop', task='reach', gripper='none',
         base_mode='bolted', pickup_position_m=[.45,-.15,.45]).model_dump()
