@@ -55,12 +55,14 @@ def main():
     cursor = -1
     frames = []
     saw_live = False
+    observed_updates = []
     scene = None
     deadline = time.monotonic() + 130
     while time.monotonic() < deadline:
         status, update = request('GET', trial_path + f'/frames?after={cursor}&limit=16')
         assert status == 200, (status, update)
         frames.extend(update['frames'])
+        observed_updates.append((update['status'], len(update['frames'])))
         cursor = update['next_cursor']
         saw_live |= update['status'] == 'task_running' and bool(update['frames'])
         if scene is None:
@@ -80,7 +82,7 @@ def main():
         raise AssertionError('task did not reach a terminal status within 130 seconds')
 
     assert scene is not None and scene['source'] == 'compiled_mujoco_model'
-    assert saw_live and len(frames) > 2
+    assert saw_live and len(frames) > 2, observed_updates
     assert [frame['seq'] for frame in frames] == list(range(len(frames)))
     assert all(len(frame['positions_m']) == len(scene['bodies']) - 1 for frame in frames)
     assert any(event['body_id'] == 4 and event['code'] == 'actuator_force_limit'

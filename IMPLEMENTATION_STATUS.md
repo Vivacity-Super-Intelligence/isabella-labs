@@ -1,4 +1,4 @@
-# Live uploaded-robot workcell — verification in progress, 2026-11-15
+# Live uploaded-robot workcell — production release, 2026-11-15
 
 The integrated organization branch `codex/live-import-workcell` contains the
 uploaded-robot workcell. The immutable scene and mesh buffer come from the same
@@ -22,8 +22,26 @@ inspected. An earlier combined browser run stalled at 75/300 steps, although
 the same sample task and the following combined run passed; this intermittent
 stall remains an operational risk to investigate under production load.
 
-The complete Linux deployment-image CI and production release are pending at
-this point in the record. A platform-sensitive gantry fixture demonstrated why
+The full Linux deployment-image run [43636188713](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43636188713) passed all six shards: **397 tests, 0 failures, 0 errors, 3 skips** across 55 JUnit reports (53 test files plus two host-memory runs). Each test file runs in a fresh Docker process to avoid the earlier exit-137 memory accumulation. A self-deadlock in Orbital import configuration was found during that run, fixed with a reentrant import lock, and verified by its integration tests. Render's older worker-count override initially prevented the new process from starting; the runtime now caps it to the tested two-worker host limit and logs a warning. Its regression test passed.
+
+Render deployment `dep-dbsc490ae00c73d5mvm0` is **live** on source commit
+`02da7dcd8fc6b4b06594a1aebf97c25ce8b6169f`. Vercel deployment
+`dpl_1Ddq9WRf7n7aXiermLza2V2k8vTQ` is aliased to
+`https://demo.tryvivacity.com`. The direct production API smoke run uploaded the
+sample arm, executed 300 real MuJoCo steps, received 20 frames with frames
+arriving during the task, and verified scene/mesh owner isolation. The public
+`/runtime` proxy smoke run passed with 18 frames and the same 300-step task.
+Production desktop/mobile Playwright journeys passed **2/2**: live frame
+arrival, finding selection, sample elbow highlight and explicit replay control.
+The production screenshot was inspected. The first public-proxy smoke run
+missed the brief running window before its first poll; the repeated run and
+browser journey observed live frames. A short task can finish before a slow
+client's first poll; this remains a known timing limitation, not a fabricated
+progress state. Reproduce with `python scripts/verify_live_import.py --base-url
+https://demo.tryvivacity.com/runtime` and, from `frontend/`,
+`npx playwright test --config playwright.production-import.config.ts`.
+
+A platform-sensitive gantry fixture demonstrated why
 task verdicts must remain measured: one Linux run moved the object but settled
 it at `[0.641, 0.273, 0.025]` m against a `[0.3, 0.16, 0.035]` m target and
 correctly returned `placement_error`. The suite now asserts its measured
