@@ -10,17 +10,41 @@ prohibited contact. Contact geom/body IDs, force, signed distance, and time
 are recorded and the affected robot geometry is highlighted amber in `/import`.
 
 Local evidence: the focused import suite passed **46 tests, 1 skipped** (one
-Starlette deprecation warning). The frontend TypeScript and Vite production
-build passed. Local Playwright journeys passed **4/4**, including the free-fall
+Starlette deprecation warning) when pytest's temp directory was placed on P:.
+An earlier rerun on C: failed twice because that drive ran out of temporary
+space; those were filesystem errors, and the P: rerun passed. The frontend
+TypeScript and Vite production build passed. Local Playwright journeys passed
+**4/4**, including the free-fall
 regression, a successful bolted reach, and an execution collision with visible
 contact highlight. The bolted sample reach recorded 500 MuJoCo steps,
 7.87 mm goal error, and no prohibited contact. A second target produced a
 measured collision at 0.62 s and a failed verdict. With the raised free sample,
 the base fell from Z = 0.51 m to 0.416 m in 75 steps and contacted the table;
-the impossible Z = 0.08 m target was rejected. The full backend suite and
-production deployment verification are in progress; this section does not
-claim that the correction is live yet. Reproduction and model limitations are
-in `docs/IMPORT_WORKCELL_PHYSICS.md`.
+the impossible Z = 0.08 m target was rejected. The [final Linux deployment-image
+run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43644778754)
+passed **403 tests across 55 JUnit reports: 400 passed, 3 skipped, 0 failures,
+0 errors**. That run caught and verified a sandbox-specific NumPy RNG import
+fix before release.
+
+Render deployment `dep-dbsdhdoae00c73eqhvm0` is **live** on source commit
+`4831a0d52329003fd36ae7eb9b152f3016020066` at
+`https://isabella-labs-runtime.onrender.com`. Vercel production deployment
+`dpl_3oHCnHqgaqQKM2QHmGPy4uMVk4kN` is aliased to
+`https://demo.tryvivacity.com`. Direct Render smoke uploaded the sample,
+observed **21 live frames** and **500 MuJoCo steps**, and verified scene/mesh
+owner isolation. The same-origin `/runtime` smoke observed **18 live frames**
+from its polling window and the same 500-step successful task. A separate
+public request repeated the reported raised-base case: **75 gravity steps,
+13 frames, Z 0.51 m → 0.416 m, 12 recorded table contacts, peak 65.2 N**;
+the target below the tabletop failed as `invalid_target`. Production Playwright
+passed **4/4** desktop/mobile journeys for upload, live task, finding,
+replay, free fall, and collision highlight. Reproduction and model limitations
+are in `docs/IMPORT_WORKCELL_PHYSICS.md`.
+
+The release retains the Render Free plan. It may sleep and its local upload
+state is ephemeral; no always-on or durable-storage claim is made. Arbitrary
+uploaded models can still lack compatible actuation, collision geometry or
+grasp hardware, and a collision-free route may not exist.
 
 # Live uploaded-robot workcell — production release, 2026-11-15
 

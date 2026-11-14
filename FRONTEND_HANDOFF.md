@@ -708,4 +708,17 @@ CAD paths are distinct. A single STL/OBJ/GLB/GLTF is a rigid body and supports a
 
 Frontend connection: `frontend/src/ImportWorld.tsx` owns upload, configuration, polling and recovery; `frontend/src/AssemblyDesigner.tsx` owns guided mapping; `frontend/src/RobotTaskTrace.tsx` presents measurements and replay; `frontend/src/RobotTaskScene.tsx` renders scene/body bindings and frame-specific load warnings. Generated response types are in `frontend/src/generated/api.d.ts`; export OpenAPI with `python -m scripts.export_openapi` and regenerate types with `npm run generate:api` in `frontend` after schema changes. Render/Vercel must run compatible commits; the current Render Free tier cannot promise durable uploads or uninterrupted trials.
 
-Production verification: Render `dep-dbsc490ae00c73d5mvm0` runs source commit `02da7dcd8fc6b4b06594a1aebf97c25ce8b6169f`; Vercel `dpl_J1rMvcAxXoB4hrKgz3MpyGF9dqno` serves the current frontend at `https://demo.tryvivacity.com`. The [Linux deployment-image run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43636188713) passed 397 tests with 3 skips and no failures or errors. Direct Render and same-origin `/runtime` request journeys both uploaded the sample, ran 300 MuJoCo steps, fetched the compiled scene and mesh, and denied scene/mesh access to another capability. Public requests also completed a 500-step rigid OBJ drop and a 300-step guided two-mesh assembly movement. The desktop/mobile production browser journey passed 2/2 after the live interpolation change, including frames before completion and sample elbow highlight at its measured frame. Run `python scripts/verify_live_import.py --base-url https://demo.tryvivacity.com/runtime`; from `frontend/`, run `npx playwright test --config playwright.production-import.config.ts`.
+Prior production verification: Render `dep-dbsc490ae00c73d5mvm0` ran source commit `02da7dcd8fc6b4b06594a1aebf97c25ce8b6169f`; Vercel `dpl_J1rMvcAxXoB4hrKgz3MpyGF9dqno` served the prior frontend at `https://demo.tryvivacity.com`. The [Linux deployment-image run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43636188713) passed 397 tests with 3 skips and no failures or errors. Direct Render and same-origin `/runtime` request journeys both uploaded the sample, ran 300 MuJoCo steps, fetched the compiled scene and mesh, and denied scene/mesh access to another capability. Public requests also completed a 500-step rigid OBJ drop and a 300-step guided two-mesh assembly movement. The desktop/mobile production browser journey passed 2/2 after the live interpolation change, including frames before completion and sample elbow highlight at its measured frame. Run `python scripts/verify_live_import.py --base-url https://demo.tryvivacity.com/runtime`; from `frontend/`, run `npx playwright test --config playwright.production-import.config.ts`.
+
+Latest production correction, 2026-11-15: Render
+`dep-dbsdhdoae00c73eqhvm0` serves code commit
+`4831a0d52329003fd36ae7eb9b152f3016020066`; Vercel
+`dpl_3oHCnHqgaqQKM2QHmGPy4uMVk4kN` is aliased to
+`https://demo.tryvivacity.com`. The [Linux image run](https://github.com/Vivacity-Super-Intelligence/isabella-labs/actions/runs/43644778754)
+passed 400 tests with 3 skips across 55 reports. Direct and same-origin API
+smokes completed real 500-step mounted reaches with live frames and owner
+isolation. The public raised-free-base request produced 75 gravity steps,
+13 frames, 12 table contacts and an honest `invalid_target`. Production
+Playwright passed 4/4 upload-to-replay journeys, including mobile, free fall,
+and measured collision highlighting. Render Free still has sleep and
+ephemeral-storage limits.
